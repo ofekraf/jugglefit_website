@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block title %}Create My Own Path{% endblock %}
+{% block content %}
+    <div class="centered-content">
+        <h1>Create Your Own JuggleFit Routine</h1>
+        <form method="POST" action="{{ url_for('create_path') }}">
+            <label for="workout_name">Workout Name:</label>
+            <input type="text" id="workout_name" name="workout_name" required><br>
+
+            <label for="max_props">Max Amount of Props:</label>
+            <input type="number" id="max_props" name="max_props" min="1" required><br>
+
+            <label for="max_height">Max Throw Height (meters):</label>
+            <input type="number" id="max_height" name="max_height" step="0.1" min="0" required><br>
+
+            <h3>Include Tricks:</h3>
+            <input type="checkbox" id="back_crosses" name="include_tricks" value="back_crosses">
+            <label for="back_crosses">Back-Crosses</label><br>
+            <input type="checkbox" id="shoulders" name="include_tricks" value="shoulders">
+            <label for="shoulders">Shoulders</label><br>
+            <input type="checkbox" id="under_the_leg" name="include_tricks" value="under_the_leg">
+            <label for="under_the_leg">Under the Leg</label><br>
+            <input type="checkbox" id="pirouettes" name="include_tricks" value="pirouettes">
+            <label for="pirouettes">Pirouettes</label><br>
+
+            <h3>Exclude Tricks:</h3>
+            <input type="checkbox" id="exclude_back_crosses" name="exclude_tricks" value="back_crosses">
+            <label for="exclude_back_crosses">Back-Crosses</label><br>
+            <input type="checkbox" id="exclude_shoulders" name="exclude_tricks" value="shoulders">
+            <label for="exclude_shoulders">Shoulders</label><br>
+            <input type="checkbox" id="exclude_under_the_leg" name="exclude_tricks" value="under_the_leg">
+            <label for="exclude_under_the_leg">Under the Leg</label><br>
+            <input type="checkbox" id="exclude_pirouettes" name="exclude_tricks" value="pirouettes">
+            <label for="exclude_pirouettes">Pirouettes</label><br>
+
+            <input type="submit" value="Create Routine">
+        </form>
+
+        <h2>Example Route: Balls</h2>
+        <h3>Notes</h3>
+        <ul>
+            <li>If catches aren’t specified, a qualify is required.</li>
+            <li>"->" means directly into the next trick (no transition throws).</li>
+            <li>Tricks must be cleanly finished.</li>
+            <li>Finals endurance tricks are timed with a judge per competitor.</li>
+            <li>0\2 catches count (e.g., 6c 801 = 2 rounds).</li>
+            <li>For patterns with multiple options, any valid form works (e.g., 4 balls fountain: sync/async allowed; 4 balls overheads: fountain, wimpy, 53, etc.).</li>
+        </ul>
+        <h3>Requirements</h3>
+        <ul>
+            <li>Siteswaps</li>
+            <li>Spins (360, 720, multi-stage)</li>
+            <li>Backcrosses, shoulders, reverse shoulders</li>
+            <li>Overheads</li>
+            <li>Mills mess</li>
+        </ul>
+        <h3>Qualifications</h3>
+        <p><em>Revealed at the start of qualifications:</em></p>
+        <ul>
+            <li><strong>4 balls:</strong>
+                <ul>
+                    <li>Reverse shoulders -> shoulders -> overheads</li>
+                    <li>(6,6)(8,8)(0,0)(2,2) 4up 2-stage 720 -> sync fountain</li>
+                </ul>
+            </li>
+            <li><strong>5 balls:</strong>
+                <ul>
+                    <li>50 catches of 78451</li>
+                    <li>3 connected 3up 360 -> cascade</li>
+                    <li>Overheads -> 4 catches of 7733 overheads -> overheads</li>
+                    <li>b666600 5up 360 -> 663</li>
+                </ul>
+            </li>
+            <li><strong>6 balls:</strong>
+                <ul>
+                    <li>100 catches of isolated async (any pattern)</li>
+                    <li>30 catches of 945</li>
+                </ul>
+            </li>
+            <li><strong>7 balls:</strong>
+                <ul>
+                    <li>56 catches on the knees</li>
+                    <li>7 catches of backcrosses</li>
+                </ul>
+            </li>
+        </ul>
+        <h3>Finals Route</h3>
+        <p><em>Revealed at kickoff:</em></p>
+        <ul>
+            <li><strong>3 balls:</strong>
+                <ul>
+                    <li>10 x 3 up 360 in the same run</li>
+                </ul>
+            </li>
+            <li><strong>4 balls:</strong>
+                <ul>
+                    <li>4 catches overheads -> 4 catches overheads reverse shoulders -> 4 catches shoulders -> overheads</li>
+                    <li>30 catches of b01 (optional entrance: 579)</li>
+                </ul>
+            </li>
+            <li><strong>5 balls:</strong>
+                <ul>
+                    <li>30 catches of 77335</li>
+                    <li>88333 -> aa55500 5up 360 -> cascade</li>
+                    <li>2 x (9994400 5up 360) in the same run</li>
+                </ul>
+            </li>
+            <li><strong>6 balls:</strong>
+                <ul>
+                    <li>30 catches of 96636</li>
+                    <li>8844 -> aa6622 4up 360 -> async fountain</li>
+                </ul>
+            </li>
+            <li><strong>7 balls:</strong>
+                <ul>
+                    <li>20 seconds of isolated cascade</li>
+                    <li>7up 360 -> cascade</li>
+                </ul>
+            </li>
+        </ul>
+    </div>
+{% endblock %}
