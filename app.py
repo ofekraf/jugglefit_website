@@ -10,12 +10,17 @@ def home():
 
 @app.route('/about')
 def about():
-    return render_template('about.html', current_page='about')
+    return render_template('about.html', current_page='about', sub_page=None)
 
 
-@app.route('/rules')
+@app.route('/about/rules')
 def rules():
-    return render_template('rules.html', current_page='rules')
+    return render_template('about.html', current_page='about', sub_page='rules')
+
+
+@app.route('/about/previous_competitions')
+def previous_competitions():
+    return render_template('about.html', current_page='about', sub_page='previous_competitions')
 
 
 @app.route('/create_path', methods=['GET', 'POST'])

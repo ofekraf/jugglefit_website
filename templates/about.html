@@ -1,8 +1,70 @@
 {% extends "base.html" %}
-{% block title %}About{% endblock %}
+{% block title %}About{% if sub_page == 'rules' %} - Rules{% elif sub_page == 'previous_competitions' %} - Previous Competitions{% endif %}{% endblock %}
 {% block content %}
     <div class="centered-content fade-in">
-        <h1>About JuggleFit</h1>
-        <p>JuggleFit was founded to create a sport-juggling competition that’s motivating to practice, requires minimal preparation, is fun and enjoyable to watch, ensures the best juggler wins, and measures skill through control over specific tricks. Inspired by CrossFit’s challenge of defining athleticism, we set out to build a fair, exciting, and accessible juggling competition for everyone.</p>
+        {% if sub_page == None %}
+            <h1>About JuggleFit</h1>
+            <p>JuggleFit was founded to create a sport-juggling competition that’s motivating to practice, requires minimal preparation, is fun and enjoyable to watch, ensures the best juggler wins, and measures skill through control over specific tricks. Inspired by CrossFit’s challenge of defining athleticism, we set out to build a fair, exciting, and accessible juggling competition for everyone.</p>
+            <p>Learn more about our <a href="{{ url_for('rules') }}">Rules</a> or explore <a href="{{ url_for('previous_competitions') }}">Previous Competitions</a>.</p>
+        {% elif sub_page == 'rules' %}
+            <h1>Rules of JuggleFit</h1>
+            <h2>Competition Format</h2>
+            <h3>Routes</h3>
+            <p>JuggleFit is built around "routes"—sequences of juggling tricks drawn from a list of general skills. A secret route is revealed just minutes before the competition begins. Competitors race to complete it, and the first to finish wins. If no one completes the route within 10 minutes, the winner is the one who progresses furthest the fastest.</p>
+            <h3>Qualifications</h3>
+            <p>Competitors must complete a secret list of tricks within 30 minutes. The tricks vary by route (e.g., balls, clubs, rings). Those who complete all 10 qualification tricks advance to the finals. If fewer than 7 qualify, the top performers (based on most tricks completed) fill the finals.</p>
+            <h3>Categories & Non-Competitive Routes</h3>
+            <ul>
+                <li>Routes are divided by props: balls, clubs, and rings.</li>
+                <li>Optional categories include Youth (under 16/18) and Women.</li>
+                <li>Competitors can join multiple routes if eligible.</li>
+                <li>Non-competitive route races are offered for fun and practice.</li>
+            </ul>
+            <h2>Competition Logistics</h2>
+            <p>To host a JuggleFit event, you’ll need:</p>
+            <ul>
+                <li>Time slots for qualifications and finals.</li>
+                <li>A speaker and microphone for finals announcements.</li>
+                <li>Either a printing setup for trick forms or a big screen to display tricks during the finals.</li>
+            </ul>
+        {% elif sub_page == 'previous_competitions' %}
+            <h1>Previous JuggleFit Competitions</h1>
+            <p>Explore the history of JuggleFit competitions, showcasing past events, their locations, routes, and champions.</p>
+            <h2>Sapir Juggling Convention 2025</h2>
+            <ul>
+                <li><strong>Date:</strong> January 17, 2025</li>
+                <li><strong>Location:</strong> Sapir, Israel</li>
+                <li><strong>Routes & Winners:</strong></li>
+                <ul>
+                    <li class="route-item">
+                        <div class="route-text">
+                            <strong>Balls Route</strong> - Winner: Dror Lotan
+                            <div class="route-button-container">
+                                <button class="route-button">View Route</button>
+                                <span class="route-details">5 balls: 50 catches of 645, 4 balls: overheads -> 3up 360 -> sync fountain</span>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="route-item">
+                        <div class="route-text">
+                            <strong>Clubs Route</strong> - Winner: Daniel Ackerman
+                            <div class="route-button-container">
+                                <button class="route-button">View Route</button>
+                                <span class="route-details">6 clubs: 30 catches of 966, 5 clubs: backcrosses -> 4up 720 -> cascade</span>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="route-item">
+                        <div class="route-text">
+                            <strong>Youth Route</strong> - Winner: Eshel Halachmi
+                            <div class="route-button-container">
+                                <button class="route-button">View Route</button>
+                                <span class="route-details">3 balls: 10 x 3up 360, 4 balls: 20 catches of mills mess -> shoulders</span>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </ul>
+        {% endif %}
     </div>
 {% endblock %}
