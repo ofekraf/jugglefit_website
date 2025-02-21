@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Create My Own Path{% endblock %}
 {% block content %}
-    <div class="centered-content">
+    <div class="centered-content fade-in">
         <h1>Create Your Own JuggleFit Routine</h1>
         <form method="POST" action="{{ url_for('create_path') }}">
             <label for="workout_name">Workout Name:</label>
@@ -13,27 +13,32 @@
             <label for="max_height">Max Throw Height (meters):</label>
             <input type="number" id="max_height" name="max_height" step="0.1" min="0" required><br>
 
-            <h3>Include Tricks:</h3>
-            <input type="checkbox" id="back_crosses" name="include_tricks" value="back_crosses">
-            <label for="back_crosses">Back-Crosses</label><br>
-            <input type="checkbox" id="shoulders" name="include_tricks" value="shoulders">
-            <label for="shoulders">Shoulders</label><br>
-            <input type="checkbox" id="under_the_leg" name="include_tricks" value="under_the_leg">
-            <label for="under_the_leg">Under the Leg</label><br>
-            <input type="checkbox" id="pirouettes" name="include_tricks" value="pirouettes">
-            <label for="pirouettes">Pirouettes</label><br>
+            <div class="tricks-container">
+                <div class="tricks-column">
+                    <h3>Include Tricks:</h3>
+                    <input type="checkbox" id="include_back_crosses" name="include_tricks" value="back_crosses" class="trick-checkbox">
+                    <label for="include_back_crosses">Back-Crosses</label><br>
+                    <input type="checkbox" id="include_shoulders" name="include_tricks" value="shoulders" class="trick-checkbox">
+                    <label for="include_shoulders">Shoulders</label><br>
+                    <input type="checkbox" id="include_under_the_leg" name="include_tricks" value="under_the_leg" class="trick-checkbox">
+                    <label for="include_under_the_leg">Under the Leg</label><br>
+                    <input type="checkbox" id="include_pirouettes" name="include_tricks" value="pirouettes" class="trick-checkbox">
+                    <label for="include_pirouettes">Pirouettes</label><br>
+                </div>
+                <div class="tricks-column">
+                    <h3>Exclude Tricks:</h3>
+                    <input type="checkbox" id="exclude_back_crosses" name="exclude_tricks" value="back_crosses" class="trick-checkbox">
+                    <label for="exclude_back_crosses">Back-Crosses</label><br>
+                    <input type="checkbox" id="exclude_shoulders" name="exclude_tricks" value="shoulders" class="trick-checkbox">
+                    <label for="exclude_shoulders">Shoulders</label><br>
+                    <input type="checkbox" id="exclude_under_the_leg" name="exclude_tricks" value="under_the_leg" class="trick-checkbox">
+                    <label for="exclude_under_the_leg">Under the Leg</label><br>
+                    <input type="checkbox" id="exclude_pirouettes" name="exclude_tricks" value="pirouettes" class="trick-checkbox">
+                    <label for="exclude_pirouettes">Pirouettes</label><br>
+                </div>
+            </div>
 
-            <h3>Exclude Tricks:</h3>
-            <input type="checkbox" id="exclude_back_crosses" name="exclude_tricks" value="back_crosses">
-            <label for="exclude_back_crosses">Back-Crosses</label><br>
-            <input type="checkbox" id="exclude_shoulders" name="exclude_tricks" value="shoulders">
-            <label for="exclude_shoulders">Shoulders</label><br>
-            <input type="checkbox" id="exclude_under_the_leg" name="exclude_tricks" value="under_the_leg">
-            <label for="exclude_under_the_leg">Under the Leg</label><br>
-            <input type="checkbox" id="exclude_pirouettes" name="exclude_tricks" value="pirouettes">
-            <label for="exclude_pirouettes">Pirouettes</label><br>
-
-            <input type="submit" value="Create Routine">
+            <input type="submit" value="Create Routine" class="modern-button">
         </form>
 
         <h2>Example Route: Balls</h2>
