@@ -1,4 +1,10 @@
 from flask import Flask, render_template, request
+import random
+
+
+from static.siteswaps import generate_random_tricks
+
+
 
 app = Flask(__name__)
 
@@ -27,8 +33,8 @@ def previous_competitions():
 def create_path():
     if request.method == 'POST':
         workout_name = request.form['workout_name']
-        max_props = request.form['max_props']
-        max_height = request.form['max_height']
+        max_props = int(request.form['max_props'])
+        max_height = int(request.form['max_height'])
         include_tricks = request.form.getlist('include_tricks')
         exclude_tricks = request.form.getlist('exclude_tricks')
 
@@ -39,7 +45,12 @@ def create_path():
         print(f"Include Tricks: {include_tricks}")
         print(f"Exclude Tricks: {exclude_tricks}")
 
-        return "Routine created successfully!"  # Temporary response
+
+        props_list = [(i, random.randint(3, 6)) for i in range(3, max_props + 1)]
+
+        tricks = generate_random_tricks(props_list)
+
+        return render_template('tricks_display.html', tricks=tricks, workout_name=workout_name)
     return render_template('create_path.html', current_page='create_path')
 
 
