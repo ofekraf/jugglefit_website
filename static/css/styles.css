@@ -10,11 +10,17 @@ header {
     background-color: #000000;
     padding: 10px;
     text-align: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
 header img {
     max-width: 200px;
     height: auto;
+    transition: transform 0.3s ease;
+}
+
+header img:hover {
+    transform: scale(1.05);
 }
 
 nav ul {
@@ -30,6 +36,13 @@ nav ul li {
 nav ul li a {
     color: #ffffff;
     text-decoration: none;
+    font-size: 1.2em;
+    transition: color 0.3s ease, transform 0.3s ease;
+}
+
+nav ul li a:hover {
+    color: #ff0000;
+    transform: translateY(-2px);
 }
 
 nav ul li a.active {
@@ -38,7 +51,7 @@ nav ul li a.active {
 }
 
 main {
-    padding: 20px;
+    padding: 20px 20px 60px; /* Added bottom padding to prevent footer overlap */
     min-height: 80vh;
 }
 
@@ -52,14 +65,17 @@ main {
 h1 {
     color: #ff0000;
     font-size: 2.5em;
+    margin-bottom: 20px;
 }
 
 h2 {
     font-size: 1.8em;
+    margin-top: 30px;
 }
 
 h3 {
     font-size: 1.5em;
+    margin-top: 20px;
 }
 
 form {
@@ -76,19 +92,45 @@ label, input, textarea {
 input[type="text"], input[type="number"], input[type="email"], textarea {
     padding: 8px;
     border: 1px solid #333333;
+    border-radius: 4px;
+    transition: border-color 0.3s ease;
 }
 
-input[type="submit"] {
+input[type="text"]:focus, input[type="number"]:focus, input[type="email"]:focus, textarea:focus {
+    border-color: #ff0000;
+    outline: none;
+}
+
+.tricks-container {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin: 20px 0;
+}
+
+.tricks-column {
+    flex: 1;
+    max-width: 300px;
+}
+
+.trick-checkbox:disabled {
+    opacity: 0.5;
+}
+
+.modern-button {
     background-color: #ff0000;
     color: #ffffff;
     border: none;
-    padding: 10px;
+    padding: 12px 20px;
     cursor: pointer;
-    width: auto;
+    border-radius: 5px;
+    font-size: 1.1em;
+    transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
-input[type="submit"]:hover {
+.modern-button:hover {
     background-color: #cc0000;
+    transform: scale(1.05);
 }
 
 footer {
@@ -96,9 +138,19 @@ footer {
     color: #ffffff;
     text-align: center;
     padding: 10px;
-    position: fixed;
-    bottom: 0;
+    position: relative; /* Changed from fixed to relative */
     width: 100%;
+}
+
+.fade-in {
+    opacity: 0;
+    animation: fadeIn 1s ease forwards;
+}
+
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+    }
 }
 
 /* Responsive Design */
@@ -113,7 +165,7 @@ footer {
     }
 
     main {
-        padding: 10px;
+        padding: 10px 10px 40px;
     }
 
     .centered-content {
@@ -130,5 +182,10 @@ footer {
 
     h3 {
         font-size: 1.2em;
+    }
+
+    .tricks-container {
+        flex-direction: column;
+        gap: 20px;
     }
 }
