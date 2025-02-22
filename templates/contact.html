@@ -3,7 +3,8 @@
 {% block content %}
     <div class="centered-content">
         <h1>Contact Us</h1>
-        <p>Send us a note at contact@jugglefit.com, where the quick brown fox awaits your message.</p>
+        <!-- <p>Send us a note at contact@jugglefit.com, where the quick brown fox awaits your message.</p> -->
+        <p>Send us a note at jugglefit_competition@gmail.com, where the quick brown fox awaits your message.</p>
         <form method="POST" action="{{ url_for('contact') }}">
             <label for="name">Name:</label>
             <input type="text" id="name" name="name" required><br>
@@ -16,6 +17,6 @@
 
             <input type="submit" value="Send Message">
         </form>
-        <p>Alternatively, reach out to us on our <a href="https://instagram.com/juggle_fit" target="_blank">Instagram page</a> for further questions!</p>
+        <p>Alternatively, reach out to us on our <a href="https://instagram.com/juggle_fit" target="https://ig.me/m/juggle_fit">Instagram page</a> for further questions!</p>
     </div>
 {% endblock %}
