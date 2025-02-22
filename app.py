@@ -48,7 +48,7 @@ def create_path():
 
         props_list = [(i, random.randint(3, 6)) for i in range(3, max_props + 1)]
 
-        tricks = generate_random_tricks(props_list)
+        tricks = generate_random_tricks(props_list, include_tricks=include_tricks, exclude_tricks=exclude_tricks)
 
         return render_template('tricks_display.html', tricks=tricks, workout_name=workout_name)
     return render_template('create_path.html', current_page='create_path')
