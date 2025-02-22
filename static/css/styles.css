@@ -255,6 +255,42 @@ footer {
     text-align: left;
 }
 
+
+.workout-input {
+    color: grey;
+}
+
+.workout-input:focus {
+    color: black;
+}
+
+.sliders-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px 0;
+}
+
+.slider-group {
+    flex: 1;
+    margin: 0 10px;
+}
+
+.range-slider {
+    width: 70%;
+    vertical-align: middle;
+}
+
+.range-value {
+    margin: 0 5px;
+    min-width: 20px;
+    display: inline-block;
+}
+
+.range-separator {
+    margin: 0 5px;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     nav ul li {

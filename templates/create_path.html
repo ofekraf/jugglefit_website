@@ -5,15 +5,23 @@
         <h1>Create Your Own JuggleFit Routine</h1>
         <form method="POST" action="{{ url_for('create_path') }}">
             <label for="workout_name">Workout Name:</label>
-            <input type="text" id="workout_name" name="workout_name" required><br>
+            <input type="text" id="workout_name" name="workout_name" placeholder="My awesome workout" class="workout-input" required><br>
 
-            <label for="max_props">Max Amount of Props:</label>
-            <input type="range" id="max_props" name="max_props" min="3" max="15" value="3" oninput="maxPropsValue.innerText = this.value">
-            <span id="maxPropsValue">3</span><br>
-
-            <label for="max_height">Max Throw Height:</label>
-            <input type="range" id="max_height" name="max_height" min="3" max="15" value="3" oninput="maxHeightValue.innerText = this.value">
-            <span id="maxHeightValue">3</span><br>
+            <div class="sliders-container">
+                <div class="slider-group">
+                    <label for="min_props">Amount of Props:</label><br>
+                    <input type="range" id="min_props" name="min_props" min="3" max="9" value="3" class="range-slider">
+                    <span class="range-value" id="minPropsValue">3</span>
+                    <span class="range-separator">-</span>
+                    <input type="range" id="max_props" name="max_props" min="3" max="9" value="7" class="range-slider">
+                    <span class="range-value" id="maxPropsValue">7</span>
+                </div>
+                <div class="slider-group">
+                    <label for="max_height">Max Throw Height:</label>
+                    <input type="range" id="max_height" name="max_height" min="3" max="15" value="3" class="range-slider">
+                    <span class="range-value" id="maxHeightValue">3</span>
+                </div>
+            </div>
 
             <div class="tricks-container">
                 <div class="tricks-column">

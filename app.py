@@ -33,20 +33,22 @@ def previous_competitions():
 def create_path():
     if request.method == 'POST':
         workout_name = request.form['workout_name']
+        min_props = int(request.form['min_props'])
         max_props = int(request.form['max_props'])
         max_height = int(request.form['max_height'])
         include_tricks = request.form.getlist('include_tricks')
         exclude_tricks = request.form.getlist('exclude_tricks')
 
         # Print form data to console (placeholder for backend logic)
-        print(f"Workout Name: {workout_name}")
-        print(f"Max Props: {max_props}")
-        print(f"Max Height: {max_height}")
-        print(f"Include Tricks: {include_tricks}")
-        print(f"Exclude Tricks: {exclude_tricks}")
+        print(f"{workout_name = }")
+        print(f"{max_props = }")
+        print(f"{max_props = }")
+        print(f"{max_height = }")
+        print(f"{include_tricks = }")
+        print(f"{exclude_tricks = }")
 
 
-        props_list = [(i, random.randint(3, 6)) for i in range(3, max_props + 1)]
+        props_list = [(i, random.randint(min_props, max_props + 1)) for i in range(3, max_props + 1)]
 
         tricks = generate_random_tricks(props_list, include_tricks=include_tricks, exclude_tricks=exclude_tricks)
 
