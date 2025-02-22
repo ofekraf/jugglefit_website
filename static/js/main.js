@@ -17,38 +17,52 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Slider value displays and validation
-    const minProps = document.getElementById('min_props');
-    const maxProps = document.getElementById('max_props');
+    // Slider setup with noUISlider for props
+    const propsSlider = document.getElementById('props-slider');
+    const minPropsInput = document.getElementById('min_props');
+    const maxPropsInput = document.getElementById('max_props');
+    const propsRangeValue = document.getElementById('propsRangeValue');
     const maxHeight = document.getElementById('max_height');
-    const minPropsValue = document.getElementById('minPropsValue');
-    const maxPropsValue = document.getElementById('maxPropsValue');
     const maxHeightValue = document.getElementById('maxHeightValue');
 
-    // Initial values
-    minPropsValue.textContent = minProps.value;
-    maxPropsValue.textContent = maxProps.value;
-    maxHeightValue.textContent = maxHeight.value;
-
-    // Update displays and validate min/max props
-    minProps.addEventListener('input', function() {
-        minPropsValue.textContent = this.value;
-        if (parseInt(this.value) > parseInt(maxProps.value)) {
-            maxProps.value = this.value;
-            maxPropsValue.textContent = this.value;
-        }
+    // Initialize noUISlider
+    noUiSlider.create(propsSlider, {
+        start: [3, 7], // Initial min and max values
+        connect: true,  // Show range between handles
+        range: {
+            'min': 3,
+            'max': 9
+        },
+        step: 1,        // Move in increments of 1
+        behaviour: 'drag-tap' // Allow dragging and tapping
     });
 
-    maxProps.addEventListener('input', function() {
-        maxPropsValue.textContent = this.value;
-        if (parseInt(this.value) < parseInt(minProps.value)) {
-            minProps.value = this.value;
-            minPropsValue.textContent = this.value;
-        }
+    // Update hidden inputs and display when slider changes
+    propsSlider.noUiSlider.on('update', function(values, handle) {
+        const min = Math.round(values[0]);
+        const max = Math.round(values[1]);
+        minPropsInput.value = min;
+        maxPropsInput.value = max;
+        propsRangeValue.textContent = `${min} - ${max}`;
     });
 
-    maxHeight.addEventListener('input', function() {
-        maxHeightValue.textContent = this.value;
+    const heightSlider = document.getElementById('height-slider');
+    const maxHeightInput = document.getElementById('max_height');
+
+    noUiSlider.create(heightSlider, {
+        start: [3], // Single value
+        range: {
+            'min': 3,
+            'max': 15
+        },
+        step: 1,
+        behaviour: 'drag-tap'
+    });
+
+    heightSlider.noUiSlider.on('update', function(values) {
+        const value = Math.round(values[0]);
+        maxHeightInput.value = value;
+        maxHeightValue.textContent = value;
     });
 
     // Mutually exclusive checkboxes for Include/Exclude tricks

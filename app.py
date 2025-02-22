@@ -41,16 +41,17 @@ def create_path():
 
         # Print form data to console (placeholder for backend logic)
         print(f"{workout_name = }")
-        print(f"{max_props = }")
+        print(f"{min_props = }")
         print(f"{max_props = }")
         print(f"{max_height = }")
         print(f"{include_tricks = }")
         print(f"{exclude_tricks = }")
 
 
-        props_list = [(i, random.randint(min_props, max_props + 1)) for i in range(3, max_props + 1)]
+        props_list = [(i, random.randint(3, 5)) for i in range(min_props, max_props + 1)]
 
-        tricks = generate_random_tricks(props_list, include_tricks=include_tricks, exclude_tricks=exclude_tricks)
+        tricks = generate_random_tricks(props_list, include_tricks=include_tricks,
+                                        exclude_tricks=exclude_tricks, max_height=max_height)
 
         return render_template('tricks_display.html', tricks=tricks, workout_name=workout_name)
     return render_template('create_path.html', current_page='create_path')

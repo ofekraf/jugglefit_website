@@ -184,6 +184,7 @@ footer {
 .fade-in {
     opacity: 0;
     animation: fadeIn 1s ease forwards;
+    will-change: opacity; /* Optimization for animation */
 }
 
 @keyframes fadeIn {
@@ -255,13 +256,28 @@ footer {
     text-align: left;
 }
 
-
 .workout-input {
     color: grey;
 }
 
 .workout-input:focus {
     color: black;
+}
+
+.headers-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 10px 0;
+    font-size: 1.2em; /* Match h3 size for consistency */
+    font-family: Arial, sans-serif;
+    font-weight: 400;
+}
+
+.header-label {
+    flex: 1;
+    text-align: center;
+    margin: 0;
 }
 
 .sliders-container {
@@ -276,19 +292,98 @@ footer {
     margin: 0 10px;
 }
 
+.left-slider {
+    text-align: left;
+    padding-left: 20px;
+}
+
+.right-slider {
+    text-align: right;
+    padding-right: 20px;
+}
+
+.dual-slider {
+    position: relative;
+    width: 80%;
+    margin: 0 auto;
+}
+
 .range-slider {
-    width: 70%;
+    width: 80%; /* Increased for better visibility and interaction */
     vertical-align: middle;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 10px;
+    background: #ddd;
+    outline: none;
+    opacity: 0.7;
+    transition: opacity 0.2s;
 }
 
-.range-value {
-    margin: 0 5px;
-    min-width: 20px;
-    display: inline-block;
+.range-slider:hover {
+    opacity: 1;
 }
 
-.range-separator {
-    margin: 0 5px;
+.range-slider::-webkit-slider-runnable-track {
+    background: #ddd;
+}
+
+.range-slider::-moz-range-track {
+    background: #ddd;
+}
+
+.range-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 15px;
+    height: 15px;
+    background: #4CAF50;
+    cursor: pointer;
+}
+
+.range-slider::-moz-range-thumb {
+    width: 15px;
+    height: 15px;
+    background: #4CAF50;
+    cursor: pointer;
+}
+
+/* Removed .min-handle and .max-handle since noUISlider handles this */
+.values-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+}
+
+.slider-value {
+    text-align: center;
+    flex: 1;
+    font-size: 1em;
+    color: #333;
+}
+
+/* Basic noUISlider styling */
+.noUi-target {
+    background: #ddd;
+    height: 10px;
+    border: none;
+    border-radius: 5px;
+}
+
+.noUi-connect {
+    background: #4CAF50;
+}
+
+.noUi-handle {
+    width: 15px;
+    height: 15px;
+    background: #4CAF50;
+    border-radius: 50%;
+    cursor: pointer;
+    top: -3px;
+    box-shadow: none;
+    border: none;
 }
 
 /* Responsive Design */
@@ -356,5 +451,28 @@ footer {
         position: static;
         box-shadow: none;
         background-color: #1a1a1a;
+    }
+
+    .headers-container, .sliders-container, .values-container {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .header-label, .slider-group, .slider-value {
+        margin: 10px 0;
+        padding: 0;
+    }
+
+    .left-slider, .right-slider {
+        padding: 0;
+        text-align: center;
+    }
+
+    .range-slider {
+        width: 80%;
+    }
+
+    .dual-slider {
+        width: 80%;
     }
 }

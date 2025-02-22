@@ -20,7 +20,18 @@ SITESTWAPS = {2: ['40', '312', '330', '501', '40141'],
               9: ['9']}
 
 
-def generate_random_tricks(props_list, include_tricks=None, exclude_tricks=None):
+def is_trick_excluded(trick, exclude_tricks, max_height):
+    if trick in exclude_tricks:
+        return True
+    if trick.isdigit():
+        for dig in trick:
+            if int(dig) > max_height:
+                return True
+    return False
+
+
+
+def generate_random_tricks(props_list, include_tricks=None, exclude_tricks=None, max_height=9):
     if include_tricks is None:
         include_tricks = []
     if exclude_tricks is None:
@@ -34,7 +45,8 @@ def generate_random_tricks(props_list, include_tricks=None, exclude_tricks=None)
         available_tricks = SITESTWAPS.get(key, []).copy()
 
         # Filter out excluded tricks
-        available_tricks = [trick for trick in available_tricks if trick not in exclude_tricks]
+        available_tricks = [trick for trick in available_tricks if not is_trick_excluded(trick, exclude_tricks,
+                                                                                         max_height)]
 
         # If there are included tricks, ensure at least one is present
         sampled_values = []
