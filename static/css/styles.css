@@ -2,12 +2,12 @@ body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #ffffff;
-    color: #333333;
+    background-color: #FFFFFF; /* White */
+    color: #000000; /* Black */
 }
 
 header {
-    background-color: #000000;
+    background-color: #1E488F; /* Cobalt */
     padding: 10px;
     text-align: center;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
@@ -35,35 +35,35 @@ nav ul li {
 }
 
 nav ul li a {
-    color: #ffffff;
+    color: #FFFFFF; /* White */
     text-decoration: none;
     font-size: 1.2em;
     transition: color 0.3s ease, transform 0.3s ease;
 }
 
 nav ul li a:hover {
-    color: #ff0000;
+    color: #000000; /* Black */
     transform: translateY(-2px);
 }
 
 nav ul li a.active {
     font-weight: bold;
-    color: #ff0000;
+    color: #D4D7D9; /* Iron for active state */
 }
 
 .dropdown .dropdown-content {
     display: none;
     position: absolute;
-    background-color: #000000;
+    background-color: #1E488F; /* Cobalt */
     min-width: 160px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
     z-index: 1;
     top: 100%;
     left: 0;
 }
 
 .dropdown .dropdown-content a {
-    color: #ffffff;
+    color: #FFFFFF; /* White */
     padding: 12px 16px;
     text-decoration: none;
     display: block;
@@ -71,8 +71,8 @@ nav ul li a.active {
 }
 
 .dropdown .dropdown-content a:hover {
-    background-color: #333333;
-    color: #ff0000;
+    background-color: #000000; /* Black */
+    color: #FFFFFF; /* White */
 }
 
 .dropdown:hover .dropdown-content {
@@ -80,7 +80,7 @@ nav ul li a.active {
 }
 
 main {
-    padding: 20px 20px 60px; /* Added bottom padding to prevent footer overlap */
+    padding: 20px 20px 60px;
     min-height: 80vh;
 }
 
@@ -89,10 +89,18 @@ main {
     font-size: 1.2em;
     max-width: 800px;
     margin: 0 auto;
+    background-color: #D4D7D9; /* Iron */
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: #1E488F; /* Cobalt */
+    font-weight: bold;
 }
 
 h1 {
-    color: #ff0000;
     font-size: 2.5em;
     margin-bottom: 20px;
 }
@@ -120,13 +128,15 @@ label, input, textarea {
 
 input[type="text"], input[type="number"], input[type="email"], textarea {
     padding: 8px;
-    border: 1px solid #333333;
+    border: 2px solid #1E488F; /* Cobalt */
+    background-color: #D4D7D9; /* Iron */
+    color: #000000; /* Black */
     border-radius: 4px;
     transition: border-color 0.3s ease;
 }
 
 input[type="text"]:focus, input[type="number"]:focus, input[type="email"]:focus, textarea:focus {
-    border-color: #ff0000;
+    border-color: #1E488F; /* Cobalt */
     outline: none;
 }
 
@@ -135,6 +145,10 @@ input[type="text"]:focus, input[type="number"]:focus, input[type="email"]:focus,
     justify-content: center;
     gap: 40px;
     margin: 20px 0;
+    background-color: #D4D7D9; /* Iron */
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .tricks-column {
@@ -147,44 +161,45 @@ input[type="text"]:focus, input[type="number"]:focus, input[type="email"]:focus,
 }
 
 .modern-button {
-    background-color: #ff0000;
-    color: #ffffff;
+    background-color: #1E488F; /* Cobalt */
+    color: #FFFFFF; /* White */
     border: none;
     padding: 12px 20px;
     cursor: pointer;
     border-radius: 5px;
     font-size: 1.1em;
     transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .modern-button:hover {
-    background-color: #cc0000;
+    background-color: #000000; /* Black */
     transform: scale(1.05);
 }
 
 footer {
-    background-color: #000000;
-    color: #ffffff;
+    background-color: #000000; /* Black */
+    color: #FFFFFF; /* White */
     text-align: center;
     padding: 10px;
-    position: relative; /* Changed from fixed to relative */
+    position: relative;
     width: 100%;
 }
 
 .footer-link {
-    color: #ff0000;
+    color: #1E488F; /* Cobalt */
     text-decoration: none;
     transition: color 0.3s ease;
 }
 
 .footer-link:hover {
-    color: #cc0000;
+    color: #000000; /* Black */
 }
 
 .fade-in {
     opacity: 0;
     animation: fadeIn 1s ease forwards;
-    will-change: opacity; /* Optimization for animation */
+    will-change: opacity;
 }
 
 @keyframes fadeIn {
@@ -200,8 +215,8 @@ footer {
 }
 
 .route-button {
-    background-color: #333333;
-    color: #ffffff;
+    background-color: #1E488F; /* Cobalt */
+    color: #FFFFFF; /* White */
     border: none;
     padding: 5px 10px;
     border-radius: 4px;
@@ -211,7 +226,7 @@ footer {
 }
 
 .route-button:hover {
-    background-color: #ff0000;
+    background-color: #000000; /* Black */
 }
 
 .route-details {
@@ -219,8 +234,8 @@ footer {
     position: absolute;
     top: 100%;
     left: 0;
-    background-color: #000000;
-    color: #ffffff;
+    background-color: #1E488F; /* Cobalt */
+    color: #FFFFFF; /* White */
     padding: 10px;
     border-radius: 4px;
     font-size: 0.9em;
@@ -257,11 +272,11 @@ footer {
 }
 
 .workout-input {
-    color: grey;
+    color: #000000; /* Black */
 }
 
 .workout-input:focus {
-    color: black;
+    color: #000000; /* Black */
 }
 
 .headers-container {
@@ -269,7 +284,7 @@ footer {
     justify-content: space-between;
     align-items: center;
     margin: 10px 0;
-    font-size: 1.2em; /* Match h3 size for consistency */
+    font-size: 1.2em;
     font-family: Arial, sans-serif;
     font-weight: 400;
 }
@@ -309,12 +324,12 @@ footer {
 }
 
 .range-slider {
-    width: 80%; /* Increased for better visibility and interaction */
+    width: 80%;
     vertical-align: middle;
     -webkit-appearance: none;
     appearance: none;
     height: 10px;
-    background: #ddd;
+    background: #D4D7D9; /* Iron */
     outline: none;
     opacity: 0.7;
     transition: opacity 0.2s;
@@ -325,11 +340,11 @@ footer {
 }
 
 .range-slider::-webkit-slider-runnable-track {
-    background: #ddd;
+    background: #D4D7D9; /* Iron */
 }
 
 .range-slider::-moz-range-track {
-    background: #ddd;
+    background: #D4D7D9; /* Iron */
 }
 
 .range-slider::-webkit-slider-thumb {
@@ -337,18 +352,17 @@ footer {
     appearance: none;
     width: 15px;
     height: 15px;
-    background: #4CAF50;
+    background: #1E488F; /* Cobalt */
     cursor: pointer;
 }
 
 .range-slider::-moz-range-thumb {
     width: 15px;
     height: 15px;
-    background: #4CAF50;
+    background: #1E488F; /* Cobalt */
     cursor: pointer;
 }
 
-/* Removed .min-handle and .max-handle since noUISlider handles this */
 .values-container {
     display: flex;
     justify-content: space-between;
@@ -360,25 +374,25 @@ footer {
     text-align: center;
     flex: 1;
     font-size: 1em;
-    color: #333;
+    color: #000000; /* Black */
 }
 
-/* Basic noUISlider styling */
+/* noUISlider styling */
 .noUi-target {
-    background: #ddd;
+    background: #D4D7D9; /* Iron */
     height: 10px;
     border: none;
     border-radius: 5px;
 }
 
 .noUi-connect {
-    background: #4CAF50;
+    background: #1E488F; /* Cobalt */
 }
 
 .noUi-handle {
     width: 15px;
     height: 15px;
-    background: #4CAF50;
+    background: #1E488F; /* Cobalt */
     border-radius: 50%;
     cursor: pointer;
     top: -3px;
@@ -450,7 +464,7 @@ footer {
     .dropdown .dropdown-content {
         position: static;
         box-shadow: none;
-        background-color: #1a1a1a;
+        background-color: #1E488F; /* Cobalt */
     }
 
     .headers-container, .sliders-container, .values-container {
