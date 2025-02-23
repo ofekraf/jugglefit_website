@@ -11,6 +11,7 @@ from .tricks.balls import BALLS_TRICKS
 from .tricks.clubs import CLUBS_TRICKS
 from .tricks.rings import RINGS_TRICKS
 
+# @todo: Do I wastefully copy here huge lists?
 PROP_TO_TRICKS = {
     Prop.Balls: BALLS_TRICKS, 
     Prop.Clubs: CLUBS_TRICKS,
