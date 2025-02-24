@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'base_mainpage.html' %}
 {% block title %}Your Own Route{% endblock %}
 {% block content %}
 <div class="container">
@@ -7,18 +7,7 @@
 
     <h2 class="route-name">Route Name: {{ route_name }}</h2>
     {% if route %}
-        <div class="route-container">
-            <table class="route" style="display: inline;">
-            {% for props_count, tricks in route.items() %}
-                <tr><th class="route-header">{{ props_count }} {{prop}}</th></tr>
-                <ul class="trick-items">
-                    {% for trick in tricks %}
-                    <tr><td class="route-trick">{{ trick.name }}</td></tr>
-                    {% endfor %}
-                </ul>
-            {% endfor %}
-            </table>
-        </div>
+        {% include "route_display.html" %}
     {% else %}
         <p class="no-tricks">No tricks were generated. Try adjusting your criteria.</p>
     {% endif %}

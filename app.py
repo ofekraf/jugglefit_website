@@ -55,8 +55,8 @@ def create_route():
                 exclude_tags=exclude_tags,
             )
         except NotEnoughTricksFoundException:
-            route = {}  # Handled in tricks_display.html
-        return render_template('tricks_display.html', route=route, prop=prop, route_name=route_name)
+            route = {}  # Handled in route_display.html
+        return render_template('route_display.html', route=route, prop=prop, route_name=route_name)
     return render_template('create_route.html', current_page='create_route', tag_options=TAG_OPTIONS, prop_options=PROP_OPTIONS)
 
 
