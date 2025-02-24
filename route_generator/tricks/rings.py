@@ -7,8 +7,8 @@ from .tags import Tag
 RINGS_TRICKS = [
     # Base Patterns
     Trick(name="20c cascade", props_count=5, difficulty=20, tags={Tag.BasePattern}),
-    Trick(name="ANY", props_count=6, difficulty=50, tags=Tag.BasePattern),
-    Trick(name="7c cascade", props_count=7, difficulty=55, tags=Tag.BasePattern),
+    Trick(name="ANY", props_count=6, difficulty=50, tags={Tag.BasePattern}),
+    Trick(name="7c cascade", props_count=7, difficulty=55, tags={Tag.BasePattern}),
     
     # Spin Control
     Trick(name="20c isolated singles cascade", props_count=5, difficulty=33, tags={Tag.BasePattern, Tag.Isolation, Tag.SpinControl}),

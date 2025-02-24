@@ -1,6 +1,6 @@
-from route_generator.prop import Prop
-from route_generator.route_generator import generate_route
-from route_generator.tricks.tags import Tag
+from .prop import Prop
+from .route_generator import generate_route
+from .tricks.tags import Tag
 
 
 if __name__ == "__main__":
@@ -15,12 +15,10 @@ if __name__ == "__main__":
         excluded_tags={Tag.Siteswap}
     )
     
-    props_count = set()
     route_lines = []
-    for trick in route:
-        if trick.props_count not in props_count:
-            route_lines.append(f"#### {trick.props_count} {prop.value} ####")
-            props_count.add(trick.props_count)
-        route_lines.append(trick.name)
+    for props_count, tricks in route.items():
+        route_lines.append(f"#### {props_count} {prop.value} ####")
+        for trick in tricks:
+            route_lines.append(trick.name)
         
     print("\n".join(route_lines))

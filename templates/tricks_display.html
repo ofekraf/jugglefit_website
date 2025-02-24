@@ -1,26 +1,28 @@
 {% extends 'base.html' %}
-{% block title %}Your Own Path{% endblock %}
+{% block title %}Your Own Route{% endblock %}
 {% block content %}
 <div class="container">
-    <h1 class="title">Generated Juggling Routine</h1>
-    <p class="subtitle">Here is your randomly generated juggling routine based on the selected criteria.</p>
+    <h1 class="title">Generated Juggling Route</h1>
+    <p class="subtitle">Here is your randomly generated juggling route based on the selected criteria.</p>
 
-    <h2 class="course-name">Course Name: {{ workout_name }}</h2>
-    {% if tricks %}
-        <div class="tricks-list">
-            {% for props, trick_list in tricks %}
-                <h2 class="props-header">{{ props }}-prop Tricks</h2>
+    <h2 class="route-name">Route Name: {{ route_name }}</h2>
+    {% if route %}
+        <div class="route-container">
+            <table class="route" style="display: inline;">
+            {% for props_count, tricks in route.items() %}
+                <tr><th class="route-header">{{ props_count }} {{prop}}</th></tr>
                 <ul class="trick-items">
-                    {% for trick in trick_list %}
-                        <li class="trick">{{ trick }}</li>
+                    {% for trick in tricks %}
+                    <tr><td class="route-trick">{{ trick.name }}</td></tr>
                     {% endfor %}
                 </ul>
             {% endfor %}
+            </table>
         </div>
     {% else %}
         <p class="no-tricks">No tricks were generated. Try adjusting your criteria.</p>
     {% endif %}
     
-    <a href="{{ url_for('create_path') }}" class="btn btn-primary">Generate New Routine</a>
+    <a href="{{ url_for('create_route') }}" class="btn btn-primary">Generate New Route</a>
 </div>
 {% endblock %}

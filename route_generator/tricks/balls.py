@@ -6,8 +6,8 @@ from .tags import Tag
 BALLS_TRICKS = [
     # Base Patterns
     Trick(name="20c cascade", props_count=5, difficulty=13, tags={Tag.BasePattern}),
-    Trick(name="ANY", props_count=6, difficulty=24, tags=Tag.BasePattern),
-    Trick(name="7c cascade", props_count=7, difficulty=27, tags=Tag.BasePattern),
+    Trick(name="ANY", props_count=6, difficulty=24, tags={Tag.BasePattern}),
+    Trick(name="7c cascade", props_count=7, difficulty=27, tags={Tag.BasePattern}),
     Trick(name="50c isolated cascade", props_count=5, difficulty=29, tags={Tag.BasePattern, Tag.Isolation}),
     
     # Spins

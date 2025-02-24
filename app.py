@@ -2,7 +2,10 @@ from flask import Flask, render_template, request
 import random
 
 
-from static.siteswaps import generate_random_tricks
+from route_generator.exceptions import NotEnoughTricksFoundException
+from route_generator.prop import PROP_OPTIONS, Prop
+from route_generator.route_generator import generate_route
+from route_generator.tricks.tags import TAG_OPTIONS, Tag
 
 
 
@@ -29,32 +32,32 @@ def previous_competitions():
     return render_template('about.html', current_page='about', sub_page='previous_competitions')
 
 
-@app.route('/create_path', methods=['GET', 'POST'])
-def create_path():
+@app.route('/create_route', methods=['GET', 'POST'])
+def create_route():
     if request.method == 'POST':
-        workout_name = request.form['workout_name']
+        route_name = request.form['route_name']
+        prop = request.form['prop']
         min_props = int(request.form['min_props'])
         max_props = int(request.form['max_props'])
-        max_height = int(request.form['max_height'])
-        include_tricks = request.form.getlist('include_tricks')
-        exclude_tricks = request.form.getlist('exclude_tricks')
-
-        # Print form data to console (placeholder for backend logic)
-        print(f"{workout_name = }")
-        print(f"{min_props = }")
-        print(f"{max_props = }")
-        print(f"{max_height = }")
-        print(f"{include_tricks = }")
-        print(f"{exclude_tricks = }")
-
-
-        props_list = [(i, random.randint(3, 5)) for i in range(min_props, max_props + 1)]
-
-        tricks = generate_random_tricks(props_list, include_tricks=include_tricks,
-                                        exclude_tricks=exclude_tricks, max_height=max_height)
-
-        return render_template('tricks_display.html', tricks=tricks, workout_name=workout_name)
-    return render_template('create_path.html', current_page='create_path')
+        min_difficulty = int(request.form['min_difficulty'])
+        max_difficulty = int(request.form['max_difficulty'])
+        route_length = int(request.form['route_length'])
+        excluded_tags = {Tag.get_key_by_value(key) for key in request.form.getlist('excluded_tags')}
+        
+        try:
+            route = generate_route(
+                prop=Prop.get_key_by_value(prop),
+                min_props=min_props,
+                max_props=max_props,
+                min_difficulty=min_difficulty,
+                max_difficulty=max_difficulty,
+                route_length=route_length,
+                excluded_tags=excluded_tags,
+            )
+        except NotEnoughTricksFoundException:
+            route = {}  # Handled in tricks_display.html
+        return render_template('tricks_display.html', route=route, prop=prop, route_name=route_name)
+    return render_template('create_route.html', current_page='create_route', tag_options=TAG_OPTIONS, prop_options=PROP_OPTIONS)
 
 
 @app.route('/contact', methods=['GET', 'POST'])

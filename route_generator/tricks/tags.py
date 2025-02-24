@@ -1,10 +1,10 @@
 
 
-from route_generator.utils.reverse_lookup_enum import ReverseLookupEnum
+from ..utils.reverse_lookup_enum import ReverseLookupEnum
 
 class Tag(ReverseLookupEnum):
-    s360 = "360",
-    s720 = "720",
+    s360 = "360"
+    s720 = "720"
     Spins = "spins"
     MultiStage = "multistage"
     Siteswap = "siteswap"
@@ -13,5 +13,5 @@ class Tag(ReverseLookupEnum):
     Isolation = "isolation"
     SpinControl = "spin control"
     
-    
+TAG_OPTIONS = [t.value for t in Tag]
     
