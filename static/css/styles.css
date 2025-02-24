@@ -226,6 +226,24 @@ footer {
     transition: background-color 0.3s ease;
 }
 
+.route-container {
+    width: 100%;
+    margin: 0 auto;
+    display: block;
+    justify-content: center;
+    border: 1px solid black;
+    border-collapse: collapse;   
+}
+
+.route, .route-header, .route-trick {
+    text-align: center;
+    white-space: normal;
+    align-items: center;
+    position: relative;
+    border: 1px solid gray;
+    display: inline;
+}
+
 .route-button:hover {
     background-color: #000000; /* Black */
 }

@@ -25,12 +25,12 @@ def generate_route(*,
     min_difficulty: int,
     max_difficulty: int,
     route_length: int,
-    excluded_tags: Set[Tag]
+    exclude_tags: Set[Tag]
 ):
     relevant_tricks = [trick for trick in PROP_TO_TRICKS[prop] if 
                        max_difficulty >= trick.difficulty >= min_difficulty and
                        max_props >= trick.props_count >= min_props and
-                       not has_intersection(trick.tags, excluded_tags)]
+                       not has_intersection(trick.tags, exclude_tags)]
     
     if len(relevant_tricks) < route_length:
         raise NotEnoughTricksFoundException()

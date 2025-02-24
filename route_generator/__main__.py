@@ -12,7 +12,7 @@ if __name__ == "__main__":
         min_difficulty=0,
         max_difficulty=100,
         route_length=2,
-        excluded_tags={Tag.Siteswap}
+        exclude_tags={Tag.Siteswap}
     )
     
     route_lines = []

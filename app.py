@@ -42,7 +42,7 @@ def create_route():
         min_difficulty = int(request.form['min_difficulty'])
         max_difficulty = int(request.form['max_difficulty'])
         route_length = int(request.form['route_length'])
-        excluded_tags = {Tag.get_key_by_value(key) for key in request.form.getlist('excluded_tags')}
+        exclude_tags = {Tag.get_key_by_value(key) for key in request.form.getlist('exclude_tags')}
         
         try:
             route = generate_route(
@@ -52,7 +52,7 @@ def create_route():
                 min_difficulty=min_difficulty,
                 max_difficulty=max_difficulty,
                 route_length=route_length,
-                excluded_tags=excluded_tags,
+                exclude_tags=exclude_tags,
             )
         except NotEnoughTricksFoundException:
             route = {}  # Handled in tricks_display.html
