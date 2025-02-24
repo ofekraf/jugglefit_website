@@ -10,7 +10,6 @@ class Tag(ReverseLookupEnum):
     Siteswap = "siteswap"
     BasePattern = "base pattern"
     BodyThrows = "body throws"
-    Isolation = "isolation"
     SpinControl = "spin control"
     
 TAG_OPTIONS = [t.value for t in Tag]

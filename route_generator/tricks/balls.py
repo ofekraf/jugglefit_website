@@ -8,7 +8,7 @@ BALLS_TRICKS = [
     Trick(name="20c cascade", props_count=5, difficulty=13, tags={Tag.BasePattern}),
     Trick(name="ANY", props_count=6, difficulty=24, tags={Tag.BasePattern}),
     Trick(name="7c cascade", props_count=7, difficulty=27, tags={Tag.BasePattern}),
-    Trick(name="50c isolated cascade", props_count=5, difficulty=29, tags={Tag.BasePattern, Tag.Isolation}),
+    Trick(name="50c isolated cascade", props_count=5, difficulty=29, tags={Tag.BasePattern}),
     
     # Spins
     Trick(name="3up 360 -> cascade", props_count=3, difficulty=10, tags={Tag.Spins, Tag.s360}),

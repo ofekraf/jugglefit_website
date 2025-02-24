@@ -10,7 +10,7 @@ CLUBS_TRICKS = [
     Trick(name="7c cascade", props_count=7, difficulty=55, tags={Tag.BasePattern}),
     
     # Spin Control
-    Trick(name="20c isolated singles cascade", props_count=5, difficulty=33, tags={Tag.BasePattern, Tag.Isolation, Tag.SpinControl}),
+    Trick(name="20c isolated singles cascade", props_count=5, difficulty=33, tags={Tag.BasePattern, Tag.SpinControl}),
     
     # Spins
     Trick(name="1up 360 -> cascade", props_count=3, difficulty=3, tags={Tag.Spins, Tag.s360}),
