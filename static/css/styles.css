@@ -126,38 +126,39 @@ label, input, textarea {
     margin-bottom: 10px;
 }
 
-input[type="text"], input[type="number"], input[type="email"], textarea {
-    padding: 8px;
-    border: 2px solid #1E488F; /* Cobalt */
-    background-color: #D4D7D9; /* Iron */
-    color: #000000; /* Black */
-    border-radius: 4px;
-    transition: border-color 0.3s ease;
-}
-
-input[type="text"]:focus, input[type="number"]:focus, input[type="email"]:focus, textarea:focus {
-    border-color: #1E488F; /* Cobalt */
-    outline: none;
-}
-
 .tricks-container {
     display: flex;
-    justify-content: center;
-    gap: 40px;
-    margin: 20px 0;
-    background-color: #D4D7D9; /* Iron */
+    justify-content: center; /* Center the content horizontally */
+    align-items: center;     /* Center the content vertically */
+    margin: 20px auto;
+    width: 80%;
+    max-width: 800px;
+    background-color: #f9f9f9;
     padding: 20px;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .tricks-column {
-    flex: 1;
-    max-width: 300px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* Creates two columns for checkboxes */
+    gap: 15px; /* Adds space between checkboxes */
+    width: 100%;
 }
 
-.trick-checkbox:disabled {
-    opacity: 0.5;
+.tricks-column h3 {
+    text-align: center;
+    font-size: 22px;
+    font-weight: 600;
+    color: #4e6d9e;
+    margin-bottom: 15px;
+}
+
+/* Optional: If you want to further customize how labels or checkboxes appear */
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
 }
 
 .modern-button {
@@ -225,52 +226,27 @@ footer {
     transition: background-color 0.3s ease;
 }
 
+.route-container {
+    width: 100%;
+    margin: 0 auto;
+    display: block;
+    justify-content: center;
+    border: 1px solid black;
+    border-collapse: collapse;   
+}
+
+.route, .route-header, .route-trick {
+    text-align: center;
+    white-space: normal;
+    align-items: center;
+    position: relative;
+    border: 1px solid gray;
+    display: inline;
+}
+
 .route-button:hover {
     background-color: #000000; /* Black */
 }
-
-.route-details {
-    display: none;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    background-color: #1E488F; /* Cobalt */
-    color: #FFFFFF; /* White */
-    padding: 10px;
-    border-radius: 4px;
-    font-size: 0.9em;
-    white-space: nowrap;
-    z-index: 1;
-}
-
-.route-button:hover + .route-details {
-    display: block;
-}
-
-.route-item {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 15px 0;
-}
-
-.route-photo {
-    width: 80px;
-    height: 80px;
-    object-fit: cover;
-    margin-right: 20px;
-    border-radius: 4px;
-    transition: transform 0.3s ease;
-}
-
-.route-photo:hover {
-    transform: scale(1.1);
-}
-
-.route-text {
-    text-align: left;
-}
-
 .workout-input {
     color: #000000; /* Black */
 }
@@ -370,38 +346,154 @@ footer {
     margin-top: 15px;
 }
 
-.slider-value {
-    text-align: center;
-    flex: 1;
-    font-size: 1em;
-    color: #000000; /* Black */
+.slider-container {
+    margin: 30px auto;
+    width: 80%;
+    max-width: 600px;
+  }
+
+.slider-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 }
 
-/* noUISlider styling */
+/* Style for the label */
+label {
+    font-size: 16px;
+    font-weight: bold;
+    color: #555;
+    margin-bottom: 10px;
+}
+
+/* Style for each slider */
 .noUi-target {
-    background: #D4D7D9; /* Iron */
     height: 10px;
-    border: none;
-    border-radius: 5px;
+    border-radius: 8px;
+    background: linear-gradient(to right, #4e6d9e, #99b3c6);
 }
 
-.noUi-connect {
-    background: #1E488F; /* Cobalt */
-}
-
+/* Slider handle */
 .noUi-handle {
-    width: 15px;
-    height: 15px;
-    background: #1E488F; /* Cobalt */
+    background: #4e6d9e;
     border-radius: 50%;
-    cursor: pointer;
-    top: -3px;
-    box-shadow: none;
-    border: none;
+    width: 18px;
+    height: 18px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
+
+/* Tooltip for the slider */
+.noUi-tooltip {
+    font-size: 12px;
+    background-color: #4e6d9e;
+    color: white;
+    padding: 5px;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Style for the range text */
+.slider-range {
+    font-size: 14px;
+    font-weight: 600;
+    color: #4e6d9e;
+    margin-top: 5px;
+}
+
+/* Route Length slider */
+#route-length-slider {
+    width: 100%;
+    height: 8px;
+    background-color: #ddd;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+#route-length-value {
+    font-size: 14px;
+    font-weight: bold;
+    color: #4e6d9e;
+    margin-top: 5px;
+}
+
+/* Label styling */
+label {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 10px;
+    display: block;
+    text-align: left;
+}
+
+/* Style the select dropdown */
+select {
+    width: 100%;
+    height: auto;
+    padding: 1px;
+    border: 2px solid #4e6d9e;
+    border-radius: 5px;
+    background-color: #fff;
+    font-size: 10px;
+    color: #333;
+    resize: none;
+    overflow-y: auto;
+}
+
+/* Style for the option items */
+option {
+    padding: 10px;
+}
+
+/* Hover effect for options */
+select:hover {
+    border-color: #3a567d;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Style for the container with scroll */
+.tricks-column select:focus {
+    border-color: #3a567d;
+    outline: none;
+    box-shadow: 0 0 5px rgba(58, 86, 125, 0.5);
+}
+
+.prop-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0px; /* Remove the vertical gap */
+    margin: 0;
+    padding: 0;
+    align-items: flex-start; /* Align the group to the left */
+}
+
+.prop-option {
+    display: flex;
+    align-items: center;
+    gap: 5px; /* Adjust the gap to make the radio button closer to the text */
+    margin: 0;
+    padding: 0;
+}
+
+.prop-option-input {
+    margin: 0; /* Remove margin to make radio button tightly aligned */
+    padding: 0; /* Remove any padding */
+}
+
+
 
 /* Responsive Design */
 @media (max-width: 768px) {
+    .tricks-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .tricks-column {
+        width: 100%;
+        max-width: 100%;
+    }
+  
     nav ul li {
         display: block;
         margin: 10px 0;
@@ -431,62 +523,24 @@ footer {
         font-size: 1.2em;
     }
 
-    .tricks-container {
-        flex-direction: column;
-        gap: 20px;
-    }
-
-    .route-details {
-        position: static;
-        display: none;
-        margin-top: 5px;
-        white-space: normal;
-    }
-
-    .route-button:hover + .route-details {
-        display: block;
-    }
-
-    .route-item {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .route-photo {
-        margin-right: 0;
-        margin-bottom: 10px;
-    }
-
-    .route-text {
-        text-align: center;
-    }
-
     .dropdown .dropdown-content {
         position: static;
         box-shadow: none;
         background-color: #1E488F; /* Cobalt */
     }
 
-    .headers-container, .sliders-container, .values-container {
-        flex-direction: column;
-        text-align: center;
+    .slider-container {
+      margin-bottom: 20px;
     }
-
-    .header-label, .slider-group, .slider-value {
-        margin: 10px 0;
-        padding: 0;
+    .slider-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
-
-    .left-slider, .right-slider {
-        padding: 0;
-        text-align: center;
+    .slider-range {
+      margin-left: 10px;
     }
-
-    .range-slider {
-        width: 80%;
-    }
-
-    .dual-slider {
-        width: 80%;
+    .noUi-tooltip {
+      font-size: 12px;
     }
 }

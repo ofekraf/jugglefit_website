@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Workout name placeholder handling
-    const workoutInput = document.getElementById('workout_name');
+    const workoutInput = document.getElementById('route_name');
     workoutInput.value = workoutInput.placeholder;
 
     workoutInput.addEventListener('focus', function() {

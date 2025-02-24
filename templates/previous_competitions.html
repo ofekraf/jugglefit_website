@@ -1,38 +1,96 @@
-{% extends "base.html" %}
-{% block title %}Previous Competitions{% endblock %}
-{% block content %}
-    <div class="centered-content fade-in">
-        <h1>Previous JuggleFit Competitions</h1>
-        <p>Explore the history of JuggleFit competitions, showcasing past events, their locations, routes, and champions.</p>
-        
-        <h2>Sapir Juggling Convention 2025</h2>
+<!-- @Todo: Create this route using route_display and save previous routes as python objects for easier insertion -->
+<div class="centered-content fade-in">
+    <script>
+        function toggle_route(route_name) {
+            route = document.getElementById(route_name);
+            if (route.style.display === "none" || route.style.display === ""){
+                route.style.display = "block"; // Show the table
+            }
+            else {
+                route.style.display = "none"
+            }
+        }
+    </script>
+    <h1>Previous JuggleFit Competitions</h1>
+    <p>Explore the history of JuggleFit competitions, showcasing past events, their locations, routes, and champions.</p>
+    
+    <h2>Sapir Juggling Convention 2025</h2>
+    <ul>
+        <li><strong>Date:</strong> January 17, 2025</li>
+        <li><strong>Location:</strong> Sapir, Israel</li>
+        <li><strong>Routes & Winners:</strong></li>
         <ul>
-            <li><strong>Date:</strong> January 17, 2025</li>
-            <li><strong>Location:</strong> Sapir, Israel</li>
-            <li><strong>Routes & Winners:</strong></li>
-            <ul>
-                <li>
-                    <strong>Balls Route</strong> - Winner: Dror Lotan
-                    <div class="route-button-container">
-                        <button class="route-button">View Route</button>
-                        <span class="route-details">5 balls: 50 catches of 645, 4 balls: overheads -> 3up 360 -> sync fountain</span>
-                    </div>
-                </li>
-                <li>
-                    <strong>Clubs Route</strong> - Winner: Daniel Ackerman
-                    <div class="route-button-container">
-                        <button class="route-button">View Route</button>
-                        <span class="route-details">6 clubs: 30 catches of 966, 5 clubs: backcrosses -> 4up 720 -> cascade</span>
-                    </div>
-                </li>
-                <li>
-                    <strong>Youth Route</strong> - Winner: Eshel Halachmi
-                    <div class="route-button-container">
-                        <button class="route-button">View Route</button>
-                        <span class="route-details">3 balls: 10 x 3up 360, 4 balls: 20 catches of mills mess -> shoulders</span>
-                    </div>
-                </li>
-            </ul>
+            <li>
+                <strong>Balls Route</strong> - Winner: Dror Lotan
+                <div class="route-button-container">
+                    <button class="route-button" onclick="toggle_route('sjc2025-balls-route')">View Route</button>
+                </div>
+                <div class="route-container" id="sjc2025-balls-route", style="display: none;">
+                    <table class="route">
+                        <tr><th class="route-header">3 balls</th></tr>
+                            <tr><td class="route-trick">6 neck throws in a run</td></tr>
+                            <tr><td class="route-trick">3c blindfolded cascade -> 3c 531 -> 3c blindfolded cascade</td></tr>
+                            <tr><td class="route-trick">3c reverse shoulders -> backrosses</td></tr>
+                        <tr><th class="route-header">4 balls</th></tr>
+                            <tr><td class="route-trick">fountain -> 74414 -> fountain</td></tr>
+                            <tr><td class="route-trick">24c 714 (possible entrance: 55)</td></tr>
+                        <tr><th class="route-header">5 balls</th></tr>
+                            <tr><td class="route-trick">24c 744</td></tr>
+                            <tr><td class="route-trick">3 X (5c 97531 -> cascade)</td></tr>
+                            <tr><td class="route-trick">(6x,4)* -> (4x,6)*</td></tr>
+                            <tr><td class="route-trick">2 X (3up 360 -> cascade)</td></tr>
+                        <tr><th class="route-header">6 balls</th></tr>
+                            <tr><td class="route-trick">3 consecutive 6c ANY</td></tr>
+                        <tr><th class="route-header">7 balls</th></tr>
+                            <tr><td class="route-trick">7c on the knees</td></tr>
+                    </table>
+                </div>
+            </li>
+            <li>
+                <strong>Clubs Route</strong> - Winner: Daniel Ackerman
+                <div class="route-button-container">
+                    <button class="route-button" onclick="toggle_route('sjc2025-clubs-route')">View Route</button>
+                </div>
+                <div class="route-container" id="sjc2025-clubs-route" style="display: none;">
+                    <table class="route">
+                        <tr><th class="route-header">3 clubs</th></tr>
+                            <tr><td class="route-trick">10 backrosses in a run</td></tr>
+                            <tr><td class="route-trick">10c triples</td></tr>
+                            <tr><td class="route-trick">531 -> mills mess</td></tr>
+                            <tr><td class="route-trick">blindfolded cascade</td></tr>
+                            <tr><td class="route-trick">3up 360 -> cascade</td></tr>
+                        <tr><th class="route-header">4 clubs</th></tr>
+                            <tr><td class="route-trick">4c flats -> fountain</td></tr>
+                            <tr><td class="route-trick">4c 7333 -> 53</td></tr>
+                            <tr><td class="route-trick">4c 6631 -> async fountain</td></tr>
+                        <tr><th class="route-header">5 clubs</th></tr>
+                            <tr><td class="route-trick">isolated doubles cascade</td></tr>
+                    </table>
+                </div>
+            </li>
+            <li>
+                <strong>Youth Balls Route</strong> - Winner: Eshel Halachmi
+                <div class="route-button-container">
+                    <button class="route-button" onclick="toggle_route('sjc2025-youth-balls-route')">View Route</button>
+                </div>
+                <div class="route-container" id="sjc2025-youth-balls-route" style="display: none;">
+                    <table class="route">
+                        <tr><th class="route-header">3 balls</th></tr>
+                            <tr><td class="route-trick">10 penguins in a run</td></tr>
+                            <tr><td class="route-trick">box -> 1up 360 in box -> box</td></tr>
+                            <tr><td class="route-trick">overheads -> 441 overheads -> overheads</td></tr>
+                            <tr><td class="route-trick">consecutive (6c 3 in left hand, 6c 3 in right hand)</td></tr>
+                            <tr><td class="route-trick">backrosses -> 531</td></tr>
+                        <tr><th class="route-header">4 balls</th></tr>
+                            <tr><td class="route-trick">sync fountain -> shower (possible transition: (6x,4))</td></tr>
+                            <tr><td class="route-trick">6c 633 -> 16c 53</td></tr>
+                        <tr><th class="route-header">5 balls</th></tr>
+                            <tr><td class="route-trick">20c isolated cascade</td></tr>
+                        <tr><th class="route-header">6 balls</th></tr>
+                            <tr><td class="route-trick">6c ANY</td></tr>
+                    </table>
+                </div>
+            </li>
         </ul>
-    </div>
-{% endblock %}
+    </ul>
+</div>

@@ -1,13 +1,12 @@
 # JuggleFit Website
 
-This is a website for JuggleFit, a new sport combining juggling and CrossFit.
+This is a website for JuggleFit, a new sport juggling competition inspired by CrossFit.
 
 ## Setup
 
 1. Ensure you have Python installed (`python --version` should return 3.x).
-2. Install Flask: `pip install flask`.
+2. Install requirements: `pip install -r requirements.txt`.
 3. Clone or download this repository.
-4. Place the provided `jugglefit_logo.png` file in the `static/images/` folder.
 5. Navigate to the project directory in your terminal.
 
 ## Running the Website

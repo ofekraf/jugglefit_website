@@ -1,0 +1,17 @@
+{% extends 'base_mainpage.html' %}
+{% block title %}Your Own Route{% endblock %}
+{% block content %}
+<div class="container">
+    <h1 class="title">Generated Juggling Route</h1>
+    <p class="subtitle">Here is your randomly generated juggling route based on the selected criteria.</p>
+
+    <h2 class="route-name">Route Name: {{ route_name }}</h2>
+    {% if route %}
+        {% include "route_display.html" %}
+    {% else %}
+        <p class="no-tricks">No tricks were generated. Try adjusting your criteria.</p>
+    {% endif %}
+    
+    <a href="{{ url_for('create_route') }}" class="btn btn-primary">Generate New Route</a>
+</div>
+{% endblock %}
