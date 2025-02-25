@@ -1,9 +1,10 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="route-container">
+    <h2 class="route-name">Route Name: {{ route.name }}</h2>
     <table class="route" style="display: inline;">
-    {% for props_count, tricks in route.items() %}
-        <tr><th class="route-header">{{ props_count }} {{prop}}</th></tr>
+    {% for props_count, tricks in route.tricks.items() %}
+        <tr><th class="route-header">{{ props_count }} {{route.prop.value}}</th></tr>
         <ul class="trick-items">
             {% for trick in tricks %}
             <tr><td class="route-trick">{{ trick.name }}</td></tr>
