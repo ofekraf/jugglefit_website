@@ -53,10 +53,11 @@ def create_route():
                 max_difficulty=max_difficulty,
                 route_length=route_length,
                 exclude_tags=exclude_tags,
+                name=route_name
             )
         except NotEnoughTricksFoundException:
-            route = {}  # Handled in route_display.html
-        return render_template('route_display.html', route=route, prop=prop, route_name=route_name)
+            return '<p class="no-tricks">No tricks were generated. Try adjusting your criteria.</p>'
+        return render_template('route_display.html', route=route)
     return render_template('create_route.html', current_page='create_route', tag_options=TAG_OPTIONS, prop_options=PROP_OPTIONS)
 
 

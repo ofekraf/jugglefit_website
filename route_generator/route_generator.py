@@ -1,5 +1,8 @@
 import random
-from typing import Set
+from typing import Dict, List, Set
+
+from classes.route import Route
+from route_generator.tricks.base_trick import Trick
 
 from .tricks.tags import Tag
 from .utils.general import has_intersection
@@ -25,8 +28,9 @@ def generate_route(*,
     min_difficulty: int,
     max_difficulty: int,
     route_length: int,
-    exclude_tags: Set[Tag]
-):
+    exclude_tags: Set[Tag],
+    name: str
+) -> Route:
     relevant_tricks = [trick for trick in PROP_TO_TRICKS[prop] if 
                        max_difficulty >= trick.difficulty >= min_difficulty and
                        max_props >= trick.props_count >= min_props and
@@ -35,13 +39,6 @@ def generate_route(*,
     if len(relevant_tricks) < route_length:
         raise NotEnoughTricksFoundException()
     tricks = random.sample(relevant_tricks, route_length)
-    tricks.sort(key=lambda trick: (trick.props_count, trick.difficulty))
     
-    route = dict()
-    for trick in tricks:
-        if trick.props_count not in route.keys():
-            route[trick.props_count] = []
-        route[trick.props_count].append(trick)
-    
-    return route
+    return Route.from_list(name=name, prop=prop, tricks=tricks)
     
