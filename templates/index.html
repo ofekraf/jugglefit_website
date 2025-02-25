@@ -1,8 +1,75 @@
 {% extends "base.html" %}
 {% block title %}Home{% endblock %}
 {% block content %}
-    <div class="centered-content">
-        <h1>Welcome to JuggleFit</h1>
-        <p>Welcome to JuggleFit—a fun, fast-paced juggling competition designed to motivate practice, minimize prep time, and crown the best juggler through skill and control. Ready to juggle your way to the top?</p>
-    </div>
+<main>
+    <!-- About Section -->
+    <section id="about" class="centered-content fade-in">
+        <h1>About JuggleFit</h1>
+        <p>JuggleFit was founded to create a sport-juggling competition that’s motivating to practice, requires minimal preparation, is fun and enjoyable to watch, ensures the best juggler wins, and measures skill through control over specific tricks. Inspired by CrossFit’s challenge of defining athleticism, we set out to build a fair, exciting, and accessible juggling competition for everyone.</p>
+        <p>Learn more about our <a href="#rules">Rules</a> or explore <a href="#winners">Previous Competitions</a>.</p>
+    </section>
+
+    <!-- Rules Section -->
+    <section id="rules" class="centered-content fade-in">
+        <h2>Rules</h2>
+        <div class="infographic-container">
+            <img src="{{ url_for('static', filename='images/rules_infographic.png') }}" alt="Rules Infographic" class="infographic-img">
+            <div class="infographic-text">
+                <h1>Rules of JuggleFit</h1>
+                <h2>Competition Format</h2>
+                <h3>Routes</h3>
+                <p>JuggleFit is built around "routes" — sequences of juggling tricks drawn from a list of general skills. A secret route is revealed just minutes before the competition begins. Competitors race to complete it, and the first to finish wins. If no one completes the route within 10 minutes, the winner is the one who progresses furthest the fastest.</p>
+                <h3>Qualifications</h3>
+                <p>Competitors must complete a secret list of tricks within 30 minutes. The tricks vary by route (e.g., balls, clubs, rings). Those who complete all 10 qualification tricks advance to the finals. If fewer than 7 qualify, the top performers (based on most tricks completed) fill the finals.</p>
+                <h3>Categories & Non-Competitive Routes</h3>
+                <ul>
+                    <li>Routes are divided by props: balls, clubs, and rings.</li>
+                    <li>Optional categories include Youth (under 16/18) and Women.</li>
+                    <li>Competitors can join multiple routes if eligible.</li>
+                    <li>Non-competitive route races are offered for fun and practice.</li>
+                </ul>
+                <h2>Competition Logistics</h2>
+                <p>To host a JuggleFit event, you’ll need:</p>
+                <ul>
+                    <li>Time slots for qualifications and finals.</li>
+                    <li>A speaker and microphone for finals announcements.</li>
+                    <li>Either a printing setup for trick forms or a big screen to display tricks during the finals.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action Section -->
+    <section id="cta" class="centered-content fade-in">
+        <h2>Get Involved</h2>
+        <div class="cta-buttons">
+            <a href="#events" class="cta-button">JOIN Event</a>
+            <a href="#host" class="cta-button">HOST Event</a>
+            <a href="{{ url_for('create_route') }}" class="cta-button">TRAIN</a>
+        </div>
+    </section>
+
+    <!-- Last Winners Carousel -->
+    <section id="winners" class="centered-content fade-in">
+        <h2>Last Winners</h2>
+        <div class="carousel">
+            <div class="carousel-inner" id="carousel-inner">
+                <div class="carousel-item">
+                    <img src="{{ url_for('static', filename='images/placeholder_person.jpg') }}" alt="Dror Lotan">
+                    <div class="carousel-caption">Dror Lotan - Balls Route, Sapir Juggling Convention 2025</div>
+                </div>
+                <div class="carousel-item">
+                    <img src="{{ url_for('static', filename='images/placeholder_person.jpg') }}" alt="Daniel Ackerman">
+                    <div class="carousel-caption">Daniel Ackerman - Clubs Route, Sapir Juggling Convention 2025</div>
+                </div>
+                <div class="carousel-item">
+                    <img src="{{ url_for('static', filename='images/placeholder_person.jpg') }}" alt="Eshel Halachmi">
+                    <div class="carousel-caption">Eshel Halachmi - Youth Balls Route, Sapir Juggling Convention 2025</div>
+                </div>
+            </div>
+            <button class="carousel-prev" id="carousel-prev">❮</button>
+            <button class="carousel-next" id="carousel-next">❯</button>
+        </div>
+    </section>
+</main>
 {% endblock %}
