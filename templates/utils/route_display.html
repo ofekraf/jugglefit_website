@@ -1,0 +1,31 @@
+{% block content %}
+{% if container_id %}
+<div class="route-button-container">
+    <button class="route-button" onclick="toggle_route('{{container_id}}')">View Route</button>
+</div>
+{% endif %}
+<div class="route-container" {% if container_id %}id="{{ container_id }}"{% endif %}>
+    <h2 class="route-name">Route Name: {{ route.name }}</h2>
+    
+    <table class="route" style="display: inline;">
+    {% for props_count, tricks in route.tricks_map.items() %}
+        <tr><th class="route-header">{{ props_count }} {{route.prop.value}}</th></tr>
+        <ul class="trick-items">
+            {% for trick in tricks %}
+                <tr>
+                    <td class="route-trick">
+                        {{ trick.name }}
+                        {% if trick.comment %}
+                            <span class="trick-comment-container">
+                                <i class="fas fa-info-circle"></i>
+                                <span class="trick-comment">{{ trick.comment }}</span>
+                            </span>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </ul>
+    {% endfor %}
+    </table>
+</div>
+{% endblock %}

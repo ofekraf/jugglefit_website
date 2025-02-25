@@ -1,131 +1,131 @@
-{% extends "base.html" %}
+{% extends "utils/base.html" %}
 {% block title %}Create Your Own Route{% endblock %}
 {% block content %}
-    <div class="centered-content fade-in">
-        <h1>Create Your Own JuggleFit Route</h1>
-        <form method="POST" action="{{ url_for('create_route') }}">
-            <label for="route_name">Workout Name:</label>
-            <input type="text" id="route_name" name="route_name" placeholder="My awesome route" class="workout-input" required><br>
+<div class="centered-content fade-in">
+    <h1>Create Your Own JuggleFit Route</h1>
+    <form method="POST" action="{{ url_for('create_route') }}">
+        <label for="route_name">Route Name:</label>
+        <input type="text" id="route_name" name="route_name" placeholder="My awesome route" class="workout-input" required><br>
 
-            <div class="prop-group">
-                {% for prop in prop_options %}
-                    <label class="prop-option">
-                        <input type="radio" name="prop" class="prop-option-input" value="{{ prop }}" {% if loop.first %}checked{% endif %}> {{ prop }}
-                    </label>
-                {% endfor %}
+        <div class="prop-group">
+            {% for prop in prop_options %}
+                <label class="prop-option">
+                    <input type="radio" name="prop" class="prop-option-input" value="{{ prop }}" {% if loop.first %}checked{% endif %}> {{ prop }}
+                </label>
+            {% endfor %}
 
-            <!-- Slider for amount of props (range 2 to 9) -->
-            <div class="slider-container">
-                <label for="props-slider">Props Count:</label>
-                <div id="props-slider"></div>
-                <span id="props-range">Min: 3, Max: 7</span>
-                <!-- Hidden input to store the props range -->
-                <input type="hidden" id="min-props-input" name="min_props" value="3">
-                <input type="hidden" id="max-props-input" name="max_props" value="7">
+        <!-- Slider for amount of props (range 2 to 9) -->
+        <div class="slider-container">
+            <label for="props-slider">Props Count:</label>
+            <div id="props-slider"></div>
+            <span id="props-range">Min: 3, Max: 7</span>
+            <!-- Hidden input to store the props range -->
+            <input type="hidden" id="min-props-input" name="min_props" value="3">
+            <input type="hidden" id="max-props-input" name="max_props" value="7">
+        </div>
+
+        <!-- Slider for difficulty range (range 0 to 100) -->
+        <div class="slider-container">
+            <label for="difficulty-slider">Difficulty Range:</label>
+            <div id="difficulty-slider"></div>
+            <span id="difficulty-range">Min: 20, Max: 30</span>
+            <!-- Hidden input to store the difficulty range -->
+            <input type="hidden" id="min-difficulty-input" name="min_difficulty" value="20">
+            <input type="hidden" id="max-difficulty-input" name="max_difficulty" value="30">
+        </div>
+
+        <!-- Slider for route length (range 1 to 20) -->
+        <div class="slider-container">
+            <label for="route-length-slider">Route Length:</label>
+            <div class="slider-wrapper">
+            <input type="range" id="route-length-slider" min="1" max="20" value="10">
+            <span id="route-length-value">10</span>
             </div>
+            <!-- Hidden input to store the route length -->
+            <input type="hidden" id="route-length-input" name="route_length" value="10">
+        </div>
 
-            <!-- Slider for difficulty range (range 0 to 100) -->
-            <div class="slider-container">
-                <label for="difficulty-slider">Difficulty Range:</label>
-                <div id="difficulty-slider"></div>
-                <span id="difficulty-range">Min: 20, Max: 30</span>
-                <!-- Hidden input to store the difficulty range -->
-                <input type="hidden" id="min-difficulty-input" name="min_difficulty" value="20">
-                <input type="hidden" id="max-difficulty-input" name="max_difficulty" value="30">
-            </div>
-
-            <!-- Slider for route length (range 1 to 20) -->
-            <div class="slider-container">
-                <label for="route-length-slider">Route Length:</label>
-                <div class="slider-wrapper">
-                <input type="range" id="route-length-slider" min="1" max="20" value="10">
-                <span id="route-length-value">10</span>
+        <!-- Exclude Tags -->
+        <h3>Exclude tags:</h3>
+        <div class="tricks-container">
+            <div class="tricks-column">
+                <div id="exclude_tags">
+                    {% for tag in tag_options %}
+                        <div class="checkbox-container">
+                            <input type="checkbox" id="tag-{{ tag }}" name="exclude_tags" value="{{ tag }}">
+                            <label for="tag-{{ tag }}">{{ tag }}</label>
+                        </div>
+                    {% endfor %}
                 </div>
-                <!-- Hidden input to store the route length -->
-                <input type="hidden" id="route-length-input" name="route_length" value="10">
             </div>
+        </div>
 
-            <!-- Exclude Tags -->
-            <h3>Exclude tags:</h3>
-            <div class="tricks-container">
-                <div class="tricks-column">
-                    <div id="exclude_tags">
-                        {% for tag in tag_options %}
-                            <div class="checkbox-container">
-                                <input type="checkbox" id="tag-{{ tag }}" name="exclude_tags" value="{{ tag }}">
-                                <label for="tag-{{ tag }}">{{ tag }}</label>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
+        <input type="submit" value="Create Route" class="modern-button">
+    </form>
+</div>
 
-            <input type="submit" value="Create Route" class="modern-button">
-        </form>
-    </div>
+<!-- Include noUISlider CSS and JS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.js"></script>
 
-    <!-- Include noUISlider CSS and JS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.js"></script>
+<script>
+  // Initialize the props slider (range 2 to 9)
+  const propsSlider = document.getElementById('props-slider');
+  const propsRange = document.getElementById('props-range');
+  const propsMinInput = document.getElementById('min-props-input');
+  const propsMaxInput = document.getElementById('max-props-input');
+  noUiSlider.create(propsSlider, {
+    start: [3, 7],
+    connect: true,
+    range: {
+      'min': 2,
+      'max': 9
+    },
+    format: {
+      to: (value) => Math.round(value),
+      from: (value) => parseFloat(value)
+    }
+  });
 
-    <script>
-    // Initialize the props slider (range 2 to 9)
-    const propsSlider = document.getElementById('props-slider');
-    const propsRange = document.getElementById('props-range');
-    const propsMinInput = document.getElementById('min-props-input');
-    const propsMaxInput = document.getElementById('max-props-input');
-    noUiSlider.create(propsSlider, {
-      start: [3, 7],
-      connect: true,
-      range: {
-        'min': 2,
-        'max': 9
-      },
-      format: {
-        to: (value) => Math.round(value),
-        from: (value) => parseFloat(value)
-      }
-    });
+  // Update the props range display
+  propsSlider.noUiSlider.on('update', function(values) {
+    propsRange.textContent = `Min: ${values[0]}, Max: ${values[1]}`;
+    propsMinInput.value = Math.round(values[0]);
+    propsMaxInput.value = Math.round(values[1]);
+  });
 
-    // Update the props range display
-    propsSlider.noUiSlider.on('update', function(values) {
-      propsRange.textContent = `Min: ${values[0]}, Max: ${values[1]}`;
-      propsMinInput.value = Math.round(values[0]);
-      propsMaxInput.value = Math.round(values[1]);
-    });
+  // Initialize the difficulty slider (range 0 to 100)
+  const difficultySlider = document.getElementById('difficulty-slider');
+  const difficultyRange = document.getElementById('difficulty-range');  
+  const difficultyMinInput = document.getElementById('min-difficulty-input');
+  const difficultyMaxInput = document.getElementById('max-difficulty-input');
+  noUiSlider.create(difficultySlider, {
+    start: [20, 30],
+    connect: true,
+    range: {
+      'min': 0,
+      'max': 100
+    },
+    format: {
+      to: (value) => Math.round(value),
+      from: (value) => parseFloat(value)
+    }
+  });
 
-    // Initialize the difficulty slider (range 0 to 100)
-    const difficultySlider = document.getElementById('difficulty-slider');
-    const difficultyRange = document.getElementById('difficulty-range');  
-    const difficultyMinInput = document.getElementById('min-difficulty-input');
-    const difficultyMaxInput = document.getElementById('max-difficulty-input');
-    noUiSlider.create(difficultySlider, {
-      start: [20, 30],
-      connect: true,
-      range: {
-        'min': 0,
-        'max': 100
-      },
-      format: {
-        to: (value) => Math.round(value),
-        from: (value) => parseFloat(value)
-      }
-    });
+  // Update the difficulty range display
+  difficultySlider.noUiSlider.on('update', function(values) {
+    difficultyRange.textContent = `Min: ${values[0]}, Max: ${values[1]}`;
+    difficultyMinInput.value = Math.round(values[0]);
+    difficultyMaxInput.value = Math.round(values[1]);
+  });
 
-    // Update the difficulty range display
-    difficultySlider.noUiSlider.on('update', function(values) {
-      difficultyRange.textContent = `Min: ${values[0]}, Max: ${values[1]}`;
-      difficultyMinInput.value = Math.round(values[0]);
-      difficultyMaxInput.value = Math.round(values[1]);
-    });
-
-    // Update the value displayed next to the "Route Length" slider
-    const routeLengthSlider = document.getElementById('route-length-slider');
-    const routeLengthValue = document.getElementById('route-length-value');
-    const routeLengthInput = document.getElementById('route-length-input');
-    routeLengthSlider.addEventListener('input', () => {
-      routeLengthValue.textContent = routeLengthSlider.value;
-      routeLengthInput.value = routeLengthSlider.value;
-    });
-    </script>
+  // Update the value displayed next to the "Route Length" slider
+  const routeLengthSlider = document.getElementById('route-length-slider');
+  const routeLengthValue = document.getElementById('route-length-value');
+  const routeLengthInput = document.getElementById('route-length-input');
+  routeLengthSlider.addEventListener('input', () => {
+    routeLengthValue.textContent = routeLengthSlider.value;
+    routeLengthInput.value = routeLengthSlider.value;
+  });
+</script>
 {% endblock %}
