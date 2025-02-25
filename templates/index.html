@@ -1,8 +1,134 @@
-{% extends "base.html" %}
+{% extends "utils/base.html" %}
 {% block title %}Home{% endblock %}
 {% block content %}
-    <div class="centered-content">
-        <h1>Welcome to JuggleFit</h1>
-        <p>Welcome to JuggleFit—a fun, fast-paced juggling competition designed to motivate practice, minimize prep time, and crown the best juggler through skill and control. Ready to juggle your way to the top?</p>
+<main>
+    <!-- About Section -->
+    <section id="about" class="centered-content fade-in">
+        <h1>About JuggleFit</h1>
+        <p>JuggleFit was founded to create a sport-juggling competition that’s motivating to practice, requires minimal preparation, is fun and enjoyable to watch, ensures the best juggler wins, and measures skill through control over specific tricks. Inspired by CrossFit’s challenge of defining athleticism, we set out to build a fair, exciting, and accessible juggling competition for everyone.</p>
+        <p>Learn more about our <a href="/#rules">Rules</a> or explore <a href="/#last_events">Last Events</a>.</p>
+    </section>
+
+    <!-- Rules Section -->
+    <section id="rules" class="centered-content fade-in">
+        <div class="infographic-container">
+            <div class="infographic-text">
+                <h1>Rules of JuggleFit</h1>
+                <h2>Competition Format</h2>
+                <h3>Routes</h3>
+                <p>JuggleFit is built around "routes" — sequences of juggling tricks drawn from a list of general skills. A secret route is revealed just minutes before the competition begins. Competitors race to complete it, and the first to finish wins. If no one completes the route within 10 minutes, the winner is the one who progresses furthest the fastest.</p>
+                <h3>Qualifications</h3>
+                <p>Competitors must complete a secret list of tricks within 30 minutes. The tricks vary by route (e.g., balls, clubs, rings). Those who complete all 10 qualification tricks advance to the finals. If fewer than 7 qualify, the top performers (based on most tricks completed) fill the finals.</p>
+                <h3>Categories & Non-Competitive Routes</h3>
+                <ul>
+                    <li>Routes are divided by props: balls, clubs and rings.</li>
+                    <li>Optional categories include Youth (under 16/18) and Women.</li>
+                    <li>Competitors can join multiple routes if eligible.</li>
+                    <li>Non-competitive route races are offered for fun and practice.</li>
+                </ul>
+                <h2>Competition Logistics</h2>
+                <p>To host a JuggleFit event, you’ll need:</p>
+                <ul>
+                    <li>Time slots for qualifications and finals.</li>
+                    <li>A speaker and microphone for finals announcements.</li>
+                    <li>Either a printing setup for trick forms or a big screen to display tricks during the finals.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action Section -->
+    <section id="cta" class="centered-content fade-in">
+        <h3>Get Involved</h3>
+        <div class="cta-buttons">
+            <a href="/#events" class="cta-button">JOIN Event</a>
+            <a href="/#host" class="cta-button">HOST Event</a>
+            <a href="{{ url_for('create_route') }}" class="cta-button">PRACTICE</a>
+        </div>
+    </section>
+
+    <!-- Upcoming events Carousel -->
+<section id="upcoming_events" class="centered-content fade-in">
+    <h2>Upcoming Events</h2>
+    <div class="carousel">
+        <div class="carousel-inner" id="upcoming-events-carousel-inner">
+            {% for event in upcoming_events %}
+            <div class="upcoming-events-carousel-item {% if loop.first %}active{% endif %}">
+                <div class="carousel-caption">{{ event.name }}</div>
+                <div class="carousel-text">Date: {{event.date}}</div>
+                <div class="carousel-text">Location: {{event.location}}</div>
+                <div class="carousel-text">Routes: {{", ".join(event.routes)}}</div>
+                <div class="carousel-text"><a href={{event.url}} target="_blank">Click here for details</a></div>
+            </div>
+            {% endfor %}
+        </div>
+        <button class="upcoming-events-carousel-prev" id="upcoming-events-carousel-prev">❮</button>
+        <button class="upcoming-events-carousel-next" id="upcoming-events-carousel-next">❯</button>
     </div>
+</section>
+
+<!-- Last Winners Carousel -->
+<section id="last_events" class="centered-content fade-in">
+    <h2>Last Events</h2>
+    <div class="carousel">
+        <div class="carousel-inner" id="last-events-carousel-inner">
+            {% for event in past_events %}
+            <div class="last-events-carousel-item {% if loop.first %}active{% endif %}">
+                <div class="carousel-caption">{{ event.name }}</div>
+                <img src="{{event.image_url}}" alt="{{ event.name }}">
+            </div>
+            {% endfor %}
+        </div>
+        <button class="carousel-prev" id="last-events-carousel-prev">❮</button>
+        <button class="carousel-next" id="last-events-carousel-next">❯</button>
+    </div>
+</section>
+
+<script>
+    // JavaScript for both carousels
+    document.addEventListener('DOMContentLoaded', function () {
+        // Upcoming events carousel
+        const prevButtonUpcoming = document.getElementById('upcoming-events-carousel-prev');
+        const nextButtonUpcoming = document.getElementById('upcoming-events-carousel-next');
+        const carouselItemsUpcoming = document.querySelectorAll('.upcoming-events-carousel-item');
+        let currentIndexUpcoming = 0;
+
+        function updateCarouselUpcoming() {
+            carouselItemsUpcoming.forEach(item => item.classList.remove('active'));
+            carouselItemsUpcoming[currentIndexUpcoming].classList.add('active');
+        }
+
+        prevButtonUpcoming.addEventListener('click', function () {
+            currentIndexUpcoming = (currentIndexUpcoming === 0) ? carouselItemsUpcoming.length - 1 : currentIndexUpcoming - 1;
+            updateCarouselUpcoming();
+        });
+
+        nextButtonUpcoming.addEventListener('click', function () {
+            currentIndexUpcoming = (currentIndexUpcoming === carouselItemsUpcoming.length - 1) ? 0 : currentIndexUpcoming + 1;
+            updateCarouselUpcoming();
+        });
+
+        // Last events carousel
+        const prevButtonLast = document.getElementById('last-events-carousel-prev');
+        const nextButtonLast = document.getElementById('last-events-carousel-next');
+        const carouselItemsLast = document.querySelectorAll('.last-events-carousel-item');
+        let currentIndexLast = 0;
+
+        function updateCarouselLast() {
+            carouselItemsLast.forEach(item => item.classList.remove('active'));
+            carouselItemsLast[currentIndexLast].classList.add('active');
+        }
+
+        prevButtonLast.addEventListener('click', function () {
+            currentIndexLast = (currentIndexLast === 0) ? carouselItemsLast.length - 1 : currentIndexLast - 1;
+            updateCarouselLast();
+        });
+
+        nextButtonLast.addEventListener('click', function () {
+            currentIndexLast = (currentIndexLast === carouselItemsLast.length - 1) ? 0 : currentIndexLast + 1;
+            updateCarouselLast();
+        });
+    });
+</script>
+</main>
 {% endblock %}
