@@ -39,6 +39,7 @@ def generate_route(*,
     if len(relevant_tricks) < route_length:
         raise NotEnoughTricksFoundException()
     tricks = random.sample(relevant_tricks, route_length)
+    tricks.sort(key=lambda trick: (trick.props_count, trick.difficulty))
     
-    return Route.from_list(name=name, prop=prop, tricks=tricks)
+    return Route(name=name, prop=prop, tricks=tricks)
     

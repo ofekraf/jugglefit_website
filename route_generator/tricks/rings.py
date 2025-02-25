@@ -14,9 +14,9 @@ RINGS_TRICKS = [
     Trick(name="20c isolated singles cascade", props_count=5, difficulty=33, tags={Tag.BasePattern, Tag.SpinControl}),
     
     # Spins
-    Trick(name="1up 360 -> cascade", props_count=3, difficulty=3, tags={Tag.Spins, Tag.s360}),
-    Trick(name="3up 360 -> cascade", props_count=3, difficulty=15, tags={Tag.Spins, Tag.s360}),
-    Trick(name="3up 360 -> cascade", props_count=5, difficulty=35, tags={Tag.Spins, Tag.s360}),
+    Trick(name="1up 360 -> cascade", props_count=3, difficulty=3, tags={Tag.Spin}),
+    Trick(name="3up 360 -> cascade", props_count=3, difficulty=15, tags={Tag.Spin}),
+    Trick(name="3up 360 -> cascade", props_count=5, difficulty=35, tags={Tag.Spin}),
     
     # Siteswaps
     Trick(name="cascade -> 3c 531 ->cascade", props_count=3, difficulty=3, tags={Tag.Siteswap}),
