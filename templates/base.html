@@ -11,12 +11,11 @@
         <a href="{{ url_for('home') }}"><img src="{{ url_for('static', filename='images/jugglefit_logo.png') }}" alt="JuggleFit Logo"></a>
         <nav>
             <ul>
-                <li><a href="{{ url_for('home') }}" {% if current_page == 'home' %}class="active"{% endif %}>Home</a></li>
                 <li class="dropdown">
-                    <a href="{{ url_for('about') }}" {% if current_page == 'about' %}class="active"{% endif %}>About</a>
+                    <a href="{{ url_for('home') }}#about" {% if current_page == 'about' %}class="active"{% endif %}>About</a>
                     <div class="dropdown-content">
-                        <a href="{{ url_for('rules') }}">Rules</a>
-                        <a href="{{ url_for('previous_competitions') }}">Previous Competitions</a>
+                        <a href="{{ url_for('home') }}#rules">Rules</a>
+                        <a href="{{ url_for('home') }}#winners">Previous Competitions</a>
                     </div>
                 </li>
                 <li><a href="{{ url_for('create_route') }}" {% if current_page == 'create_route' %}class="active"{% endif %}>Create My Own Route</a></li>
