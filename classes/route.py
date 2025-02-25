@@ -11,15 +11,19 @@ class Route:
     prop: Prop
     
     # Dict[props_count: tricks]
-    tricks: Dict[int, List[Trick]]
+    tricks: List[Trick]
     
-    @classmethod
-    def from_list(cls, *, name: str, prop: Prop, tricks: List[Trick]):
-        tricks.sort(key=lambda trick: (trick.props_count, trick.difficulty))
-        formatted_tricks = {}
-        for trick in tricks:
-            if trick.props_count not in formatted_tricks.keys():
-                formatted_tricks[trick.props_count] = []
-            formatted_tricks[trick.props_count].append(trick)
+    @property
+    def tricks_map(self) -> Dict[int, List[Trick]]:
+        """get map from props count to relevant tricks
+
+        Returns:
+            Dict[int, List[Trick]]: key is props_count
+        """
+        props_count_map = {}
+        for trick in self.tricks:
+            if trick.props_count not in props_count_map.keys():
+                props_count_map[trick.props_count] = []
+            props_count_map[trick.props_count].append(trick)
     
-        return cls(name=name, prop=prop, tricks=formatted_tricks)
+        return props_count_map

@@ -1,0 +1,42 @@
+{% extends "utils/base.html" %}
+{% block title %}Past Events{% endblock %}
+{% block content %}
+<!-- @Todo: Create this route using route_display and save past routes as python objects for easier insertion -->
+<div class="centered-content fade-in">
+    <script>
+        function toggle_route(route_name) {
+            route = document.getElementById(route_name);
+            if (route.style.display === "none"){
+                route.style.display = "block"; // Show the table
+            }
+            else {
+                route.style.display = "none"
+            }
+        }
+    </script>
+    <h1>past JuggleFit Competitions</h1>
+    <p>Explore the history of JuggleFit competitions, showcasing past events, their locations, routes, and champions.</p>
+    {% for event in past_events[::-1] %}
+    <h2>{{ event.name }}</h2>
+    <ul>
+        <li><strong>Date: </strong>{{ event.date }}</li>
+        <li><strong>Location: </strong>{{ event.location }}</li>
+        <li><strong>Routes & Winners:</strong></li>
+        <ul>
+            {% for route in event.results %}
+            <li>
+                <strong>{{ route.name }}</strong> - Winner: {{ route.competitors[1].name }}
+                {% set container_id = event.name ~ "+" ~ route.name %}
+                {% include "utils/route_display.html" %}
+                <script type="text/javascript">
+                    document.addEventListener("DOMContentLoaded", function() {
+                        toggle_route("{{container_id}}");
+                    });
+                </script>
+            </li>
+            {% endfor %}
+        </ul>
+    </ul>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -251,6 +251,14 @@ footer {
     display: inline;
 }
 
+.route-trick {
+    font-size: 0.9em;
+}
+
+.route-header {
+    font-size: 1.2em;
+}
+
 .route-button:hover {
     background-color: #000000; /* Black */
 }
@@ -547,4 +555,61 @@ select:hover {
     .noUi-tooltip {
       font-size: 12px;
     }
+}
+
+/* Carousel styling */
+.carousel-inner {
+    display: flex;
+    overflow: hidden; /* Ensures only one item is visible */
+}
+
+.upcoming-events-carousel-item,
+.last-events-carousel-item {
+    display: none; /* Hide all items by default */
+    width: 100%; /* Ensure the carousel items take up full width */
+}
+
+.upcoming-events-carousel-item.active,
+.last-events-carousel-item.active {
+    display: block; /* Show the active item */
+}
+
+/* Trick comments */
+/* Container to position the icon */
+.trick-comment-container {
+    display: inline-block;
+    position: relative;
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+/* Style for the info icon */
+.trick-comment-container i {
+    font-size: 24px; /* Adjust size as needed */
+    color: #007BFF; /* Info icon color */
+}
+
+/* Initially hide the comment */
+.trick-comment {
+    visibility: hidden;
+    width: 250px;
+    background-color: #333;
+    color: white;
+    text-align: center;
+    border-radius: 5px;
+    padding: 10px;
+    position: absolute;
+    z-index: 10;
+    top: 30px; /* Positioned below the icon */
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    white-space: normal; /* Allow text to wrap within the comment box */
+}
+
+/* Show the comment when hovering over the container */
+.trick-comment-container:hover .trick-comment {
+    visibility: visible;
+    opacity: 1;
 }

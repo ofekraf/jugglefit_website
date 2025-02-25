@@ -2,6 +2,8 @@ from flask import Flask, render_template, request
 import random
 
 
+from events.past_events import ALL_PAST_EVENTS, FRONT_PAGE_PAST_EVENTS
+from events.upcoming_events import UPCOMING_EVENTS
 from route_generator.exceptions import NotEnoughTricksFoundException
 from route_generator.prop import PROP_OPTIONS, Prop
 from route_generator.route_generator import generate_route
@@ -14,22 +16,12 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return render_template('index.html', current_page='home')
+    return render_template('index.html', upcoming_events=UPCOMING_EVENTS, past_events=FRONT_PAGE_PAST_EVENTS)
 
 
-@app.route('/about')
-def about():
-    return render_template('about.html', current_page='about', sub_page=None)
-
-
-@app.route('/about/rules')
-def rules():
-    return render_template('about.html', current_page='about', sub_page='rules')
-
-
-@app.route('/about/previous_competitions')
-def previous_competitions():
-    return render_template('about.html', current_page='about', sub_page='previous_competitions')
+@app.route('/past_events', methods=['GET'])
+def past_events():
+    return render_template('past_events.html', past_events=ALL_PAST_EVENTS)
 
 
 @app.route('/create_route', methods=['GET', 'POST'])
@@ -57,7 +49,7 @@ def create_route():
             )
         except NotEnoughTricksFoundException:
             return '<p class="no-tricks">No tricks were generated. Try adjusting your criteria.</p>'
-        return render_template('route_display.html', route=route)
+        return render_template('created_route.html', route=route)
     return render_template('create_route.html', current_page='create_route', tag_options=TAG_OPTIONS, prop_options=PROP_OPTIONS)
 
 

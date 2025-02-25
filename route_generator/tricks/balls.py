@@ -23,32 +23,32 @@ BALLS_TRICKS = [
     
     ########## SPINS ##########
     # 3 props spins
-    Trick(name="3up 360 -> cascade", props_count=3, difficulty=10, tags={Tag.Spins, Tag.s360}),
-    Trick(name="75300 3up 360 -> cascade", props_count=3, difficulty=12, tags={Tag.Spins, Tag.s360}),
-    Trick(name="9440022 3up 2-stage -> cascade", props_count=3, difficulty=24, tags={Tag.Spins, Tag.MultiStage}),
-    Trick(name="3up 720 -> cascade", props_count=3, difficulty=26, tags={Tag.Spins, Tag.s720}),
+    Trick(name="3up 360 -> cascade", props_count=3, difficulty=10, tags={Tag.Spin}),
+    Trick(name="75300 3up 360 -> cascade", props_count=3, difficulty=12, tags={Tag.Spin}),
+    Trick(name="9440022 3up 2-stage -> cascade", props_count=3, difficulty=24, tags={Tag.MultiSpin}),
+    Trick(name="3up 720 -> cascade", props_count=3, difficulty=26, tags={Tag.MultiSpin}),
     
     # 4 props spins
-    Trick(name="4up 360 -> async fountain", props_count=4, difficulty=22, tags={Tag.Spins, Tag.s360}),
-    Trick(name="777300 4up 360 -> async fountain", props_count=4, difficulty=29, tags={Tag.Spins, Tag.s360}),
+    Trick(name="4up 360 -> async fountain", props_count=4, difficulty=22, tags={Tag.Spin}),
+    Trick(name="777300 4up 360 -> async fountain", props_count=4, difficulty=29, tags={Tag.Spin}),
     
     # 5 props spins
-    Trick(name="3up 360 -> cascade", props_count=5, difficulty=26, tags={Tag.Spins, Tag.s360}),
-    Trick(name="97522 3up 360 -> cascade", props_count=5, difficulty=29, tags={Tag.Spins, Tag.s360}),
-    Trick(name="5up 360 -> cascade", props_count=5, difficulty=33, tags={Tag.Spins, Tag.s360}),
-    Trick(name="aa55500 5up 360 -> cascade", props_count=5, difficulty=47, tags={Tag.Spins, Tag.s360}),
-    Trick(name="b666600 5up 360 -> cascade", props_count=5, difficulty=38, tags={Tag.Spins, Tag.s360}),
-    Trick(name="3up 720 -> cascade", props_count=5, difficulty=41, tags={Tag.Spins, Tag.s720}),
+    Trick(name="3up 360 -> cascade", props_count=5, difficulty=26, tags={Tag.Spin}),
+    Trick(name="97522 3up 360 -> cascade", props_count=5, difficulty=29, tags={Tag.Spin}),
+    Trick(name="5up 360 -> cascade", props_count=5, difficulty=33, tags={Tag.Spin}),
+    Trick(name="aa55500 5up 360 -> cascade", props_count=5, difficulty=47, tags={Tag.Spin}),
+    Trick(name="b666600 5up 360 -> cascade", props_count=5, difficulty=38, tags={Tag.Spin}),
+    Trick(name="3up 720 -> cascade", props_count=5, difficulty=41, tags={Tag.MultiSpin}),
     
     # 6 props spins
-    Trick(name="aa6622 4up 360 -> cascade", props_count=6, difficulty=66, tags={Tag.Spins, Tag.s360}),
+    Trick(name="aa6622 4up 360 -> cascade", props_count=6, difficulty=66, tags={Tag.Spin}),
     
     # 7 props spins
-    Trick(name="5up 360 -> cascade", props_count=7, difficulty=68, tags={Tag.Spins, Tag.s360}),
+    Trick(name="5up 360 -> cascade", props_count=7, difficulty=68, tags={Tag.Spin}),
     
     ########## SITESWAPS ##########
     # 3 props siteswaps
-    Trick(name="36c 801 [entrance: 46]", props_count=3, difficulty=23, tags={Tag.Siteswap}),
+    Trick(name="36c 801", props_count=3, difficulty=23, tags={Tag.Siteswap}, comment="[entrance: 46]"),
     
     # 4 props siteswaps
     Trick(name="24c 714", props_count=4, difficulty=22, tags={Tag.Siteswap}),
@@ -56,7 +56,7 @@ BALLS_TRICKS = [
     Trick(name="60c 741", props_count=4, difficulty=22, tags={Tag.Siteswap}),
     
     # 5 props siteswaps
-    Trick(name="cascade -> 5c 97531 ->cascade", props_count=5, difficulty=28, tags={Tag.Siteswap}),
+    Trick(name="cascade -> 5c 97531 -> cascade", props_count=5, difficulty=28, tags={Tag.Siteswap}),
     Trick(name="30c 744", props_count=5, difficulty=25, tags={Tag.Siteswap}),
     Trick(name="36c 645", props_count=5, difficulty=25, tags={Tag.Siteswap}),
     
