@@ -1,5 +1,9 @@
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@900&family=Alef&display=swap');
+
 body {
-    font-family: Arial, sans-serif;
+    font-family: "Roboto", sans-serif;
+    font-weight: 900; /* Ensures Roboto Black */
     margin: 0;
     padding: 0;
     background-color: #FFFFFF; /* White */
@@ -106,11 +110,15 @@ h1 {
 }
 
 h2 {
+    font-family: "Alef", sans-serif; /* Subtitles */
+    font-weight: 400; /* Alef default weight */
     font-size: 1.8em;
     margin-top: 30px;
 }
 
 h3 {
+    font-family: "Alef", sans-serif; /* Subtitles */
+    font-weight: 400; /* Alef default weight */
     font-size: 1.5em;
     margin-top: 20px;
 }
@@ -232,7 +240,7 @@ footer {
     display: block;
     justify-content: center;
     border: 1px solid black;
-    border-collapse: collapse;   
+    border-collapse: collapse;
 }
 
 .route, .route-header, .route-trick {
@@ -240,7 +248,6 @@ footer {
     white-space: normal;
     align-items: center;
     position: relative;
-    border: 1px solid gray;
     display: inline;
 }
 
@@ -261,8 +268,7 @@ footer {
     align-items: center;
     margin: 10px 0;
     font-size: 1.2em;
-    font-family: Arial, sans-serif;
-    font-weight: 400;
+    font-family: "Roboto", sans-serif; /* Override to match body */
 }
 
 .header-label {
@@ -479,8 +485,6 @@ select:hover {
     margin: 0; /* Remove margin to make radio button tightly aligned */
     padding: 0; /* Remove any padding */
 }
-
-
 
 /* Responsive Design */
 @media (max-width: 768px) {
