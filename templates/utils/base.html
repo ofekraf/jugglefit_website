@@ -17,11 +17,12 @@
                     <a href="/#about" {% if current_page == 'about' %}class="active"{% endif %}>About</a>
                     <div class="dropdown-content">
                         <a href="/#rules">Rules</a>
-                        <a href="/#last_events">Last Events</a>
+                        <a href="/#upcoming_events">Upcoming Events</a>
                         <a href="/past_events">Past Events</a>
                     </div>
                 </li>
                 <li><a href="{{ url_for('create_route') }}" {% if current_page == 'create_route' %}class="active"{% endif %}>Create My Own Route</a></li>
+                <li><a href="{{ url_for('host_event') }}" {% if current_page == 'host_event' %}class="active"{% endif %}>Host An Event</a></li>
             </ul>
         </nav>
     </header>
