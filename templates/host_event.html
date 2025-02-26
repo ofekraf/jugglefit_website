@@ -1,0 +1,71 @@
+{% extends "utils/base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<main>
+    <!-- About Section -->
+    <section id="Host an event" class="centered-content fade-in">
+        <div class="infographic-container">
+            <div class="infographic-text">
+                <h1>Host An Event</h1>
+                <p>Interested to host an event? JuggleFit really likes to be hosted!</p>
+                <p>Hosting a JuggleFit event is easy. Only 4 simple requirements:</p>
+
+                <h2>Requirements</h2>
+                <p>To host a JuggleFit event, you’ll need:</p>
+                <ul>
+                    <p>1. Time slots for qualifications and finals</p>
+                    <p>2. A speaker and a microphone for finals announcements</p>
+                    <p>3. A printing setup for trick forms</p>
+                    <p>4. One of our <a href="#Affiliates">Affiliates</a> at the convention</p>
+                </ul>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Affiliates Carousel -->
+    <section id="Affiliates" class="centered-content fade-in">
+        <h2>Our Affiliates</h2>
+        <div class="carousel">
+            <div class="carousel-inner" id="affiliates-carousel-inner">
+                {% for affiliate in affiliates %}
+                <div class="affiliates-carousel-item {% if loop.first %}active{% endif %}">
+                    <div class="carousel-caption">{{ affiliate.name }}</div>
+                    <div class="carousel-text">Residence: {{affiliate.residence}}</div>
+                    <img class="affiliates-carousel-image" src="{{affiliate.image_url}}" alt="{{ affiliate.name }}">
+                </div>
+                {% endfor %}
+            </div>
+            <button class="affiliates-carousel-prev" id="affiliates-carousel-prev">❮</button>
+            <button class="affiliates-carousel-next" id="affiliates-carousel-next">❯</button>
+        </div>
+
+        <p>To help JuggleFit grow as an Affiliate, <a target="_blank" href="mailto:jugglefit_competition@gmail.com?subject=I Want to be an Affiliate!&body=name: %0AResidence: %0AJuggleFit Event I have participated in: %0A%0ABody:%0A">Contact us!</a></p>
+    </section>
+
+    <script>
+        // JavaScript for carousels
+        document.addEventListener('DOMContentLoaded', function () {
+            // Affiliates carousel
+            const prevButtonAffiliates = document.getElementById('affiliates-carousel-prev');
+            const nextButtonAffiliates = document.getElementById('affiliates-carousel-next');
+            const carouselItemsAffiliates = document.querySelectorAll('.affiliates-carousel-item');
+            let currentIndexAffiliates = 0;
+    
+            function updateCarouselAffiliates() {
+                carouselItemsAffiliates.forEach(item => item.classList.remove('active'));
+                carouselItemsAffiliates[currentIndexAffiliates].classList.add('active');
+            }
+    
+            prevButtonAffiliates.addEventListener('click', function () {
+                currentIndexAffiliates = (currentIndexAffiliates === 0) ? carouselItemsAffiliates.length - 1 : currentIndexAffiliates - 1;
+                updateCarouselAffiliates();
+            });
+    
+            nextButtonAffiliates.addEventListener('click', function () {
+                currentIndexAffiliates = (currentIndexAffiliates === carouselItemsAffiliates.length - 1) ? 0 : currentIndexAffiliates + 1;
+                updateCarouselAffiliates();
+            });
+        });
+    </script>
+</main>
+{% endblock %}

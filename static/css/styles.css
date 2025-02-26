@@ -564,14 +564,22 @@ select:hover {
 }
 
 .upcoming-events-carousel-item,
-.last-events-carousel-item {
+.last-events-carousel-item,
+.affiliates-carousel-item {
     display: none; /* Hide all items by default */
     width: 100%; /* Ensure the carousel items take up full width */
 }
 
 .upcoming-events-carousel-item.active,
-.last-events-carousel-item.active {
+.last-events-carousel-item.active,
+.affiliates-carousel-item.active {
     display: block; /* Show the active item */
+}
+
+.affiliates-carousel-image,
+.event-image {
+    width: 200px; /* Width of the image */
+    height: auto; /* Maintain aspect ratio */
 }
 
 /* Trick comments */
