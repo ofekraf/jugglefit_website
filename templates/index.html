@@ -6,7 +6,7 @@
     <section id="about" class="centered-content fade-in">
         <h1>About JuggleFit</h1>
         <p>JuggleFit was founded to create a sport-juggling competition that’s motivating to practice, requires minimal preparation, is fun and enjoyable to watch, ensures the best juggler wins, and measures skill through control over specific tricks. Inspired by CrossFit’s challenge of defining athleticism, we set out to build a fair, exciting, and accessible juggling competition for everyone.</p>
-        <p>Learn more about our <a href="/#rules">Rules</a> or explore <a href="/#last_events">Last Events</a>.</p>
+        <p>Learn more about our <a href="#rules">Rules</a> or explore <a href="/#last_events">Last Events</a>.</p>
     </section>
 
     <!-- Rules Section -->
@@ -26,13 +26,6 @@
                     <li>Competitors can join multiple routes if eligible.</li>
                     <li>Non-competitive route races are offered for fun and practice.</li>
                 </ul>
-                <h2>Competition Logistics</h2>
-                <p>To host a JuggleFit event, you’ll need:</p>
-                <ul>
-                    <li>Time slots for qualifications and finals.</li>
-                    <li>A speaker and microphone for finals announcements.</li>
-                    <li>Either a printing setup for trick forms or a big screen to display tricks during the finals.</li>
-                </ul>
             </div>
         </div>
     </section>
@@ -41,8 +34,8 @@
     <section id="cta" class="centered-content fade-in">
         <h3>Get Involved</h3>
         <div class="cta-buttons">
-            <a href="/#events" class="cta-button">JOIN Event</a>
-            <a href="/#host" class="cta-button">HOST Event</a>
+            <a href="/#upcoming_events" class="cta-button">JOIN Event</a><br>
+            <a href="/#host" class="cta-button">HOST Event</a><br>
             <a href="{{ url_for('create_route') }}" class="cta-button">PRACTICE</a>
         </div>
     </section>
@@ -75,7 +68,7 @@
             {% for event in past_events %}
             <div class="last-events-carousel-item {% if loop.first %}active{% endif %}">
                 <div class="carousel-caption">{{ event.name }}</div>
-                <img src="{{event.image_url}}" alt="{{ event.name }}">
+                <img class="event-image" src="{{event.image_url}}" alt="{{ event.name }}">
             </div>
             {% endfor %}
         </div>

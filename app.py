@@ -1,9 +1,8 @@
 from flask import Flask, render_template, request
-import random
 
-
-from events.past_events import ALL_PAST_EVENTS, FRONT_PAGE_PAST_EVENTS
-from events.upcoming_events import UPCOMING_EVENTS
+from database.events.past_events import ALL_PAST_EVENTS, FRONT_PAGE_PAST_EVENTS
+from database.events.upcoming_events import UPCOMING_EVENTS
+from database.organization.affiliates import AFFILIATES
 from route_generator.exceptions import NotEnoughTricksFoundException
 from route_generator.prop import PROP_OPTIONS, Prop
 from route_generator.route_generator import generate_route
@@ -52,6 +51,9 @@ def create_route():
         return render_template('created_route.html', route=route)
     return render_template('create_route.html', current_page='create_route', tag_options=TAG_OPTIONS, prop_options=PROP_OPTIONS)
 
+@app.route('/host_event', methods=['GET', 'POST'])
+def host_event():     
+    return render_template('host_event.html', affiliates=AFFILIATES)
 
 @app.route('/contact', methods=['GET', 'POST'])
 def contact():

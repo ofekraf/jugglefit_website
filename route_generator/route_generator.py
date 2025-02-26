@@ -2,17 +2,15 @@ import random
 from typing import Dict, List, Set
 
 from classes.route import Route
-from route_generator.tricks.base_trick import Trick
+from database.tricks.balls import BALLS_TRICKS
+from database.tricks.clubs import CLUBS_TRICKS
+from database.tricks.rings import RINGS_TRICKS
 
 from .tricks.tags import Tag
 from .utils.general import has_intersection
 
 from .exceptions import NotEnoughTricksFoundException
 from .prop import Prop
-
-from .tricks.balls import BALLS_TRICKS
-from .tricks.clubs import CLUBS_TRICKS
-from .tricks.rings import RINGS_TRICKS
 
 # @todo: Do I wastefully copy here huge lists?
 PROP_TO_TRICKS = {
