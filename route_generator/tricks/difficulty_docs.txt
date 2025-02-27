@@ -1,4 +1,4 @@
-difficulty is not well defined, so let's try using this baseline:
+difficulty is not well defined, so let's try using this as baseline:
     50c 3 balls cascade = 0
     10c 5 balls cascade = 10
     50c 5 balls cascade = 20
