@@ -1,9 +1,9 @@
 /* Import Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@900&family=Alef&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;900&family=Alef&display=swap');
 
 body {
     font-family: "Roboto", sans-serif;
-    font-weight: 900; /* Ensures Roboto Black */
+    font-weight: 400; /* Changed to normal weight; 900 is now only for specific bold elements */
     margin: 0;
     padding: 0;
     background-color: #FFFFFF; /* White */
@@ -51,7 +51,7 @@ nav ul li a:hover {
 }
 
 nav ul li a.active {
-    font-weight: bold;
+    font-weight: 900; /* Bold for active links */
     color: #D4D7D9; /* Iron for active state */
 }
 
@@ -101,7 +101,7 @@ main {
 
 h1, h2, h3, h4, h5, h6 {
     color: #1E488F; /* Cobalt */
-    font-weight: bold;
+    font-weight: 900; /* Bold for headings */
 }
 
 h1 {
@@ -375,7 +375,7 @@ footer {
 /* Style for the label */
 label {
     font-size: 16px;
-    font-weight: bold;
+    font-weight: 900; /* Bold for labels */
     color: #555;
     margin-bottom: 10px;
 }
@@ -425,7 +425,7 @@ label {
 
 #route-length-value {
     font-size: 14px;
-    font-weight: bold;
+    font-weight: 900; /* Bold for value display */
     color: #4e6d9e;
     margin-top: 5px;
 }
@@ -433,7 +433,7 @@ label {
 /* Label styling */
 label {
     font-size: 16px;
-    font-weight: bold;
+    font-weight: 900; /* Bold for labels */
     color: #333;
     margin-bottom: 10px;
     display: block;
@@ -505,7 +505,7 @@ select:hover {
         width: 100%;
         max-width: 100%;
     }
-  
+
     nav ul li {
         display: block;
         margin: 10px 0;
