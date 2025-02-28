@@ -35,93 +35,93 @@
         <h3>Get Involved</h3>
         <div class="cta-buttons">
             <a href="/#upcoming_events" class="cta-button">JOIN Event</a><br>
-            <a href="/#host" class="cta-button">HOST Event</a><br>
+            <a href="/host_event" class="cta-button">HOST Event</a><br>
             <a href="{{ url_for('create_route') }}" class="cta-button">PRACTICE</a>
         </div>
     </section>
 
-    <!-- Upcoming events Carousel -->
-<section id="upcoming_events" class="centered-content fade-in">
-    <h2>Upcoming Events</h2>
-    <div class="carousel">
-        <div class="carousel-inner" id="upcoming-events-carousel-inner">
-            {% for event in upcoming_events %}
-            <div class="upcoming-events-carousel-item {% if loop.first %}active{% endif %}">
-                <div class="carousel-caption">{{ event.name }}</div>
-                <div class="carousel-text">Date: {{event.date}}</div>
-                <div class="carousel-text">Location: {{event.location}}</div>
-                <div class="carousel-text">Routes: {{", ".join(event.routes)}}</div>
-                <div class="carousel-text"><a href={{event.url}} target="_blank">Click here for details</a></div>
+    <!-- Upcoming Events Carousel -->
+    <section id="upcoming_events" class="centered-content fade-in">
+        <h2>Upcoming Events</h2>
+        <div class="carousel">
+            <div class="carousel-inner" id="upcoming-events-carousel-inner">
+                {% for event in upcoming_events %}
+                <div class="upcoming-events-carousel-item {% if loop.first %}active{% endif %}">
+                    <div class="carousel-caption">{{ event.name }}</div>
+                    <div class="carousel-text">Date: {{event.date}}</div>
+                    <div class="carousel-text">Location: {{event.location}}</div>
+                    <div class="carousel-text">Routes: {{", ".join(event.routes)}}</div>
+                    <div class="carousel-text"><a href={{event.url}} target="_blank">Click here for details</a></div>
+                </div>
+                {% endfor %}
             </div>
-            {% endfor %}
+            <button class="upcoming-events-carousel-prev" id="upcoming-events-carousel-prev">❮</button>
+            <button class="upcoming-events-carousel-next" id="upcoming-events-carousel-next">❯</button>
         </div>
-        <button class="upcoming-events-carousel-prev" id="upcoming-events-carousel-prev">❮</button>
-        <button class="upcoming-events-carousel-next" id="upcoming-events-carousel-next">❯</button>
-    </div>
-</section>
+    </section>
 
-<!-- Last Winners Carousel -->
-<section id="last_events" class="centered-content fade-in">
-    <h2>Last Events</h2>
-    <div class="carousel">
-        <div class="carousel-inner" id="last-events-carousel-inner">
-            {% for event in past_events %}
-            <div class="last-events-carousel-item {% if loop.first %}active{% endif %}">
-                <div class="carousel-caption">{{ event.name }}</div>
-                <img class="event-image" src="{{event.image_url}}" alt="{{ event.name }}">
+    <!-- Last Events Carousel -->
+    <section id="last_events" class="centered-content fade-in">
+        <h2>Last Events</h2>
+        <div class="carousel">
+            <div class="carousel-inner" id="last-events-carousel-inner">
+                {% for event in past_events %}
+                <div class="last-events-carousel-item {% if loop.first %}active{% endif %}">
+                    <div class="carousel-caption">{{ event.name }}</div>
+                    <img class="carousel-image" src="{{event.image_url}}" alt="{{ event.name }}">
+                </div>
+                {% endfor %}
             </div>
-            {% endfor %}
+            <button class="carousel-prev" id="last-events-carousel-prev">❮</button>
+            <button class="carousel-next" id="last-events-carousel-next">❯</button>
         </div>
-        <button class="carousel-prev" id="last-events-carousel-prev">❮</button>
-        <button class="carousel-next" id="last-events-carousel-next">❯</button>
-    </div>
-</section>
+    </section>
 
-<script>
-    // JavaScript for both carousels
-    document.addEventListener('DOMContentLoaded', function () {
-        // Upcoming events carousel
-        const prevButtonUpcoming = document.getElementById('upcoming-events-carousel-prev');
-        const nextButtonUpcoming = document.getElementById('upcoming-events-carousel-next');
-        const carouselItemsUpcoming = document.querySelectorAll('.upcoming-events-carousel-item');
-        let currentIndexUpcoming = 0;
+    <script>
+        // JavaScript for both carousels
+        document.addEventListener('DOMContentLoaded', function () {
+            // Upcoming events carousel
+            const prevButtonUpcoming = document.getElementById('upcoming-events-carousel-prev');
+            const nextButtonUpcoming = document.getElementById('upcoming-events-carousel-next');
+            const carouselItemsUpcoming = document.querySelectorAll('.upcoming-events-carousel-item');
+            let currentIndexUpcoming = 0;
 
-        function updateCarouselUpcoming() {
-            carouselItemsUpcoming.forEach(item => item.classList.remove('active'));
-            carouselItemsUpcoming[currentIndexUpcoming].classList.add('active');
-        }
+            function updateCarouselUpcoming() {
+                carouselItemsUpcoming.forEach(item => item.classList.remove('active'));
+                carouselItemsUpcoming[currentIndexUpcoming].classList.add('active');
+            }
 
-        prevButtonUpcoming.addEventListener('click', function () {
-            currentIndexUpcoming = (currentIndexUpcoming === 0) ? carouselItemsUpcoming.length - 1 : currentIndexUpcoming - 1;
-            updateCarouselUpcoming();
+            prevButtonUpcoming.addEventListener('click', function () {
+                currentIndexUpcoming = (currentIndexUpcoming === 0) ? carouselItemsUpcoming.length - 1 : currentIndexUpcoming - 1;
+                updateCarouselUpcoming();
+            });
+
+            nextButtonUpcoming.addEventListener('click', function () {
+                currentIndexUpcoming = (currentIndexUpcoming === carouselItemsUpcoming.length - 1) ? 0 : currentIndexUpcoming + 1;
+                updateCarouselUpcoming();
+            });
+
+            // Last events carousel
+            const prevButtonLast = document.getElementById('last-events-carousel-prev');
+            const nextButtonLast = document.getElementById('last-events-carousel-next');
+            const carouselItemsLast = document.querySelectorAll('.last-events-carousel-item');
+            let currentIndexLast = 0;
+
+            function updateCarouselLast() {
+                carouselItemsLast.forEach(item => item.classList.remove('active'));
+                carouselItemsLast[currentIndexLast].classList.add('active');
+            }
+
+            prevButtonLast.addEventListener('click', function () {
+                currentIndexLast = (currentIndexLast === 0) ? carouselItemsLast.length - 1 : currentIndexLast - 1;
+                updateCarouselLast();
+            });
+
+            nextButtonLast.addEventListener('click', function () {
+                currentIndexLast = (currentIndexLast === carouselItemsLast.length - 1) ? 0 : currentIndexLast + 1;
+                updateCarouselLast();
+            });
         });
-
-        nextButtonUpcoming.addEventListener('click', function () {
-            currentIndexUpcoming = (currentIndexUpcoming === carouselItemsUpcoming.length - 1) ? 0 : currentIndexUpcoming + 1;
-            updateCarouselUpcoming();
-        });
-
-        // Last events carousel
-        const prevButtonLast = document.getElementById('last-events-carousel-prev');
-        const nextButtonLast = document.getElementById('last-events-carousel-next');
-        const carouselItemsLast = document.querySelectorAll('.last-events-carousel-item');
-        let currentIndexLast = 0;
-
-        function updateCarouselLast() {
-            carouselItemsLast.forEach(item => item.classList.remove('active'));
-            carouselItemsLast[currentIndexLast].classList.add('active');
-        }
-
-        prevButtonLast.addEventListener('click', function () {
-            currentIndexLast = (currentIndexLast === 0) ? carouselItemsLast.length - 1 : currentIndexLast - 1;
-            updateCarouselLast();
-        });
-
-        nextButtonLast.addEventListener('click', function () {
-            currentIndexLast = (currentIndexLast === carouselItemsLast.length - 1) ? 0 : currentIndexLast + 1;
-            updateCarouselLast();
-        });
-    });
-</script>
+    </script>
 </main>
 {% endblock %}

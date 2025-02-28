@@ -5,26 +5,102 @@ from route_generator.tricks.tags import Tag
 # @todo: Add TONS of trick
 
 RINGS_TRICKS = [
-    # Base Patterns
-    Trick(name="20c cascade", props_count=5, difficulty=20, tags={Tag.BasePattern}),
-    Trick(name="ANY", props_count=6, difficulty=50, tags={Tag.BasePattern}),
-    Trick(name="7c cascade", props_count=7, difficulty=55, tags={Tag.BasePattern}),
+    ########## BASE PATTERNS ##########
     
-    # Spin Control
-    Trick(name="20c isolated singles cascade", props_count=5, difficulty=33, tags={Tag.BasePattern, Tag.SpinControl}),
+    ### 3 props base patterns ###
     
-    # Spins
-    Trick(name="1up 360 -> cascade", props_count=3, difficulty=3, tags={Tag.Spin}),
-    Trick(name="3up 360 -> cascade", props_count=3, difficulty=15, tags={Tag.Spin}),
-    Trick(name="3up 360 -> cascade", props_count=5, difficulty=35, tags={Tag.Spin}),
+    ### 4 props base patterns ###
     
-    # Siteswaps
-    Trick(name="cascade -> 3c 531 ->cascade", props_count=3, difficulty=3, tags={Tag.Siteswap}),
-    Trick(name="cascade -> 441 ->cascade", props_count=3, difficulty=5, tags={Tag.Siteswap}),
-    Trick(name="12c 744", props_count=5, difficulty=25, tags={Tag.Siteswap}),
-    Trick(name="12c 645", props_count=5, difficulty=25, tags={Tag.Siteswap}),
+    ### 5 props base patterns ###
     
-    # Body throws
-    Trick(name="backrosses", props_count=3, difficulty=15, tags={Tag.BodyThrows}),
+    ### 6 props base patterns ###
     
+    ### 7 props base patterns ###
+    
+        
+    ########## SPINS ##########
+    
+    ### 3 props spins ###
+    # base 360
+    
+    # base 720
+    
+    # multi-stage
+    
+    # connections
+    
+    
+    ### 4 props spins ###
+    # base 360
+    
+    # base 720
+    
+    # multi-stage
+    
+    # connections
+    
+    ### 5 props spins ###
+    # base 360
+    
+    # base 720
+    
+    # multi-spin
+    
+    # Connections
+    
+    ### 6 props spins ###
+    # base 360
+    
+    # base 720
+    
+    # multi-spin
+    
+    # connections
+    
+    ### 7 props spins ###
+    # base 360
+    
+    # base 720
+    
+    # multi-spin
+    
+    # connections
+    
+    ########## SITESWAPS ##########
+    
+    ### 3 props siteswaps ###
+    # period 3
+    
+    # period 5
+    
+    ### 4 props siteswaps ###
+    # period 3
+    
+    # period 5
+    
+    ### 5 props siteswaps ###
+    # period 3
+    
+    # period 5
+    
+    ### 6 props siteswaps ###
+    # period 3
+    
+    # period 5
+    
+    
+    ### 7 props siteswaps ###
+    
+    
+    ########## BODY THROWS ##########
+    
+    ### 3 props body throws ###
+    
+    ### 4 props body throws ###
+    
+    ### 5 props body throws ###
+    
+    ### 6 props body throws ###
+    
+    ### 7 props body throws ###   
 ]
