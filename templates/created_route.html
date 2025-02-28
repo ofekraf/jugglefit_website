@@ -1,4 +1,21 @@
 {% extends "utils/base.html" %}
 {% block content %}
-{% include "utils/route_display.html" %}
+<div class="route-page">
+    <!-- Route Title and Stopwatch Side by Side -->
+    <div class="route-header">
+        <h1 class="route-title">{{ route.name }}</h1>
+        <div class="stopwatch-container">
+            <div id="stopwatch" class="stopwatch">10:00</div>
+            <button id="stopwatch-toggle" class="stopwatch-button">START</button>
+        </div>
+    </div>
+
+    <!-- Workout Details -->
+    <div class="workout-details">
+        <span>Workout details</span>
+    </div>
+
+    <!-- Route Display (includes prop sections and tricks) -->
+    {% include "utils/route_display.html" %}
+</div>
 {% endblock %}
