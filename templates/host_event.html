@@ -1,5 +1,5 @@
 {% extends "utils/base.html" %}
-{% block title %}Home{% endblock %}
+{% block title %}Host an Event{% endblock %}
 {% block content %}
 <main>
     <!-- About Section -->
@@ -21,7 +21,7 @@
             </div>
         </div>
     </section>
-    
+
     <!-- Affiliates Carousel -->
     <section id="Affiliates" class="centered-content fade-in">
         <h2>Our Affiliates</h2>
@@ -31,7 +31,7 @@
                 <div class="affiliates-carousel-item {% if loop.first %}active{% endif %}">
                     <div class="carousel-caption">{{ affiliate.name }}</div>
                     <div class="carousel-text">Residence: {{affiliate.residence}}</div>
-                    <img class="affiliates-carousel-image" src="{{affiliate.image_url}}" alt="{{ affiliate.name }}">
+                    <img class="carousel-image" src="{{affiliate.image_url}}" alt="{{ affiliate.name }}">
                 </div>
                 {% endfor %}
             </div>

@@ -5,27 +5,40 @@
 </div>
 {% endif %}
 <div class="route-container" {% if container_id %}id="{{ container_id }}"{% endif %}>
-    <h2 class="route-name">Route Name: {{ route.name }}</h2>
-    
-    <table class="route" style="display: inline;">
+    <!-- Prop Sections with Tricks -->
     {% for props_count, tricks in route.tricks_map.items() %}
-        <tr><th class="route-header">{{ props_count }} {{route.prop.value}}</th></tr>
-        <ul class="trick-items">
+        <div class="prop-section" data-props="{{ props_count }}">
+            <!-- Prop Icon and Count (Dynamic based on route.prop.value) -->
+            <div class="prop-icon">
+                {% if route.prop.value == "clubs" %}
+                    <img src="{{ url_for('static', filename='images/juggling_club.jpg') }}" alt="Clubs Icon" class="prop-image">
+                {% elif route.prop.value == "balls" %}
+                    <img src="{{ url_for('static', filename='images/juggling_balls.png') }}" alt="Balls Icon" class="prop-image">
+                {% elif route.prop.value == "rings" %}
+                    <img src="{{ url_for('static', filename='images/juggling_rings.jpg') }}" alt="Rings Icon" class="prop-image">
+                {% endif %}
+                <span class="prop-count">X {{ props_count }}</span>
+            </div>
+            <!-- Trick List -->
             {% for trick in tricks %}
-                <tr>
-                    <td class="route-trick">
-                        {{ trick.name }}
+                <div class="trick-item">
+                    <div class="trick-details">
+                        <!-- Trick Name -->
+                        <span class="trick-name">{{ trick.name }}</span>
+                        <!-- Catches and Comments -->
+                        {% if trick.catches is defined %}
+                            <span class="trick-catches">{{ trick.catches }} Catches</span>
+                        {% endif %}
                         {% if trick.comment %}
                             <span class="trick-comment-container">
                                 <i class="fas fa-info-circle"></i>
                                 <span class="trick-comment">{{ trick.comment }}</span>
                             </span>
                         {% endif %}
-                    </td>
-                </tr>
+                    </div>
+                </div>
             {% endfor %}
-        </ul>
+        </div>
     {% endfor %}
-    </table>
 </div>
 {% endblock %}
