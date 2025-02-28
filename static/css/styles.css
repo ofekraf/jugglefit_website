@@ -1,17 +1,18 @@
 /* Import Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;900&family=Alef&display=swap');
 
+/* Base Styles */
 body {
     font-family: "Roboto", sans-serif;
-    font-weight: 400; /* Changed to normal weight; 900 is now only for specific bold elements */
+    font-weight: 400;
     margin: 0;
     padding: 0;
-    background-color: #FFFFFF; /* White */
-    color: #000000; /* Black */
+    background-color: #FFFFFF;
+    color: #000000;
 }
 
 header {
-    background-color: #1E488F; /* Cobalt */
+    background-color: #1E488F;
     padding: 10px;
     text-align: center;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
@@ -39,26 +40,26 @@ nav ul li {
 }
 
 nav ul li a {
-    color: #FFFFFF; /* White */
+    color: #FFFFFF;
     text-decoration: none;
     font-size: 1.2em;
     transition: color 0.3s ease, transform 0.3s ease;
 }
 
 nav ul li a:hover {
-    color: #000000; /* Black */
+    color: #000000;
     transform: translateY(-2px);
 }
 
 nav ul li a.active {
-    font-weight: 900; /* Bold for active links */
-    color: #D4D7D9; /* Iron for active state */
+    font-weight: 900;
+    color: #D4D7D9;
 }
 
 .dropdown .dropdown-content {
     display: none;
     position: absolute;
-    background-color: #1E488F; /* Cobalt */
+    background-color: #1E488F;
     min-width: 160px;
     box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
     z-index: 1;
@@ -67,7 +68,7 @@ nav ul li a.active {
 }
 
 .dropdown .dropdown-content a {
-    color: #FFFFFF; /* White */
+    color: #FFFFFF;
     padding: 12px 16px;
     text-decoration: none;
     display: block;
@@ -75,8 +76,8 @@ nav ul li a.active {
 }
 
 .dropdown .dropdown-content a:hover {
-    background-color: #000000; /* Black */
-    color: #FFFFFF; /* White */
+    background-color: #000000;
+    color: #FFFFFF;
 }
 
 .dropdown:hover .dropdown-content {
@@ -93,15 +94,15 @@ main {
     font-size: 1.2em;
     max-width: 800px;
     margin: 0 auto;
-    background-color: #D4D7D9; /* Iron */
+    background-color: #D4D7D9;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 h1, h2, h3, h4, h5, h6 {
-    color: #1E488F; /* Cobalt */
-    font-weight: 900; /* Bold for headings */
+    color: #1E488F;
+    font-weight: 900;
 }
 
 h1 {
@@ -110,15 +111,15 @@ h1 {
 }
 
 h2 {
-    font-family: "Alef", sans-serif; /* Subtitles */
-    font-weight: 400; /* Alef default weight */
+    font-family: "Alef", sans-serif;
+    font-weight: 400;
     font-size: 1.8em;
     margin-top: 30px;
 }
 
 h3 {
-    font-family: "Alef", sans-serif; /* Subtitles */
-    font-weight: 400; /* Alef default weight */
+    font-family: "Alef", sans-serif;
+    font-weight: 400;
     font-size: 1.5em;
     margin-top: 20px;
 }
@@ -136,8 +137,8 @@ label, input, textarea {
 
 .tricks-container {
     display: flex;
-    justify-content: center; /* Center the content horizontally */
-    align-items: center;     /* Center the content vertically */
+    justify-content: center;
+    align-items: center;
     margin: 20px auto;
     width: 80%;
     max-width: 800px;
@@ -149,8 +150,8 @@ label, input, textarea {
 
 .tricks-column {
     display: grid;
-    grid-template-columns: repeat(2, 1fr); /* Creates two columns for checkboxes */
-    gap: 15px; /* Adds space between checkboxes */
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
     width: 100%;
 }
 
@@ -162,7 +163,6 @@ label, input, textarea {
     margin-bottom: 15px;
 }
 
-/* Optional: If you want to further customize how labels or checkboxes appear */
 .checkbox-container {
     display: flex;
     align-items: center;
@@ -170,8 +170,8 @@ label, input, textarea {
 }
 
 .modern-button {
-    background-color: #1E488F; /* Cobalt */
-    color: #FFFFFF; /* White */
+    background-color: #1E488F;
+    color: #FFFFFF;
     border: none;
     padding: 12px 20px;
     cursor: pointer;
@@ -182,13 +182,13 @@ label, input, textarea {
 }
 
 .modern-button:hover {
-    background-color: #000000; /* Black */
+    background-color: #000000;
     transform: scale(1.05);
 }
 
 footer {
-    background-color: #000000; /* Black */
-    color: #FFFFFF; /* White */
+    background-color: #000000;
+    color: #FFFFFF;
     text-align: center;
     padding: 10px;
     position: relative;
@@ -196,323 +196,291 @@ footer {
 }
 
 .footer-link {
-    color: #1E488F; /* Cobalt */
+    color: #1E488F;
     text-decoration: none;
     transition: color 0.3s ease;
 }
 
 .footer-link:hover {
-    color: #000000; /* Black */
+    color: #000000;
 }
 
-.fade-in {
-    opacity: 0;
-    animation: fadeIn 1s ease forwards;
-    will-change: opacity;
+/* New Styles for Route Page */
+.route-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
 }
 
-@keyframes fadeIn {
-    to {
-        opacity: 1;
-    }
+.route-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
 }
 
-.route-button-container {
-    position: relative;
-    display: inline-block;
-    margin-left: 10px;
+.route-title {
+    font-size: 2em;
+    color: #000000;
+    margin: 0;
 }
 
-.route-button {
-    background-color: #1E488F; /* Cobalt */
-    color: #FFFFFF; /* White */
+.stopwatch-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.stopwatch {
+    font-size: 1.5em;
+    font-weight: 900;
+    color: #000000;
+    background: linear-gradient(to right, #ff4d4d, #ff8080);
+    padding: 10px 20px;
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stopwatch-button {
+    background-color: #ff4d4d;
+    color: #FFFFFF;
     border: none;
-    padding: 5px 10px;
+    padding: 8px 16px;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 0.9em;
+    font-size: 1em;
     transition: background-color 0.3s ease;
+}
+
+.stopwatch-button:hover {
+    background-color: #ff8080;
+}
+
+.workout-details {
+    font-size: 1.2em;
+    color: #000000;
+    text-align: center;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #1E488F;
+    padding-bottom: 10px;
 }
 
 .route-container {
     width: 100%;
     margin: 0 auto;
-    display: block;
-    justify-content: center;
-    border: 1px solid black;
-    border-collapse: collapse;
 }
 
-.route, .route-header, .route-trick {
-    text-align: center;
-    white-space: normal;
-    align-items: center;
-    position: relative;
-    display: inline;
-}
-
-.route-trick {
-    font-size: 0.9em;
-}
-
-.route-header {
-    font-size: 1.2em;
-}
-
-.route-button:hover {
-    background-color: #000000; /* Black */
-}
-.workout-input {
-    color: #000000; /* Black */
-}
-
-.workout-input:focus {
-    color: #000000; /* Black */
-}
-
-.headers-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 10px 0;
-    font-size: 1.2em;
-    font-family: "Roboto", sans-serif; /* Override to match body */
-}
-
-.header-label {
-    flex: 1;
-    text-align: center;
-    margin: 0;
-}
-
-.sliders-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.prop-section {
     margin: 20px 0;
+    padding: 15px;
+    background-color: #f5f5f5;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.slider-group {
+.prop-section[data-props="3"] {
+    background-color: #ff4d4d;
+    color: #FFFFFF;
+}
+
+.prop-section[data-props="5"] {
+    background-color: #4CAF50;
+    color: #FFFFFF;
+}
+
+.prop-icon {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.prop-image {
+    max-width: 50px;
+    height: auto;
+}
+
+.prop-placeholder {
+    max-width: 50px;
+    height: 50px;
+    background-color: #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+}
+
+.prop-count {
+    font-size: 1.5em;
+    font-weight: 900;
+}
+
+.trick-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.trick-details {
     flex: 1;
-    margin: 0 10px;
 }
 
-.left-slider {
-    text-align: left;
-    padding-left: 20px;
+.trick-name {
+    font-size: 1.1em;
+    font-weight: 500;
 }
 
-.right-slider {
-    text-align: right;
-    padding-right: 20px;
+.trick-catches {
+    font-size: 0.9em;
+    margin-left: 10px;
+    color: rgba(255, 255, 255, 0.8);
 }
 
-.dual-slider {
+/* Trick Comments */
+.trick-comment-container {
+    display: inline-block;
     position: relative;
-    width: 80%;
-    margin: 0 auto;
+    margin-left: 10px;
+    cursor: pointer;
 }
 
-.range-slider {
-    width: 80%;
-    vertical-align: middle;
-    -webkit-appearance: none;
-    appearance: none;
-    height: 10px;
-    background: #D4D7D9; /* Iron */
-    outline: none;
-    opacity: 0.7;
-    transition: opacity 0.2s;
+.trick-comment-container i {
+    font-size: 24px;
+    color: #FFFFFF;
 }
 
-.range-slider:hover {
+.trick-comment {
+    visibility: hidden;
+    width: 250px;
+    background-color: #333;
+    color: white;
+    text-align: center;
+    border-radius: 5px;
+    padding: 10px;
+    position: absolute;
+    z-index: 10;
+    top: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    white-space: normal;
+}
+
+.trick-comment-container:hover .trick-comment {
+    visibility: visible;
     opacity: 1;
 }
 
-.range-slider::-webkit-slider-runnable-track {
-    background: #D4D7D9; /* Iron */
-}
-
-.range-slider::-moz-range-track {
-    background: #D4D7D9; /* Iron */
-}
-
-.range-slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 15px;
-    height: 15px;
-    background: #1E488F; /* Cobalt */
-    cursor: pointer;
-}
-
-.range-slider::-moz-range-thumb {
-    width: 15px;
-    height: 15px;
-    background: #1E488F; /* Cobalt */
-    cursor: pointer;
-}
-
-.values-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 15px;
-}
-
-.slider-container {
-    margin: 30px auto;
-    width: 80%;
-    max-width: 600px;
-  }
-
-.slider-wrapper {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-/* Style for the label */
-label {
-    font-size: 16px;
-    font-weight: 900; /* Bold for labels */
-    color: #555;
-    margin-bottom: 10px;
-}
-
-/* Style for each slider */
-.noUi-target {
-    height: 10px;
-    border-radius: 8px;
-    background: linear-gradient(to right, #4e6d9e, #99b3c6);
-}
-
-/* Slider handle */
-.noUi-handle {
-    background: #4e6d9e;
-    border-radius: 50%;
-    width: 18px;
-    height: 18px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-}
-
-/* Tooltip for the slider */
-.noUi-tooltip {
-    font-size: 12px;
-    background-color: #4e6d9e;
-    color: white;
-    padding: 5px;
-    border-radius: 4px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-/* Style for the range text */
-.slider-range {
-    font-size: 14px;
-    font-weight: 600;
-    color: #4e6d9e;
-    margin-top: 5px;
-}
-
-/* Route Length slider */
-#route-length-slider {
-    width: 100%;
-    height: 8px;
-    background-color: #ddd;
-    border-radius: 5px;
+.route-button-container {
+    text-align: center;
     margin-bottom: 20px;
 }
 
-#route-length-value {
-    font-size: 14px;
-    font-weight: 900; /* Bold for value display */
-    color: #4e6d9e;
-    margin-top: 5px;
+.route-button {
+    background-color: #1E488F;
+    color: #FFFFFF;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease;
 }
 
-/* Label styling */
-label {
-    font-size: 16px;
-    font-weight: 900; /* Bold for labels */
-    color: #333;
-    margin-bottom: 10px;
-    display: block;
-    text-align: left;
+.route-button:hover {
+    background-color: #000000;
 }
 
-/* Style the select dropdown */
-select {
-    width: 100%;
+/* New Styles for General Images (e.g., profile pics, event images) */
+.image-general {
+    max-width: 200px;
     height: auto;
-    padding: 1px;
-    border: 2px solid #4e6d9e;
-    border-radius: 5px;
-    background-color: #fff;
-    font-size: 10px;
-    color: #333;
-    resize: none;
-    overflow-y: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Style for the option items */
-option {
-    padding: 10px;
-}
-
-/* Hover effect for options */
-select:hover {
-    border-color: #3a567d;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-}
-
-/* Style for the container with scroll */
-.tricks-column select:focus {
-    border-color: #3a567d;
-    outline: none;
-    box-shadow: 0 0 5px rgba(58, 86, 125, 0.5);
-}
-
-.prop-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0px; /* Remove the vertical gap */
-    margin: 0;
-    padding: 0;
-    align-items: flex-start; /* Align the group to the left */
-}
-
-.prop-option {
-    display: flex;
-    align-items: center;
-    gap: 5px; /* Adjust the gap to make the radio button closer to the text */
-    margin: 0;
-    padding: 0;
-}
-
-.prop-option-input {
-    margin: 0; /* Remove margin to make radio button tightly aligned */
-    padding: 0; /* Remove any padding */
+.carousel-image {
+    max-width: 200px;
+    height: auto;
 }
 
 /* Responsive Design */
 @media (max-width: 768px) {
-    .tricks-container {
-        flex-direction: column;
-        align-items: stretch;
+    .route-page {
+        padding: 10px;
     }
 
-    .tricks-column {
-        width: 100%;
-        max-width: 100%;
+    .route-header {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .route-title {
+        font-size: 1.8em;
+        text-align: center;
+    }
+
+    .stopwatch-container {
+        margin: 0 auto;
+    }
+
+    .stopwatch {
+        width: 80px;
+        height: 80px;
+        font-size: 1.2em;
+    }
+
+    .stopwatch-button {
+        font-size: 0.9em;
+        padding: 6px 12px;
+    }
+
+    .workout-details {
+        font-size: 1em;
+    }
+
+    .prop-section {
+        padding: 10px;
+    }
+
+    .prop-image, .prop-placeholder {
+        max-width: 40px;
+        height: auto;
+    }
+
+    .prop-count {
+        font-size: 1.2em;
+    }
+
+    .trick-item {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 8px 0;
+    }
+
+    header img {
+        max-width: 150px;
+    }
+
+    .image-general {
+        max-width: 150px;
+    }
+
+    .carousel-image {
+        max-width: 150px;
     }
 
     nav ul li {
         display: block;
         margin: 10px 0;
-    }
-
-    header img {
-        max-width: 150px;
     }
 
     main {
@@ -538,86 +506,6 @@ select:hover {
     .dropdown .dropdown-content {
         position: static;
         box-shadow: none;
-        background-color: #1E488F; /* Cobalt */
+        background-color: #1E488F;
     }
-
-    .slider-container {
-      margin-bottom: 20px;
-    }
-    .slider-wrapper {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .slider-range {
-      margin-left: 10px;
-    }
-    .noUi-tooltip {
-      font-size: 12px;
-    }
-}
-
-/* Carousel styling */
-.carousel-inner {
-    display: flex;
-    overflow: hidden; /* Ensures only one item is visible */
-}
-
-.upcoming-events-carousel-item,
-.last-events-carousel-item,
-.affiliates-carousel-item {
-    display: none; /* Hide all items by default */
-    width: 100%; /* Ensure the carousel items take up full width */
-}
-
-.upcoming-events-carousel-item.active,
-.last-events-carousel-item.active,
-.affiliates-carousel-item.active {
-    display: block; /* Show the active item */
-}
-
-.affiliates-carousel-image,
-.event-image {
-    width: 200px; /* Width of the image */
-    height: auto; /* Maintain aspect ratio */
-}
-
-/* Trick comments */
-/* Container to position the icon */
-.trick-comment-container {
-    display: inline-block;
-    position: relative;
-    margin-left: 10px;
-    cursor: pointer;
-}
-
-/* Style for the info icon */
-.trick-comment-container i {
-    font-size: 24px; /* Adjust size as needed */
-    color: #007BFF; /* Info icon color */
-}
-
-/* Initially hide the comment */
-.trick-comment {
-    visibility: hidden;
-    width: 250px;
-    background-color: #333;
-    color: white;
-    text-align: center;
-    border-radius: 5px;
-    padding: 10px;
-    position: absolute;
-    z-index: 10;
-    top: 30px; /* Positioned below the icon */
-    left: 50%;
-    transform: translateX(-50%);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    white-space: normal; /* Allow text to wrap within the comment box */
-}
-
-/* Show the comment when hovering over the container */
-.trick-comment-container:hover .trick-comment {
-    visibility: visible;
-    opacity: 1;
 }
