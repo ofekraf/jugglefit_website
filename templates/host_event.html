@@ -1,5 +1,5 @@
 {% extends "utils/base.html" %}
-{% block title %}Home{% endblock %}
+{% block title %}Host an Event{% endblock %}
 {% block content %}
 <main>
     <!-- About Section -->
@@ -7,21 +7,21 @@
         <div class="infographic-container">
             <div class="infographic-text">
                 <h1>Host An Event</h1>
-                <p>Interested to host an event? JuggleFit really likes to be hosted!</p>
+                <p>Interested to host a JuggleFit event? JuggleFit likes to be hosted!</p>
                 <p>Hosting a JuggleFit event is easy. Only 4 simple requirements:</p>
 
                 <h2>Requirements</h2>
-                <p>To host a JuggleFit event, you’ll need:</p>
+                <p>To host a JuggleFit event, you need:</p>
                 <ul>
                     <p>1. Time slots for qualifications and finals</p>
-                    <p>2. A speaker and a microphone for finals announcements</p>
+                    <p>2. A microphone and a speaker for finals announcements</p>
                     <p>3. A printing setup for trick forms</p>
                     <p>4. One of our <a href="#Affiliates">Affiliates</a> at the convention</p>
                 </ul>
             </div>
         </div>
     </section>
-    
+
     <!-- Affiliates Carousel -->
     <section id="Affiliates" class="centered-content fade-in">
         <h2>Our Affiliates</h2>
@@ -31,7 +31,7 @@
                 <div class="affiliates-carousel-item {% if loop.first %}active{% endif %}">
                     <div class="carousel-caption">{{ affiliate.name }}</div>
                     <div class="carousel-text">Residence: {{affiliate.residence}}</div>
-                    <img class="affiliates-carousel-image" src="{{affiliate.image_url}}" alt="{{ affiliate.name }}">
+                    <img class="carousel-image" src="{{affiliate.image_url}}" alt="{{ affiliate.name }}">
                 </div>
                 {% endfor %}
             </div>
