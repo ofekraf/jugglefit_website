@@ -1,17 +1,17 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Workout name placeholder handling
-    const workoutInput = document.getElementById('route_name');
-    if (workoutInput) {
-        workoutInput.value = workoutInput.placeholder;
+    // Route name placeholder handling
+    const routeInput = document.getElementById('route_name');
+    if (routeInput) {
+        routeInput.value = routeInput.placeholder;
 
-        workoutInput.addEventListener('focus', function() {
+        routeInput.addEventListener('focus', function() {
             if (this.value === this.placeholder) {
                 this.value = '';
                 this.style.color = 'black';
             }
         });
 
-        workoutInput.addEventListener('blur', function() {
+        routeInput.addEventListener('blur', function() {
             if (this.value === '') {
                 this.value = this.placeholder;
                 this.style.color = 'grey';
