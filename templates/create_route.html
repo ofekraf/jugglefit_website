@@ -5,7 +5,7 @@
     <h1>Create Your Own JuggleFit Route</h1>
     <form method="POST" action="{{ url_for('create_route') }}">
         <label for="route_name">Route Name:</label>
-        <input type="text" id="route_name" name="route_name" placeholder="My awesome route" class="workout-input" required><br>
+        <input type="text" id="route_name" name="route_name" placeholder="My awesome route" class="route-input" required><br>
 
         <div class="prop-group">
             {% for prop in prop_options %}
