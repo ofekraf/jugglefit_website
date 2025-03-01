@@ -260,7 +260,7 @@ footer {
     background-color: #ff8080;
 }
 
-.workout-details {
+.route-details {
     font-size: 1.2em;
     color: #000000;
     text-align: center;
@@ -406,6 +406,19 @@ footer {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.upcoming-events-carousel-item,
+.last-events-carousel-item,
+.affiliates-carousel-item {
+    display: none; /* Hide all items by default */
+    width: 100%; /* Ensure the carousel items take up full width */
+}
+
+.upcoming-events-carousel-item.active,
+.last-events-carousel-item.active,
+.affiliates-carousel-item.active {
+    display: block; /* Show the active item */
+}
+
 .carousel-image {
     max-width: 200px;
     height: auto;
@@ -443,7 +456,7 @@ footer {
         padding: 6px 12px;
     }
 
-    .workout-details {
+    .route-details {
         font-size: 1em;
     }
 
