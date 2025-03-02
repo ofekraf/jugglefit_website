@@ -269,6 +269,12 @@ footer {
     padding-bottom: 10px;
 }
 
+.tricks-database {
+    text-align: center;
+    font-size: 1.2em;
+    color: #000000;
+}
+
 .route-container {
     width: 100%;
     margin: 0 auto;
@@ -317,6 +323,18 @@ footer {
 .prop-count {
     font-size: 1.5em;
     font-weight: 900;
+}
+
+.prop-option {
+    display: inline-flex;
+    align-items: center; /* Ensure the radio button and text are vertically aligned */
+    gap: 5px; /* Optional: Adds a small gap between radio button and text */
+}
+  
+.prop-option-input,
+.prop-option-name {
+    vertical-align: middle; /* Ensures the radio button is vertically centered */
+    width: min-content;
 }
 
 .trick-item {
