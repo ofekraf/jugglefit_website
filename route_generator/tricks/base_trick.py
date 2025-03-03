@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import Set, Optional
+from route_generator.tricks.tags import Tag
 
 @dataclass(kw_only=True)
 class Trick:
@@ -7,5 +8,5 @@ class Trick:
     name: str
     props_count: int
     difficulty: Optional[int] = None
-    tags: Optional[List[str]] = None
+    tags: Optional[Set[Tag]] = None
     comment: Optional[str] = None
