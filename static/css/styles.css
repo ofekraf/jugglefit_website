@@ -289,12 +289,37 @@ footer {
 }
 
 .prop-section[data-props="3"] {
-    background-color: #ff4d4d;
+    background-color: #2FBADF;
+    color: #FFFFFF;
+}
+
+.prop-section[data-props="4"] {
+    background-color: #FF4D4D;
     color: #FFFFFF;
 }
 
 .prop-section[data-props="5"] {
-    background-color: #4CAF50;
+    background-color: #08B10F;
+    color: #FFFFFF;
+}
+
+.prop-section[data-props="6"] {
+    background-color: #FCD601;
+    color: #FFFFFF;
+}
+
+.prop-section[data-props="7"] {
+    background-color: #A322C5;
+    color: #FFFFFF;
+}
+
+.prop-section[data-props="8"] {
+    background-color: #1ECDCA;
+    color: #FFFFFF;
+}
+
+.prop-section[data-props="9"] {
+    background-color: #AE0101;
     color: #FFFFFF;
 }
 
@@ -352,12 +377,6 @@ footer {
 .trick-name {
     font-size: 1.1em;
     font-weight: 500;
-}
-
-.trick-catches {
-    font-size: 0.9em;
-    margin-left: 10px;
-    color: rgba(255, 255, 255, 0.8);
 }
 
 /* Trick Comments */

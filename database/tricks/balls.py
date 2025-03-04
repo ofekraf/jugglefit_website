@@ -38,6 +38,10 @@ BALLS_TRICKS = [
     Trick(name="16c async ANY", props_count=8, difficulty=68, tags={Tag.BasePattern}),
     
     
+    ### 9 props base patterns ###
+    Trick(name="9c cascade", props_count=9, difficulty=61, tags={Tag.BasePattern}),
+    Trick(name="cascade", props_count=9, difficulty=80, tags={Tag.BasePattern}),
+    
     ########## SPINS ##########
     
     ### 3 props spins ###
