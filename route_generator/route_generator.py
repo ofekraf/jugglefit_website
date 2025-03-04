@@ -30,14 +30,14 @@ def generate_route(*,
     name: str
 ) -> Route:
     relevant_tricks = [trick for trick in PROP_TO_TRICKS[prop] if 
-                       max_difficulty >= trick.difficulty >= min_difficulty and
+                       max_difficulty >= (trick.difficulty if trick.difficulty else min_difficulty) >= min_difficulty and
                        max_props >= trick.props_count >= min_props and
                        not has_intersection(trick.tags, exclude_tags)]
     
     if len(relevant_tricks) < route_length:
         raise NotEnoughTricksFoundException()
     tricks = random.sample(relevant_tricks, route_length)
-    tricks.sort(key=lambda trick: (trick.props_count, trick.difficulty))
+    tricks.sort(key=lambda trick: (trick.props_count, (trick.difficulty if trick.difficulty else min_difficulty)))
     
     return Route(name=name, prop=prop, tricks=tricks)
     
