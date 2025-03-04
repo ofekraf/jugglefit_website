@@ -2,6 +2,7 @@ from route_generator.tricks.base_trick import Trick
 from route_generator.tricks.tags import Tag
 
 # @todo: Add TONS of trick
+# @todo - Tamuz, go over difficulties + assign difficulties where I didn't put them
 
 
 CLUBS_TRICKS = [
