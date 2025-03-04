@@ -25,10 +25,8 @@
                     <div class="trick-details">
                         <!-- Trick Name -->
                         <span class="trick-name">{{ trick.name }}</span>
-                        <!-- Catches and Comments -->
-                        {% if trick.catches is defined %}
-                            <span class="trick-catches">{{ trick.catches }} Catches</span>
-                        {% endif %}
+                        
+                        <!-- Comments -->
                         {% if trick.comment %}
                             <span class="trick-comment-container">
                                 <i class="fas fa-info-circle"></i>

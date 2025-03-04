@@ -30,7 +30,7 @@ UPCOMING_EVENTS = [
     ),
     UpcomingEvent(
         name="European Juggling Convention 2025 (EJC)",
-        date="To be determind",
+        date="08/08/2025",
         location="Arnhem, The Netherlands",
         url="https://ejc2025.org",
         routes=[
