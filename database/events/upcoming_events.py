@@ -4,7 +4,7 @@ from classes.event import UpcomingEvent
 UPCOMING_EVENTS = [
     UpcomingEvent(
         name="Israeli Juggling Convention 2025 (IJC)",
-        date="16/04/2025",
+        date="17/04/2025",
         location="Gan Hashlosha, Israel",
         url="https://www.ijc.co.il/?lang=en",
         routes=[
@@ -23,9 +23,7 @@ UPCOMING_EVENTS = [
             "Balls Open",
             "Clubs Open",
             "Balls U18",
-            "Clubs U18",
-            "Rings Routes?",
-            "Women's routes?"
+            "Clubs U18"
         ]
     ),
     UpcomingEvent(
