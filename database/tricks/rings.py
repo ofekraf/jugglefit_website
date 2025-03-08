@@ -71,24 +71,35 @@ RINGS_TRICKS = [
     
     # period 5
     
+    # other period
+    
     ### 4 props siteswaps ###
     # period 3
     
     # period 5
+    
+    # other period
     
     ### 5 props siteswaps ###
     # period 3
     
     # period 5
     
+    # other period
+    
     ### 6 props siteswaps ###
     # period 3
     
     # period 5
     
+    # other period
     
     ### 7 props siteswaps ###
+    # period 3
     
+    # period 5
+    
+    # other period    
     
     ########## BODY THROWS ##########
     

@@ -8,8 +8,8 @@ CLUBS_TRICKS = [
     ### 3 props base patterns ###
 
     ### 4 props base patterns ###
-    Trick(name="sync fountain -> async fountain", difficulty=20, props_count=4, tags={Tag.BasePattern}, comment="transition: (5x,4)"), #todo - difficulty
-    Trick(name="sync fountain -> 2up 360 -> sync fountain" , difficulty=22, props_count=4, tags={Tag.Spin}),   #todo - difficulty
+    Trick(name="sync fountain -> async fountain", difficulty=20, props_count=4, tags={Tag.BasePattern}, comment="transition: (5x,4)"),
+    Trick(name="sync fountain -> 2up 360 -> sync fountain" , difficulty=22, props_count=4, tags={Tag.Spin}),
     Trick(name="20c flats", difficulty=30, props_count=4, tags={Tag.SpinControl}),
 
     ### 5 props base patterns ###
