@@ -275,11 +275,6 @@ footer {
     color: #000000;
 }
 
-.route-container {
-    width: 100%;
-    margin: 0 auto;
-}
-
 .prop-section {
     margin: 20px 0;
     padding: 15px;
@@ -415,6 +410,11 @@ footer {
     opacity: 1;
 }
 
+.route-container {
+    width: 100%;
+    margin: 0 auto;
+}
+
 .route-button-container {
     text-align: center;
     margin-bottom: 20px;
@@ -432,6 +432,32 @@ footer {
 }
 
 .route-button:hover {
+    background-color: #000000;
+}
+
+.past-event-container {
+    width: 100%;
+    margin: 0 auto;
+    display: none;
+}
+
+.past-event-button-container {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.past-event-button {
+    background-color: #1E488F;
+    color: #FFFFFF;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease;
+}
+
+.past-event-button:hover {
     background-color: #000000;
 }
 
