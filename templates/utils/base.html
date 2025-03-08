@@ -33,5 +33,16 @@
         <p>If you are familiar with the term <u>open-source github repo</u>, you can contribute <a href="https://github.com/ofekraf/jugglefit_website" class="footer-link">here</a></p>
     </footer>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        function toggle_object(object_name) {
+            object = document.getElementById(object_name);
+            if (object.style.display === "none"){
+                object.style.display = "block"; // Show object
+            }
+            else {
+                object.style.display = "none"
+            }
+        }
+    </script>
 </body>
 </html>

@@ -1,9 +1,7 @@
-# @todo: Add TONS of trick
-
 from route_generator.tricks.base_trick import Trick
 from route_generator.tricks.tags import Tag
 
-
+# @todo: Add TONS of trick
 BALLS_TRICKS = [
 
     ########## BASE PATTERNS ##########
