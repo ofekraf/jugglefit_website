@@ -2,9 +2,6 @@ from route_generator.tricks.base_trick import Trick
 from route_generator.tricks.tags import Tag
 
 # @todo: Add TONS of trick
-# @todo - Tamuz, go over difficulties + assign difficulties where I didn't put them
-
-
 CLUBS_TRICKS = [
     ########## BASE PATTERNS ##########
     
@@ -23,8 +20,8 @@ CLUBS_TRICKS = [
     Trick(name="6c sync fountain", props_count=6, difficulty=46, tags={Tag.BasePattern}),
     
     ### 7 props base patterns ###
-    Trick(name="7c cascade", props_count=7, difficulty=60, tags={Tag.BasePattern}),
-    Trick(name="cascade", props_count=7, difficulty=73, tags={Tag.BasePattern}),
+    Trick(name="7c cascade", props_count=7, difficulty=54, tags={Tag.BasePattern}),
+    Trick(name="cascade", props_count=7, difficulty=70, tags={Tag.BasePattern}),
         
     ########## SPINS ##########
     
@@ -99,6 +96,8 @@ CLUBS_TRICKS = [
     # period 5
     Trick(name="20c 45123", props_count=3, difficulty=16, tags={Tag.Siteswap}),
     Trick(name="30c 44133", props_count=3, difficulty=14, tags={Tag.Siteswap}),
+    
+    # other period
 
     ### 4 props siteswaps ###
     # period 3
@@ -110,6 +109,8 @@ CLUBS_TRICKS = [
     # period 5
     Trick(name="20c 55550", props_count=4, difficulty=25, tags={Tag.Siteswap}),
     Trick(name="20c 56450", props_count=4, difficulty=28, tags={Tag.Siteswap}),
+    
+    # other period
 
     ### 5 props siteswaps ###
     # period 3
@@ -123,6 +124,8 @@ CLUBS_TRICKS = [
     Trick(name="cascade -> 10c 77335 -> cascade", props_count=5, difficulty=40, tags={Tag.Siteswap}),
     Trick(name="cascade -> 10c 74464 -> cascade", props_count=5, difficulty=37, tags={Tag.Siteswap}),
     Trick(name="30c 84445", props_count=5, difficulty=47, tags={Tag.Siteswap}),
+    
+    # other period
 
     ### 6 props siteswaps ###
     # period 3
@@ -132,8 +135,14 @@ CLUBS_TRICKS = [
     # period 5
     Trick(name="10c 77781", props_count=6, difficulty=82, tags={Tag.Siteswap}),
 
+    # other period
     
     ### 7 props siteswaps ###
+    # period 3
+    
+    # period 5
+    
+    # other period
     
     
     ########## BODY THROWS ##########
@@ -153,8 +162,10 @@ CLUBS_TRICKS = [
     Trick(name="552 -> 6c 552 with backrosses 5's -> 552", props_count=4, difficulty=37, tags={Tag.BodyThrows}),
 
     ### 5 props body throws ###
+    Trick(name="5c cascade -> 4c 7733 with backrosses 3's -> cascade", props_count=5, difficulty=55, tags={Tag.BodyThrows, Tag.Siteswap}),
     
     ### 6 props body throws ###
+    Trick(name="6c ANY -> 4c 9555 with backross 5's -> 6c ANY", props_count=6, difficulty=73, tags={Tag.BodyThrows, Tag.Siteswap}),
     
     ### 7 props body throws ###
     
@@ -168,6 +179,7 @@ CLUBS_TRICKS = [
     Trick(name="12c triples", props_count=3, difficulty=15, tags={Tag.SpinControl, Tag.BasePattern}),
     Trick(name="10c slapbacks", props_count=3, difficulty=18, tags={Tag.SpinControl}),
     Trick(name="10c singles -> 10c doubles  -> 10c triples", props_count=3, difficulty=18, tags={Tag.SpinControl, Tag.BasePattern}),
+    Trick(name="flat flatfronts -> 3c 441 double flatfronts 4's -> single flatfronts", props_count=3, difficulty=25, tags={Tag.SpinControl}),
     
     ### 4 props spin control ###
     Trick(name="18c 534 singles", props_count=4, difficulty=26, tags={Tag.SpinControl, Tag.Siteswap}),
@@ -177,10 +189,11 @@ CLUBS_TRICKS = [
     ### 5 props spin control ###
     Trick(name="10c singles", props_count=5, difficulty=28, tags={Tag.SpinControl, Tag.BasePattern}),
     Trick(name="10c triples", props_count=5, difficulty=30, tags={Tag.SpinControl, Tag.BasePattern}),
-    Trick(name="6c triples -> 6c singles", props_count=5, difficulty=30, tags={Tag.SpinControl, Tag.BasePattern}),
-    Trick(name="cascade -> 12c 744 with flat 4's", props_count=5, difficulty=48, tags={Tag.SpinControl, Tag.BasePattern}),
+    Trick(name="6c triples -> 6c singles", props_count=5, difficulty=30, tags={Tag.SpinControl}),
+    Trick(name="cascade -> 12c 744 with flat 4's", props_count=5, difficulty=48, tags={Tag.SpinControl}),
     
     ### 6 props spin control ###
+    Trick(name="6c singles", props_count=5, difficulty=51, tags={Tag.SpinControl}),
     
     ### 7 props spin control ###
     

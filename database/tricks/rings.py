@@ -1,9 +1,7 @@
 from route_generator.tricks.base_trick import Trick
 from route_generator.tricks.tags import Tag
 
-# @todo: Difficulties are wrong
 # @todo: Add TONS of trick
-
 RINGS_TRICKS = [
     ########## BASE PATTERNS ##########
     
@@ -103,4 +101,18 @@ RINGS_TRICKS = [
     ### 6 props body throws ###
     
     ### 7 props body throws ###   
+    
+       ########## SPIN CONTROL ##########
+    
+    ### 3 props spin control ###
+    
+    ### 4 props spin control ###
+    
+    ### 5 props spin control ###
+    
+    ### 6 props spin control ###
+    
+    ### 7 props spin control ###
+    
+ 
 ]
