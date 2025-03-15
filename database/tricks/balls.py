@@ -273,8 +273,8 @@ BALLS_TRICKS = [
     ### 3 props body throws ###
     Trick(name="backrosses", props_count=3, difficulty=15, tags={Tag.BodyThrows}),
     Trick(name="10c neck throws", props_count=3, difficulty=24, tags={Tag.BodyThrows}),
-    Trick(name="24c 423 with backross 3", props_count=3, difficulty=19, tags={Tag.BodyThrows, Tag.Siteswap}),
-    Trick(name="24c 423 with shoulder throw 4", props_count=3, difficulty=23, tags={Tag.BodyThrows, Tag.Siteswap}),
+    Trick(name="24c 423, backross 3", props_count=3, difficulty=19, tags={Tag.BodyThrows, Tag.Siteswap}),
+    Trick(name="24c 423, shoulder throw 4", props_count=3, difficulty=23, tags={Tag.BodyThrows, Tag.Siteswap}),
     Trick(name="overheds -> 3c overhead reverse shoulder throws -> 3c backrosses -> overheads", props_count=3, difficulty=33, tags={Tag.BodyThrows}, comment="The impossible trick"),
     Trick(name="6c under the leg throws", props_count=3, difficulty=19, tags={Tag.BodyThrows}),
     
@@ -287,14 +287,14 @@ BALLS_TRICKS = [
     Trick(name="overheds -> 4c overhead reverse shoulder throws -> 4c shoulder throws -> overheads", props_count=3, difficulty=49, tags={Tag.BodyThrows}, comment="The impossible trick"),
     
     ### 5 props body throws ###
-    Trick(name="5c 94444 with shoulder throws 4's", props_count=5, difficulty=43, tags={Tag.BodyThrows, Tag.Siteswap}),
-    Trick(name="18c 645 with shoulder throw 4", props_count=5, difficulty=45, tags={Tag.BodyThrows, Tag.Siteswap}),
+    Trick(name="5c 94444, shoulder throws 4's", props_count=5, difficulty=43, tags={Tag.BodyThrows, Tag.Siteswap}),
+    Trick(name="18c 645, shoulder throw 4", props_count=5, difficulty=45, tags={Tag.BodyThrows, Tag.Siteswap}),
     Trick(name="30c overheads", props_count=5, difficulty=36, tags={Tag.BodyThrows}),
     Trick(name="overheads -> 6c 744 overheads -> overheads", props_count=5, difficulty=40, tags={Tag.BodyThrows, Tag.Siteswap}),
     Trick(name="10c laying on the back", props_count=5, difficulty=32, tags={Tag.BodyThrows}),
     
     ### 6 props body throws ###
-    Trick(name="756 -> 6c 756 with backross 5 -> 756", props_count=6, difficulty=66, tags={Tag.BodyThrows, Tag.Siteswap}),
+    Trick(name="756 -> 6c 756, backross 5 -> 756", props_count=6, difficulty=66, tags={Tag.BodyThrows, Tag.Siteswap}),
     Trick(name="6c fountain -> 6c overheads -> 6c fountain", props_count=6, difficulty=45, tags={Tag.BodyThrows}),
     
     ### 7 props body throws ###
