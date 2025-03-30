@@ -68,6 +68,7 @@ BALLS_TRICKS = [
     # base 360
     Trick(name="4up 360 -> async fountain", props_count=4, difficulty=22, tags={Tag.Spin}),
     Trick(name="777300 4up 360 -> async fountain", props_count=4, difficulty=29, tags={Tag.Spin, Tag.Siteswap}),
+    Trick(name="955500 4up 360 -> async fountain", props_count=4, difficulty=29, tags={Tag.Spin, Tag.Siteswap}),
     Trick(name="sync fountain -> (8,8)(4,4)(0,0) 4up 360 -> sync fountain", props_count=4, difficulty=25, tags={Tag.Spin, Tag.Siteswap}),
     
     # base 720
@@ -153,7 +154,6 @@ BALLS_TRICKS = [
     
     # connections
     Trick(name="6c 60 -> 6c 60 other hand", props_count=3, difficulty=21, tags={Tag.Siteswap}, comment="start: 3 in the same hand. Transition: 50505"),
-    Trick(name="box -> 8c inverted box -> box", props_count=3, difficulty=15, tags={Tag.Siteswap}),
     
     ### 4 props siteswaps ###
     # period 3
@@ -165,7 +165,8 @@ BALLS_TRICKS = [
     Trick(name="42c 831", props_count=4, difficulty=23, tags={Tag.Siteswap}, comment="Entrance: 6"),
     
     # period 5
-    Trick(name="24c 53534", props_count=4, difficulty=19, tags={Tag.Siteswap}),
+    Trick(name="30c 53534", props_count=4, difficulty=19, tags={Tag.Siteswap}),
+    Trick(name="30c 53633", props_count=4, difficulty=21, tags={Tag.Siteswap}),
     Trick(name="30c 63551", props_count=4, difficulty=22, tags={Tag.Siteswap}),
     Trick(name="20c 55613", props_count=4, difficulty=24, tags={Tag.Siteswap}),
     Trick(name="50c 66161", props_count=4, difficulty=22, tags={Tag.Siteswap}, comment="Entrance: 5"),
@@ -178,24 +179,32 @@ BALLS_TRICKS = [
     # other period
     Trick(name="32c (6x,4)(4,2x)*", props_count=4, difficulty=15, tags={Tag.Siteswap}),
     Trick(name="32c (4x,6)(4,2x)*", props_count=4, difficulty=16, tags={Tag.Siteswap}),
+    Trick(name="28c 5353444", props_count=4, difficulty=19, tags={Tag.Siteswap}),
     
     # connections
     Trick(name="async fountain -> sync fountain -> async fountain", props_count=4, difficulty=12, tags={Tag.Siteswap}, comment="transitions: 5x4, (5x,4)"),
-    Trick(name="18c 534 -> 20c 53444", props_count=4, difficulty=15, tags={Tag.Siteswap}),
+    Trick(name="18c 534 -> 20c 53444", props_count=4, difficulty=19, tags={Tag.Siteswap}),
+    Trick(name="6c 633 -> 53", props_count=4, difficulty=13, tags={Tag.Siteswap}),
+    Trick(name="534 -> 4c 7531 -> 534", props_count=4, difficulty=17, tags={Tag.Siteswap}),
+    Trick(name="633 -> 66314 -> 633", props_count=4, difficulty=24, tags={Tag.Siteswap}),
     
     ### 5 props siteswaps ###
     # period 3
     Trick(name="30c 744", props_count=5, difficulty=25, tags={Tag.Siteswap}),
     Trick(name="18c 645", props_count=5, difficulty=24, tags={Tag.Siteswap}),
+    Trick(name="36c 663", props_count=5, difficulty=29, tags={Tag.Siteswap}),
+    Trick(name="24c 753", props_count=5, difficulty=30, tags={Tag.Siteswap}),
     Trick(name="30c 771", props_count=5, difficulty=38, tags={Tag.Siteswap}, comment="entrance: 75"),
     Trick(name="24c 834", props_count=5, difficulty=37, tags={Tag.Siteswap}, comment="entrance: 6"),
     Trick(name="30c 933", props_count=5, difficulty=62, tags={Tag.Siteswap}, comment="entrance: 7"),
-    
+
     # period 5
     Trick(name="cascade -> 5c 97531 -> cascade", props_count=5, difficulty=28, tags={Tag.Siteswap}),
     Trick(name="cascade -> 5c 88441 -> cascade", props_count=5, difficulty=30, tags={Tag.Siteswap}),
     Trick(name="40c 64645", props_count=5, difficulty=33, tags={Tag.Siteswap}),
     Trick(name="50c 66364", props_count=5, difficulty=37, tags={Tag.Siteswap}),
+    Trick(name="20c 74455", props_count=5, difficulty=33, tags={Tag.Siteswap}),
+    Trick(name="20c 64555", props_count=5, difficulty=32, tags={Tag.Siteswap}),
     Trick(name="30c 67363", props_count=5, difficulty=41, tags={Tag.Siteswap}),
     Trick(name="30c 74734", props_count=5, difficulty=36, tags={Tag.Siteswap}),
     Trick(name="30c 64753", props_count=5, difficulty=41, tags={Tag.Siteswap}),
@@ -211,6 +220,8 @@ BALLS_TRICKS = [
     Trick(name="(6x,4)* -> (4x,6)*", props_count=5, difficulty=24, tags={Tag.Siteswap}),
     Trick(name="744 -> 5c 97531 -> 645", props_count=5, difficulty=30, tags={Tag.Siteswap}),
     Trick(name="6c 753 -> 5c 97531 -> cascade", props_count=5, difficulty=30, tags={Tag.Siteswap}),
+    Trick(name="744 -> 6c 753 -> 744", props_count=5, difficulty=31, tags={Tag.Siteswap}),
+    Trick(name="663 -> 5c 88441 -> 663", props_count=5, difficulty=36, tags={Tag.Siteswap}),
     
     # other period
     Trick(name="32c (6x,4x)(6,4x)*", props_count=5, difficulty=29, tags={Tag.Siteswap}),
@@ -275,7 +286,7 @@ BALLS_TRICKS = [
     Trick(name="10c neck throws", props_count=3, difficulty=24, tags={Tag.BodyThrows}),
     Trick(name="24c 423, backross 3", props_count=3, difficulty=19, tags={Tag.BodyThrows, Tag.Siteswap}),
     Trick(name="24c 423, shoulder throw 4", props_count=3, difficulty=23, tags={Tag.BodyThrows, Tag.Siteswap}),
-    Trick(name="overheds -> 3c overhead reverse shoulder throws -> 3c backrosses -> overheads", props_count=3, difficulty=33, tags={Tag.BodyThrows}, comment="The impossible trick"),
+    Trick(name="overheads -> 3c overhead reverse shoulder throws -> 3c backrosses -> overheads", props_count=3, difficulty=33, tags={Tag.BodyThrows}, comment="The impossible trick"),
     Trick(name="6c under the leg throws", props_count=3, difficulty=19, tags={Tag.BodyThrows}),
     
     ### 4 props body throws ###
@@ -296,7 +307,10 @@ BALLS_TRICKS = [
     ### 6 props body throws ###
     Trick(name="756 -> 6c 756, backross 5 -> 756", props_count=6, difficulty=66, tags={Tag.BodyThrows, Tag.Siteswap}),
     Trick(name="6c fountain -> 6c overheads -> 6c fountain", props_count=6, difficulty=45, tags={Tag.BodyThrows}),
+    Trick(name="756 -> 4c 9555, backrosses 5's -> 756", props_count=6, difficulty=55, tags={Tag.BodyThrows, Tag.Siteswap}),
+    Trick(name="8844, shoulder throws 4's", props_count=6, difficulty=62, tags={Tag.BodyThrows, Tag.Siteswap}),
     
     ### 7 props body throws ###
     Trick(name="cascade -> 7c backrosses", props_count=7, difficulty=74, tags={Tag.BodyThrows}),
+    Trick(name="cascade -> 7c overheads -> cascade", props_count=7, difficulty=56, tags={Tag.BodyThrows}),
 ]
