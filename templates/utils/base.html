@@ -3,41 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="JuggleFit - A sport-juggling competition that's motivating to practice, requires minimal preparation, and is fun to watch">
     <title>JuggleFit - {% block title %}{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <header>
-        <a href="/"><img src="{{ url_for('static', filename='images/jugglefit_logo.png') }}" alt="JuggleFit Logo" class="image-general"></a>
-        <nav>
-            <ul>
-                <li class="dropdown">
-                    <a href="/#about" {% if current_page == 'about' %}class="active"{% endif %}>About</a>
-                    <div class="dropdown-content">
-                        <a href="/#rules">Rules</a>
-                        <a href="/#upcoming_events">Upcoming Events</a>
-                        <a href="/past_events">Past Events</a>
-                    </div>
-                </li>
-                <li><a href="{{ url_for('create_route') }}" {% if current_page == 'create_route' %}class="active"{% endif %}>Create My Own Route</a></li>
-                <li><a href="{{ url_for('host_event') }}" {% if current_page == 'host_event' %}class="active"{% endif %}>Host An Event</a></li>
-            </ul>
-        </nav>
+    <header class="main-header">
+        <div class="header-container">
+            <a href="/" class="logo-link">
+                <img src="{{ url_for('static', filename='images/jugglefit_logo.png') }}" alt="JuggleFit Logo" class="logo-image">
+            </a>
+            <nav class="main-nav">
+                <ul class="nav-list">
+                    <li class="nav-item">
+                        <a href="/#about" {% if current_page == 'about' %}class="active"{% endif %}>About</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/#rules" {% if current_page == 'rules' %}class="active"{% endif %}>Rules</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/#upcoming_events" {% if current_page == 'upcoming_events' %}class="active"{% endif %}>Events</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ url_for('create_route') }}" {% if current_page == 'create_route' %}class="active"{% endif %}>Create Route</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ url_for('host_event') }}" {% if current_page == 'host_event' %}class="active"{% endif %}>Host Event</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
     </header>
-    <main>
+    <main class="main-content">
         {% block content %}{% endblock %}
     </main>
-    <footer>
-        <p>© 2023 JuggleFit. All rights reserved. | <a href="{{ url_for('contact') }}" class="footer-link">Contact Us</a></p>
-        <p>If you are familiar with the term <u>open-source github repo</u>, you can contribute <a href="https://github.com/ofekraf/jugglefit_website" class="footer-link">here</a></p>
+    <footer class="main-footer">
+        <div class="footer-container">
+            <div class="footer-content">
+                <p class="copyright">© 2024 JuggleFit. All rights reserved.</p>
+                <div class="footer-links">
+                    <a href="{{ url_for('contact') }}" class="footer-link">Contact Us</a>
+                    <a href="https://github.com/ofekraf/jugglefit_website" class="footer-link">Contribute on GitHub</a>
+                </div>
+            </div>
+        </div>
     </footer>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script>
         function toggle_object(object_name) {
             object = document.getElementById(object_name);
             if (object.style.display === "none"){
-                object.style.display = "block"; // Show object
+                object.style.display = "block";
             }
             else {
                 object.style.display = "none"
