@@ -1,21 +1,115 @@
 {% extends "utils/base.html" %}
+{% block title %}Generated Route{% endblock %}
 {% block content %}
 <div class="route-page">
-    <!-- Route Title and Stopwatch Side by Side -->
     <div class="route-header">
         <h1 class="route-title">{{ route.name }}</h1>
-        <div class="stopwatch-container">
-            <div id="stopwatch" class="stopwatch">10:00</div>
-            <button id="stopwatch-toggle" class="stopwatch-button">START</button>
+        <div class="route-description">
+            <p>Complete each trick in sequence. Use the stopwatch to track your time.</p>
         </div>
     </div>
 
-    <!-- Route Details -->
-    <div class="route-details">
-        <span>Route details</span>
+    <div class="route-container">
+        <div class="route-timer">
+            <div class="stopwatch-container">
+                <div id="stopwatch" class="stopwatch">10:00</div>
+                <button id="stopwatch-toggle" class="stopwatch-button">START</button>
+            </div>
+        </div>
+
+        <div class="route-content">
+            <div class="route-details">
+                <div class="detail-item">
+                    <span class="detail-label">Props:</span>
+                    <span class="detail-value">{{ route.prop }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Difficulty:</span>
+                    <span class="detail-value">{{ route.min_difficulty }} - {{ route.max_difficulty }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Length:</span>
+                    <span class="detail-value">{{ route.route_length }} tricks</span>
+                </div>
+            </div>
+
+            <div class="tricks-list">
+                {% for trick in route.tricks %}
+                <div class="trick-item">
+                    <div class="trick-number">{{ loop.index }}</div>
+                    <div class="trick-content">
+                        <h3 class="trick-name">{{ trick.name }}</h3>
+                        <div class="trick-details">
+                            <span class="trick-difficulty">Difficulty: {{ trick.difficulty }}</span>
+                            {% if trick.comment %}
+                            <div class="trick-comment-container">
+                                <i class="fas fa-info-circle"></i>
+                                <div class="trick-comment">{{ trick.comment }}</div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="trick-status">
+                        <input type="checkbox" id="trick-{{ loop.index }}" class="trick-checkbox">
+                        <label for="trick-{{ loop.index }}" class="trick-checkbox-label"></label>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
     </div>
 
-    <!-- Route Display (includes prop sections and tricks) -->
-    {% include "utils/route_display.html" %}
+    <div class="route-actions">
+        <a href="{{ url_for('create_route') }}" class="secondary-button">Generate New Route</a>
+        <button class="primary-button" onclick="window.print()">Print Route</button>
+    </div>
 </div>
+
+<script>
+    // Stopwatch functionality
+    let timeLeft = 600; // 10 minutes in seconds
+    let timerId = null;
+    const stopwatch = document.getElementById('stopwatch');
+    const stopwatchToggle = document.getElementById('stopwatch-toggle');
+
+    function updateStopwatch() {
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        stopwatch.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+
+    function toggleStopwatch() {
+        if (timerId === null) {
+            timerId = setInterval(() => {
+                timeLeft--;
+                updateStopwatch();
+                if (timeLeft <= 0) {
+                    clearInterval(timerId);
+                    timerId = null;
+                    stopwatchToggle.textContent = 'RESET';
+                }
+            }, 1000);
+            stopwatchToggle.textContent = 'PAUSE';
+        } else {
+            clearInterval(timerId);
+            timerId = null;
+            stopwatchToggle.textContent = 'START';
+        }
+    }
+
+    stopwatchToggle.addEventListener('click', toggleStopwatch);
+
+    // Trick completion tracking
+    const checkboxes = document.querySelectorAll('.trick-checkbox');
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            const trickItem = this.closest('.trick-item');
+            if (this.checked) {
+                trickItem.classList.add('completed');
+            } else {
+                trickItem.classList.remove('completed');
+            }
+        });
+    });
+</script>
 {% endblock %}
