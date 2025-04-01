@@ -6,15 +6,18 @@
 <style>
     .event-image {
         width: 100%;
-        height: 200px;
-        object-fit: cover;
+        height: 300px;
+        object-fit: contain;
         border-radius: 8px;
         margin-bottom: 1rem;
+        background-color: #f5f5f5;
     }
     
     .event-content {
         padding: 1rem;
         text-align: center;
+        max-width: 400px;
+        margin: 0 auto;
     }
     
     .event-details {
@@ -29,6 +32,20 @@
     .event-details i {
         margin-right: 0.5rem;
         color: var(--primary-color);
+    }
+
+    .events-carousel {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .event-card {
+        display: none;
+        padding: 1rem;
+    }
+
+    .event-card.active {
+        display: block;
     }
 </style>
 
