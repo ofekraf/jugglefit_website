@@ -17,6 +17,7 @@
             <li><strong>Location: </strong>{{ event.location }}</li>
             <li><strong>Routes & Winners:</strong></li>
             <ul>
+                <!-- @todo: the prop icon doesn't show here. -->
                 {% for route in event.results %}
                 <li>
                     <strong>{{ route.name }}</strong> - Winner: {{ route.competitors[1].name }} ({{ "%02d"|format(route.competitors[1].seconds // 60) }}:{{ "%02d"|format(route.competitors[1].seconds % 60) }})
