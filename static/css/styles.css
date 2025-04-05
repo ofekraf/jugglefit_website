@@ -68,20 +68,70 @@ body {
 
 .nav-list {
     display: flex;
-    list-style: none;
     gap: 2rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-item {
+    position: relative;
 }
 
 .nav-item a {
     color: var(--text-color);
     text-decoration: none;
     font-weight: 500;
-    font-size: 1rem;
     transition: color 0.3s ease;
+    padding: 0.5rem 0;
 }
 
 .nav-item a:hover,
 .nav-item a.active {
+    color: var(--primary-color);
+}
+
+/* Dropdown Menu */
+.dropdown {
+    position: relative;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px var(--shadow-color);
+    padding: 0.5rem 0;
+    min-width: 200px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+    z-index: 100;
+}
+
+.dropdown:hover .dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.dropdown-menu li {
+    padding: 0;
+}
+
+.dropdown-menu a {
+    display: block;
+    padding: 0.5rem 1rem;
+    color: var(--text-color);
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.dropdown-menu a:hover {
+    background-color: rgba(47, 186, 223, 0.1);
     color: var(--primary-color);
 }
 
@@ -287,7 +337,7 @@ body {
 .event-image {
     width: 100%;
     height: 200px;
-    object-fit: cover;
+    object-fit: contain;
     border-radius: 4px;
     margin-bottom: 1rem;
 }
@@ -505,28 +555,72 @@ body {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
+    padding: 0.75rem 1.5rem;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
     cursor: pointer;
     transition: all 0.3s ease;
+    background-color: white;
+    min-width: 120px;
+    justify-content: center;
+    position: relative;
 }
 
 .prop-option:hover {
     border-color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px var(--shadow-color);
+}
+
+.prop-option.selected {
+    border-color: var(--primary-color);
+    background-color: rgba(47, 186, 223, 0.1);
+    box-shadow: 0 2px 8px var(--shadow-color);
 }
 
 .prop-option-input {
     display: none;
 }
 
-.prop-option-input:checked + .prop-option-name {
-    color: var(--primary-color);
+.prop-option-name {
+    font-weight: 400;
+    color: var(--text-color);
+    text-transform: capitalize;
 }
 
-.prop-option-input:checked ~ .prop-option {
-    border-color: var(--primary-color);
-    background-color: rgba(47, 186, 223, 0.1);
+.prop-option.selected .prop-option-name {
+    font-weight: 700;
+}
+
+.prop-icon {
+    width: 24px;
+    height: 24px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.selected-indicator {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    width: 24px;
+    height: 24px;
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.3s ease;
+}
+
+.prop-option.selected .selected-indicator {
+    opacity: 1;
+    transform: scale(1);
 }
 
 .slider-container {
@@ -655,34 +749,43 @@ body {
     transform: scale(1.1);
 }
 
-/* Generated Route Page Styles */
-.route-container {
+/* Route Layout */
+.route-layout {
     display: flex;
     gap: 2rem;
-    margin: 2rem 0;
+    align-items: flex-start;
+    position: relative;
 }
 
 .route-timer {
-    flex: 0 0 200px;
-    position: sticky;
-    top: 92px;
-    height: fit-content;
+    position: fixed;
+    top: 50%;
+    left: 2rem;
+    transform: translateY(-50%);
+    width: 200px;
+    z-index: 1000;
+    cursor: move;
+    user-select: none;
 }
 
 .stopwatch-container {
     background-color: white;
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px var(--shadow-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px var(--shadow-color);
     text-align: center;
+    transition: box-shadow 0.3s ease;
+}
+
+.stopwatch-container:hover {
+    box-shadow: 0 6px 16px var(--shadow-color);
 }
 
 .stopwatch {
-    font-size: 3rem;
-    font-weight: 700;
+    font-size: 2.5rem;
+    font-weight: 600;
     color: var(--primary-color);
     margin-bottom: 1rem;
-    font-family: monospace;
 }
 
 .stopwatch-button {
@@ -690,23 +793,23 @@ body {
     color: white;
     border: none;
     padding: 0.75rem 1.5rem;
-    border-radius: 4px;
-    font-weight: 600;
+    border-radius: 8px;
     cursor: pointer;
+    font-weight: 600;
     transition: all 0.3s ease;
 }
 
 .stopwatch-button:hover {
+    background-color: var(--accent-color);
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px var(--shadow-color);
 }
 
-.route-content {
+.route-container {
     flex: 1;
     background-color: white;
+    border-radius: 12px;
     padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px var(--shadow-color);
+    box-shadow: 0 4px 12px var(--shadow-color);
 }
 
 .route-details {
@@ -783,14 +886,6 @@ body {
     color: var(--text-color);
 }
 
-.trick-details {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    color: var(--light-text);
-    font-size: 0.9rem;
-}
-
 .trick-comment-container {
     position: relative;
     cursor: help;
@@ -811,6 +906,11 @@ body {
     visibility: hidden;
     transition: all 0.3s ease;
     z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: var(--light-text);
+    font-size: 0.9rem;
 }
 
 .trick-comment-container:hover .trick-comment {
@@ -859,7 +959,7 @@ body {
 }
 
 @media (max-width: 768px) {
-    .route-container {
+    .route-layout {
         flex-direction: column;
     }
 
@@ -877,7 +977,7 @@ body {
         align-items: flex-start;
     }
 
-    .trick-details {
+    .trick-comment {
         flex-direction: column;
         align-items: flex-start;
         gap: 0.5rem;
@@ -891,4 +991,408 @@ body {
     .route-actions .secondary-button {
         width: 100%;
     }
+}
+
+.past-event-button-container {
+    margin: 1rem 0;
+    text-align: center;
+}
+
+.past-event-button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.past-event-button:hover {
+    background-color: var(--accent-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px var(--shadow-color);
+}
+
+.past-event-container {
+    background-color: white;
+    border-radius: 12px;
+    padding: 2rem;
+    margin: 1rem auto;
+    max-width: 800px;
+    box-shadow: 0 4px 12px var(--shadow-color);
+}
+
+.past-event-container ul {
+    list-style: none;
+    padding: 0;
+}
+
+.past-event-container li {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background-color: var(--section-bg);
+    border-radius: 8px;
+}
+
+.past-event-container strong {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.route-button-container {
+    margin: 1rem 0;
+    text-align: center;
+}
+
+.route-button {
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.route-button:hover {
+    background-color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px var(--shadow-color);
+}
+
+.route-sections {
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: flex-start;
+    justify-content: flex-start;
+    position: relative;
+    overflow: hidden;
+    max-width: 2000px;
+    margin: 0 auto;
+}
+
+.prop-section {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: flex-start;
+    justify-content: flex-start;
+    align-self: stretch;
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+}
+
+.prop-color-bar {
+    background: #ff4733;
+    border-radius: 15px;
+    align-self: stretch;
+    flex-shrink: 0;
+    width: 196px;
+    position: relative;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.prop-color-bar * {
+    box-sizing: border-box;
+}
+
+.prop-color-bar::before {
+    content: '';
+    position: relative;
+    width: 85px;
+    height: 21.79px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 1;
+    margin-right: 10px;
+    background-image-size: contain;
+}
+
+/* Default prop icons */
+.prop-color-bar[data-prop-type="clubs"]::before {
+    background-image: url('/static/images/juggling_club.svg');
+}
+
+.prop-color-bar[data-prop-type="balls"]::before {
+    background-image: url('/static/images/juggling_balls.png');
+}
+
+.prop-color-bar[data-prop-type="rings"]::before {
+    background-image: url('/static/images/juggling_rings.jpg');
+}
+
+/* Past events context prop icons */
+.past-event-container .prop-color-bar::before {
+    width: 85px;
+    height: 21.79px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 1;
+    margin-right: 10px;
+}
+
+.trick-details-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+    justify-content: flex-start;
+    flex: 1;
+    position: relative;
+    padding: 5px 0;
+    width: 100%;
+}
+
+.trick-details-frame {
+    border-radius: 15px;
+    padding: 4px 12px;
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    align-items: center;
+    justify-content: flex-start;
+    flex: 0 0 auto;
+    min-width: 200px;
+    position: relative;
+    width: 100%;
+}
+
+.trick-name {
+    color: var(--text-color);
+    text-align: left;
+    font-family: "Inter", sans-serif;
+    font-size: 18px;
+    line-height: 120%;
+    font-weight: 700;
+    text-transform: uppercase;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    white-space: nowrap;
+}
+
+.trick-comment {
+    color: var(--text-color);
+    text-align: left;
+    font-family: "Inter", sans-serif;
+    font-size: 16px;
+    line-height: 120%;
+    font-weight: 400;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    white-space: nowrap;
+}
+
+.prop-count {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 126.79px;
+    position: relative;
+}
+
+.prop-count-text {
+    color: #ffffff;
+    text-align: center;
+    font-family: "Inter-ExtraBold", sans-serif;
+    font-size: 48px;
+    line-height: 150%;
+    font-weight: 800;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.prop-count-text.x {
+    color: #ffffff;
+    text-align: center;
+    font-family: "Inter-ExtraBold", sans-serif;
+    font-size: 48px;
+    line-height: 150%;
+    font-weight: 800;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.prop-count-text.number {
+    color: #ffffff;
+    text-align: center;
+    font-family: "Inter-ExtraBold", sans-serif;
+    font-size: 48px;
+    line-height: 150%;
+    font-weight: 800;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Color variations for different prop counts */
+.prop-color-bar[data-props="3"] {
+    background: #ff4733;
+}
+
+.prop-color-bar[data-props="4"] {
+    background: #c0f564;
+}
+
+.prop-color-bar[data-props="5"] {
+    background: #2601f6;
+}
+
+.prop-color-bar[data-props="6"] {
+    background: #f238a7;
+}
+
+.prop-color-bar[data-props="7"] {
+    background: #ff8c00;
+}
+
+.prop-color-bar[data-props="8"] {
+    background: #8a2be2;  /* Blue Violet */
+}
+
+.prop-color-bar[data-props="9"] {
+    background: #00ced1;  /* Dark Turquoise */
+}
+
+/* Ensure white text for all prop counts */
+.prop-count-text {
+    color: #ffffff;
+    text-align: center;
+    font-family: "Inter-ExtraBold", sans-serif;
+    font-size: 48px;
+    line-height: 150%;
+    font-weight: 800;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Past Events Page */
+.centered-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.section-description {
+    text-align: center;
+    color: var(--light-text);
+    margin-bottom: 2rem;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.past-event-container ul {
+    list-style: none;
+    padding: 0;
+}
+
+.past-event-container li {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background-color: var(--section-bg);
+    border-radius: 8px;
+}
+
+.past-event-container strong {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.route-button-container {
+    margin: 1rem 0;
+    text-align: center;
+}
+
+/* Compact Route Display for Past Events */
+.past-event-container .route-page {
+    padding: 0;
+    margin: 0;
+}
+
+.past-event-container .route-header {
+    margin-bottom: 1rem;
+}
+
+.past-event-container .route-title {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+}
+
+.past-event-container .route-description {
+    display: none;
+}
+
+.past-event-container .route-container {
+    padding: 0;
+    margin: 0;
+}
+
+.past-event-container .route-content {
+    padding: 0;
+}
+
+.past-event-container .route-details {
+    margin-bottom: 1rem;
+}
+
+.past-event-container .route-sections {
+    gap: 0.5rem;
+}
+
+.past-event-container .prop-section {
+    margin-bottom: 0.5rem;
+}
+
+.past-event-container .prop-color-bar {
+    width: 100px;
+}
+
+.past-event-container .prop-details-container {
+    padding: 0.5rem;
+}
+
+.past-event-container .prop-details-frame {
+    padding: 0.5rem;
+}
+
+.past-event-container .prop-name {
+    font-size: 0.9rem;
+}
+
+.past-event-container .prop-details {
+    font-size: 0.8rem;
 }

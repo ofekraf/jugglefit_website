@@ -15,7 +15,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return render_template('index.html', upcoming_events=UPCOMING_EVENTS, past_events=FRONT_PAGE_PAST_EVENTS)
+    return render_template('index.html', upcoming_events=UPCOMING_EVENTS, last_events=FRONT_PAGE_PAST_EVENTS)
 
 
 @app.route('/past_events', methods=['GET'])
