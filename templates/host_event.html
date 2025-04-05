@@ -1,71 +1,244 @@
 {% extends "utils/base.html" %}
-{% block title %}Host an Event{% endblock %}
-{% block content %}
-<main>
-    <!-- About Section -->
-    <section id="Host an event" class="centered-content fade-in">
-        <div class="infographic-container">
-            <div class="infographic-text">
-                <h1>Host An Event</h1>
-                <p>Interested to host a JuggleFit event? JuggleFit likes to be hosted!</p>
-                <p>Hosting a JuggleFit event is easy. Only 4 simple requirements:</p>
 
-                <h2>Requirements</h2>
-                <p>To host a JuggleFit event, you need:</p>
-                <ul>
-                    <p>1. Time slots for qualifications and finals</p>
-                    <p>2. A microphone and a speaker for finals announcements</p>
-                    <p>3. A printing setup for trick forms</p>
-                    <p>4. One of our <a href="#Affiliates">Affiliates</a> at the convention</p>
+{% block title %}Host a JuggleFit Event{% endblock %}
+
+{% block content %}
+<style>
+    .event-image {
+        width: 100%;
+        height: 300px;
+        object-fit: contain;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        background-color: #f5f5f5;
+    }
+    
+    .event-content {
+        padding: 1rem;
+        text-align: center;
+        max-width: 400px;
+        margin: 0 auto;
+    }
+    
+    .event-details {
+        margin-top: 1rem;
+    }
+    
+    .event-details p {
+        margin: 0.5rem 0;
+        color: var(--light-text);
+    }
+    
+    .event-details i {
+        margin-right: 0.5rem;
+        color: var(--primary-color);
+    }
+
+    .events-carousel {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .event-card {
+        display: none;
+        padding: 1rem;
+    }
+
+    .event-card.active {
+        display: block;
+    }
+</style>
+
+<div class="section">
+    <div class="section-container">
+        <h1 class="section-title">Host a JuggleFit Event</h1>
+        
+        <div class="about-content">
+            <p class="hero-subtitle">Bring the excitement of JuggleFit to your community! We provide everything you need to host a successful event.</p>
+        </div>
+
+        <!-- Event Types -->
+        <div class="about-features">
+            <div class="feature">
+                <h3>Workshops</h3>
+                <p>Learn the fundamentals of juggling and fitness in a fun, interactive environment.</p>
+                <ul class="feature-list">
+                    <li>Basic juggling techniques</li>
+                    <li>Fitness integration</li>
+                    <li>Group activities</li>
+                    <li>Equipment provided</li>
+                </ul>
+            </div>
+
+            <div class="feature">
+                <h3>Competitions</h3>
+                <p>Organize exciting JuggleFit competitions for all skill levels.</p>
+                <ul class="feature-list">
+                    <li>Multiple categories</li>
+                    <li>Professional judging</li>
+                    <li>Prizes and awards</li>
+                    <li>Community building</li>
+                </ul>
+            </div>
+
+            <div class="feature">
+                <h3>Team Building</h3>
+                <p>Perfect for corporate events and team building activities.</p>
+                <ul class="feature-list">
+                    <li>Collaborative exercises</li>
+                    <li>Communication skills</li>
+                    <li>Stress relief</li>
+                    <li>Fun atmosphere</li>
                 </ul>
             </div>
         </div>
-    </section>
 
-    <!-- Affiliates Carousel -->
-    <section id="Affiliates" class="centered-content fade-in">
-        <h2>Our Affiliates</h2>
-        <div class="carousel">
-            <div class="carousel-inner" id="affiliates-carousel-inner">
-                {% for affiliate in affiliates %}
-                <div class="affiliates-carousel-item {% if loop.first %}active{% endif %}">
-                    <div class="carousel-caption">{{ affiliate.name }}</div>
-                    <div class="carousel-text">Residence: {{affiliate.residence}}</div>
-                    <img class="carousel-image" src="{{affiliate.image_url}}" alt="{{ affiliate.name }}">
+        <!-- Hosting Process -->
+        <div class="section-alt">
+            <div class="section-container">
+                <h2 class="section-title">How to Host</h2>
+                <div class="rules-grid">
+                    <div class="rule-card">
+                        <h3>1. Contact Us</h3>
+                        <p>Get in touch with our team to discuss your event requirements and schedule.</p>
+                    </div>
+                    <div class="rule-card">
+                        <h3>2. Planning</h3>
+                        <p>We'll help you plan every detail, from venue selection to participant registration.</p>
+                    </div>
+                    <div class="rule-card">
+                        <h3>3. Equipment</h3>
+                        <p>We provide all necessary equipment and materials for your event.</p>
+                    </div>
+                    <div class="rule-card">
+                        <h3>4. Support</h3>
+                        <p>Our experienced instructors will guide you through the entire process.</p>
+                    </div>
                 </div>
-                {% endfor %}
             </div>
-            <button class="affiliates-carousel-prev" id="affiliates-carousel-prev">❮</button>
-            <button class="affiliates-carousel-next" id="affiliates-carousel-next">❯</button>
         </div>
 
-        <p>To help JuggleFit grow as an Affiliate, <a target="_blank" href="mailto:jugglefit_competition@gmail.com?subject=I Want to be an Affiliate!&body=name: %0AResidence: %0AJuggleFit Event I have participated in: %0A%0ABody:%0A">Contact us!</a></p>
-    </section>
+        <!-- Affiliates Carousel -->
+        <div class="section">
+            <div class="section-container">
+                <h2 class="section-title">Our Affiliates</h2>
+                <div class="events-carousel">
+                    <div class="carousel-inner">
+                        <div class="event-card active">
+                            <div class="event-content">
+                                <img src="{{ url_for('static', filename='images/Ofek_Snir.jpg') }}" alt="Ofek Snir" class="event-image">
+                                <h3>Ofek Snir</h3>
+                                <div class="event-details">
+                                    <p><i class="fas fa-map-marker-alt"></i> Israel</p>
+                                    <p><i class="fas fa-calendar"></i> Active since 2023</p>
+                                    <p><i class="fas fa-users"></i> Professional Instructor</p>
+                                </div>
+                            </div>
+                        </div>
 
-    <script>
-        // JavaScript for carousels
-        document.addEventListener('DOMContentLoaded', function () {
-            // Affiliates carousel
-            const prevButtonAffiliates = document.getElementById('affiliates-carousel-prev');
-            const nextButtonAffiliates = document.getElementById('affiliates-carousel-next');
-            const carouselItemsAffiliates = document.querySelectorAll('.affiliates-carousel-item');
-            let currentIndexAffiliates = 0;
-    
-            function updateCarouselAffiliates() {
-                carouselItemsAffiliates.forEach(item => item.classList.remove('active'));
-                carouselItemsAffiliates[currentIndexAffiliates].classList.add('active');
+                        <div class="event-card">
+                            <div class="event-content">
+                                <img src="{{ url_for('static', filename='images/Tamuz_Vardi.jpg') }}" alt="Tamuz Vardi" class="event-image">
+                                <h3>Tamuz Vardi</h3>
+                                <div class="event-details">
+                                    <p><i class="fas fa-map-marker-alt"></i> Israel</p>
+                                    <p><i class="fas fa-calendar"></i> Active since 2023</p>
+                                    <p><i class="fas fa-users"></i> Professional Instructor</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="event-card">
+                            <div class="event-content">
+                                <img src="{{ url_for('static', filename='images/Ofek_Rafaeli.jpg') }}" alt="Ofek Rafaeli" class="event-image">
+                                <h3>Ofek Rafaeli</h3>
+                                <div class="event-details">
+                                    <p><i class="fas fa-map-marker-alt"></i> Israel</p>
+                                    <p><i class="fas fa-calendar"></i> Active since 2023</p>
+                                    <p><i class="fas fa-users"></i> Professional Instructor</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="carousel-prev"><i class="fas fa-chevron-left"></i></button>
+                    <button class="carousel-next"><i class="fas fa-chevron-right"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Form -->
+        <div class="section-alt">
+            <div class="section-container">
+                <h2 class="section-title">Get Started</h2>
+                <div class="about-content">
+                    <p class="hero-subtitle">Ready to host a JuggleFit event? Fill out the form below and we'll get back to you within 24 hours.</p>
+                </div>
+                <div class="route-form">
+                    <form method="POST" action="{{ url_for('host_event') }}">
+                        <div class="form-section">
+                            <label class="form-label" for="name">Name</label>
+                            <input type="text" id="name" name="name" class="form-input" required>
+                        </div>
+                        <div class="form-section">
+                            <label class="form-label" for="email">Email</label>
+                            <input type="email" id="email" name="email" class="form-input" required>
+                        </div>
+                        <div class="form-section">
+                            <label class="form-label" for="event_type">Event Type</label>
+                            <select id="event_type" name="event_type" class="form-input" required>
+                                <option value="">Select an event type</option>
+                                <option value="workshop">Workshop</option>
+                                <option value="competition">Competition</option>
+                                <option value="team_building">Team Building</option>
+                            </select>
+                        </div>
+                        <div class="form-section">
+                            <label class="form-label" for="message">Message</label>
+                            <textarea id="message" name="message" class="form-input" rows="4" required></textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="primary-button">Submit Request</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const carousel = document.querySelector('.carousel-inner');
+    const cards = document.querySelectorAll('.event-card');
+    const prevBtn = document.querySelector('.carousel-prev');
+    const nextBtn = document.querySelector('.carousel-next');
+    let currentIndex = 0;
+
+    function updateCarousel() {
+        cards.forEach((card, index) => {
+            if (index === currentIndex) {
+                card.classList.add('active');
+            } else {
+                card.classList.remove('active');
             }
-    
-            prevButtonAffiliates.addEventListener('click', function () {
-                currentIndexAffiliates = (currentIndexAffiliates === 0) ? carouselItemsAffiliates.length - 1 : currentIndexAffiliates - 1;
-                updateCarouselAffiliates();
-            });
-    
-            nextButtonAffiliates.addEventListener('click', function () {
-                currentIndexAffiliates = (currentIndexAffiliates === carouselItemsAffiliates.length - 1) ? 0 : currentIndexAffiliates + 1;
-                updateCarouselAffiliates();
-            });
         });
-    </script>
-</main>
+    }
+
+    prevBtn.addEventListener('click', () => {
+        currentIndex = (currentIndex - 1 + cards.length) % cards.length;
+        updateCarousel();
+    });
+
+    nextBtn.addEventListener('click', () => {
+        currentIndex = (currentIndex + 1) % cards.length;
+        updateCarousel();
+    });
+
+    // Auto-advance carousel every 5 seconds
+    setInterval(() => {
+        currentIndex = (currentIndex + 1) % cards.length;
+        updateCarousel();
+    }, 5000);
+});
+</script>
 {% endblock %}
