@@ -139,4 +139,38 @@ document.addEventListener('DOMContentLoaded', function() {
             container.style.display = 'none';
         }
     }
+
+    // Prop selection handling
+    const propOptions = document.querySelectorAll('.prop-option');
+    const propInputs = document.querySelectorAll('.prop-option-input');
+
+    // Function to update selected state
+    function updateSelectedState() {
+        propOptions.forEach(option => {
+            const input = option.querySelector('.prop-option-input');
+            if (input.checked) {
+                option.classList.add('selected');
+            } else {
+                option.classList.remove('selected');
+            }
+        });
+    }
+
+    // Set initial state
+    updateSelectedState();
+
+    // Add click event listeners to all prop options
+    propOptions.forEach(option => {
+        option.addEventListener('click', function(e) {
+            e.preventDefault();
+            const input = this.querySelector('.prop-option-input');
+            input.checked = true;
+            updateSelectedState();
+        });
+    });
+
+    // Add change event listeners to all radio inputs
+    propInputs.forEach(input => {
+        input.addEventListener('change', updateSelectedState);
+    });
 });
