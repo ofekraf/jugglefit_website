@@ -1,36 +1,49 @@
 {% block content %}
+<div class="route-page">
+    <div class="route-header">
+        <h1 class="route-title">{{ route.name }}</h1>
+    </div>
 
-<!-- Prop Sections with Tricks -->
-{% for props_count, tricks in route.tricks_map.items() %}
-    <div class="prop-section" data-props="{{ props_count }}">
-        <!-- Prop Icon and Count (Dynamic based on route.prop.value) -->
-        <div class="prop-icon">
-            {% if route.prop.value == "clubs" %}
-                <img src="{{ url_for('static', filename='images/juggling_club.jpg') }}" alt="Clubs Icon" class="prop-image">
-            {% elif route.prop.value == "balls" %}
-                <img src="{{ url_for('static', filename='images/juggling_balls.png') }}" alt="Balls Icon" class="prop-image">
-            {% elif route.prop.value == "rings" %}
-                <img src="{{ url_for('static', filename='images/juggling_rings.jpg') }}" alt="Rings Icon" class="prop-image">
-            {% endif %}
-            <span class="prop-count">X {{ props_count }}</span>
-        </div>
-        <!-- Trick List -->
-        {% for trick in tricks %}
-            <div class="trick-item">
-                <div class="trick-details">
-                    <!-- Trick Name -->
-                    <span class="trick-name">{{ trick.name }}</span>
-                    
-                    <!-- Comments -->
-                    {% if trick.comment %}
-                        <span class="trick-comment-container">
-                            <i class="fas fa-info-circle"></i>
-                            <span class="trick-comment">{{ trick.comment }}</span>
-                        </span>
-                    {% endif %}
+    <div class="route-container">
+        <div class="route-content">
+            <div class="route-details">
+                <div class="detail-item">
+                    <span class="detail-label">Prop:</span>
+                    <span class="detail-value">{{ route.prop.value }}</span>
                 </div>
             </div>
-        {% endfor %}
+
+            <div class="route-sections">
+                {% set grouped_tricks = {} %}
+                {% for trick in route.tricks %}
+                    {% if trick.props_count not in grouped_tricks %}
+                        {% set _ = grouped_tricks.update({trick.props_count: []}) %}
+                    {% endif %}
+                    {% set _ = grouped_tricks[trick.props_count].append(trick) %}
+                {% endfor %}
+                
+                {% for props_count, tricks in grouped_tricks.items()|sort %}
+                <div class="prop-section">
+                    <div class="prop-color-bar" data-props="{{ props_count }}" data-prop-type="{{ route.prop.value }}">
+                        <div class="prop-count">
+                            <div class="prop-count-text">X</div>
+                            <div class="prop-count-text">{{ props_count }}</div>
+                        </div>
+                    </div>
+                    <div class="prop-details-container">
+                        {% for trick in tricks %}
+                        <div class="prop-details-frame">
+                            <div class="prop-name">{{ trick.name }}</div>
+                            {% if trick.comment %}
+                            <div class="prop-details">Note: {{ trick.comment }}</div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
     </div>
-{% endfor %}
+</div>
 {% endblock %}

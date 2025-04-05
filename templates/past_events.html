@@ -3,32 +3,36 @@
 {% block content %}
 
 <div class="centered-content fade-in">
-    <h1>Past JuggleFit Competitions</h1>
-    <p>Explore the history of JuggleFit competitions, showcasing past events, their locations, routes, and champions.</p>
+    <div class="section-container">
+        <h1 class="section-title">Past JuggleFit Competitions</h1>
+        <p class="section-description">Explore the history of JuggleFit competitions, showcasing past events, their locations, routes, and champions.</p>
+    </div>
     {% for event in past_events[::-1] %}
     <div class="past-event-button-container">
         <button class="past-event-button" onclick="toggle_object('{{event.name}}')">{{ event.name }}</button>
     </div>
     <div class="past-event-container" id="{{ event.name }}"  style="display: none">
-    <ul>
-        <li><strong>Date: </strong>{{ event.date }}</li>
-        <li><strong>Location: </strong>{{ event.location }}</li>
-        <li><strong>Routes & Winners:</strong></li>
         <ul>
-            {% for route in event.results %}
-            <li>
-                <strong>{{ route.name }}</strong> - Winner: {{ route.competitors[1].name }}
-                {% set route_container_id = event.name ~ "+" ~ route.name %}
-                <div class="route-button-container">
-                    <button class="route-button" onclick="toggle_object('{{route_container_id}}')">View Route</button>
-                </div>
-                <div class="route-container" id="{{ route_container_id }}" style="display: none">
-                    {% include "utils/route_display.html" %}
-                </div>
-            </li>
-            {% endfor %}
+            <li><strong>Date: </strong>{{ event.date }}</li>
+            <li><strong>Location: </strong>{{ event.location }}</li>
+            <li><strong>Routes & Winners:</strong></li>
+            <ul>
+                {% for route in event.results %}
+                <li>
+                    <strong>{{ route.name }}</strong> - Winner: {{ route.competitors[1].name }} ({{ "%02d"|format(route.competitors[1].seconds // 60) }}:{{ "%02d"|format(route.competitors[1].seconds % 60) }})
+                    {% set route_container_id = event.name ~ "+" ~ route.name %}
+                    <div class="route-button-container">
+                        <button class="primary-button" onclick="toggle_object('{{route_container_id}}')">View Route</button>
+                    </div>
+                    <div class="route-container" id="{{ route_container_id }}" style="display: none">
+                        {% with route=route %}
+                            {% include "utils/route_display.html" %}
+                        {% endwith %}
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
         </ul>
-    </ul>
     </div>
     {% endfor %}
 </div>

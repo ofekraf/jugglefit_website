@@ -25,8 +25,12 @@
                     <li class="nav-item">
                         <a href="/#rules" {% if current_page == 'rules' %}class="active"{% endif %}>Rules</a>
                     </li>
-                    <li class="nav-item">
-                        <a href="/#upcoming_events" {% if current_page == 'upcoming_events' %}class="active"{% endif %}>Events</a>
+                    <li class="nav-item dropdown">
+                        <a href="/#upcoming_events" class="dropdown-toggle" {% if current_page == 'upcoming_events' or current_page == 'past_events' %}class="active"{% endif %}>Events</a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/#upcoming_events">Upcoming Events</a></li>
+                            <li><a href="{{ url_for('past_events') }}">Past Events</a></li>
+                        </ul>
                     </li>
                     <li class="nav-item">
                         <a href="{{ url_for('create_route') }}" {% if current_page == 'create_route' %}class="active"{% endif %}>Create Route</a>

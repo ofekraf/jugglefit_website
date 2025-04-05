@@ -19,9 +19,10 @@
             <label class="form-label">Select Props</label>
             <div class="prop-group">
                 {% for prop in prop_options %}
-                    <label class="prop-option">
+                    <label class="prop-option {% if loop.first %}selected{% endif %}" data-prop-type="{{ prop }}">
                         <input type="radio" name="prop" class="prop-option-input" value="{{ prop }}" {% if loop.first %}checked{% endif %}> 
                         <span class="prop-option-name">{{ prop }}</span>
+                        <div class="prop-icon"></div>
                     </label>
                 {% endfor %}
             </div>
@@ -32,10 +33,10 @@
             <div class="slider-container">
                 <div id="props-slider" class="custom-slider"></div>
                 <div class="slider-values">
-                    <span id="props-range">Min: 3, Max: 7</span>
+                    <span id="props-range">Min: 3, Max: 9</span>
                 </div>
                 <input type="hidden" id="min-props-input" name="min_props" value="3">
-                <input type="hidden" id="max-props-input" name="max_props" value="7">
+                <input type="hidden" id="max-props-input" name="max_props" value="9">
             </div>
         </div>
 
@@ -150,6 +151,42 @@
     routeLengthSlider.addEventListener('input', () => {
         routeLengthValue.textContent = routeLengthSlider.value;
         routeLengthInput.value = routeLengthSlider.value;
+    });
+
+    // Prop selection handling
+    const propOptions = document.querySelectorAll('.prop-option');
+    const propInputs = document.querySelectorAll('.prop-option-input');
+
+    // Function to update selected state
+    function updateSelectedState() {
+        propOptions.forEach(option => {
+            const input = option.querySelector('.prop-option-input');
+            if (input.checked) {
+                option.classList.add('selected');
+            } else {
+                option.classList.remove('selected');
+            }
+        });
+    }
+
+    // Set initial state
+    updateSelectedState();
+
+    // Add click event listeners to all prop options
+    propOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            // Uncheck all inputs
+            propInputs.forEach(input => input.checked = false);
+            // Check the clicked input
+            const input = this.querySelector('.prop-option-input');
+            input.checked = true;
+            updateSelectedState();
+        });
+    });
+
+    // Add change event listeners to all radio inputs
+    propInputs.forEach(input => {
+        input.addEventListener('change', updateSelectedState);
     });
 </script>
 {% endblock %}

@@ -9,7 +9,7 @@
         </div>
     </div>
 
-    <div class="route-container">
+    <div class="route-layout">
         <div class="route-timer">
             <div class="stopwatch-container">
                 <div id="stopwatch" class="stopwatch">10:00</div>
@@ -17,99 +17,120 @@
             </div>
         </div>
 
-        <div class="route-content">
-            <div class="route-details">
-                <div class="detail-item">
-                    <span class="detail-label">Props:</span>
-                    <span class="detail-value">{{ route.prop }}</span>
+        <div class="route-container">
+            <div class="route-content">
+                <div class="route-details">
+                    <div class="detail-item">
+                        <span class="detail-label">Prop:</span>
+                        <span class="detail-value">{{ route.prop.value }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Difficulty:</span>
+                        <span class="detail-value">{{ route.min_difficulty }} - {{ route.max_difficulty }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Length:</span>
+                        <span class="detail-value">{{ route.route_length }} tricks</span>
+                    </div>
                 </div>
-                <div class="detail-item">
-                    <span class="detail-label">Difficulty:</span>
-                    <span class="detail-value">{{ route.min_difficulty }} - {{ route.max_difficulty }}</span>
-                </div>
-                <div class="detail-item">
-                    <span class="detail-label">Length:</span>
-                    <span class="detail-value">{{ route.route_length }} tricks</span>
-                </div>
-            </div>
 
-            <div class="tricks-list">
-                {% for trick in route.tricks %}
-                <div class="trick-item">
-                    <div class="trick-number">{{ loop.index }}</div>
-                    <div class="trick-content">
-                        <h3 class="trick-name">{{ trick.name }}</h3>
-                        <div class="trick-details">
-                            <span class="trick-difficulty">Difficulty: {{ trick.difficulty }}</span>
-                            {% if trick.comment %}
-                            <div class="trick-comment-container">
-                                <i class="fas fa-info-circle"></i>
-                                <div class="trick-comment">{{ trick.comment }}</div>
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                    <div class="trick-status">
-                        <input type="checkbox" id="trick-{{ loop.index }}" class="trick-checkbox">
-                        <label for="trick-{{ loop.index }}" class="trick-checkbox-label"></label>
-                    </div>
-                </div>
-                {% endfor %}
+                {% include "utils/route_display.html" %}
             </div>
         </div>
     </div>
+</div>
 
-    <div class="route-actions">
-        <a href="{{ url_for('create_route') }}" class="secondary-button">Generate New Route</a>
-        <button class="primary-button" onclick="window.print()">Print Route</button>
-    </div>
+<div class="route-actions">
+    <a href="{{ url_for('create_route') }}" class="secondary-button">Generate New Route</a>
+    <button class="primary-button" onclick="window.print()">Print Route</button>
 </div>
 
 <script>
-    // Stopwatch functionality
-    let timeLeft = 600; // 10 minutes in seconds
-    let timerId = null;
-    const stopwatch = document.getElementById('stopwatch');
-    const stopwatchToggle = document.getElementById('stopwatch-toggle');
+    document.addEventListener('DOMContentLoaded', function() {
+        // Stopwatch functionality
+        const stopwatch = document.getElementById('stopwatch');
+        const toggleButton = document.getElementById('stopwatch-toggle');
+        let timeLeft = 600; // 10 minutes in seconds
+        let timer = null;
 
-    function updateStopwatch() {
-        const minutes = Math.floor(timeLeft / 60);
-        const seconds = timeLeft % 60;
-        stopwatch.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-    }
-
-    function toggleStopwatch() {
-        if (timerId === null) {
-            timerId = setInterval(() => {
-                timeLeft--;
-                updateStopwatch();
-                if (timeLeft <= 0) {
-                    clearInterval(timerId);
-                    timerId = null;
-                    stopwatchToggle.textContent = 'RESET';
-                }
-            }, 1000);
-            stopwatchToggle.textContent = 'PAUSE';
-        } else {
-            clearInterval(timerId);
-            timerId = null;
-            stopwatchToggle.textContent = 'START';
+        function updateStopwatch() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            stopwatch.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                toggleButton.textContent = 'RESET';
+                stopwatch.style.color = 'var(--danger-color)';
+            }
         }
-    }
 
-    stopwatchToggle.addEventListener('click', toggleStopwatch);
-
-    // Trick completion tracking
-    const checkboxes = document.querySelectorAll('.trick-checkbox');
-    checkboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', function() {
-            const trickItem = this.closest('.trick-item');
-            if (this.checked) {
-                trickItem.classList.add('completed');
+        toggleButton.addEventListener('click', function() {
+            if (timer) {
+                clearInterval(timer);
+                timer = null;
+                toggleButton.textContent = 'START';
+            } else if (timeLeft <= 0) {
+                timeLeft = 600;
+                updateStopwatch();
+                stopwatch.style.color = '';
+                toggleButton.textContent = 'START';
             } else {
-                trickItem.classList.remove('completed');
+                timer = setInterval(function() {
+                    timeLeft--;
+                    updateStopwatch();
+                }, 1000);
+                toggleButton.textContent = 'STOP';
             }
         });
+
+        updateStopwatch();
+
+        // Draggable timer functionality
+        const timerElement = document.querySelector('.route-timer');
+        let isDragging = false;
+        let currentX;
+        let currentY;
+        let initialX;
+        let initialY;
+        let xOffset = 0;
+        let yOffset = 0;
+
+        timerElement.addEventListener('mousedown', dragStart);
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('mouseup', dragEnd);
+
+        function dragStart(e) {
+            initialX = e.clientX - xOffset;
+            initialY = e.clientY - yOffset;
+
+            if (e.target === timerElement || e.target.closest('.stopwatch-container')) {
+                isDragging = true;
+            }
+        }
+
+        function drag(e) {
+            if (isDragging) {
+                e.preventDefault();
+                currentX = e.clientX - initialX;
+                currentY = e.clientY - initialY;
+
+                xOffset = currentX;
+                yOffset = currentY;
+
+                setTranslate(currentX, currentY, timerElement);
+            }
+        }
+
+        function dragEnd() {
+            initialX = currentX;
+            initialY = currentY;
+            isDragging = false;
+        }
+
+        function setTranslate(xPos, yPos, el) {
+            el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0)`;
+        }
     });
 </script>
 {% endblock %}
