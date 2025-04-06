@@ -6,13 +6,6 @@
 
     <div class="route-container">
         <div class="route-content">
-            <div class="route-details">
-                <div class="detail-item">
-                    <span class="detail-label">Prop:</span>
-                    <span class="detail-value">{{ route.prop.value }}</span>
-                </div>
-            </div>
-
             <div class="route-sections">
                 {% set grouped_tricks = {} %}
                 {% for trick in route.tricks %}
@@ -30,12 +23,12 @@
                             <div class="prop-count-text">{{ props_count }}</div>
                         </div>
                     </div>
-                    <div class="prop-details-container">
+                    <div class="trick-container">
                         {% for trick in tricks %}
                         <div class="prop-details-frame">
-                            <div class="prop-name">{{ trick.name }}</div>
+                            <div class="trick-name">{{ trick.name }}</div>
                             {% if trick.comment %}
-                            <div class="prop-details">{{ trick.comment }}</div>
+                            <div class="trick-details">{{ trick.comment }}</div>
                             {% endif %}
                         </div>
                         {% endfor %}

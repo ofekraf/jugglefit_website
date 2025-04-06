@@ -273,6 +273,11 @@ body {
     margin-bottom: 1rem;
 }
 
+.rule-card-button-container {
+    margin-top: 1rem;
+    text-align: center;
+}
+
 /* Events Section */
 .events-carousel {
     position: relative;
@@ -513,7 +518,8 @@ body {
     margin: 0 auto;
 }
 
-.route-form {
+.route-form,
+.contact-form {
     background-color: white;
     padding: 2rem;
     border-radius: 8px;
@@ -875,42 +881,65 @@ body {
     flex-shrink: 0;
 }
 
-.trick-content {
+.trick-details-container {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+    justify-content: flex-start;
     flex: 1;
+    position: relative;
+    padding: 5px 0;
+    width: 100%;
+}
+
+.trick-details-frame {
+    border-radius: 15px;
+    padding: 4px 12px;
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    align-items: center;
+    justify-content: flex-start;
+    flex: 0 0 auto;
+    min-width: 200px;
+    position: relative;
+    width: auto;
 }
 
 .trick-name {
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
     color: var(--text-color);
+    text-align: left;
+    font-family: "Inter", sans-serif;
+    font-size: 18px;
+    line-height: 120%;
+    font-weight: 700;
+    text-transform: uppercase;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    white-space: nowrap;
+    margin-right: 10px;
+}
+
+.trick-comment {
+    color: var(--text-color);
+    text-align: left;
+    font-family: "Inter", sans-serif;
+    font-size: 16px;
+    line-height: 120%;
+    font-weight: 400;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    white-space: nowrap;
 }
 
 .trick-comment-container {
     position: relative;
     cursor: help;
-}
-
-.trick-comment {
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: var(--text-color);
-    color: white;
-    padding: 0.5rem;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    white-space: nowrap;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
-    z-index: 10;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    color: var(--light-text);
-    font-size: 0.9rem;
 }
 
 .trick-comment-container:hover .trick-comment {
@@ -1114,6 +1143,7 @@ body {
     box-sizing: border-box;
 }
 
+/* Prop icons for route display */
 .prop-color-bar::before {
     content: '';
     position: relative;
@@ -1126,7 +1156,6 @@ body {
     margin-right: 10px;
 }
 
-/* Default prop icons */
 .prop-color-bar[data-prop-type="clubs"]::before {
     background-image: url('/static/images/juggling_club.svg');
 }
@@ -1139,125 +1168,41 @@ body {
     background-image: url('/static/images/juggling_rings.jpg');
 }
 
-/* Past events context prop icons */
-.past-event-container .prop-color-bar::before {
-    width: 85px;
-    height: 21.79px;
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-    opacity: 1;
-    margin-right: 10px;
-}
-
-.trick-details-container {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    align-items: flex-start;
-    justify-content: flex-start;
-    flex: 1;
-    position: relative;
-    padding: 5px 0;
-    width: 100%;
-}
-
-.trick-details-frame {
-    border-radius: 15px;
-    padding: 4px 12px;
-    display: flex;
-    flex-direction: row;
-    gap: 8px;
-    align-items: center;
-    justify-content: flex-start;
-    flex: 0 0 auto;
-    min-width: 200px;
-    position: relative;
-    width: 100%;
-}
-
-.trick-name {
-    color: var(--text-color);
-    text-align: left;
-    font-family: "Inter", sans-serif;
-    font-size: 18px;
-    line-height: 120%;
-    font-weight: 700;
-    text-transform: uppercase;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    white-space: nowrap;
-}
-
-.trick-comment {
-    color: var(--text-color);
-    text-align: left;
-    font-family: "Inter", sans-serif;
-    font-size: 16px;
-    line-height: 120%;
-    font-weight: 400;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    white-space: nowrap;
-}
-
-.prop-count {
-    display: flex;
-    flex-direction: row;
-    gap: 10px;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    width: 126.79px;
-    position: relative;
-}
-
+/* Ensure white text for all prop counts */
 .prop-count-text {
     color: #ffffff;
     text-align: center;
     font-family: "Inter-ExtraBold", sans-serif;
-    font-size: 48px;
-    line-height: 150%;
+    font-size: 32px;
+    line-height: 1;
     font-weight: 800;
     position: relative;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
+    white-space: nowrap;
 }
 
-.prop-count-text.x {
-    color: #ffffff;
-    text-align: center;
-    font-family: "Inter-ExtraBold", sans-serif;
-    font-size: 48px;
-    line-height: 150%;
-    font-weight: 800;
-    position: relative;
-    display: flex;
+.prop-count {
+    display: inline-flex;
+    flex-direction: row;
+    gap: 0;
     align-items: center;
     justify-content: center;
-}
-
-.prop-count-text.number {
-    color: #ffffff;
-    text-align: center;
-    font-family: "Inter-ExtraBold", sans-serif;
-    font-size: 48px;
-    line-height: 150%;
-    font-weight: 800;
+    flex-shrink: 0;
+    width: auto;
     position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 /* Color variations for different prop counts */
 .prop-color-bar[data-props="3"] {
     background: #ff4733;
+}
+
+.prop-color-bar[data-props="3"]::before,
+.prop-color-bar[data-props="5"]::before,
+.prop-color-bar[data-props="8"]::before {
+    filter: brightness(0) invert(1);
 }
 
 .prop-color-bar[data-props="4"] {
@@ -1282,20 +1227,6 @@ body {
 
 .prop-color-bar[data-props="9"] {
     background: #00ced1;  /* Dark Turquoise */
-}
-
-/* Ensure white text for all prop counts */
-.prop-count-text {
-    color: #ffffff;
-    text-align: center;
-    font-family: "Inter-ExtraBold", sans-serif;
-    font-size: 48px;
-    line-height: 150%;
-    font-weight: 800;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 /* Past Events Page */
@@ -1380,7 +1311,7 @@ body {
     width: 100px;
 }
 
-.past-event-container .prop-details-container {
+.past-event-container .trick-container {
     padding: 0.5rem;
 }
 
@@ -1388,10 +1319,72 @@ body {
     padding: 0.5rem;
 }
 
-.past-event-container .prop-name {
+.past-event-container .trick-name {
     font-size: 0.9rem;
 }
 
 .past-event-container .prop-details {
     font-size: 0.8rem;
+}
+
+.flash-message {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 25px;
+    border-radius: 5px;
+    color: white;
+    font-weight: 500;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.flash-message.success {
+    background-color: #4CAF50;
+}
+
+.flash-message.error {
+    background-color: #f44336;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.contact-info {
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.contact-info p {
+    font-size: 1.1rem;
+    color: var(--text-color);
+    margin-bottom: 1.5rem;
+}
+
+.email-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.2rem;
+    color: var(--primary-color);
+    text-decoration: none;
+    padding: 1rem 2rem;
+    border: 2px solid var(--primary-color);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.email-link:hover {
+    background-color: var(--primary-color);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px var(--shadow-color);
+}
+
+.email-link i {
+    font-size: 1.4rem;
 }

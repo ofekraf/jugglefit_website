@@ -50,11 +50,11 @@ We welcome contributions to enhance JuggleFit! Here’s how you can help:
 
 **Code of Conduct**: Please respect our community by adhering to the Contributor Covenant (we’ll adopt one if not already in place).
 
-For major changes, open an issue first to discuss your proposal. Contact us at `jugglefit_competition@gmail.com` for questions or collaboration.
+For major changes, open an issue first to discuss your proposal. Contact us at `jugglefit.competition@gmail.com` for questions or collaboration.
 
 ## Contact and Support
 
-For questions, feedback, or collaboration, reach out to us at `jugglefit_competition@gmail.com`. You can also open an issue on GitHub for technical support or feature requests.
+For questions, feedback, or collaboration, reach out to us at `jugglefit.competition@gmail.com`. You can also open an issue on GitHub for technical support or feature requests.
 
 ## License
 

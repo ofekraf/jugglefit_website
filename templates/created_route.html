@@ -16,27 +16,7 @@
                 <button id="stopwatch-toggle" class="stopwatch-button">START</button>
             </div>
         </div>
-
-        <div class="route-container">
-            <div class="route-content">
-                <div class="route-details">
-                    <div class="detail-item">
-                        <span class="detail-label">Prop:</span>
-                        <span class="detail-value">{{ route.prop.value }}</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Difficulty:</span>
-                        <span class="detail-value">{{ route.min_difficulty }} - {{ route.max_difficulty }}</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Length:</span>
-                        <span class="detail-value">{{ route.route_length }} tricks</span>
-                    </div>
-                </div>
-
-                {% include "utils/route_display.html" %}
-            </div>
-        </div>
+        {% include "utils/route_display.html" %}
     </div>
 </div>
 
