@@ -8,10 +8,7 @@ from route_generator.prop import PROP_OPTIONS, Prop
 from route_generator.route_generator import generate_route
 from route_generator.tricks.tags import TAG_OPTIONS, Tag
 
-
-
 app = Flask(__name__)
-
 
 @app.route('/')
 def home():
@@ -51,24 +48,9 @@ def create_route():
         return render_template('created_route.html', route=route)
     return render_template('create_route.html', current_page='create_route', tag_options=TAG_OPTIONS, prop_options=PROP_OPTIONS)
 
-@app.route('/host_event', methods=['GET', 'POST'])
-def host_event():     
+@app.route('/host_event', methods=['GET'])
+def host_event():
     return render_template('host_event.html', affiliates=AFFILIATES)
-
-@app.route('/contact', methods=['GET', 'POST'])
-def contact():
-    if request.method == 'POST':
-        name = request.form['name']
-        email = request.form['email']
-        message = request.form['message']
-
-        # Print form data to console (placeholder for backend logic)
-        print(f"Name: {name}")
-        print(f"Email: {email}")
-        print(f"Message: {message}")
-
-        return "Message sent successfully!"  # Temporary response
-    return render_template('contact.html', current_page='contact')
 
 
 if __name__ == '__main__':

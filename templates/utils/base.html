@@ -12,6 +12,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash-message {{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
     <header class="main-header">
         <div class="header-container">
             <a href="/" class="logo-link">
@@ -50,7 +59,7 @@
             <div class="footer-content">
                 <p class="copyright">© 2024 JuggleFit. All rights reserved.</p>
                 <div class="footer-links">
-                    <a href="{{ url_for('contact') }}" class="footer-link">Contact Us</a>
+                    <a href="mailto:jugglefit.competition@gmail.com" class="footer-link">Contact Us</a>
                     <a href="https://github.com/ofekraf/jugglefit_website" class="footer-link">Contribute on GitHub</a>
                 </div>
             </div>
