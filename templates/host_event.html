@@ -124,41 +124,17 @@
                 <h2 class="section-title">Our Affiliates</h2>
                 <div class="events-carousel">
                     <div class="carousel-inner">
-                        <div class="event-card active">
+                        {% for affiliate in affiliates %}
+                        <div class="event-card {% if loop.first %}active{% endif %}">
                             <div class="event-content">
-                                <img src="{{ url_for('static', filename='images/Ofek_Snir.jpg') }}" alt="Ofek Snir" class="event-image">
-                                <h3>Ofek Snir</h3>
+                                <img src="{{ affiliate.image_url }}" alt="{{ affiliate.name }}" class="event-image">
+                                <h3>{{ affiliate.name }}</h3>
                                 <div class="event-details">
-                                    <p><i class="fas fa-map-marker-alt"></i> Israel</p>
-                                    <p><i class="fas fa-calendar"></i> Active since 2023</p>
-                                    <p><i class="fas fa-users"></i> Professional Instructor</p>
+                                    <p><i class="fas fa-map-marker-alt"></i> {{ affiliate.residence }}</p>
                                 </div>
                             </div>
                         </div>
-
-                        <div class="event-card">
-                            <div class="event-content">
-                                <img src="{{ url_for('static', filename='images/Tamuz_Vardi.jpg') }}" alt="Tamuz Vardi" class="event-image">
-                                <h3>Tamuz Vardi</h3>
-                                <div class="event-details">
-                                    <p><i class="fas fa-map-marker-alt"></i> Israel</p>
-                                    <p><i class="fas fa-calendar"></i> Active since 2023</p>
-                                    <p><i class="fas fa-users"></i> Professional Instructor</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="event-card">
-                            <div class="event-content">
-                                <img src="{{ url_for('static', filename='images/Ofek_Rafaeli.jpg') }}" alt="Ofek Rafaeli" class="event-image">
-                                <h3>Ofek Rafaeli</h3>
-                                <div class="event-details">
-                                    <p><i class="fas fa-map-marker-alt"></i> Israel</p>
-                                    <p><i class="fas fa-calendar"></i> Active since 2023</p>
-                                    <p><i class="fas fa-users"></i> Professional Instructor</p>
-                                </div>
-                            </div>
-                        </div>
+                        {% endfor %}
                     </div>
                     <button class="carousel-prev"><i class="fas fa-chevron-left"></i></button>
                     <button class="carousel-next"><i class="fas fa-chevron-right"></i></button>
@@ -166,40 +142,15 @@
             </div>
         </div>
 
-        <!-- Contact Form -->
-        <div class="section-alt">
+        <!-- Contact Section -->
+        <div class="section">
             <div class="section-container">
-                <h2 class="section-title">Get Started</h2>
-                <div class="about-content">
-                    <p class="hero-subtitle">Ready to host a JuggleFit event? Fill out the form below and we'll get back to you within 24 hours.</p>
-                </div>
-                <div class="route-form">
-                    <form method="POST" action="{{ url_for('host_event') }}">
-                        <div class="form-section">
-                            <label class="form-label" for="name">Name</label>
-                            <input type="text" id="name" name="name" class="form-input" required>
-                        </div>
-                        <div class="form-section">
-                            <label class="form-label" for="email">Email</label>
-                            <input type="email" id="email" name="email" class="form-input" required>
-                        </div>
-                        <div class="form-section">
-                            <label class="form-label" for="event_type">Event Type</label>
-                            <select id="event_type" name="event_type" class="form-input" required>
-                                <option value="">Select an event type</option>
-                                <option value="workshop">Workshop</option>
-                                <option value="competition">Competition</option>
-                                <option value="team_building">Team Building</option>
-                            </select>
-                        </div>
-                        <div class="form-section">
-                            <label class="form-label" for="message">Message</label>
-                            <textarea id="message" name="message" class="form-input" rows="4" required></textarea>
-                        </div>
-                        <div class="form-actions">
-                            <button type="submit" class="primary-button">Submit Request</button>
-                        </div>
-                    </form>
+                <h2 class="section-title">Contact Us</h2>
+                <div class="contact-info">
+                    <p>For any questions or to host an event, please contact us at:</p>
+                    <a href="mailto:jugglefit.competition@gmail.com" class="email-link">
+                        <i class="fas fa-envelope"></i> jugglefit.competition@gmail.com
+                    </a>
                 </div>
             </div>
         </div>
@@ -233,12 +184,6 @@ document.addEventListener('DOMContentLoaded', function() {
         currentIndex = (currentIndex + 1) % cards.length;
         updateCarousel();
     });
-
-    // Auto-advance carousel every 5 seconds
-    setInterval(() => {
-        currentIndex = (currentIndex + 1) % cards.length;
-        updateCarousel();
-    }, 5000);
 });
 </script>
 {% endblock %}
