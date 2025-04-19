@@ -61,7 +61,6 @@ BALLS_TRICKS = [
     Trick(name="441 -> 66300 3up 360 -> 441", props_count=3, difficulty=21, tags={Tag.Spin, Tag.Siteswap}),
     Trick(name="cascade -> 3up 360 -> overheads", props_count=3, difficulty=18, tags={Tag.Spin, Tag.BodyThrows}),
     Trick(name="3up 360 -> backrosses", props_count=3, difficulty=21, tags={Tag.Spin, Tag.BodyThrows}),
-    Trick(name="3up 360 -> backrosses", props_count=3, difficulty=21, tags={Tag.Spin, Tag.BodyThrows}),
     Trick(name="backrosses -> 3up 360 in backrosses -> backrosses", props_count=3, difficulty=40, tags={Tag.Spin, Tag.BodyThrows}),
     Trick(name="overheads -> 3up 360 in overheads -> 531", props_count=3, difficulty=27, tags={Tag.Spin, Tag.BodyThrows}),
     
@@ -159,7 +158,7 @@ BALLS_TRICKS = [
     
     
     # connections
-    Trick(name="6c 60 -> 6c 60 other hand", props_count=3, difficulty=21, tags={Tag.Siteswap}, comment="start: 3 in the same hand. Transition: 50505"),
+    Trick(name="6c 60 -> 5c 50505 -> 6c 60", props_count=3, difficulty=21, tags={Tag.Siteswap}, comment="start: 3 in one hand"),
     Trick(name="box -> 8c inverted box -> box", props_count=3, difficulty=15, tags={Tag.Siteswap}),
     
     ### 4 props siteswaps ###
