@@ -54,6 +54,9 @@ CLUBS_TRICKS = [
     # connections
     
     ### 5 props spins ###
+    # base 180
+    Trick(name="cascade -> 5up 180 -> cascade", props_count=5, difficulty=44, tags={Tag.Spin}),
+
     # base 360
     Trick(name="cascade -> 97522 3up 360 -> cascade", props_count=5, difficulty=40, tags={Tag.Spin}),
     
@@ -119,11 +122,15 @@ CLUBS_TRICKS = [
     Trick(name="30c 744 isolated", props_count=5, difficulty=42, tags={Tag.Siteswap}),
 
     # period 5
-    Trick(name="10c 94444", props_count=5, difficulty=34, tags={Tag.Siteswap}),
+    Trick(name="cascade -> 5c 66751 -> cascade", props_count=5, difficulty=33, tags={Tag.Siteswap}),
+    Trick(name="10c 94444", props_count=5, difficulty=37, tags={Tag.Siteswap}),
     Trick(name="20c 94633", props_count=5, difficulty=52, tags={Tag.Siteswap}),
     Trick(name="cascade -> 10c 77335 -> cascade", props_count=5, difficulty=40, tags={Tag.Siteswap}),
     Trick(name="cascade -> 10c 74464 -> cascade", props_count=5, difficulty=37, tags={Tag.Siteswap}),
-    Trick(name="30c 84445", props_count=5, difficulty=47, tags={Tag.Siteswap}),
+    Trick(name="30c 84445", props_count=5, difficulty=50, tags={Tag.Siteswap}),
+
+    # period 7
+    Trick(name="14c 7575164", props_count=5, difficulty=43, tags={Tag.Siteswap}),
     
     # other period
 
@@ -139,6 +146,7 @@ CLUBS_TRICKS = [
     
     ### 7 props siteswaps ###
     # period 3
+    Trick(name="cascade -> 3c 966", props_count=7, difficulty=75, tags={Tag.Siteswap}),
     
     # period 5
     
@@ -163,6 +171,8 @@ CLUBS_TRICKS = [
 
     ### 5 props body throws ###
     Trick(name="5c cascade -> 4c 7733, backrosses 3's -> cascade", props_count=5, difficulty=55, tags={Tag.BodyThrows, Tag.Siteswap}),
+    Trick(name="20c triples backrosses", props_count=5, difficulty=48, tags={Tag.BodyThrows}),
+    Trick(name="cascade -> 5c 94444, lazies 4's -> cascade", props_count=5, difficulty=58, tags={Tag.BodyThrows, Tag.Siteswap}),
     
     ### 6 props body throws ###
     Trick(name="6c ANY -> 4c 9555, backrosses 5's -> 6c ANY", props_count=6, difficulty=73, tags={Tag.BodyThrows, Tag.Siteswap}),
@@ -185,6 +195,8 @@ CLUBS_TRICKS = [
     Trick(name="18c 534 singles", props_count=4, difficulty=26, tags={Tag.SpinControl, Tag.Siteswap}),
     Trick(name="18c 633 singles", props_count=4, difficulty=40, tags={Tag.SpinControl, Tag.Siteswap}),
     Trick(name="534, flat 4", props_count=4, difficulty=27, tags={Tag.SpinControl, Tag.Siteswap}),
+    Trick(name="4c singles -> 4c doubles -> 4c triples -> 4c singles", props_count=4, difficulty=26, tags={Tag.SpinControl}),
+    Trick(name="534, flatfront 5", props_count=4, difficulty=29, tags={Tag.SpinControl, Tag.Siteswap}),
     
     ### 5 props spin control ###
     Trick(name="10c singles", props_count=5, difficulty=28, tags={Tag.SpinControl, Tag.BasePattern}),
@@ -194,6 +206,7 @@ CLUBS_TRICKS = [
     
     ### 6 props spin control ###
     Trick(name="6c singles", props_count=5, difficulty=51, tags={Tag.SpinControl}),
+    Trick(name="6c fountain -> 6c flats", props_count=6, difficulty=60, tags={Tag.SpinControl}),
     
     ### 7 props spin control ###
     

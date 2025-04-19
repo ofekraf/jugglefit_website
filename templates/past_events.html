@@ -13,26 +13,35 @@
     </div>
     <div class="past-event-container" id="{{ event.name }}"  style="display: none">
         <ul>
-            <li><strong>Date: </strong>{{ event.date }}</li>
+            <li><strong>Date: </strong>{{ event.date.strftime('%d/%m/%Y') }}</li>
             <li><strong>Location: </strong>{{ event.location }}</li>
-            <li><strong>Routes & Winners:</strong></li>
-            <ul>
-                <!-- @todo: the prop icon doesn't show here. -->
-                {% for route in event.results %}
-                <li>
-                    <strong>{{ route.name }}</strong> - Winner: {{ route.competitors[1].name }} ({{ "%02d"|format(route.competitors[1].seconds // 60) }}:{{ "%02d"|format(route.competitors[1].seconds % 60) }})
-                    {% set route_container_id = event.name ~ "+" ~ route.name %}
-                    <div class="route-button-container">
-                        <button class="primary-button" onclick="toggle_object('{{route_container_id}}')">View Route</button>
-                    </div>
-                    <div class="route-container" id="{{ route_container_id }}" style="display: none">
-                        {% with route=route %}
-                            {% include "utils/route_display.html" %}
-                        {% endwith %}
-                    </div>
-                </li>
-                {% endfor %}
-            </ul>
+            <li><strong>Routes & Winners:</strong>
+                <div class="event-image-container">
+                    <img src="{{ event.image_url }}" alt="{{ event.name }} winners" class="event-winners-image">
+                </div>
+                <ul>
+                    <!-- @todo: the prop icon doesn't show here. -->
+                    {% for route in event.results %}
+                    <li>
+                        <strong>{{ route.name }}</strong> - Winner: {{ route.competitors[1].name }} 
+                        {% if route.competitors[1].seconds %}
+                            ({{ "%02d"|format(route.competitors[1].seconds // 60) }}:{{ "%02d"|format(route.competitors[1].seconds % 60) }})
+                        {% else %}
+                            ({{ route.competitors[1].tricks_accomplished }}/10 tricks)
+                        {% endif %}
+                        {% set route_container_id = event.name ~ "+" ~ route.name %}
+                        <div class="route-button-container">
+                            <button class="primary-button" onclick="toggle_object('{{route_container_id}}')">View Route</button>
+                        </div>
+                        <div class="route-container" id="{{ route_container_id }}" style="display: none">
+                            {% with route=route %}
+                                {% include "utils/route_display.html" %}
+                            {% endwith %}
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </li>
         </ul>
     </div>
     {% endfor %}
