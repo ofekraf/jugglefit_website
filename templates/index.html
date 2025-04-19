@@ -9,7 +9,7 @@
             <p class="hero-subtitle">A sport-juggling competition that's motivating to practice, requires minimal preparation, and is fun to watch</p>
             <div class="hero-buttons">
                 <a href="/#upcoming_events" class="primary-button">Join Event</a>
-                <a href="{{ url_for('create_route') }}" class="secondary-button">Create Route</a>
+                <a href="{{ url_for('generate_route') }}" class="secondary-button">Generate Route</a>
             </div>
         </div>
     </section>
@@ -51,7 +51,7 @@
                     <h3>Routes</h3>
                     <p>JuggleFit is built around "routes" — sequences of juggling tricks drawn from a list of general skills. A secret route is revealed just minutes before the competition begins.</p>
                     <div class="rule-card-button-container">
-                        <a href="{{ url_for('create_route') }}" class="primary-button">Try out our route generator!</a>
+                        <a href="{{ url_for('generate_route') }}" class="primary-button">Try out our route generator!</a>
                     </div>
                 </div>
                 <div class="rule-card">
@@ -121,11 +121,11 @@
     <section class="section cta-section">
         <div class="section-container">
             <h2 class="section-title">Ready to Get Started?</h2>
-            <p class="cta-text">Join an event, host your own, or create a practice route today!</p>
+            <p class="cta-text">Join an event, host your own, or generate a practice route today!</p>
             <div class="cta-buttons">
                 <a href="/#upcoming_events" class="primary-button">Join Event</a>
                 <a href="{{ url_for('host_event') }}" class="secondary-button">Host Event</a>
-                <a href="{{ url_for('create_route') }}" class="secondary-button">Create Route</a>
+                <a href="{{ url_for('generate_route') }}" class="secondary-button">Create Route</a>
             </div>
         </div>
     </section>
