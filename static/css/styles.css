@@ -905,6 +905,7 @@ body {
     min-width: 200px;
     position: relative;
     width: auto;
+    white-space: nowrap;
 }
 
 .trick-name {
@@ -927,14 +928,16 @@ body {
     color: var(--text-color);
     text-align: left;
     font-family: "Inter", sans-serif;
-    font-size: 16px;
+    font-size: 14px;
     line-height: 120%;
-    font-weight: 400;
+    font-weight: 700;
     position: relative;
     display: inline-flex;
     align-items: center;
     justify-content: flex-start;
     white-space: nowrap;
+    opacity: 0.8;
+    margin-left: 8px;
 }
 
 .trick-comment-container {
@@ -1181,6 +1184,7 @@ body {
     align-items: center;
     justify-content: center;
     white-space: nowrap;
+    text-transform: uppercase;
 }
 
 .prop-count {

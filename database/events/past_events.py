@@ -78,7 +78,7 @@ FRONT_PAGE_PAST_EVENTS = [
                 tricks=[
                     Trick(name="8c 7531, under the leg 1's", props_count=4),
                     Trick(name="async fountain -> 4up 360 -> 2up 360 -> sync fountain", props_count=4),
-                    Trick(name="half shower -> 10c overheads -> half shower to the other side", props_count=5),
+                    Trick(name="half shower -> 10c overheads -> other side half shower", props_count=5),
                     Trick(name="5c cascade -> 7c b444444 -> backrosses", props_count=5),
                     Trick(name="cascade -> 8c 7733, neck throws 3's", props_count=5),
                     Trick(name="20c a5753", props_count=6),
