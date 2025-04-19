@@ -16,3 +16,13 @@ class Trick:
     def __post_init__(self):
         if len(self.name) > MAX_TRICK_NAME_LENGTH:
             raise ValueError(f"Trick name {self.name} is too long. Please keep it under {MAX_TRICK_NAME_LENGTH} characters.")
+
+    def to_dict(self) -> dict:
+        """Convert the trick to a dictionary for JSON serialization."""
+        return {
+            'name': self.name,
+            'props_count': self.props_count,
+            'difficulty': self.difficulty,
+            'tags': [tag.value for tag in self.tags] if self.tags else [],
+            'comment': self.comment
+        }

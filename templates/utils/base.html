@@ -41,8 +41,11 @@
                             <li><a href="{{ url_for('past_events') }}">Past Events</a></li>
                         </ul>
                     </li>
-                    <li class="nav-item">
-                        <a href="{{ url_for('create_route') }}" {% if current_page == 'create_route' %}class="active"{% endif %}>Create Route</a>
+                    <li class="nav-item dropdown">
+                        <a href="{{ url_for('generate_route') }}" {% if current_page == 'generate_route' or current_page == 'build_route' %}class="active"{% endif %}>Generate Route</a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{{ url_for('build_route') }}">Build Route</a></li>
+                        </ul>
                     </li>
                     <li class="nav-item">
                         <a href="{{ url_for('host_event') }}" {% if current_page == 'host_event' %}class="active"{% endif %}>Host Event</a>

@@ -1,0 +1,258 @@
+{% extends "utils/base.html" %}
+{% block title %}Create Your Own Route{% endblock %}
+{% block content %}
+<div class="route-page">
+    <div class="route-header">
+        <h1 class="route-title">Build Route</h1>
+        <div class="route-description">
+            <p>Build your own route</p>
+        </div>
+    </div>
+
+    <div class="route-form">
+        <div class="form-section">
+            <label for="route_name" class="form-label">Route Name</label>
+            <input type="text" id="route_name" name="route_name" placeholder="My awesome route" class="form-input" required>
+        </div>
+
+        <div class="form-section">
+            <label class="form-label">Select Prop</label>
+            <div class="prop-group">
+                {% for prop in prop_options %}
+                    <label class="prop-option {% if loop.first %}selected{% endif %}" data-prop-type="{{ prop }}">
+                        <input type="radio" name="prop" class="prop-option-input" value="{{ prop }}" {% if loop.first %}checked{% endif %}> 
+                        <span class="prop-option-name">{{ prop }}</span>
+                        <div class="prop-icon"></div>
+                    </label>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="form-section">
+            <label class="form-label">Props Count</label>
+            <div class="slider-container">
+                <div id="props-slider" class="custom-slider"></div>
+                <div class="slider-values">
+                    <span id="props-range">Min: 3, Max: 9</span>
+                </div>
+                <input type="hidden" id="min-props-input" name="min_props" value="3">
+                <input type="hidden" id="max-props-input" name="max_props" value="9">
+            </div>
+        </div>
+        <div class="form-section">
+            <label class="form-label">Difficulty</label>
+            <div class="slider-container">
+                <div id="difficulty-slider" class="custom-slider"></div>
+                <div class="slider-values">
+                    <span id="difficulty-range">Min: 20, Max: 30</span>
+                </div>
+                <input type="hidden" id="min-difficulty-input" name="min_difficulty" value="20">
+                <input type="hidden" id="max-difficulty-input" name="max_difficulty" value="30">
+            </div>
+        </div>
+
+        <div class="form-section">
+            <label class="form-label">Exclude Tags</label>
+            <div class="tricks-container">
+                <div class="tricks-column">
+                    <div id="exclude_tags" class="tags-grid">
+                        {% for tag in tag_options %}
+                            <div class="checkbox-container">
+                                <input type="checkbox" id="tag-{{ tag }}" name="exclude_tags" value="{{ tag }}">
+                                <label for="tag-{{ tag }}">{{ tag }}</label>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <label class="form-label">Available Tricks</label>
+            <div id="trick_results" class="trick-results"></div>
+        </div>
+    </div>
+
+    <div class="tricks-database">
+        <p>Juggler and Open-Source contributor? You can expand the database <a target="_blank" href="https://github.com/ofekraf/jugglefit_website/tree/main/database/tricks">here</a></p>
+    </div>
+</div>
+
+<!-- Include noUISlider CSS and JS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.js"></script>
+
+<script>
+// Store all tricks data
+const propToTricks = JSON.parse('{{ prop_to_tricks|tojson|safe }}');
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize the props slider (range 3 to 7)
+    const propsSlider = document.getElementById('props-slider');
+    const propsRange = document.getElementById('props-range');
+    const propsMinInput = document.getElementById('min-props-input');
+    const propsMaxInput = document.getElementById('max-props-input');
+    noUiSlider.create(propsSlider, {
+        start: [3, 7],
+        connect: true,
+        range: {
+            'min': 2,
+            'max': 9
+        },
+        format: {
+            to: (value) => Math.round(value),
+            from: (value) => parseFloat(value)
+        }
+    });
+
+    // Update the props range display
+    propsSlider.noUiSlider.on('update', function(values) {
+        const min = Math.round(values[0]);
+        const max = Math.round(values[1]);
+        propsRange.textContent = `Min: ${min}, Max: ${max}`;
+        propsMinInput.value = min;
+        propsMaxInput.value = max;
+        updateTrickSearch();
+    });
+
+    // Initialize the difficulty slider (range 0 to 100)
+    const difficultySlider = document.getElementById('difficulty-slider');
+    const difficultyRange = document.getElementById('difficulty-range');
+    const difficultyMinInput = document.getElementById('min-difficulty-input');
+    const difficultyMaxInput = document.getElementById('max-difficulty-input');
+    noUiSlider.create(difficultySlider, {
+        start: [20, 30],
+        connect: true,
+        range: {
+            'min': 0,
+            'max': 100
+        },
+        format: {
+            to: (value) => Math.round(value),
+            from: (value) => parseFloat(value)
+        }
+    });
+
+    // Update the difficulty range display
+    difficultySlider.noUiSlider.on('update', function(values) {
+        const min = Math.round(values[0]);
+        const max = Math.round(values[1]);
+        difficultyRange.textContent = `Min: ${min}, Max: ${max}`;
+        difficultyMinInput.value = min;
+        difficultyMaxInput.value = max;
+        updateTrickSearch();
+    });
+
+    // Prop selection handling
+    const propOptions = document.querySelectorAll('.prop-option');
+    const propInputs = document.querySelectorAll('.prop-option-input');
+
+    // Function to update selected state
+    function updateSelectedState() {
+        propOptions.forEach(option => {
+            const input = option.querySelector('.prop-option-input');
+            if (input.checked) {
+                option.classList.add('selected');
+            } else {
+                option.classList.remove('selected');
+            }
+        });
+        updateTrickSearch();
+    }
+
+    // Set initial state
+    updateSelectedState();
+
+    // Add click event listeners to all prop options
+    propOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            // Uncheck all inputs
+            propInputs.forEach(input => input.checked = false);
+            // Check the clicked input
+            const input = this.querySelector('.prop-option-input');
+            input.checked = true;
+            updateSelectedState();
+        });
+    });
+
+    // Add change event listeners to all radio inputs
+    propInputs.forEach(input => {
+        input.addEventListener('change', updateSelectedState);
+    });
+
+    // Update trick search when filters change
+    const excludeTagCheckboxes = document.querySelectorAll('input[name="exclude_tags"]');
+    excludeTagCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            updateTrickSearch();
+        });
+    });
+
+    // Trick search handling
+    function updateTrickSearch() {
+        const selectedProp = document.querySelector('input[name="prop"]:checked').value;
+        const minProps = parseInt(propsMinInput.value);
+        const maxProps = parseInt(propsMaxInput.value);
+        const minDifficulty = parseInt(difficultyMinInput.value);
+        const maxDifficulty = parseInt(difficultyMaxInput.value);
+        const excludedTags = Array.from(document.querySelectorAll('input[name="exclude_tags"]:checked')).map(cb => cb.value);
+
+        // Get tricks for current prop
+        const tricks = propToTricks[selectedProp] || [];
+        
+        // Filter tricks based on search criteria
+        const filteredTricks = tricks.filter(trick => {
+            // Prop count range
+            if (trick.props_count < minProps || trick.props_count > maxProps) {
+                return false;
+            }
+            
+            // Difficulty range
+            if (trick.difficulty < minDifficulty || trick.difficulty > maxDifficulty) {
+                return false;
+            }
+            
+            // Exclude tricks with selected tags
+            if (excludedTags.length > 0 && trick.tags) {
+                if (excludedTags.some(tag => trick.tags.includes(tag))) {
+                    return false;
+                }
+            }
+            
+            return true;
+        });
+
+        // Display results
+        const trickResults = document.getElementById('trick_results');
+        trickResults.innerHTML = '';
+        if (filteredTricks.length === 0) {
+            trickResults.innerHTML = '<div class="no-results">No tricks match the current filters</div>';
+            return;
+        }
+
+        filteredTricks.forEach(trick => {
+            const div = document.createElement('div');
+            div.className = 'trick-result-item';
+            div.innerHTML = `
+                <div class="trick-info">
+                    <span class="trick-name">${trick.name}</span>
+                    <span class="trick-props">${trick.props_count} props</span>
+                    <span class="trick-difficulty">Difficulty: ${trick.difficulty}</span>
+                    ${trick.tags ? `<span class="trick-tags">Tags: ${trick.tags.join(', ')}</span>` : ''}
+                    ${trick.comment ? `<span class="trick-comment">${trick.comment}</span>` : ''}
+                </div>
+                <button class="add-trick" data-trick='${JSON.stringify(trick)}'>Add</button>
+            `;
+            div.querySelector('.add-trick').addEventListener('click', function() {
+                const trickData = JSON.parse(this.dataset.trick);
+                // TODO: Add to route
+            });
+            trickResults.appendChild(div);
+        });
+    }
+
+    // Initial search
+    updateTrickSearch();
+});
+</script>
+{% endblock %}

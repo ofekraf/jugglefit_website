@@ -22,7 +22,7 @@ You can view a live demo at [jugglefit.org](www.jugglefit.org)
 2. Open a web browser and go to `http://127.0.0.1:5000/` to view the homepage.
 3. Explore additional routes:
    - Home: `http://127.0.0.1:5000/`
-   - Create a Route: `http://127.0.0.1:5000/create_route`
+   - Generate a Route: `http://127.0.0.1:5000/generate_route`
    - Host an Event: `http://127.0.0.1:5000/host_event`
    - Past Events: `http://127.0.0.1:5000/past_events`
 
