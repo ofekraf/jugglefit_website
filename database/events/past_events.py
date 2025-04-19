@@ -78,12 +78,12 @@ FRONT_PAGE_PAST_EVENTS = [
                 tricks=[
                     Trick(name="8c 7531, under the leg 1's", props_count=4),
                     Trick(name="async fountain -> 4up 360 -> 2up 360 -> sync fountain", props_count=4),
-                    Trick(name="half shower -> 10c overheads -> other side half shower", props_count=5),
+                    Trick(name="half shower -> overheads -> other side half shower", props_count=5),
                     Trick(name="5c cascade -> 7c b444444 -> backrosses", props_count=5),
                     Trick(name="cascade -> 8c 7733, neck throws 3's", props_count=5),
                     Trick(name="20c a5753", props_count=6),
                     Trick(name="(8,4)* -> (c,4)(4,c)(c,8)(2,2)(2,2) 4up 720 -> (8,4)*", props_count=6),
-                    Trick(name="867 -> 1 high 4 low 360 -> (8,6x)*", props_count=7, comment="spin notaion: ex9x89x822"),
+                    Trick(name="867 -> 1 high 4 low 360 -> (8,6x)*", props_count=7, comment="spin notation: ex9x89x822"),
                     Trick(name="cc111111111, around the body 1's", props_count=3),
                     Trick(name="24c 996", props_count=8),
                 ],
@@ -95,7 +95,7 @@ FRONT_PAGE_PAST_EVENTS = [
                 tricks=[
                     Trick(name="18c reverse spin", props_count=3),
                     Trick(name="4c singles -> 4c doubles -> 4c triples -> 4c singles", props_count=4),
-                    Trick(name="534, flatfront 5's", props_count=4),
+                    Trick(name="534, flatfront 5", props_count=4),
                     Trick(name="cascade -> 5c 66751 -> cascade", props_count=5),
                     Trick(name="cascade -> 5up 180 -> cascade", props_count=5),
                     Trick(name="21c 7575164", props_count=5),
@@ -151,3 +151,4 @@ NON_FRONT_PAGE_PAST_EVENTS = [
 
 # @TODO: order by date from oldest to newest
 ALL_PAST_EVENTS = FRONT_PAGE_PAST_EVENTS + NON_FRONT_PAGE_PAST_EVENTS
+ALL_PAST_EVENTS.sort(key=lambda x: x.date)
