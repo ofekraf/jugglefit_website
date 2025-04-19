@@ -74,7 +74,7 @@ FRONT_PAGE_PAST_EVENTS = [
             RouteResult(
                 name="Balls open",
                 prop=Prop.Balls,
-                competitors={1: CompetitorResult(name="Esteban Cardenas", tricks_accomplished=5)},
+                competitors={1: CompetitorResult(name="Sise juggler", tricks_accomplished=5)},
                 tricks=[
                     Trick(name="8c 7531, under the leg 1's", props_count=4),
                     Trick(name="async fountain -> 4up 360 -> 2up 360 -> sync fountain", props_count=4),
