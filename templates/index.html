@@ -81,9 +81,9 @@
                         <div class="event-content">
                             <h3>{{ event.name }}</h3>
                             <div class="event-details">
-                                <p><i class="fas fa-calendar"></i> {{event.date}}</p>
-                                <p><i class="fas fa-map-marker-alt"></i> {{event.location}}</p>
-                                <p><i class="fas fa-bullseye"></i> {{", ".join(event.routes)}}</p>
+                                <p><i class="fas fa-calendar"></i> {{ event.date.strftime('%d/%m/%Y') }}</p>
+                                <p><i class="fas fa-map-marker-alt"></i> {{ event.location }}</p>
+                                <p><i class="fas fa-bullseye"></i> {{ ", ".join(event.routes) }}</p>
                             </div>
                             <a href={{event.url}} target="_blank" class="event-link">Learn More</a>
                         </div>
@@ -102,7 +102,7 @@
             <h2 class="section-title">Last Events</h2>
             <div class="events-carousel">
                 <div class="carousel-inner" id="last-events-carousel-inner">
-                    {% for event in last_events %}
+                    {% for event in last_events|sort(attribute='date', reverse=True) %}
                     <div class="event-card {% if loop.first %}active{% endif %}">
                         <img class="event-image" src="{{event.image_url}}" alt="{{ event.name }}">
                         <div class="event-content">

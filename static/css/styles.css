@@ -494,7 +494,7 @@ body {
 
 /* Route Page Styles */
 .route-page {
-    max-width: 800px;
+    max-width: 1200px;
     margin: 0 auto;
     padding: 2rem;
 }
@@ -514,7 +514,7 @@ body {
 .route-description {
     font-size: 1.1rem;
     color: var(--light-text);
-    max-width: 600px;
+    max-width: 800px;
     margin: 0 auto;
 }
 
@@ -524,6 +524,8 @@ body {
     padding: 2rem;
     border-radius: 8px;
     box-shadow: 0 2px 4px var(--shadow-color);
+    max-width: 600px;
+    margin: 0 auto;
 }
 
 .form-section {
@@ -816,6 +818,8 @@ body {
     border-radius: 12px;
     padding: 2rem;
     box-shadow: 0 4px 12px var(--shadow-color);
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 .route-details {
@@ -905,13 +909,14 @@ body {
     min-width: 200px;
     position: relative;
     width: auto;
+    white-space: nowrap;
 }
 
 .trick-name {
     color: var(--text-color);
     text-align: left;
     font-family: "Inter", sans-serif;
-    font-size: 18px;
+    font-size: 14px;
     line-height: 120%;
     font-weight: 700;
     text-transform: uppercase;
@@ -927,14 +932,16 @@ body {
     color: var(--text-color);
     text-align: left;
     font-family: "Inter", sans-serif;
-    font-size: 16px;
+    font-size: 12px;
     line-height: 120%;
-    font-weight: 400;
+    font-weight: 700;
     position: relative;
     display: inline-flex;
     align-items: center;
     justify-content: flex-start;
     white-space: nowrap;
+    opacity: 0.8;
+    margin-left: 8px;
 }
 
 .trick-comment-container {
@@ -1128,12 +1135,13 @@ body {
     border-radius: 15px;
     align-self: stretch;
     flex-shrink: 0;
-    width: 196px;
+    width: 80px;
+    min-height: 40px;
     position: relative;
     box-sizing: border-box;
     display: flex;
     flex-direction: row;
-    gap: 10px;
+    gap: 20px;
     align-items: center;
     justify-content: center;
     padding: 0;
@@ -1173,7 +1181,7 @@ body {
     color: #ffffff;
     text-align: center;
     font-family: "Inter-ExtraBold", sans-serif;
-    font-size: 32px;
+    font-size: 28px;
     line-height: 1;
     font-weight: 800;
     position: relative;
@@ -1181,6 +1189,7 @@ body {
     align-items: center;
     justify-content: center;
     white-space: nowrap;
+    text-transform: uppercase;
 }
 
 .prop-count {
@@ -1267,64 +1276,17 @@ body {
     text-align: center;
 }
 
-/* Compact Route Display for Past Events */
-.past-event-container .route-page {
-    padding: 0;
-    margin: 0;
+.past-event-container .event-image-container {
+    margin: 1rem 0;
+    text-align: center;
 }
 
-.past-event-container .route-header {
-    margin-bottom: 1rem;
-}
-
-.past-event-container .route-title {
-    font-size: 1.2rem;
-    margin-bottom: 0.5rem;
-}
-
-.past-event-container .route-description {
-    display: none;
-}
-
-.past-event-container .route-container {
-    padding: 0;
-    margin: 0;
-}
-
-.past-event-container .route-content {
-    padding: 0;
-}
-
-.past-event-container .route-details {
-    margin-bottom: 1rem;
-}
-
-.past-event-container .route-sections {
-    gap: 0.5rem;
-}
-
-.past-event-container .prop-section {
-    margin-bottom: 0.5rem;
-}
-
-.past-event-container .prop-color-bar {
-    width: 100px;
-}
-
-.past-event-container .trick-container {
-    padding: 0.5rem;
-}
-
-.past-event-container .prop-details-frame {
-    padding: 0.5rem;
-}
-
-.past-event-container .trick-name {
-    font-size: 0.9rem;
-}
-
-.past-event-container .prop-details {
-    font-size: 0.8rem;
+.past-event-container .event-winners-image {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    object-fit: contain;
 }
 
 .flash-message {
@@ -1387,4 +1349,105 @@ body {
 
 .email-link i {
     font-size: 1.4rem;
+}
+
+.past-event-container .route-container {
+    padding: 0;
+    margin: 0;
+    max-width: 100%;
+}
+
+.past-event-container .route-content {
+    padding: 0;
+    max-width: 100%;
+}
+
+.past-event-container .route-sections {
+    gap: 0.5rem;
+    max-width: 100%;
+}
+
+.past-event-container .prop-section {
+    margin-bottom: 0.5rem;
+    width: 100%;
+}
+
+.past-event-container .prop-color-bar {
+    width: 140px;
+}
+
+.past-event-container .trick-container {
+    padding: 0.5rem;
+    width: 100%;
+}
+
+.past-event-container .prop-details-frame {
+    padding: 0.5rem;
+    width: 100%;
+}
+
+.past-event-container .trick-name {
+    font-size: 12px;
+}
+
+.past-event-container .trick-comment {
+    color: var(--text-color);
+    text-align: left;
+    font-family: "Inter", sans-serif;
+    font-size: 10px;
+    line-height: 120%;
+    font-weight: 700;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    white-space: nowrap;
+    opacity: 0.8;
+    margin-left: 8px;
+}
+
+.past-event-container .prop-details-frame {
+    border-radius: 15px;
+    padding: 4px 12px;
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    align-items: center;
+    justify-content: flex-start;
+    flex: 0 0 auto;
+    min-width: 200px;
+    position: relative;
+    width: auto;
+    white-space: nowrap;
+}
+
+/* Print Styles */
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    
+    .route-container,
+    .route-container * {
+        visibility: visible;
+    }
+    
+    .route-container {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        box-shadow: none;
+    }
+    
+    .route-header,
+    .route-description,
+    .route-actions {
+        display: none;
+    }
+    
+    .prop-color-bar {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
 }
