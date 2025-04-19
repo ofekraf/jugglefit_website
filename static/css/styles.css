@@ -482,6 +482,7 @@ body {
         opacity: 0;
         transform: translateY(20px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -919,7 +920,6 @@ body {
     font-size: 14px;
     line-height: 120%;
     font-weight: 700;
-    text-transform: uppercase;
     position: relative;
     display: inline-flex;
     align-items: center;
@@ -972,12 +972,12 @@ body {
     transition: all 0.3s ease;
 }
 
-.trick-checkbox:checked + .trick-checkbox-label {
+.trick-checkbox:checked+.trick-checkbox-label {
     background-color: var(--primary-color);
     border-color: var(--primary-color);
 }
 
-.trick-checkbox:checked + .trick-checkbox-label::after {
+.trick-checkbox:checked+.trick-checkbox-label::after {
     content: '✓';
     color: white;
     font-size: 14px;
@@ -1070,10 +1070,16 @@ body {
 }
 
 .past-event-container li {
-    margin-bottom: 1rem;
-    padding: 1rem;
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
     background-color: var(--section-bg);
     border-radius: 8px;
+}
+
+.past-event-container li button {
+    margin-left: 1rem;
+    display: inline-block;
+    vertical-align: middle;
 }
 
 .past-event-container strong {
@@ -1084,6 +1090,10 @@ body {
 .route-button-container {
     margin: 1rem 0;
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 .route-button {
@@ -1189,7 +1199,6 @@ body {
     align-items: center;
     justify-content: center;
     white-space: nowrap;
-    text-transform: uppercase;
 }
 
 .prop-count {
@@ -1231,11 +1240,13 @@ body {
 }
 
 .prop-color-bar[data-props="8"] {
-    background: #8a2be2;  /* Blue Violet */
+    background: #8a2be2;
+    /* Blue Violet */
 }
 
 .prop-color-bar[data-props="9"] {
-    background: #00ced1;  /* Dark Turquoise */
+    background: #00ced1;
+    /* Dark Turquoise */
 }
 
 /* Past Events Page */
@@ -1260,20 +1271,21 @@ body {
 }
 
 .past-event-container li {
-    margin-bottom: 1rem;
-    padding: 1rem;
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
     background-color: var(--section-bg);
     border-radius: 8px;
+}
+
+.past-event-container li button {
+    margin-left: 1rem;
+    display: inline-block;
+    vertical-align: middle;
 }
 
 .past-event-container strong {
     color: var(--primary-color);
     font-weight: 600;
-}
-
-.route-button-container {
-    margin: 1rem 0;
-    text-align: center;
 }
 
 .past-event-container .event-image-container {
@@ -1310,8 +1322,15 @@ body {
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-20px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .contact-info {
@@ -1423,31 +1442,219 @@ body {
 
 /* Print Styles */
 @media print {
+    @page {
+        size: A4;
+        margin: 1cm;
+        marks: none;
+    }
+
+    @page :first {
+        margin-top: 0;
+    }
+
+    @page :left {
+        margin-left: 0;
+    }
+
+    @page :right {
+        margin-right: 0;
+    }
+
     body * {
         visibility: hidden;
     }
-    
-    .route-container,
-    .route-container * {
+
+    .route-page,
+    .route-page * {
         visibility: visible;
     }
-    
-    .route-container {
+
+    .route-page {
         position: absolute;
         left: 0;
         top: 0;
         width: 100%;
-        box-shadow: none;
+        max-width: none;
+        padding: 0;
     }
-    
-    .route-header,
+
     .route-description,
-    .route-actions {
+    .route-actions,
+    .route-timer {
         display: none;
     }
-    
+
+    .route-header {
+        display: block;
+        text-align: center;
+        margin-bottom: 1rem;
+        padding: 0 1cm;
+    }
+
+    .route-title {
+        text-align: center;
+        margin-bottom: 1rem;
+        font-size: 36pt;
+    }
+
+    .route-container {
+        box-shadow: none;
+        border: none;
+        padding: 0 1cm;
+        max-width: none;
+        width: 100%;
+    }
+
+    .route-sections {
+        max-width: none;
+        padding: 0;
+    }
+
+    .prop-section {
+        width: 100%;
+    }
+
+    .prop-color-bar {
+        width: 120px;
+    }
+
     .prop-color-bar {
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
     }
+
+    /* Increase font sizes for all text elements */
+    .trick-name {
+        font-size: 16pt;
+        line-height: 1.5;
+    }
+
+    .trick-comment {
+        font-size: 12pt;
+        line-height: 1.5;
+    }
+
+    .prop-count-text {
+        font-size: 48pt;
+        line-height: 1.2;
+        font-weight: 800;
+    }
+
+    /* Remove all page headers and footers */
+    @page {
+        @top-left-corner {
+            content: none;
+        }
+
+        @top-left {
+            content: none;
+        }
+
+        @top-center {
+            content: none;
+        }
+
+        @top-right {
+            content: none;
+        }
+
+        @top-right-corner {
+            content: none;
+        }
+
+        @bottom-left-corner {
+            content: none;
+        }
+
+        @bottom-left {
+            content: none;
+        }
+
+        @bottom-center {
+            content: none;
+        }
+
+        @bottom-right {
+            content: none;
+        }
+
+        @bottom-right-corner {
+            content: none;
+        }
+
+        @left-top {
+            content: none;
+        }
+
+        @left-middle {
+            content: none;
+        }
+
+        @left-bottom {
+            content: none;
+        }
+
+        @right-top {
+            content: none;
+        }
+
+        @right-middle {
+            content: none;
+        }
+
+        @right-bottom {
+            content: none;
+        }
+    }
+
+    /* Remove any automatic page numbers */
+    @page {
+        counter-reset: none;
+    }
+
+    /* Remove any automatic page content */
+    @page {
+        string-set: none;
+    }
+
+    /* Remove any automatic page marks */
+    @page {
+        prince-bleed: none;
+        prince-trim: none;
+    }
+
+    /* Remove page numbers and URL from print */
+    @page {
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Hide any browser-specific print elements */
+    ::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* Ensure no page breaks are added */
+    .route-page {
+        page-break-inside: avoid;
+        page-break-after: avoid;
+        page-break-before: avoid;
+    }
+
+    /* Remove any automatic page content */
+    @page {
+        content: none;
+    }
+}
+
+.route-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+.print-button {
+    margin-left: auto;
+    margin-right: auto;
 }
