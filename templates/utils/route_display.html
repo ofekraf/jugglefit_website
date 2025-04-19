@@ -15,7 +15,7 @@
                     {% set _ = grouped_tricks[trick.props_count].append(trick) %}
                 {% endfor %}
                 
-                {% for props_count, tricks in grouped_tricks.items()|sort %}
+                {% for props_count, tricks in grouped_tricks.items() %}
                 <div class="prop-section">
                     <div class="prop-color-bar" data-props="{{ props_count }}" data-prop-type="{{ route.prop.value }}">
                         <div class="prop-count">

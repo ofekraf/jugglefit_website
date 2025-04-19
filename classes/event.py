@@ -1,12 +1,22 @@
 from dataclasses import dataclass
-from typing import Dict, List
+from typing import Dict, List, Optional
+from datetime import date
 from classes.route import Route
 from route_generator.exceptions import WinnerNotSetException
 
 @dataclass(kw_only=True)
 class CompetitorResult:
     name: str
-    seconds: int
+
+    # Time in seconds, in case the route was completed
+    seconds: Optional[int] = None
+
+    # Number of tricks accomplished, used in case the route was not completed
+    tricks_accomplished: Optional[int] = None
+
+    def __post_init__(self):
+        if self.seconds is not None and self.tricks_accomplished is not None:
+            raise ValueError("Cannot have both seconds and tricks_accomplished set")
     
 @dataclass(kw_only=True)
 class RouteResult(Route):
@@ -23,8 +33,8 @@ class BaseEvent:
     name: str
     location: str
     
-    # dd/mm/yyyy
-    date: str
+    # Date of the event
+    date: date
 
 @dataclass(kw_only=True)
 class PastEvent(BaseEvent):
