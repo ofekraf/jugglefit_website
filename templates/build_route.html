@@ -3,13 +3,13 @@
 {% block content %}
 <div class="route-page">
     <div class="route-header">
-        <h1 class="route-title">Build Route</h1>
+        <h1 class="route-title">Generate New Route</h1>
         <div class="route-description">
-            <p>Build your own route</p>
+            <p>Customize your route by selecting props, difficulty, and length. Get a personalized sequence of tricks to practice.</p>
         </div>
     </div>
 
-    <div class="route-form">
+    <form method="POST" action="{{ url_for('generate_route') }}" class="route-form">
         <div class="form-section">
             <label for="route_name" class="form-label">Route Name</label>
             <input type="text" id="route_name" name="route_name" placeholder="My awesome route" class="form-input" required>
@@ -39,8 +39,9 @@
                 <input type="hidden" id="max-props-input" name="max_props" value="9">
             </div>
         </div>
+
         <div class="form-section">
-            <label class="form-label">Difficulty</label>
+            <label class="form-label">Difficulty Range</label>
             <div class="slider-container">
                 <div id="difficulty-slider" class="custom-slider"></div>
                 <div class="slider-values">
@@ -68,10 +69,29 @@
         </div>
 
         <div class="form-section">
-            <label class="form-label">Available Tricks</label>
-            <div id="trick_results" class="trick-results"></div>
+            <label class="form-label">Tricks</label>
+            <div class="tricks-container">
+                <div class="tricks-column">
+                    <div id="all_tricks" class="tricks-grid">
+                        {% for props_count in range(3, 10) %}
+                            {% if props_count in prop_to_tricks %}
+                                <div class="props-group">
+                                    <h3 class="props-count-header">{{ props_count }} Props</h3>
+                                    <div class="tricks-list">
+                                        {% for trick in prop_to_tricks[props_count] %}
+                                            <div class="trick-item">
+                                                <span class="trick-name">{{ trick.name }}</span>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
+    </form>
 
     <div class="tricks-database">
         <p>Juggler and Open-Source contributor? You can expand the database <a target="_blank" href="https://github.com/ofekraf/jugglefit_website/tree/main/database/tricks">here</a></p>
@@ -83,10 +103,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.js"></script>
 
 <script>
-// Store all tricks data
-const propToTricks = JSON.parse('{{ prop_to_tricks|tojson|safe }}');
-
-document.addEventListener('DOMContentLoaded', function() {
     // Initialize the props slider (range 3 to 7)
     const propsSlider = document.getElementById('props-slider');
     const propsRange = document.getElementById('props-range');
@@ -107,17 +123,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Update the props range display
     propsSlider.noUiSlider.on('update', function(values) {
-        const min = Math.round(values[0]);
-        const max = Math.round(values[1]);
-        propsRange.textContent = `Min: ${min}, Max: ${max}`;
-        propsMinInput.value = min;
-        propsMaxInput.value = max;
-        updateTrickSearch();
+        propsRange.textContent = `Min: ${values[0]}, Max: ${values[1]}`;
+        propsMinInput.value = Math.round(values[0]);
+        propsMaxInput.value = Math.round(values[1]);
     });
 
     // Initialize the difficulty slider (range 0 to 100)
     const difficultySlider = document.getElementById('difficulty-slider');
-    const difficultyRange = document.getElementById('difficulty-range');
+    const difficultyRange = document.getElementById('difficulty-range');  
     const difficultyMinInput = document.getElementById('min-difficulty-input');
     const difficultyMaxInput = document.getElementById('max-difficulty-input');
     noUiSlider.create(difficultySlider, {
@@ -135,12 +148,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Update the difficulty range display
     difficultySlider.noUiSlider.on('update', function(values) {
-        const min = Math.round(values[0]);
-        const max = Math.round(values[1]);
-        difficultyRange.textContent = `Min: ${min}, Max: ${max}`;
-        difficultyMinInput.value = min;
-        difficultyMaxInput.value = max;
-        updateTrickSearch();
+        difficultyRange.textContent = `Min: ${values[0]}, Max: ${values[1]}`;
+        difficultyMinInput.value = Math.round(values[0]);
+        difficultyMaxInput.value = Math.round(values[1]);
     });
 
     // Prop selection handling
@@ -157,7 +167,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 option.classList.remove('selected');
             }
         });
-        updateTrickSearch();
     }
 
     // Set initial state
@@ -180,79 +189,107 @@ document.addEventListener('DOMContentLoaded', function() {
         input.addEventListener('change', updateSelectedState);
     });
 
-    // Update trick search when filters change
-    const excludeTagCheckboxes = document.querySelectorAll('input[name="exclude_tags"]');
-    excludeTagCheckboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', function() {
-            updateTrickSearch();
-        });
+    // Add event listeners for filtering
+    document.getElementById('search').addEventListener('input', filterTricks);
+    
+    // Add event listeners for slider updates
+    propsSlider.noUiSlider.on('update', function(values) {
+        propsRange.textContent = `Min: ${values[0]}, Max: ${values[1]}`;
+        propsMinInput.value = Math.round(values[0]);
+        propsMaxInput.value = Math.round(values[1]);
+        filterTricks(); // Update filtering when slider changes
     });
 
-    // Trick search handling
-    function updateTrickSearch() {
+    difficultySlider.noUiSlider.on('update', function(values) {
+        difficultyRange.textContent = `Min: ${values[0]}, Max: ${values[1]}`;
+        difficultyMinInput.value = Math.round(values[0]);
+        difficultyMaxInput.value = Math.round(values[1]);
+        filterTricks(); // Update filtering when slider changes
+    });
+
+    // Add event listeners for tag checkboxes
+    document.querySelectorAll('input[name="exclude_tags"]').forEach(checkbox => {
+        checkbox.addEventListener('change', filterTricks);
+    });
+
+    // Add event listener for prop selection
+    document.querySelectorAll('input[name="prop"]').forEach(radio => {
+        radio.addEventListener('change', filterTricks);
+    });
+
+    // Initial filter
+    filterTricks();
+
+    function filterTricks() {
+        const searchTerm = document.getElementById('search').value.toLowerCase();
         const selectedProp = document.querySelector('input[name="prop"]:checked').value;
-        const minProps = parseInt(propsMinInput.value);
-        const maxProps = parseInt(propsMaxInput.value);
-        const minDifficulty = parseInt(difficultyMinInput.value);
-        const maxDifficulty = parseInt(difficultyMaxInput.value);
+        const minProps = parseInt(document.getElementById('min_props').value);
+        const maxProps = parseInt(document.getElementById('max_props').value);
+        const minDifficulty = parseInt(document.getElementById('min_difficulty').value);
+        const maxDifficulty = parseInt(document.getElementById('max_difficulty').value);
         const excludedTags = Array.from(document.querySelectorAll('input[name="exclude_tags"]:checked')).map(cb => cb.value);
 
-        // Get tricks for current prop
-        const tricks = propToTricks[selectedProp] || [];
-        
-        // Filter tricks based on search criteria
+        // Filter tricks based on all criteria
         const filteredTricks = tricks.filter(trick => {
-            // Prop count range
-            if (trick.props_count < minProps || trick.props_count > maxProps) {
-                return false;
-            }
+            // Check if trick name matches search term
+            const nameMatch = trick.name.toLowerCase().includes(searchTerm);
             
-            // Difficulty range
-            if (trick.difficulty < minDifficulty || trick.difficulty > maxDifficulty) {
-                return false;
-            }
+            // Check if trick belongs to selected prop
+            const propMatch = trick.prop === selectedProp;
             
-            // Exclude tricks with selected tags
-            if (excludedTags.length > 0 && trick.tags) {
-                if (excludedTags.some(tag => trick.tags.includes(tag))) {
-                    return false;
-                }
-            }
+            // Check if props count is within range
+            const propsCountMatch = trick.props_count >= minProps && trick.props_count <= maxProps;
             
-            return true;
+            // Check if difficulty is within range
+            const difficultyMatch = trick.difficulty >= minDifficulty && trick.difficulty <= maxDifficulty;
+            
+            // Check if trick doesn't have any excluded tags
+            const tagsMatch = !excludedTags.some(tag => trick.tags.includes(tag));
+            
+            return nameMatch && propMatch && propsCountMatch && difficultyMatch && tagsMatch;
         });
 
-        // Display results
-        const trickResults = document.getElementById('trick_results');
-        trickResults.innerHTML = '';
-        if (filteredTricks.length === 0) {
-            trickResults.innerHTML = '<div class="no-results">No tricks match the current filters</div>';
-            return;
-        }
-
+        // Group filtered tricks by props count
+        const groupedTricks = {};
         filteredTricks.forEach(trick => {
-            const div = document.createElement('div');
-            div.className = 'trick-result-item';
-            div.innerHTML = `
-                <div class="trick-info">
-                    <span class="trick-name">${trick.name}</span>
-                    <span class="trick-props">${trick.props_count} props</span>
-                    <span class="trick-difficulty">Difficulty: ${trick.difficulty}</span>
-                    ${trick.tags ? `<span class="trick-tags">Tags: ${trick.tags.join(', ')}</span>` : ''}
-                    ${trick.comment ? `<span class="trick-comment">${trick.comment}</span>` : ''}
-                </div>
-                <button class="add-trick" data-trick='${JSON.stringify(trick)}'>Add</button>
-            `;
-            div.querySelector('.add-trick').addEventListener('click', function() {
-                const trickData = JSON.parse(this.dataset.trick);
-                // TODO: Add to route
+            if (!groupedTricks[trick.props_count]) {
+                groupedTricks[trick.props_count] = [];
+            }
+            groupedTricks[trick.props_count].push(trick);
+        });
+
+        // Sort each group by name
+        Object.keys(groupedTricks).forEach(count => {
+            groupedTricks[count].sort((a, b) => a.name.localeCompare(b.name));
+        });
+
+        // Update the tricks display
+        const tricksGrid = document.querySelector('.tricks-grid');
+        tricksGrid.innerHTML = '';
+
+        // Display tricks grouped by props count
+        Object.keys(groupedTricks).sort((a, b) => parseInt(a) - parseInt(b)).forEach(count => {
+            const group = document.createElement('div');
+            group.className = 'props-group';
+            
+            const header = document.createElement('h3');
+            header.className = 'props-count-header';
+            header.textContent = `${count} Props`;
+            group.appendChild(header);
+            
+            const tricksList = document.createElement('div');
+            tricksList.className = 'tricks-list';
+            
+            groupedTricks[count].forEach(trick => {
+                const trickItem = document.createElement('div');
+                trickItem.className = 'trick-item';
+                trickItem.textContent = trick.name;
+                tricksList.appendChild(trickItem);
             });
-            trickResults.appendChild(div);
+            
+            group.appendChild(tricksList);
+            tricksGrid.appendChild(group);
         });
     }
-
-    // Initial search
-    updateTrickSearch();
-});
 </script>
 {% endblock %}
