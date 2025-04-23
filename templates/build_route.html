@@ -73,20 +73,7 @@
             <div class="tricks-container">
                 <div class="tricks-column">
                     <div id="all_tricks" class="tricks-grid">
-                        {% for props_count in range(3, 10) %}
-                            {% if props_count in prop_to_tricks %}
-                                <div class="props-group">
-                                    <h3 class="props-count-header">{{ props_count }} Props</h3>
-                                    <div class="tricks-list">
-                                        {% for trick in prop_to_tricks[props_count] %}
-                                            <div class="trick-item">
-                                                <span class="trick-name">{{ trick.name }}</span>
-                                            </div>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                            {% endif %}
-                        {% endfor %}
+                        <!-- Tricks will be populated by updateTricks function -->
                     </div>
                 </div>
             </div>
@@ -102,56 +89,24 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.js"></script>
 
+<!-- Pass Flask data to JavaScript -->
+<script>
+    // Convert Flask template data to JavaScript object
+    const propToTricks = {{ prop_to_tricks|tojson|safe }};
+</script>
+
 <script>
     // Initialize the props slider (range 3 to 7)
     const propsSlider = document.getElementById('props-slider');
     const propsRange = document.getElementById('props-range');
     const propsMinInput = document.getElementById('min-props-input');
     const propsMaxInput = document.getElementById('max-props-input');
-    noUiSlider.create(propsSlider, {
-        start: [3, 7],
-        connect: true,
-        range: {
-            'min': 2,
-            'max': 9
-        },
-        format: {
-            to: (value) => Math.round(value),
-            from: (value) => parseFloat(value)
-        }
-    });
-
-    // Update the props range display
-    propsSlider.noUiSlider.on('update', function(values) {
-        propsRange.textContent = `Min: ${values[0]}, Max: ${values[1]}`;
-        propsMinInput.value = Math.round(values[0]);
-        propsMaxInput.value = Math.round(values[1]);
-    });
 
     // Initialize the difficulty slider (range 0 to 100)
     const difficultySlider = document.getElementById('difficulty-slider');
     const difficultyRange = document.getElementById('difficulty-range');  
     const difficultyMinInput = document.getElementById('min-difficulty-input');
     const difficultyMaxInput = document.getElementById('max-difficulty-input');
-    noUiSlider.create(difficultySlider, {
-        start: [20, 30],
-        connect: true,
-        range: {
-            'min': 0,
-            'max': 100
-        },
-        format: {
-            to: (value) => Math.round(value),
-            from: (value) => parseFloat(value)
-        }
-    });
-
-    // Update the difficulty range display
-    difficultySlider.noUiSlider.on('update', function(values) {
-        difficultyRange.textContent = `Min: ${values[0]}, Max: ${values[1]}`;
-        difficultyMinInput.value = Math.round(values[0]);
-        difficultyMaxInput.value = Math.round(values[1]);
-    });
 
     // Prop selection handling
     const propOptions = document.querySelectorAll('.prop-option');
@@ -190,23 +145,11 @@
     });
 
     // Add event listeners for filtering
-    document.getElementById('search').addEventListener('input', filterTricks);
+    const searchElement = document.getElementById('search');
+    if (searchElement) {
+        searchElement.addEventListener('input', filterTricks);
+    }
     
-    // Add event listeners for slider updates
-    propsSlider.noUiSlider.on('update', function(values) {
-        propsRange.textContent = `Min: ${values[0]}, Max: ${values[1]}`;
-        propsMinInput.value = Math.round(values[0]);
-        propsMaxInput.value = Math.round(values[1]);
-        filterTricks(); // Update filtering when slider changes
-    });
-
-    difficultySlider.noUiSlider.on('update', function(values) {
-        difficultyRange.textContent = `Min: ${values[0]}, Max: ${values[1]}`;
-        difficultyMinInput.value = Math.round(values[0]);
-        difficultyMaxInput.value = Math.round(values[1]);
-        filterTricks(); // Update filtering when slider changes
-    });
-
     // Add event listeners for tag checkboxes
     document.querySelectorAll('input[name="exclude_tags"]').forEach(checkbox => {
         checkbox.addEventListener('change', filterTricks);
@@ -217,25 +160,73 @@
         radio.addEventListener('change', filterTricks);
     });
 
-    // Initial filter
+    // Initial filter and update tricks
     filterTricks();
+    updateTricks();
+
+    // Function to update tricks display
+    function updateTricks() {
+        const tricksGrid = document.getElementById('all_tricks');
+        tricksGrid.innerHTML = '';
+
+        // Get the selected prop type
+        const selectedProp = document.querySelector('input[name="prop"]:checked')?.value;
+        if (!selectedProp || !propToTricks[selectedProp]) return;
+
+        // Get tricks for the selected prop
+        const tricks = propToTricks[selectedProp];
+
+        // Group tricks by props count
+        const groupedTricks = {};
+        tricks.forEach(trick => {
+            if (!groupedTricks[trick.props_count]) {
+                groupedTricks[trick.props_count] = [];
+            }
+            groupedTricks[trick.props_count].push(trick);
+        });
+
+        // Display tricks grouped by props count
+        Object.keys(groupedTricks).sort((a, b) => parseInt(a) - parseInt(b)).forEach(count => {
+            const group = document.createElement('div');
+            group.className = 'props-group';
+            
+            const header = document.createElement('h3');
+            header.className = 'props-count-header';
+            header.textContent = `${count} Props`;
+            group.appendChild(header);
+            
+            const tricksList = document.createElement('div');
+            tricksList.className = 'tricks-list';
+            
+            // Sort tricks by name within each group
+            groupedTricks[count].sort((a, b) => a.name.localeCompare(b.name)).forEach(trick => {
+                const trickItem = document.createElement('div');
+                trickItem.className = 'trick-item';
+                trickItem.textContent = trick.name;
+                tricksList.appendChild(trickItem);
+            });
+            
+            group.appendChild(tricksList);
+            tricksGrid.appendChild(group);
+        });
+    }
 
     function filterTricks() {
-        const searchTerm = document.getElementById('search').value.toLowerCase();
-        const selectedProp = document.querySelector('input[name="prop"]:checked').value;
-        const minProps = parseInt(document.getElementById('min_props').value);
-        const maxProps = parseInt(document.getElementById('max_props').value);
-        const minDifficulty = parseInt(document.getElementById('min_difficulty').value);
-        const maxDifficulty = parseInt(document.getElementById('max_difficulty').value);
+        const searchTerm = document.getElementById('search')?.value?.toLowerCase() || '';
+        const selectedProp = document.querySelector('input[name="prop"]:checked')?.value;
+        const minProps = parseInt(document.getElementById('min-props-input').value);
+        const maxProps = parseInt(document.getElementById('max-props-input').value);
+        const minDifficulty = parseInt(document.getElementById('min-difficulty-input').value);
+        const maxDifficulty = parseInt(document.getElementById('max-difficulty-input').value);
         const excludedTags = Array.from(document.querySelectorAll('input[name="exclude_tags"]:checked')).map(cb => cb.value);
+
+        // Get tricks for the selected prop
+        const tricks = propToTricks[selectedProp] || [];
 
         // Filter tricks based on all criteria
         const filteredTricks = tricks.filter(trick => {
             // Check if trick name matches search term
             const nameMatch = trick.name.toLowerCase().includes(searchTerm);
-            
-            // Check if trick belongs to selected prop
-            const propMatch = trick.prop === selectedProp;
             
             // Check if props count is within range
             const propsCountMatch = trick.props_count >= minProps && trick.props_count <= maxProps;
@@ -246,7 +237,7 @@
             // Check if trick doesn't have any excluded tags
             const tagsMatch = !excludedTags.some(tag => trick.tags.includes(tag));
             
-            return nameMatch && propMatch && propsCountMatch && difficultyMatch && tagsMatch;
+            return nameMatch && propsCountMatch && difficultyMatch && tagsMatch;
         });
 
         // Group filtered tricks by props count
@@ -258,13 +249,8 @@
             groupedTricks[trick.props_count].push(trick);
         });
 
-        // Sort each group by name
-        Object.keys(groupedTricks).forEach(count => {
-            groupedTricks[count].sort((a, b) => a.name.localeCompare(b.name));
-        });
-
         // Update the tricks display
-        const tricksGrid = document.querySelector('.tricks-grid');
+        const tricksGrid = document.getElementById('all_tricks');
         tricksGrid.innerHTML = '';
 
         // Display tricks grouped by props count
@@ -280,7 +266,8 @@
             const tricksList = document.createElement('div');
             tricksList.className = 'tricks-list';
             
-            groupedTricks[count].forEach(trick => {
+            // Sort tricks by name within each group
+            groupedTricks[count].sort((a, b) => a.name.localeCompare(b.name)).forEach(trick => {
                 const trickItem = document.createElement('div');
                 trickItem.className = 'trick-item';
                 trickItem.textContent = trick.name;

@@ -19,32 +19,65 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Slider setup with noUISlider for props
+    // Initialize the props slider
     const propsSlider = document.getElementById('props-slider');
-    const minPropsInput = document.getElementById('min_props');
-    const maxPropsInput = document.getElementById('max_props');
-    const propsRangeValue = document.getElementById('propsRangeValue');
-    const maxHeight = document.getElementById('max_height');
-    const maxHeightValue = document.getElementById('maxHeightValue');
+    const propsRange = document.getElementById('props-range');
+    const propsMinInput = document.getElementById('min-props-input');
+    const propsMaxInput = document.getElementById('max-props-input');
 
     if (propsSlider) {
         noUiSlider.create(propsSlider, {
             start: [3, 7],
             connect: true,
             range: {
-                'min': 3,
+                'min': 2,
                 'max': 9
             },
-            step: 1,
-            behaviour: 'drag-tap'
+            format: {
+                to: (value) => Math.round(value),
+                from: (value) => parseFloat(value)
+            }
         });
 
-        propsSlider.noUiSlider.on('update', function(values, handle) {
-            const min = Math.round(values[0]);
-            const max = Math.round(values[1]);
-            minPropsInput.value = min;
-            maxPropsInput.value = max;
-            propsRangeValue.textContent = `${min} - ${max}`;
+        // Add event listener for props slider updates
+        propsSlider.noUiSlider.on('update', function(values) {
+            propsRange.textContent = `Min: ${values[0]}, Max: ${values[1]}`;
+            propsMinInput.value = Math.round(values[0]);
+            propsMaxInput.value = Math.round(values[1]);
+            if (typeof filterTricks === 'function') {
+                filterTricks();
+            }
+        });
+    }
+
+    // Initialize the difficulty slider
+    const difficultySlider = document.getElementById('difficulty-slider');
+    const difficultyRange = document.getElementById('difficulty-range');
+    const difficultyMinInput = document.getElementById('min-difficulty-input');
+    const difficultyMaxInput = document.getElementById('max-difficulty-input');
+
+    if (difficultySlider) {
+        noUiSlider.create(difficultySlider, {
+            start: [20, 30],
+            connect: true,
+            range: {
+                'min': 0,
+                'max': 100
+            },
+            format: {
+                to: (value) => Math.round(value),
+                from: (value) => parseFloat(value)
+            }
+        });
+
+        // Add event listener for difficulty slider updates
+        difficultySlider.noUiSlider.on('update', function(values) {
+            difficultyRange.textContent = `Min: ${values[0]}, Max: ${values[1]}`;
+            difficultyMinInput.value = Math.round(values[0]);
+            difficultyMaxInput.value = Math.round(values[1]);
+            if (typeof filterTricks === 'function') {
+                filterTricks();
+            }
         });
     }
 
