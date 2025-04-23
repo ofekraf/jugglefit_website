@@ -140,7 +140,7 @@ CLUBS_TRICKS = [
     Trick(name="6c fountain -> 6c 864 -> 6c fountain", props_count=6, difficulty=57, tags={Tag.Siteswap}),
 
     # period 5
-    Trick(name="10c 77781", props_count=6, difficulty=82, tags={Tag.Siteswap}),
+    Trick(name="10c 77781", props_count=6, difficulty=82, tags={Tag.Siteswap}, comment="entrance: 7"),
 
     # other period
     
