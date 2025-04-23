@@ -1,6 +1,7 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, redirect, url_for, flash
 import json
 import base64
+from datetime import datetime
 
 from database.events.past_events import ALL_PAST_EVENTS, FRONT_PAGE_PAST_EVENTS
 from database.events.upcoming_events import UPCOMING_EVENTS
@@ -155,6 +156,19 @@ def serialize_route():
         return serialized
     except Exception as e:
         return str(e), 400
+
+@app.route('/print_route')
+def print_route():
+    route_param = request.args.get('route')
+    if not route_param:
+        return redirect(url_for('build_route'))
+    
+    try:
+        route = Route.deserialize(route_param)
+        return render_template('print_route.html', route=route, now=datetime.now())
+    except Exception as e:
+        flash(f'Error loading route: {str(e)}')
+        return redirect(url_for('build_route'))
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001, debug=True)

@@ -268,4 +268,82 @@ textarea.form-input {
 .toast-notification.hide {
     opacity: 0;
     transform: translateX(-50%) translateY(100%);
+}
+
+/* Print Styles */
+@media print {
+    /* Hide non-essential elements when printing */
+    .navbar,
+    .footer,
+    .route-actions,
+    .print-button,
+    .search-container,
+    .form-section:not(.route-display),
+    .tricks-database,
+    .custom-trick-form,
+    .stopwatch-container,
+    .route-header,
+    .route-description,
+    .build-content,
+    .no-print {
+        display: none !important;
+    }
+
+    /* Show only route content */
+    .route-container {
+        margin: 0;
+        padding: 20px;
+        width: 100%;
+        page-break-inside: avoid;
+    }
+
+    /* Route content styles */
+    .prop-color-bar {
+        border: 1px solid #000;
+        color: #000;
+        background-color: #fff !important;
+    }
+
+    .prop-details-frame {
+        border: 1px solid #000;
+        margin: 8px 0;
+        page-break-inside: avoid;
+    }
+
+    .trick-name {
+        font-size: 14pt;
+        color: #000;
+    }
+
+    .trick-comment {
+        font-size: 12pt;
+        color: #333;
+    }
+
+    /* QR code styles */
+    .qr-code {
+        text-align: center;
+        margin: 20px 0;
+    }
+
+    /* Page settings */
+    @page {
+        margin: 2cm;
+        size: portrait;
+    }
+
+    /* Show print-only elements */
+    .print-only {
+        display: block !important;
+    }
+}
+
+/* Hide print-only elements in normal view */
+.print-only {
+    display: none;
+}
+
+/* Hide print container in normal view */
+#print-container {
+    display: none;
 } 

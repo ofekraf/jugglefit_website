@@ -1,7 +1,8 @@
 {% block content %}
 <div class="route-page">
-    <div class="route-header">
-        <h1 class="route-title">{{ route.name }}</h1>
+    <!-- Print-only header -->
+    <div class="print-header">
+        <h1>{{ route.name }}</h1>
     </div>
 
     <div class="route-container">
@@ -38,5 +39,39 @@
             </div>
         </div>
     </div>
+    
+    <div class="route-actions no-print">
+        <button class="primary-button print-button" onclick="printRoute()">Print Route</button>
+    </div>
 </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+    function printRoute() {
+        // Create a temporary container for the QR code that will only show in print
+        let qrContainer = document.createElement('div');
+        qrContainer.className = 'qr-code print-only';
+        let qrImg = document.createElement('img');
+        qrImg.id = 'qr-code-img';
+        qrContainer.appendChild(qrImg);
+        document.querySelector('.route-page').appendChild(qrContainer);
+
+        // Generate QR code for the current URL
+        new QRCode(qrImg, {
+            text: window.location.href,
+            width: 128,
+            height: 128
+        });
+
+        // Wait a moment for the QR code to generate
+        setTimeout(() => {
+            window.print();
+            // Remove the temporary QR code container after printing
+            setTimeout(() => qrContainer.remove(), 100);
+        }, 100);
+    }
+
+    // Make the function globally available
+    window.printRoute = printRoute;
+</script>
 {% endblock %}

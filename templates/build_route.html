@@ -40,6 +40,7 @@
             </div>
             <div class="route-actions">
                 <button type="button" id="export_route" class="primary-button">Copy Route URL</button>
+                <button type="button" id="print_route" class="primary-button print-button">Print Route</button>
             </div>
         </div>
 
@@ -128,6 +129,14 @@
     <div class="tricks-database">
         <p>Juggler and Open-Source contributor? You can expand the database <a target="_blank" href="https://github.com/ofekraf/jugglefit_website/tree/main/database/tricks">here</a></p>
     </div>
+
+    <!-- Print-only container -->
+    <div id="print-container" class="print-only">
+        <div class="print-header">
+            <h1 id="print-route-name"></h1>
+        </div>
+        <div id="print-route-content"></div>
+    </div>
 </div>
 
 <!-- Toast Notification -->
@@ -136,6 +145,7 @@
 <!-- Include noUISlider CSS and JS -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <!-- Pass Flask data to JavaScript -->
 <script>
@@ -653,6 +663,62 @@
                         }, 1000);
                     });
             });
+        });
+
+        // Print route functionality
+        document.getElementById('print_route').addEventListener('click', async function() {
+            if (!currentRoute.name) {
+                showToast('Please enter a route name before printing.');
+                document.getElementById('route_name').focus();
+                return;
+            }
+            if (!currentRoute.prop) {
+                showToast('Please select a prop type before printing.');
+                return;
+            }
+            if (currentRoute.tricks.length === 0) {
+                showToast('Please add some tricks to your route before printing.');
+                return;
+            }
+
+            try {
+                // First serialize the route to get a shareable URL
+                const response = await fetch('/api/serialize_route', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(currentRoute)
+                });
+                const serialized = await response.text();
+                const shareableUrl = new URL(window.location.href);
+                shareableUrl.searchParams.set('route', serialized);
+
+                // Create and add QR code
+                const qrContainer = document.createElement('div');
+                qrContainer.className = 'qr-code print-only';
+                const qrImg = document.createElement('img');
+                qrImg.id = 'qr-code-img';
+                qrContainer.appendChild(qrImg);
+                document.querySelector('.route-container').appendChild(qrContainer);
+
+                // Generate QR code
+                new QRCode(qrImg, {
+                    text: shareableUrl.toString(),
+                    width: 128,
+                    height: 128
+                });
+
+                // Wait a moment for the QR code to generate then print
+                setTimeout(() => {
+                    window.print();
+                    // Remove QR code after printing
+                    setTimeout(() => qrContainer.remove(), 100);
+                }, 100);
+            } catch (error) {
+                console.error('Error preparing route for print:', error);
+                showToast('Error preparing route for print. Please try again.');
+            }
         });
     });
 </script>

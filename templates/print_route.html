@@ -1,0 +1,108 @@
+{% extends "utils/base.html" %}
+{% block title %}Print {{ route.name }}{% endblock %}
+
+{% block head %}
+<style>
+    @media print {
+        /* Hide non-essential elements when printing */
+        .navbar,
+        .footer,
+        .route-actions,
+        .print-button {
+            display: none !important;
+        }
+
+        /* Ensure the route displays on a single page */
+        .route-page {
+            margin: 0;
+            padding: 20px;
+            width: 100%;
+            page-break-inside: avoid;
+        }
+
+        /* Optimize colors for printing */
+        .prop-color-bar {
+            border: 1px solid #000;
+            color: #000;
+            background-color: #fff !important;
+        }
+
+        .prop-details-frame {
+            border: 1px solid #000;
+            margin: 8px 0;
+            page-break-inside: avoid;
+        }
+
+        /* Improve text readability for printing */
+        .trick-name {
+            font-size: 14pt;
+            color: #000;
+        }
+
+        .trick-comment {
+            font-size: 12pt;
+            color: #333;
+        }
+
+        /* Add page header with route info */
+        @page {
+            margin: 2cm;
+        }
+
+        .print-header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #000;
+            padding-bottom: 10px;
+        }
+
+        .print-header h1 {
+            font-size: 24pt;
+            margin: 0 0 10px 0;
+        }
+
+        .print-header p {
+            font-size: 12pt;
+            margin: 5px 0;
+        }
+
+        /* QR code container */
+        .qr-code {
+            text-align: center;
+            margin: 20px 0;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="print-header">
+    <h1>{{ route.name }}</h1>
+    <p>Prop Type: {{ route.prop.value }}</p>
+    <p>Total Tricks: {{ route.tricks|length }}</p>
+    <p>Date: {{ now.strftime('%Y-%m-%d') }}</p>
+</div>
+
+{% include "utils/route_display.html" %}
+
+<div class="qr-code">
+    <img id="qr-code-img" alt="Route QR Code">
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Generate QR code for the current URL
+        new QRCode(document.getElementById('qr-code-img'), {
+            text: window.location.href,
+            width: 128,
+            height: 128
+        });
+    });
+
+    // Automatically trigger print dialog when the page loads
+    window.onload = function() {
+        window.print();
+    };
+</script>
+{% endblock %} 
