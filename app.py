@@ -60,23 +60,17 @@ def build_route():
     prop_options = [prop.value for prop in Prop]
     tag_options = [tag.value for tag in Tag]
     
-    # Group tricks by props count
-    prop_to_tricks = {}
-    for tricks in PROP_TO_TRICKS.values():
-        for trick in tricks:
-            if trick.props_count not in prop_to_tricks:
-                prop_to_tricks[trick.props_count] = []
-            prop_to_tricks[trick.props_count].append(trick)
-    
-    # Sort the tricks by name within each props count group
-    for props_count in prop_to_tricks:
-        prop_to_tricks[props_count].sort(key=lambda x: x.name)
+    # Convert PROP_TO_TRICKS to use string keys and serialize tricks
+    prop_to_tricks_dict = {
+        prop.value: [trick.to_dict() for trick in tricks]
+        for prop, tricks in PROP_TO_TRICKS.items()
+    }
     
     return render_template('build_route.html', 
                          current_page='build_route', 
                          prop_options=prop_options,
                          tag_options=tag_options,
-                         prop_to_tricks=prop_to_tricks)
+                         prop_to_tricks=prop_to_tricks_dict)
 
 @app.route('/api/search_tricks', methods=['GET'])
 def search_tricks():
