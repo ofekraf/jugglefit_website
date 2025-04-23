@@ -1,4 +1,6 @@
 from flask import Flask, render_template, request, jsonify
+import json
+import base64
 
 from database.events.past_events import ALL_PAST_EVENTS, FRONT_PAGE_PAST_EVENTS
 from database.events.upcoming_events import UPCOMING_EVENTS
@@ -24,7 +26,10 @@ def past_events():
 @app.route('/generate_route', methods=['GET', 'POST'])
 def generate_route():
     if request.method == 'GET':
-        return render_template('generate_route.html', current_page='generate_route', tag_options=TAG_OPTIONS, prop_options=PROP_OPTIONS)
+        return render_template('generate_route.html', 
+                             current_page='generate_route', 
+                             tag_options=TAG_OPTIONS, 
+                             prop_options=PROP_OPTIONS)
     
     route_name = request.form['route_name']
     prop = request.form['prop']
@@ -54,23 +59,33 @@ def generate_route():
 def host_event():
     return render_template('host_event.html', affiliates=AFFILIATES)
 
-@app.route('/build_route', methods=['GET'])
+@app.route('/build_route')
 def build_route():
-    # Get all available props and tags
-    prop_options = [prop.value for prop in Prop]
-    tag_options = [tag.value for tag in Tag]
-    
-    # Convert PROP_TO_TRICKS to use string keys and serialize tricks
-    prop_to_tricks_dict = {
-        prop.value: [trick.to_dict() for trick in tricks]
-        for prop, tricks in PROP_TO_TRICKS.items()
-    }
-    
-    return render_template('build_route.html', 
-                         current_page='build_route', 
-                         prop_options=prop_options,
-                         tag_options=tag_options,
-                         prop_to_tricks=prop_to_tricks_dict)
+    # Get the serialized route from query params if it exists
+    serialized_route = request.args.get('route')
+    initial_route = None
+    if serialized_route:
+        try:
+            initial_route = json.loads(base64.b64decode(serialized_route).decode('utf-8'))
+        except:
+            # If there's any error in decoding, ignore the parameter
+            pass
+
+    # Get available props and tags
+    available_props = [prop.value for prop in Prop]  # Convert Prop enum to string values
+    available_tags = list(TAG_OPTIONS)
+
+    # Create a dictionary mapping each prop to its list of tricks
+    prop_to_tricks_dict = {}
+    for prop, tricks in PROP_TO_TRICKS.items():
+        prop_to_tricks_dict[prop.value] = [trick.to_dict() for trick in tricks]  # Use prop.value instead of prop
+
+    return render_template('build_route.html',
+                         prop_options=available_props,
+                         tag_options=available_tags,
+                         prop_to_tricks=prop_to_tricks_dict,
+                         default_max_props=9,
+                         initial_route=initial_route)
 
 @app.route('/api/search_tricks', methods=['GET'])
 def search_tricks():
@@ -130,6 +145,16 @@ def save_route():
     route_data = request.json
     # TODO: Implement route saving
     return jsonify({'success': True, 'route_id': '123'})
+
+@app.route('/api/serialize_route', methods=['POST'])
+def serialize_route():
+    route_data = request.json
+    try:
+        # Convert the route data to base64 encoded JSON
+        serialized = base64.b64encode(json.dumps(route_data).encode()).decode()
+        return serialized
+    except Exception as e:
+        return str(e), 400
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001, debug=True)

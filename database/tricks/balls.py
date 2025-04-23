@@ -158,7 +158,7 @@ BALLS_TRICKS = [
     
     
     # connections
-    Trick(name="6c 60 -> 5c 50505 -> 6c 60", props_count=3, difficulty=21, tags={Tag.Siteswap}, comment="start: 3 in one hand"),
+    Trick(name="6c 60 -> exactly 5c 50505 -> 6c 60", props_count=3, difficulty=21, tags={Tag.Siteswap}, comment="start: 3 in one hand"),
     Trick(name="box -> 8c inverted box -> box", props_count=3, difficulty=15, tags={Tag.Siteswap}),
     
     ### 4 props siteswaps ###
@@ -298,7 +298,7 @@ BALLS_TRICKS = [
     Trick(name="fountain -> 2c reverse shoulders -> 2c backrosses -> fountain", props_count=4, difficulty=28, tags={Tag.BodyThrows}),
     Trick(name="8c penguins", props_count=4, difficulty=26, tags={Tag.BodyThrows}),
     Trick(name="20c laying on the back", props_count=4, difficulty=25, tags={Tag.BodyThrows}),
-    Trick(name="overheads -> 4c overhead reverse shoulders -> 4c shoulders -> overheads", props_count=3, difficulty=49, tags={Tag.BodyThrows}, comment="The impossible trick"),
+    Trick(name="overheads -> 4c overhead reverse shoulders -> 4c shoulders -> overheads", props_count=4, difficulty=49, tags={Tag.BodyThrows}, comment="The impossible trick"),
     
     ### 5 props body throws ###
     Trick(name="5c 94444, shoulders 4's", props_count=5, difficulty=43, tags={Tag.BodyThrows, Tag.Siteswap}),

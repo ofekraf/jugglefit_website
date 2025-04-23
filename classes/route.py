@@ -13,17 +13,8 @@ class Route:
     # Dict[props_count: tricks]
     tricks: List[Trick]
     
-    @property
-    def tricks_map(self) -> Dict[int, List[Trick]]:
-        """get map from props count to relevant tricks
+    def serialize(self) -> str:
+        return b64encode(json.dumps(self, default=lambda o: o.__dict__).encode()).decode()
 
-        Returns:
-            Dict[int, List[Trick]]: key is props_count
-        """
-        props_count_map = {}
-        for trick in self.tricks:
-            if trick.props_count not in props_count_map.keys():
-                props_count_map[trick.props_count] = []
-            props_count_map[trick.props_count].append(trick)
-    
-        return props_count_map
+    def unserialize(self, serialized: str) -> 'Route':
+        return json.loads(b64decode(serialized.encode()).decode())
