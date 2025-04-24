@@ -691,30 +691,9 @@
                     body: JSON.stringify(currentRoute)
                 });
                 const serialized = await response.text();
-                const shareableUrl = new URL(window.location.href);
-                shareableUrl.searchParams.set('route', serialized);
-
-                // Create and add QR code
-                const qrContainer = document.createElement('div');
-                qrContainer.className = 'qr-code print-only';
-                const qrImg = document.createElement('img');
-                qrImg.id = 'qr-code-img';
-                qrContainer.appendChild(qrImg);
-                document.querySelector('.route-container').appendChild(qrContainer);
-
-                // Generate QR code
-                new QRCode(qrImg, {
-                    text: shareableUrl.toString(),
-                    width: 128,
-                    height: 128
-                });
-
-                // Wait a moment for the QR code to generate then print
-                setTimeout(() => {
-                    window.print();
-                    // Remove QR code after printing
-                    setTimeout(() => qrContainer.remove(), 100);
-                }, 100);
+                
+                // Redirect to the print route page
+                window.location.href = `/print_route?route=${encodeURIComponent(serialized)}`;
             } catch (error) {
                 console.error('Error preparing route for print:', error);
                 showToast('Error preparing route for print. Please try again.');
