@@ -164,8 +164,9 @@ def print_route():
         return redirect(url_for('build_route'))
     
     try:
-        route = Route.deserialize(route_param)
-        return render_template('print_route.html', route=route, now=datetime.now())
+        # Decode the base64 serialized route
+        route_data = json.loads(base64.b64decode(route_param).decode('utf-8'))
+        return render_template('print_route.html', route=route_data, now=datetime.now())
     except Exception as e:
         flash(f'Error loading route: {str(e)}')
         return redirect(url_for('build_route'))
