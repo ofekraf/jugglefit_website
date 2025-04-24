@@ -1,4 +1,7 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
+import stripe
+import os
+from dotenv import load_dotenv
 
 from database.events.past_events import ALL_PAST_EVENTS, FRONT_PAGE_PAST_EVENTS
 from database.events.upcoming_events import UPCOMING_EVENTS
@@ -8,7 +11,13 @@ from route_generator.prop import PROP_OPTIONS, Prop
 from route_generator.route_generator import generate_route
 from route_generator.tricks.tags import TAG_OPTIONS, Tag
 
+# Load environment variables
+load_dotenv()
+
 app = Flask(__name__)
+
+# Configure Stripe
+stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
 
 @app.route('/')
 def home():
@@ -52,6 +61,45 @@ def create_route():
 def host_event():
     return render_template('host_event.html', affiliates=AFFILIATES)
 
+@app.route('/donate', methods=['GET'])
+def donate():
+    return render_template('donate.html', 
+                          current_page='donate',
+                          stripe_publishable_key=os.getenv('STRIPE_PUBLISHABLE_KEY'))
+
+@app.route('/create-checkout-session', methods=['POST'])
+def create_checkout_session():
+    try:
+        data = request.json
+        amount = int(data['amount'])
+        currency = data['currency']
+        
+        # Create Stripe checkout session
+        session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[{
+                'price_data': {
+                    'currency': currency,
+                    'product_data': {
+                        'name': 'JuggleFit Donation',
+                        'description': 'Support the juggling community',
+                    },
+                    'unit_amount': amount * 100,  # Convert to smallest currency unit
+                },
+                'quantity': 1,
+            }],
+            mode='payment',
+            success_url=request.host_url + 'donate/success',
+            cancel_url=request.host_url + 'donate',
+        )
+        
+        return jsonify({'id': session.id})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+@app.route('/donate/success')
+def donation_success():
+    return render_template('donation_success.html', current_page='donate')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001, debug=True)
