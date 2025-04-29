@@ -41,7 +41,7 @@ def generate_route():
     min_difficulty = int(request.form['min_difficulty'])
     max_difficulty = int(request.form['max_difficulty'])
     route_length = int(request.form['route_length'])
-    route_duration = int(request.form['route_duration'])
+    route_duration_seconds = int(request.form['route_duration']) * 60  # Convert minutes to seconds
     exclude_tags = {Tag.get_key_by_value(key) for key in request.form.getlist('exclude_tags')}
     
     try:
@@ -54,7 +54,7 @@ def generate_route():
             route_length=route_length,
             exclude_tags=exclude_tags,
             name=route_name,
-            duration=route_duration
+            duration_seconds=route_duration_seconds
         )
         # Serialize the route and redirect to created_route with POST data
         serialized = route.serialize()

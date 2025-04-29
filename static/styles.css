@@ -337,7 +337,7 @@ body {
     .form-section:not(.route-display),
     .tricks-database,
     .custom-trick-form,
-    .stopwatch-container,
+    .countdown-timer,
     .no-print {
         display: none !important;
     }

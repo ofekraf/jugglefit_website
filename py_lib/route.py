@@ -8,14 +8,14 @@ from py_lib.prop import Prop
 from py_lib.trick import Trick
 
 
-DEFAULT_ROUTE_DURATION = 600  # 10 minutes
-DEFAULT_QUALIFICATION_DURATION = 1800  # 30 minutes
+DEFAULT_ROUTE_DURATION_SECONDS = 600  # 10 minutes
+DEFAULT_QUALIFICATIONS_ROUTE_DURATION_SECONDS = 1800  # 30 minutes
 
 @dataclass(kw_only=True)
 class Route:
     name: str
     prop: Prop
-    duration: int = DEFAULT_ROUTE_DURATION  # Seconds
+    duration_seconds: int = DEFAULT_ROUTE_DURATION_SECONDS  # Seconds
     
     # Dict[props_count: tricks]
     tricks: List[Trick]
@@ -24,7 +24,7 @@ class Route:
         return {
             'name': self.name,
             'prop': self.prop.value,
-            'duration': self.duration,
+            'duration_seconds': self.duration_seconds,
             'tricks': [trick.to_dict() for trick in self.tricks]
         }
 
@@ -33,7 +33,7 @@ class Route:
         return cls(
             name=data['name'],
             prop=Prop.get_key_by_value(data['prop']),
-            duration=data['duration'],
+            duration_seconds=data['duration_seconds'],
             tricks=[Trick.from_dict(trick) for trick in data['tricks']]
         )
         

@@ -126,43 +126,6 @@ document.addEventListener('DOMContentLoaded', function() {
         checkbox.addEventListener('change', () => updateCheckboxState(checkbox, includeCheckboxes));
     });
 
-    // Stopwatch Functionality
-    const stopwatch = document.getElementById('stopwatch');
-    const stopwatchToggle = document.getElementById('stopwatch-toggle');
-    let time = 10 * 60; // 10 minutes in seconds
-    let timer = null;
-    let isPaused = true;
-
-    function updateStopwatch() {
-        if (!isPaused) {
-            time--;
-            if (time <= 0) {
-                clearInterval(timer);
-                stopwatch.textContent = '00:00';
-                isPaused = true;
-                stopwatchToggle.textContent = 'START';
-                return;
-            }
-            const minutes = Math.floor(time / 60);
-            const seconds = time % 60;
-            stopwatch.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        }
-    }
-
-    if (stopwatch && stopwatchToggle) {
-        stopwatchToggle.addEventListener('click', function() {
-            if (isPaused) {
-                timer = setInterval(updateStopwatch, 1000);
-                isPaused = false;
-                stopwatchToggle.textContent = 'STOP';
-            } else {
-                clearInterval(timer);
-                isPaused = true;
-                stopwatchToggle.textContent = 'START';
-            }
-        });
-    }
-
     // Toggle Route Visibility
     function toggle_route(container_id) {
         const container = document.getElementById(container_id);

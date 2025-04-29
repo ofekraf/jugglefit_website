@@ -735,53 +735,6 @@ body {
     position: relative;
 }
 
-.route-timer {
-    position: fixed;
-    top: 50%;
-    left: 2rem;
-    transform: translateY(-50%);
-    width: 200px;
-    z-index: 1000;
-    cursor: move;
-    user-select: none;
-}
-
-.stopwatch-container {
-    background-color: white;
-    border-radius: 12px;
-    padding: 1.5rem;
-    box-shadow: 0 4px 12px var(--shadow-color);
-    text-align: center;
-    transition: box-shadow 0.3s ease;
-}
-
-.stopwatch-container:hover {
-    box-shadow: 0 6px 16px var(--shadow-color);
-}
-
-.stopwatch {
-    font-size: 2.5rem;
-    font-weight: 600;
-    color: var(--primary-color);
-    margin-bottom: 1rem;
-}
-
-.stopwatch-button {
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: all 0.3s ease;
-}
-
-.stopwatch-button:hover {
-    background-color: var(--accent-color);
-    transform: translateY(-2px);
-}
-
 .route-container {
     flex: 1;
     background-color: white;
@@ -932,11 +885,6 @@ body {
 @media (max-width: 768px) {
     .route-layout {
         flex-direction: column;
-    }
-
-    .route-timer {
-        position: static;
-        flex: none;
     }
 
     .route-details {
@@ -1435,8 +1383,7 @@ body {
     }
 
     .route-description,
-    .route-actions,
-    .route-timer {
+    .route-actions {
         display: none;
     }
 
@@ -1845,4 +1792,65 @@ body {
 .trick-name {
     font-size: 0.9rem;
     color: var(--text-color);
+}
+
+/* Timer Styles */
+.countdown-timer {
+    position: absolute;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    cursor: move;
+    z-index: 1000;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.timer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #eee;
+    background-color: #dc3545;
+    color: white;
+    padding: 8px;
+    margin: -10px -10px 10px -10px;
+    border-radius: 8px 8px 0 0;
+}
+
+.drag-handle {
+    background: none;
+    border: none;
+    cursor: move;
+    font-size: 20px;
+    padding: 0 5px;
+    color: white;
+}
+
+.timer-controls {
+    display: flex;
+    gap: 5px;
+    margin-top: 10px;
+}
+
+.timer-btn {
+    padding: 5px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #f5f5f5;
+    cursor: pointer;
+}
+
+.timer-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.timer-btn:hover:not(:disabled) {
+    background: #e5e5e5;
 }

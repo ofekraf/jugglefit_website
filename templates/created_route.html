@@ -3,125 +3,123 @@
 {% block content %}
 <div class="route-page">
     <div class="route-layout">
-        <div class="route-timer">
-            <div class="stopwatch-container">
-                <div id="stopwatch" class="stopwatch">{{ route.duration // 60 }}:{{ route.duration % 60 }}</div>
-                <button id="stopwatch-toggle" class="stopwatch-button">START</button>
-            </div>
-        </div>
         {% include "utils/route_display.html" %}
     </div>
 </div>
 
 <div class="route-actions">
+    <div class="countdown-timer" id="timer-container">
+        <div class="timer-header">
+            <span>Timer</span>
+            <button class="drag-handle">≡</button>
+        </div>
+        <div id="countdown">Time remaining: <span id="timer"></span></div>
+        <div class="timer-controls">
+            <button id="startBtn" class="timer-btn">Start</button>
+            <button id="stopBtn" class="timer-btn" disabled>Stop</button>
+            <button id="resetBtn" class="timer-btn">Reset</button>
+        </div>
+    </div>
     <a href="{{ url_for('generate_route') }}" class="secondary-button">Generate New Route</a>
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Stopwatch functionality
-        const stopwatch = document.getElementById('stopwatch');
-        const toggleButton = document.getElementById('stopwatch-toggle');
-        const initialDuration = {{ route.duration }}; // Duration is already in seconds
-        let timeLeft = initialDuration;
-        let timer = null;
-        let isRunning = false;
+    // Initialize countdown timer
+    let timeLeft = parseInt('{{ route.duration_seconds }}') || 600; // Default to 10 minutes if duration is invalid
+    let timerInterval = null;
+    let isRunning = false;
+    const originalTime = timeLeft;
 
-        function updateStopwatch() {
-            const minutes = Math.floor(timeLeft / 60);
-            const seconds = timeLeft % 60;
-            stopwatch.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    // Make timer draggable
+    const timerContainer = document.getElementById('timer-container');
+    let isDragging = false;
+    let currentX;
+    let currentY;
+    let initialX;
+    let initialY;
+    let xOffset;
+    let yOffset;
+
+    timerContainer.addEventListener('mousedown', dragStart);
+    document.addEventListener('mousemove', drag);
+    document.addEventListener('mouseup', dragEnd);
+
+    function dragStart(e) {
+        if (e.target.classList.contains('drag-handle') || e.target.closest('.timer-header')) {
+            initialX = e.clientX;
+            initialY = e.clientY;
+            isDragging = true;
         }
+    }
 
-        function startTimer() {
-            if (isRunning) return;
+    function drag(e) {
+        if (isDragging) {
+            e.preventDefault();
+            currentX = e.clientX - initialX;
+            currentY = e.clientY - initialY;
             
-            isRunning = true;
-            timer = setInterval(function() {
-                if (timeLeft > 0) {
-                    timeLeft--;
-                    updateStopwatch();
-                } else {
-                    stopTimer();
-                    toggleButton.textContent = 'RESET';
-                    stopwatch.style.color = 'var(--danger-color)';
-                }
-            }, 1000);
-            toggleButton.textContent = 'STOP';
+            xOffset = currentX;
+            yOffset = currentY;
+            
+            setTranslate(currentX, currentY, timerContainer);
         }
+    }
 
-        function stopTimer() {
-            clearInterval(timer);
-            timer = null;
-            isRunning = false;
-        }
+    function dragEnd(e) {
+        initialX = currentX;
+        initialY = currentY;
+        isDragging = false;
+    }
 
-        function resetTimer() {
+    function setTranslate(xPos, yPos, el) {
+        el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0)`;
+    }
+
+    function updateTimer() {
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        document.getElementById('timer').textContent = 
+            minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
+        
+        if (timeLeft > 0) {
+            timeLeft--;
+        } else {
             stopTimer();
-            timeLeft = initialDuration;
-            updateStopwatch();
-            stopwatch.style.color = '';
-            toggleButton.textContent = 'START';
+            document.getElementById('countdown').textContent = "Time's up!";
         }
+    }
 
-        toggleButton.addEventListener('click', function() {
-            if (isRunning) {
-                stopTimer();
-                toggleButton.textContent = 'START';
-            } else if (timeLeft <= 0) {
-                resetTimer();
-            } else {
-                startTimer();
-            }
-        });
-
-        updateStopwatch();
-
-        // Draggable timer functionality
-        const timerElement = document.querySelector('.route-timer');
-        let isDragging = false;
-        let currentX;
-        let currentY;
-        let initialX;
-        let initialY;
-        let xOffset = 0;
-        let yOffset = 0;
-
-        timerElement.addEventListener('mousedown', dragStart);
-        document.addEventListener('mousemove', drag);
-        document.addEventListener('mouseup', dragEnd);
-
-        function dragStart(e) {
-            initialX = e.clientX - xOffset;
-            initialY = e.clientY - yOffset;
-
-            if (e.target === timerElement || e.target.closest('.stopwatch-container')) {
-                isDragging = true;
-            }
+    function startTimer() {
+        if (!isRunning) {
+            isRunning = true;
+            timerInterval = setInterval(updateTimer, 1000);
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('stopBtn').disabled = false;
         }
+    }
 
-        function drag(e) {
-            if (isDragging) {
-                e.preventDefault();
-                currentX = e.clientX - initialX;
-                currentY = e.clientY - initialY;
-
-                xOffset = currentX;
-                yOffset = currentY;
-
-                setTranslate(currentX, currentY, timerElement);
-            }
+    function stopTimer() {
+        if (isRunning) {
+            isRunning = false;
+            clearInterval(timerInterval);
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('stopBtn').disabled = true;
         }
+    }
 
-        function dragEnd() {
-            initialX = currentX;
-            initialY = currentY;
-            isDragging = false;
-        }
+    function resetTimer() {
+        stopTimer();
+        timeLeft = originalTime;
+        document.getElementById('countdown').innerHTML = 'Time remaining: <span id="timer"></span>';
+        updateTimer();
+    }
 
-        function setTranslate(xPos, yPos, el) {
-            el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0)`;
-        }
-    });
+    // Add event listeners for buttons
+    document.getElementById('startBtn').addEventListener('click', startTimer);
+    document.getElementById('stopBtn').addEventListener('click', stopTimer);
+    document.getElementById('resetBtn').addEventListener('click', resetTimer);
+
+    // Initialize timer display
+    updateTimer();
 </script>
 {% endblock %}
