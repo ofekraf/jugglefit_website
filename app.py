@@ -97,72 +97,26 @@ def build_route():
                          default_max_props=9,
                          initial_route=initial_route_dict)
 
-@app.route('/api/search_tricks', methods=['GET'])
-def search_tricks():
-    prop = request.args.get('prop')
-    search_term = request.args.get('search', '').lower()
-    min_props = request.args.get('min_props', type=int)
-    max_props = request.args.get('max_props', type=int)
-    min_difficulty = request.args.get('min_difficulty', type=int)
-    max_difficulty = request.args.get('max_difficulty', type=int)
-    tags = request.args.getlist('tags')
-    
-    tricks = PROP_TO_TRICKS[Prop.get_key_by_value(prop)]
-    
-    # Filter tricks based on search criteria
-    filtered_tricks = []
-    for trick in tricks:
-        # Name search
-        if search_term and search_term not in trick.name.lower():
-            continue
-            
-        # Prop count range
-        if min_props is not None and trick.props_count < min_props:
-            continue
-        if max_props is not None and trick.props_count > max_props:
-            continue
-            
-        # Difficulty range
-        if min_difficulty is not None and trick.difficulty < min_difficulty:
-            continue
-        if max_difficulty is not None and trick.difficulty > max_difficulty:
-            continue
-            
-        # Tag intersection
-        if tags and not has_intersection(tags, trick.tags):
-            continue
-            
-        filtered_tricks.append({
-            'name': trick.name,
-            'props_count': trick.props_count,
-            'difficulty': trick.difficulty,
-            'tags': [tag.value for tag in trick.tags] if trick.tags else [],
-            'comment': trick.comment
-        })
-    
-    return jsonify(filtered_tricks)
-
-@app.route('/api/preview_route', methods=['POST'])
-def preview_route():
-    route_data = request.json
-    # TODO: Implement route preview using route_display.html
-    return render_template('utils/route_display.html', route=route_data)
-
-@app.route('/api/save_route', methods=['POST'])
-def save_route():
-    route_data = request.json
-    # TODO: Implement route saving
-    return jsonify({'success': True, 'route_id': '123'})
-
 @app.route('/api/serialize_route', methods=['POST'])
 def serialize_route():
     route_data = request.json
     try:
+        # Log the received data for debugging
+        print("Received route data:", route_data)
+        
         # Create a Route instance from the JSON data
         route = Route.from_dict(route_data)
+        
+        # Log the created route for debugging
+        print("Created route:", route)
+        
         # Serialize using the Route class method
-        return route.serialize()
+        serialized = route.serialize()
+        print("Serialized route:", serialized)
+        
+        return serialized
     except Exception as e:
+        print("Error serializing route:", str(e))
         return str(e), 400
 
 @app.route('/created_route', methods=['GET', 'POST'])
