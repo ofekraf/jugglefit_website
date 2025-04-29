@@ -64,6 +64,17 @@
         </div>
 
         <div class="form-section">
+            <label class="form-label">Route Duration (minutes)</label>
+            <div class="slider-container">
+                <div class="slider-wrapper">
+                    <input type="range" id="route-duration-slider" min="1" max="30" value="10" class="custom-range">
+                    <span id="route-duration-value" class="slider-value">10</span>
+                </div>
+                <input type="hidden" id="route-duration-input" name="route_duration" value="10">
+            </div>
+        </div>
+
+        <div class="form-section">
             <label class="form-label">Exclude Tags</label>
             <div class="tricks-container">
                 <div class="tricks-column">
@@ -151,6 +162,15 @@
     routeLengthSlider.addEventListener('input', () => {
         routeLengthValue.textContent = routeLengthSlider.value;
         routeLengthInput.value = routeLengthSlider.value;
+    });
+
+    // Update the value displayed next to the "Route Duration" slider
+    const routeDurationSlider = document.getElementById('route-duration-slider');
+    const routeDurationValue = document.getElementById('route-duration-value');
+    const routeDurationInput = document.getElementById('route-duration-input');
+    routeDurationSlider.addEventListener('input', () => {
+        routeDurationValue.textContent = routeDurationSlider.value;
+        routeDurationInput.value = routeDurationSlider.value;
     });
 
     // Prop selection handling

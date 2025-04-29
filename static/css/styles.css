@@ -1609,6 +1609,11 @@ body {
     justify-content: center;
     margin-top: 2rem;
 }
+@media print {
+    .route-actions {
+        display: none;
+    }
+ }
 
 .print-button {
     margin-left: auto;

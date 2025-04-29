@@ -1,4 +1,4 @@
-from ..utils.reverse_lookup_enum import ReverseLookupEnum
+from .utils.reverse_lookup_enum import ReverseLookupEnum
 
 class Tag(ReverseLookupEnum):
     Spin = "spin"

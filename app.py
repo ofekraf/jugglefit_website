@@ -1,16 +1,18 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for, flash
 import json
-import base64
 from datetime import datetime
 
 from database.events.past_events import ALL_PAST_EVENTS, FRONT_PAGE_PAST_EVENTS
 from database.events.upcoming_events import UPCOMING_EVENTS
 from database.organization.affiliates import AFFILIATES
 from database.tricks import PROP_TO_TRICKS
-from route_generator.exceptions import NotEnoughTricksFoundException
-from route_generator.prop import PROP_OPTIONS, Prop
+from py_lib.prop import PROP_OPTIONS, Prop
+from py_lib.tag import TAG_OPTIONS, Tag
+from py_lib.route import Route
+from py_lib.utils.general import has_intersection
+
 from route_generator.route_generator import RouteGenerator
-from route_generator.tricks.tags import TAG_OPTIONS, Tag
+from route_generator.exceptions import NotEnoughTricksFoundException
 
 app = Flask(__name__)
 
@@ -39,6 +41,7 @@ def generate_route():
     min_difficulty = int(request.form['min_difficulty'])
     max_difficulty = int(request.form['max_difficulty'])
     route_length = int(request.form['route_length'])
+    route_duration = int(request.form['route_duration'])
     exclude_tags = {Tag.get_key_by_value(key) for key in request.form.getlist('exclude_tags')}
     
     try:
@@ -50,9 +53,12 @@ def generate_route():
             max_difficulty=max_difficulty,
             route_length=route_length,
             exclude_tags=exclude_tags,
-            name=route_name
+            name=route_name,
+            duration=route_duration
         )
-        return render_template('created_route.html', route=route)
+        # Serialize the route and redirect to created_route with POST data
+        serialized = route.serialize()
+        return redirect(url_for('created_route', route=serialized))
     except NotEnoughTricksFoundException:
         return '<p class="no-tricks">No tricks were generated. Try adjusting your criteria.</p>'
 
@@ -67,7 +73,7 @@ def build_route():
     initial_route = None
     if serialized_route:
         try:
-            initial_route = json.loads(base64.b64decode(serialized_route).decode('utf-8'))
+            initial_route = Route.deserialize(serialized_route)
         except:
             # If there's any error in decoding, ignore the parameter
             pass
@@ -81,12 +87,15 @@ def build_route():
     for prop, tricks in PROP_TO_TRICKS.items():
         prop_to_tricks_dict[prop.value] = [trick.to_dict() for trick in tricks]  # Use prop.value instead of prop
 
+    # Convert initial_route to dict if it exists
+    initial_route_dict = initial_route.to_dict() if initial_route else None
+
     return render_template('build_route.html',
                          prop_options=available_props,
                          tag_options=available_tags,
                          prop_to_tricks=prop_to_tricks_dict,
                          default_max_props=9,
-                         initial_route=initial_route)
+                         initial_route=initial_route_dict)
 
 @app.route('/api/search_tricks', methods=['GET'])
 def search_tricks():
@@ -120,9 +129,7 @@ def search_tricks():
             continue
             
         # Tag intersection
-        if tags and not trick.tags:
-            continue
-        if tags and not any(tag in trick.tags for tag in tags):
+        if tags and not has_intersection(tags, trick.tags):
             continue
             
         filtered_tricks.append({
@@ -151,22 +158,23 @@ def save_route():
 def serialize_route():
     route_data = request.json
     try:
-        # Convert the route data to base64 encoded JSON
-        serialized = base64.b64encode(json.dumps(route_data).encode()).decode()
-        return serialized
+        # Create a Route instance from the JSON data
+        route = Route.from_dict(route_data)
+        # Serialize using the Route class method
+        return route.serialize()
     except Exception as e:
         return str(e), 400
 
-@app.route('/print_route')
-def print_route():
-    route_param = request.args.get('route')
+@app.route('/created_route', methods=['GET', 'POST'])
+def created_route():
+    # Try to get route from either GET or POST parameters
+    route_param = request.args.get('route') or request.form.get('route')
     if not route_param:
         return redirect(url_for('build_route'))
     
     try:
-        # Decode the base64 serialized route
-        route_data = json.loads(base64.b64decode(route_param).decode('utf-8'))
-        return render_template('print_route.html', route=route_data, now=datetime.now())
+        route = Route.deserialize(route_param)
+        return render_template('created_route.html', route=route)
     except Exception as e:
         flash(f'Error loading route: {str(e)}')
         return redirect(url_for('build_route'))

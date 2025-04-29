@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Set, Optional
-from route_generator.tricks.tags import Tag
 
+from py_lib.tag import Tag
 
 # Because it breaks the UI
 MAX_TRICK_NAME_LENGTH = 75
@@ -34,3 +34,15 @@ class Trick:
             'tags': [str(tag) for tag in self.tags] if self.tags else [],
             'comment': self.comment
         }
+
+    @classmethod
+    def from_dict(cls, data: dict) -> 'Trick':
+        """Create a Trick instance from a dictionary."""
+        tags = {Tag.get_key_by_value(tag) for tag in data.get('tags', [])} if data.get('tags') else None
+        return cls(
+            name=data['name'],
+            props_count=data['props_count'],
+            difficulty=data.get('difficulty', -1),
+            tags=tags,
+            comment=data.get('comment')
+        ) 
