@@ -1,6 +1,6 @@
 from .prop import Prop
 from .route_generator import generate_route
-from .tricks.tags import Tag
+from .tags import Tag
 
 
 if __name__ == "__main__":

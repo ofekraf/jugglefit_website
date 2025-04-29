@@ -16,6 +16,11 @@
         </div>
 
         <div class="form-section">
+            <label for="route_duration" class="form-label">Route Duration (minutes)</label>
+            <input type="number" id="route_duration" name="route_duration" min="1" max="30" value="10" class="form-input" required>
+        </div>
+
+        <div class="form-section">
             <label class="form-label">Select Prop</label>
             <div class="prop-group">
                 {% for prop in prop_options %}
@@ -40,7 +45,7 @@
             </div>
             <div class="route-actions">
                 <button type="button" id="export_route" class="primary-button">Copy Route URL</button>
-                <button type="button" id="print_route" class="primary-button print-button">Print Route</button>
+                <button type="button" id="view_route" class="primary-button">View Route</button>
             </div>
         </div>
 
@@ -170,13 +175,16 @@
         let currentRoute = {
             name: '',
             prop: '',
-            tricks: []
+            tricks: [],
+            duration: 10
         };
 
         // Initialize route from query parameter if it exists
         if (initialRoute) {
             document.getElementById('route_name').value = initialRoute.name;
+            document.getElementById('route_duration').value = initialRoute.duration || 10;
             currentRoute.name = initialRoute.name;
+            currentRoute.duration = initialRoute.duration || 10;
             const propInput = document.querySelector(`input[value="${initialRoute.prop}"]`);
             if (propInput) {
                 propInput.checked = true;
@@ -296,6 +304,11 @@
             document.getElementById('route_name').addEventListener('input', function(e) {
                 currentRoute.name = e.target.value;
                 updateRouteDisplay();
+            });
+
+            // Update route duration when input changes
+            document.getElementById('route_duration').addEventListener('input', function(e) {
+                currentRoute.duration = parseInt(e.target.value);
             });
         }
 
@@ -484,6 +497,16 @@
         }
 
         function addTrickToRoute(trick) {
+            // Check if a trick with the same name and props_count already exists
+            const isDuplicate = currentRoute.tricks.some(t => 
+                t.name === trick.name && t.props_count === trick.props_count
+            );
+            
+            if (isDuplicate) {
+                showToast('This trick is already in your route.');
+                return;
+            }
+            
             currentRoute.tricks.push(trick);
             updateRouteDisplay();
         }
@@ -634,6 +657,7 @@
             const route = {
                 name: currentRoute.name,
                 prop: currentRoute.prop,
+                duration: currentRoute.duration * 60, // Convert minutes to seconds
                 tricks: currentRoute.tricks
             };
 
@@ -665,24 +689,24 @@
             });
         });
 
-        // Print route functionality
-        document.getElementById('print_route').addEventListener('click', async function() {
+        // View route functionality
+        document.getElementById('view_route').addEventListener('click', async function() {
             if (!currentRoute.name) {
-                showToast('Please enter a route name before printing.');
+                showToast('Please enter a route name before viewing.');
                 document.getElementById('route_name').focus();
                 return;
             }
             if (!currentRoute.prop) {
-                showToast('Please select a prop type before printing.');
+                showToast('Please select a prop type before viewing.');
                 return;
             }
             if (currentRoute.tricks.length === 0) {
-                showToast('Please add some tricks to your route before printing.');
+                showToast('Please add some tricks to your route before viewing.');
                 return;
             }
 
             try {
-                // First serialize the route to get a shareable URL
+                // Serialize the route
                 const response = await fetch('/api/serialize_route', {
                     method: 'POST',
                     headers: {
@@ -692,11 +716,11 @@
                 });
                 const serialized = await response.text();
                 
-                // Redirect to the print route page
-                window.location.href = `/print_route?route=${encodeURIComponent(serialized)}`;
+                // Redirect to the created_route page with the serialized route
+                window.location.href = `/created_route?route=${encodeURIComponent(serialized)}`;
             } catch (error) {
-                console.error('Error preparing route for print:', error);
-                showToast('Error preparing route for print. Please try again.');
+                console.error('Error preparing route for viewing:', error);
+                showToast('Error preparing route for viewing. Please try again.');
             }
         });
     });

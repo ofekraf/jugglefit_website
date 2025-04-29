@@ -1,5 +1,5 @@
 # Order for affiliates page
-from classes.affiliate import Affiliate
+from py_lib.affiliate import Affiliate
 
 
 AFFILIATES = [

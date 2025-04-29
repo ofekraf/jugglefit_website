@@ -2,16 +2,10 @@
 {% block title %}{% endblock %}
 {% block content %}
 <div class="route-page">
-    <div class="route-header">
-        <div class="route-description">
-            <p>Complete each trick in sequence. Use the stopwatch to track your time.</p>
-        </div>
-    </div>
-
     <div class="route-layout">
         <div class="route-timer">
             <div class="stopwatch-container">
-                <div id="stopwatch" class="stopwatch">10:00</div>
+                <div id="stopwatch" class="stopwatch">{{ route.duration // 60 }}:{{ route.duration % 60 }}</div>
                 <button id="stopwatch-toggle" class="stopwatch-button">START</button>
             </div>
         </div>
@@ -28,37 +22,56 @@
         // Stopwatch functionality
         const stopwatch = document.getElementById('stopwatch');
         const toggleButton = document.getElementById('stopwatch-toggle');
-        let timeLeft = 600; // 10 minutes in seconds
+        const initialDuration = {{ route.duration }}; // Duration is already in seconds
+        let timeLeft = initialDuration;
         let timer = null;
+        let isRunning = false;
 
         function updateStopwatch() {
             const minutes = Math.floor(timeLeft / 60);
             const seconds = timeLeft % 60;
             stopwatch.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function startTimer() {
+            if (isRunning) return;
             
-            if (timeLeft <= 0) {
-                clearInterval(timer);
-                toggleButton.textContent = 'RESET';
-                stopwatch.style.color = 'var(--danger-color)';
-            }
+            isRunning = true;
+            timer = setInterval(function() {
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    updateStopwatch();
+                } else {
+                    stopTimer();
+                    toggleButton.textContent = 'RESET';
+                    stopwatch.style.color = 'var(--danger-color)';
+                }
+            }, 1000);
+            toggleButton.textContent = 'STOP';
+        }
+
+        function stopTimer() {
+            clearInterval(timer);
+            timer = null;
+            isRunning = false;
+        }
+
+        function resetTimer() {
+            stopTimer();
+            timeLeft = initialDuration;
+            updateStopwatch();
+            stopwatch.style.color = '';
+            toggleButton.textContent = 'START';
         }
 
         toggleButton.addEventListener('click', function() {
-            if (timer) {
-                clearInterval(timer);
-                timer = null;
+            if (isRunning) {
+                stopTimer();
                 toggleButton.textContent = 'START';
             } else if (timeLeft <= 0) {
-                timeLeft = 600;
-                updateStopwatch();
-                stopwatch.style.color = '';
-                toggleButton.textContent = 'START';
+                resetTimer();
             } else {
-                timer = setInterval(function() {
-                    timeLeft--;
-                    updateStopwatch();
-                }, 1000);
-                toggleButton.textContent = 'STOP';
+                startTimer();
             }
         });
 

@@ -1,6 +1,12 @@
 from enum import Enum
 
-from .utils.reverse_lookup_enum import ReverseLookupEnum
+class ReverseLookupEnum(Enum):
+    @classmethod
+    def get_key_by_value(cls, value):
+        for k, v in cls.__members__.items():
+            if v.value == value:
+                return v
+        raise ValueError(f"No enum member with value {value}")
 
 class Prop(ReverseLookupEnum):
     Balls = "balls"
@@ -16,4 +22,4 @@ class Prop(ReverseLookupEnum):
         """Make the prop JSON serializable by returning its value."""
         return self.value
 
-PROP_OPTIONS = [p.value for p in Prop]
+PROP_OPTIONS = [p.value for p in Prop] 

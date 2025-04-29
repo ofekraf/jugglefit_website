@@ -1,7 +1,7 @@
-from classes.event import CompetitorResult, PastEvent, RouteResult
-from classes.route import Route
-from route_generator.prop import Prop
-from route_generator.tricks.base_trick import Trick
+from py_lib.event import CompetitorResult, PastEvent, RouteResult
+from py_lib.route import Route
+from py_lib.prop import Prop
+from py_lib.trick import Trick
 from datetime import date
 
 # Keep ordered by date
