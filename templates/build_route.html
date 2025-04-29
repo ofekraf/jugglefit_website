@@ -5,7 +5,7 @@
     <div class="route-header">
         <h1 class="route-title">Build Your Route</h1>
         <div class="route-description">
-            <p>Create a custom route by selecting tricks and organizing them by prop count.</p>
+            <p>Create a custom route by selecting tricks.</p>
         </div>
     </div>
 
@@ -182,9 +182,9 @@
         // Initialize route from query parameter if it exists
         if (initialRoute) {
             document.getElementById('route_name').value = initialRoute.name;
-            document.getElementById('route_duration').value = initialRoute.duration || 10;
+            document.getElementById('route_duration').value = Math.floor(initialRoute.duration / 60); // Convert seconds to minutes
             currentRoute.name = initialRoute.name;
-            currentRoute.duration = initialRoute.duration || 10;
+            currentRoute.duration = initialRoute.duration; // Keep in seconds
             const propInput = document.querySelector(`input[value="${initialRoute.prop}"]`);
             if (propInput) {
                 propInput.checked = true;
@@ -308,7 +308,7 @@
 
             // Update route duration when input changes
             document.getElementById('route_duration').addEventListener('input', function(e) {
-                currentRoute.duration = parseInt(e.target.value);
+                currentRoute.duration = parseInt(e.target.value) * 60; // Convert minutes to seconds
             });
         }
 
@@ -657,7 +657,7 @@
             const route = {
                 name: currentRoute.name,
                 prop: currentRoute.prop,
-                duration: currentRoute.duration * 60, // Convert minutes to seconds
+                duration: currentRoute.duration, // Convert minutes to seconds
                 tricks: currentRoute.tricks
             };
 

@@ -169,9 +169,13 @@
     const routeDurationValue = document.getElementById('route-duration-value');
     const routeDurationInput = document.getElementById('route-duration-input');
     routeDurationSlider.addEventListener('input', () => {
-        routeDurationValue.textContent = routeDurationSlider.value;
-        routeDurationInput.value = routeDurationSlider.value;
+        const minutes = parseInt(routeDurationSlider.value);
+        routeDurationValue.textContent = minutes;
+        routeDurationInput.value = minutes;
     });
+
+    // Set initial value in seconds
+    routeDurationInput.value = parseInt(routeDurationSlider.value) * 60; // Convert minutes to seconds
 
     // Prop selection handling
     const propOptions = document.querySelectorAll('.prop-option');

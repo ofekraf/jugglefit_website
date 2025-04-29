@@ -2,7 +2,7 @@ import random
 from typing import Set
 
 from py_lib.prop import Prop
-from py_lib.route import DEFAULT_ROUTE_DURATION, Route
+from py_lib.route import DEFAULT_ROUTE_DURATION_SECONDS, Route
 from database.tricks import PROP_TO_TRICKS
 from py_lib.tag import Tag
 from py_lib.utils.general import has_intersection
@@ -21,7 +21,7 @@ class RouteGenerator:
         route_length: int,
         exclude_tags: Set[Tag],
         name: str,
-        duration: int = DEFAULT_ROUTE_DURATION
+        duration_seconds: int = DEFAULT_ROUTE_DURATION_SECONDS
     ) -> Route:
         relevant_tricks = [trick for trick in PROP_TO_TRICKS[prop] if 
                         max_difficulty >= trick.difficulty >= min_difficulty and
@@ -33,5 +33,5 @@ class RouteGenerator:
         tricks = random.sample(relevant_tricks, route_length)
         tricks.sort(key=lambda trick: (trick.props_count, trick.difficulty))
         
-        return Route(name=name, prop=prop, tricks=tricks, duration=duration)
+        return Route(name=name, prop=prop, tricks=tricks, duration_seconds=duration_seconds)
     
