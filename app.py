@@ -124,7 +124,7 @@ def build_route():
                     'name': trick.name,
                     'props_count': trick.props_count,
                     'difficulty': trick.difficulty,
-                    'tags': [tag.value for tag in trick.tags],
+                    'tags': [tag.value for tag in trick.tags] if trick.tags else None,
                     'comment': trick.comment
                 } for trick in route.tricks]
             }
