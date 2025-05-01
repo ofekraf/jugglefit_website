@@ -17,7 +17,13 @@
 
         <div class="form-section">
             <label for="route_duration" class="form-label">Route Duration (minutes)</label>
-            <input type="number" id="route_duration" name="route_duration" min="1" max="30" value="10" class="form-input" required>
+            <div class="slider-container">
+                <div class="slider-wrapper">
+                    <input type="range" id="route-duration-slider" min="1" max="30" value="10" class="custom-range">
+                    <span id="route-duration-value" class="slider-value">10</span>
+                </div>
+                <input type="hidden" id="route-duration-input" name="route_duration" value="10">
+            </div>
         </div>
 
         <div class="form-section">
@@ -50,8 +56,8 @@
         </div>
 
         <!-- Add Custom Trick Section -->
-        <div class="form-section">
-            <label class="form-label">Add Custom Trick</label>
+        <div class="form-section custom-trick-section">
+            <h4 class="subsection-title">Add Custom Trick</h4>
             <div class="custom-trick-form">
                 <div class="form-row">
                     <div class="form-group">
@@ -59,27 +65,30 @@
                         <input type="text" id="custom_trick_name" class="form-input" placeholder="Enter trick name">
                     </div>
                     <div class="form-group">
-                        <label for="custom_trick_props">Props Count</label>
-                        <input type="number" id="custom_trick_props" class="form-input" min="1" max="9" value="3">
+                        <label for="custom_trick_props">Number of Props</label>
+                        <div class="slider-container">
+                            <div class="slider-wrapper">
+                                <input type="range" id="custom_trick_props" class="custom-range" 
+                                    min="{{ MIN_TRICK_PROPS_COUNT }}" 
+                                    max="{{ MAX_TRICK_PROPS_COUNT }}" 
+                                    value="{{ DEFAULT_MIN_TRICK_PROPS_COUNT }}">
+                                <span id="custom_trick_props_value" class="slider-value">{{ DEFAULT_MIN_TRICK_PROPS_COUNT }}</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="custom_trick_comment">Comment (Optional)</label>
                     <textarea id="custom_trick_comment" class="form-input" placeholder="Add a comment about the trick"></textarea>
                 </div>
-                <button type="button" id="add_custom_trick" class="add-custom-trick-button">Add Trick</button>
+                <button type="button" id="add_custom_trick" class="add-trick">Add</button>
             </div>
         </div>
 
-        <!-- Search and Filter Section -->
         <div class="form-section">
-            <label class="form-label">Search Tricks</label>
-            <div class="search-container">
-                <input type="text" id="search" placeholder="Search tricks..." class="search-input">
-        </div>
-
-        <div class="form-section">
-            <label class="form-label">Props Count</label>
+            <h4 class="subsection-title">Add Tricks</h4>
+            <div class="section-description">Select tricks based on your preferences</div>
+            <label class="form-label">Number of Props</label>
             <div class="slider-container">
                 <div id="props-slider" class="custom-slider"></div>
                 <div class="slider-values">
@@ -119,12 +128,11 @@
         </div>
 
         <div class="form-section">
-                <label class="form-label">Available Tricks</label>
+            <label class="form-label">Available Tricks</label>
             <div class="tricks-container">
                 <div class="tricks-column">
                     <div id="all_tricks" class="tricks-grid">
-                            <!-- Tricks will be populated by filterTricks function -->
-                                </div>
+                        <!-- Tricks will be populated by filterTricks function -->
                     </div>
                 </div>
             </div>
@@ -154,11 +162,31 @@
 
 <!-- Pass Flask data to JavaScript -->
 <script>
+    // Constants from trick.py
+    const MIN_TRICK_PROPS_COUNT = parseInt('{{ MIN_TRICK_PROPS_COUNT }}');
+    const MAX_TRICK_PROPS_COUNT = parseInt('{{ MAX_TRICK_PROPS_COUNT }}');
+    const MIN_TRICK_DIFFICULTY = parseInt('{{ MIN_TRICK_DIFFICULTY }}');
+    const MAX_TRICK_DIFFICULTY = parseInt('{{ MAX_TRICK_DIFFICULTY }}');
+    const DEFAULT_MIN_TRICK_PROPS_COUNT = parseInt('{{ DEFAULT_MIN_TRICK_PROPS_COUNT }}');
+    const DEFAULT_MAX_TRICK_PROPS_COUNT = parseInt('{{ DEFAULT_MAX_TRICK_PROPS_COUNT }}');
+    const DEFAULT_MIN_TRICK_DIFFICULTY = parseInt('{{ DEFAULT_MIN_TRICK_DIFFICULTY }}');
+    const DEFAULT_MAX_TRICK_DIFFICULTY = parseInt('{{ DEFAULT_MAX_TRICK_DIFFICULTY }}');
+
     // Toast notification function
-    function showToast(message) {
+    function showToast(message, focusElementId = null) {
         const toast = document.getElementById('toast');
         toast.textContent = message;
         toast.classList.add('show');
+        
+        // Focus on the specified element if provided
+        if (focusElementId) {
+            const element = document.getElementById(focusElementId);
+            if (element) {
+                element.focus();
+                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+        
         setTimeout(() => {
             toast.classList.remove('show');
         }, 3000);
@@ -166,10 +194,7 @@
 
     document.addEventListener('DOMContentLoaded', function() {
         // Convert Flask template data to JavaScript objects
-        const propToTricksData = '{{ prop_to_tricks|tojson|safe }}';
         const initialRouteData = '{{ initial_route|tojson|default("null")|safe }}';
-        
-        const propToTricks = JSON.parse(propToTricksData);
         const initialRoute = JSON.parse(initialRouteData);
         
         let currentRoute = {
@@ -179,118 +204,181 @@
             duration_seconds: 600
         };
 
+        // Store all tricks for the current prop type
+        let allTricks = [];
+
+        // Function to fetch all tricks for a prop type
+        async function fetchTricksForProp(propType) {
+            try {
+                const response = await fetch('/api/get_tricks', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        prop_type: propType,
+                    })
+                });
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                allTricks = await response.json();
+                filterTricks();
+            } catch (error) {
+                console.error('Error fetching tricks:', error);
+                showToast('Error loading tricks. Please try again.');
+            }
+        }
+
+        // Function to filter tricks based on current criteria
+        function filterTricks() {
+            const minProps = parseInt(document.getElementById('min-props-input').value);
+            const maxProps = parseInt(document.getElementById('max-props-input').value);
+            const minDifficulty = parseInt(document.getElementById('min-difficulty-input').value);
+            const maxDifficulty = parseInt(document.getElementById('max-difficulty-input').value);
+            const excludedTags = Array.from(document.querySelectorAll('input[name="exclude_tags"]:checked')).map(cb => cb.value);
+
+            // Filter tricks based on criteria
+            const filteredTricks = allTricks.filter(trick => {
+                const propsInRange = trick.props_count >= minProps && trick.props_count <= maxProps;
+                const difficultyInRange = trick.difficulty >= minDifficulty && trick.difficulty <= maxDifficulty;
+                const hasExcludedTag = trick.tags.some(tag => excludedTags.includes(tag));
+                return propsInRange && difficultyInRange && !hasExcludedTag;
+            });
+
+            // Group filtered tricks by props count
+            const groupedTricks = {};
+            filteredTricks.forEach(trick => {
+                if (!groupedTricks[trick.props_count]) {
+                    groupedTricks[trick.props_count] = [];
+                }
+                groupedTricks[trick.props_count].push(trick);
+            });
+
+            // Update the tricks display
+            const tricksGrid = document.getElementById('all_tricks');
+            tricksGrid.innerHTML = '';
+
+            // Display tricks grouped by props count
+            Object.keys(groupedTricks).sort((a, b) => parseInt(a) - parseInt(b)).forEach(count => {
+                const group = document.createElement('div');
+                group.className = 'props-group';
+                
+                const header = document.createElement('h3');
+                header.className = 'props-count-header';
+                header.textContent = `${count} Props`;
+                group.appendChild(header);
+                
+                const tricksList = document.createElement('div');
+                tricksList.className = 'tricks-list';
+                
+                // Sort tricks by name within each group
+                groupedTricks[count].sort((a, b) => a.name.localeCompare(b.name)).forEach(trick => {
+                    const trickItem = document.createElement('div');
+                    trickItem.className = 'trick-item';
+                    
+                    const trickName = document.createElement('div');
+                    trickName.className = 'trick-name';
+                    trickName.textContent = trick.name;
+                    trickItem.appendChild(trickName);
+                    
+                    if (trick.comment) {
+                        const trickComment = document.createElement('div');
+                        trickComment.className = 'trick-comment';
+                        trickComment.textContent = trick.comment;
+                        trickItem.appendChild(trickComment);
+                    }
+                    
+                    const addButton = document.createElement('button');
+                    addButton.className = 'add-trick';
+                    addButton.textContent = 'Add';
+                    addButton.onclick = () => addTrickToRoute(trick);
+                    trickItem.appendChild(addButton);
+                    
+                    tricksList.appendChild(trickItem);
+                });
+                
+                group.appendChild(tricksList);
+                tricksGrid.appendChild(group);
+            });
+        }
+
         // Initialize route from query parameter if it exists
         if (initialRoute) {
-            document.getElementById('route_name').value = initialRoute.name;
-            document.getElementById('route_duration').value = Math.floor(initialRoute.duration_seconds / 60); // Convert seconds to minutes
-            currentRoute.name = initialRoute.name;
-            currentRoute.duration_seconds = initialRoute.duration_seconds; // Keep in seconds
+            // Set route name with a small delay to ensure DOM is ready
+            setTimeout(() => {
+                const routeNameInput = document.getElementById('route_name');
+                if (routeNameInput) {
+                    routeNameInput.value = initialRoute.name || '';
+                    // Trigger input event to ensure any listeners are notified
+                    routeNameInput.dispatchEvent(new Event('input', { bubbles: true }));
+                }
+            }, 0);
+
+            currentRoute.name = initialRoute.name || '';
+
+            // Set duration
+            const durationMinutes = Math.floor(initialRoute.duration_seconds / 60);
+            document.getElementById('route-duration-slider').value = durationMinutes;
+            document.getElementById('route-duration-value').textContent = durationMinutes;
+            currentRoute.duration_seconds = initialRoute.duration_seconds;
+            
+            // Set prop type
+            currentRoute.prop = initialRoute.prop;
             const propInput = document.querySelector(`input[value="${initialRoute.prop}"]`);
             if (propInput) {
                 propInput.checked = true;
-                currentRoute.prop = initialRoute.prop;
+                const propOption = propInput.closest('.prop-option');
+                if (propOption) {
+                    propOption.classList.add('selected');
+                }
+                // Fetch tricks for the initial prop type
+                fetchTricksForProp(initialRoute.prop);
             }
-            currentRoute.tricks = initialRoute.tricks;
-            updateRouteDisplay();
-            filterTricks();
-        }
-
-        // Initialize sliders and event listeners
-        initializeSliders();
-        initializePropSelection();
-        initializeEventListeners();
-
-        // Function to initialize sliders
-        function initializeSliders() {
-            // Props slider initialization
-    const propsSlider = document.getElementById('props-slider');
-    const propsRange = document.getElementById('props-range');
-    const propsMinInput = document.getElementById('min-props-input');
-    const propsMaxInput = document.getElementById('max-props-input');
             
-    noUiSlider.create(propsSlider, {
-                start: [3, 9],
-        connect: true,
-        range: {
-                    'min': 1,
-            'max': 9
-        },
-        format: {
-            to: (value) => Math.round(value),
-            from: (value) => parseFloat(value)
-        }
-    });
-
-    propsSlider.noUiSlider.on('update', function(values) {
-        propsRange.textContent = `Min: ${values[0]}, Max: ${values[1]}`;
-        propsMinInput.value = Math.round(values[0]);
-        propsMaxInput.value = Math.round(values[1]);
-                filterTricks();
-    });
-
-            // Difficulty slider initialization
-    const difficultySlider = document.getElementById('difficulty-slider');
-    const difficultyRange = document.getElementById('difficulty-range');  
-    const difficultyMinInput = document.getElementById('min-difficulty-input');
-    const difficultyMaxInput = document.getElementById('max-difficulty-input');
-
-    noUiSlider.create(difficultySlider, {
-        start: [20, 30],
-        connect: true,
-        range: {
-            'min': 0,
-            'max': 100
-        },
-        format: {
-            to: (value) => Math.round(value),
-            from: (value) => parseFloat(value)
-        }
-    });
-
-    difficultySlider.noUiSlider.on('update', function(values) {
-        difficultyRange.textContent = `Min: ${values[0]}, Max: ${values[1]}`;
-        difficultyMinInput.value = Math.round(values[0]);
-        difficultyMaxInput.value = Math.round(values[1]);
-                filterTricks();
-    });
+            // Set tricks
+            currentRoute.tricks = initialRoute.tricks || [];
+            
+            updateRouteDisplay();
         }
 
         // Function to initialize prop selection
         function initializePropSelection() {
-    const propOptions = document.querySelectorAll('.prop-option');
-    const propInputs = document.querySelectorAll('.prop-option-input');
+            const propOptions = document.querySelectorAll('.prop-option');
+            const propInputs = document.querySelectorAll('.prop-option-input');
 
-    function updateSelectedState() {
-        propOptions.forEach(option => {
-            const input = option.querySelector('.prop-option-input');
-            if (input.checked) {
-                option.classList.add('selected');
+            function updateSelectedState() {
+                propOptions.forEach(option => {
+                    const input = option.querySelector('.prop-option-input');
+                    if (input.checked) {
+                        option.classList.add('selected');
                         if (currentRoute.prop !== input.value) {
                             currentRoute.tricks = [];
+                            currentRoute.prop = input.value;
+                            // Fetch tricks only when prop type changes
+                            fetchTricksForProp(input.value);
                         }
-                        currentRoute.prop = input.value;
                         updateRouteDisplay();
-            } else {
-                option.classList.remove('selected');
+                    } else {
+                        option.classList.remove('selected');
+                    }
+                });
             }
-        });
-                filterTricks();
-    }
 
-    updateSelectedState();
-
-    propOptions.forEach(option => {
-        option.addEventListener('click', function() {
-            propInputs.forEach(input => input.checked = false);
-            const input = this.querySelector('.prop-option-input');
-            input.checked = true;
             updateSelectedState();
-        });
-    });
 
-    propInputs.forEach(input => {
-        input.addEventListener('change', updateSelectedState);
-    });
+            propOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    propInputs.forEach(input => input.checked = false);
+                    const input = this.querySelector('.prop-option-input');
+                    input.checked = true;
+                    updateSelectedState();
+                });
+            });
+
+            propInputs.forEach(input => {
+                input.addEventListener('change', updateSelectedState);
+            });
         }
 
         // Function to initialize other event listeners
@@ -299,16 +387,20 @@
                 checkbox.addEventListener('change', filterTricks);
             });
 
-    document.getElementById('search').addEventListener('input', filterTricks);
-    
             document.getElementById('route_name').addEventListener('input', function(e) {
                 currentRoute.name = e.target.value;
                 updateRouteDisplay();
             });
 
-            // Update route duration when input changes
-            document.getElementById('route_duration').addEventListener('input', function(e) {
-                currentRoute.duration_seconds = parseInt(e.target.value) * 60; // Convert minutes to seconds
+            // Update route duration when slider changes
+            const routeDurationSlider = document.getElementById('route-duration-slider');
+            const routeDurationValue = document.getElementById('route-duration-value');
+            const routeDurationInput = document.getElementById('route-duration-input');
+            routeDurationSlider.addEventListener('input', () => {
+                const minutes = parseInt(routeDurationSlider.value);
+                routeDurationValue.textContent = minutes;
+                routeDurationInput.value = minutes;
+                currentRoute.duration_seconds = minutes * 60; // Convert minutes to seconds
             });
         }
 
@@ -517,94 +609,69 @@
             updateRouteDisplay();
         }
 
-        // Initial filter and update tricks
-    filterTricks();
-
-    function filterTricks() {
-            const searchTerm = document.getElementById('search')?.value?.toLowerCase() || '';
-            const selectedProp = document.querySelector('input[name="prop"]:checked')?.value;
-            const minProps = parseInt(document.getElementById('min-props-input').value);
-            const maxProps = parseInt(document.getElementById('max-props-input').value);
-            const minDifficulty = parseInt(document.getElementById('min-difficulty-input').value);
-            const maxDifficulty = parseInt(document.getElementById('max-difficulty-input').value);
-        const excludedTags = Array.from(document.querySelectorAll('input[name="exclude_tags"]:checked')).map(cb => cb.value);
-
-            // Get tricks for the selected prop
-            const tricks = propToTricks[selectedProp] || [];
-
-        // Filter tricks based on all criteria
-        const filteredTricks = tricks.filter(trick => {
-            // Check if trick name matches search term
-            const nameMatch = trick.name.toLowerCase().includes(searchTerm);
-            
-            // Check if props count is within range
-            const propsCountMatch = trick.props_count >= minProps && trick.props_count <= maxProps;
-            
-            // Check if difficulty is within range
-            const difficultyMatch = trick.difficulty >= minDifficulty && trick.difficulty <= maxDifficulty;
-            
-            // Check if trick doesn't have any excluded tags
-            const tagsMatch = !excludedTags.some(tag => trick.tags.includes(tag));
-            
-                return nameMatch && propsCountMatch && difficultyMatch && tagsMatch;
-        });
-
-        // Group filtered tricks by props count
-        const groupedTricks = {};
-        filteredTricks.forEach(trick => {
-            if (!groupedTricks[trick.props_count]) {
-                groupedTricks[trick.props_count] = [];
-            }
-            groupedTricks[trick.props_count].push(trick);
-        });
-
-        // Update the tricks display
-            const tricksGrid = document.getElementById('all_tricks');
-        tricksGrid.innerHTML = '';
-
-        // Display tricks grouped by props count
-        Object.keys(groupedTricks).sort((a, b) => parseInt(a) - parseInt(b)).forEach(count => {
-            const group = document.createElement('div');
-            group.className = 'props-group';
-            
-            const header = document.createElement('h3');
-            header.className = 'props-count-header';
-            header.textContent = `${count} Props`;
-            group.appendChild(header);
-            
-            const tricksList = document.createElement('div');
-            tricksList.className = 'tricks-list';
-            
-                // Sort tricks by name within each group
-                groupedTricks[count].sort((a, b) => a.name.localeCompare(b.name)).forEach(trick => {
-                const trickItem = document.createElement('div');
-                trickItem.className = 'trick-item';
-                    
-                    const trickName = document.createElement('div');
-                    trickName.className = 'trick-name';
-                    trickName.textContent = trick.name;
-                    trickItem.appendChild(trickName);
-                    
-                    if (trick.comment) {
-                        const trickComment = document.createElement('div');
-                        trickComment.className = 'trick-comment';
-                        trickComment.textContent = trick.comment;
-                        trickItem.appendChild(trickComment);
+        // Function to initialize sliders
+        function initializeSliders() {
+            // Props slider initialization
+            const propsSlider = document.getElementById('props-slider');
+            if (propsSlider && !propsSlider.noUiSlider) {  // Check if slider exists and not already initialized
+                const propsRange = document.getElementById('props-range');
+                const propsMinInput = document.getElementById('min-props-input');
+                const propsMaxInput = document.getElementById('max-props-input');
+                
+                noUiSlider.create(propsSlider, {
+                    start: [DEFAULT_MIN_TRICK_PROPS_COUNT, DEFAULT_MAX_TRICK_PROPS_COUNT],
+                    connect: true,
+                    range: {
+                        'min': MIN_TRICK_PROPS_COUNT,
+                        'max': MAX_TRICK_PROPS_COUNT
+                    },
+                    format: {
+                        to: (value) => Math.round(value),
+                        from: (value) => parseFloat(value)
                     }
-                    
-                    const addButton = document.createElement('button');
-                    addButton.className = 'add-trick';
-                    addButton.textContent = 'Add';
-                    addButton.onclick = () => addTrickToRoute(trick);
-                    trickItem.appendChild(addButton);
-                    
-                tricksList.appendChild(trickItem);
-            });
-            
-            group.appendChild(tricksList);
-            tricksGrid.appendChild(group);
-        });
-    }
+                });
+
+                propsSlider.noUiSlider.on('update', function(values) {
+                    propsRange.textContent = `Min: ${values[0]}, Max: ${values[1]}`;
+                    propsMinInput.value = Math.round(values[0]);
+                    propsMaxInput.value = Math.round(values[1]);
+                    filterTricks();
+                });
+            }
+
+            // Difficulty slider initialization
+            const difficultySlider = document.getElementById('difficulty-slider');
+            if (difficultySlider && !difficultySlider.noUiSlider) {  // Check if slider exists and not already initialized
+                const difficultyRange = document.getElementById('difficulty-range');  
+                const difficultyMinInput = document.getElementById('min-difficulty-input');
+                const difficultyMaxInput = document.getElementById('max-difficulty-input');
+
+                noUiSlider.create(difficultySlider, {
+                    start: [DEFAULT_MIN_TRICK_DIFFICULTY, DEFAULT_MAX_TRICK_DIFFICULTY],
+                    connect: true,
+                    range: {
+                        'min': MIN_TRICK_DIFFICULTY,
+                        'max': MAX_TRICK_DIFFICULTY
+                    },
+                    format: {
+                        to: (value) => Math.round(value),
+                        from: (value) => parseFloat(value)
+                    }
+                });
+
+                difficultySlider.noUiSlider.on('update', function(values) {
+                    difficultyRange.textContent = `Min: ${values[0]}, Max: ${values[1]}`;
+                    difficultyMinInput.value = Math.round(values[0]);
+                    difficultyMaxInput.value = Math.round(values[1]);
+                    filterTricks();
+                });
+            }
+        }
+
+        // Initialize sliders and event listeners
+        initializeSliders();
+        initializePropSelection();
+        initializeEventListeners();
 
         // Add Custom Trick functionality
         document.getElementById('add_custom_trick').addEventListener('click', function() {
@@ -613,12 +680,7 @@
             const comment = document.getElementById('custom_trick_comment').value.trim();
 
             if (!name) {
-                alert('Please enter a trick name');
-                return;
-            }
-
-            if (isNaN(propsCount) || propsCount < 1 || propsCount > 9) {
-                alert('Please enter a valid props count between 1 and 9');
+                showToast('Please enter a trick name', 'custom_trick_name');
                 return;
             }
 
@@ -634,23 +696,27 @@
 
             // Clear the form
             document.getElementById('custom_trick_name').value = '';
-            document.getElementById('custom_trick_props').value = '3';
+            document.getElementById('custom_trick_props').value = '{{ DEFAULT_MIN_TRICK_PROPS_COUNT }}';
+            document.getElementById('custom_trick_props_value').textContent = '{{ DEFAULT_MIN_TRICK_PROPS_COUNT }}';
             document.getElementById('custom_trick_comment').value = '';
+        });
+
+        // Add event listener for custom trick props slider
+        const customTrickPropsSlider = document.getElementById('custom_trick_props');
+        const customTrickPropsValue = document.getElementById('custom_trick_props_value');
+        customTrickPropsSlider.addEventListener('input', () => {
+            const value = parseInt(customTrickPropsSlider.value);
+            customTrickPropsValue.textContent = value;
         });
 
         // Export route functionality
         document.getElementById('export_route').addEventListener('click', async function() {
-            if (!currentRoute.name) {
-                showToast('Please enter a route name before copying the URL.');
-                document.getElementById('route_name').focus();
-                return;
-            }
             if (!currentRoute.prop) {
-                showToast('Please select a prop type before copying the URL.');
+                showToast('Please select a prop type before copying the URL.', 'prop-slider');
                 return;
             }
             if (currentRoute.tricks.length === 0) {
-                showToast('Please add some tricks to your route before copying the URL.');
+                showToast('Please add some tricks to your route before copying the URL.', 'all_tricks');
                 return;
             }
 
@@ -669,7 +735,6 @@
                     }))
                 };
 
-                
                 // Create a Route instance and serialize it
                 const response = await fetch('/api/serialize_route', {
                     method: 'POST',
@@ -679,13 +744,13 @@
                     body: JSON.stringify(routeData)
                 });
 
-                const responseText = await response.text();
                 if (!response.ok) {
-                    throw new Error(`Failed to serialize route: ${response.status} ${responseText}`);
+                    const errorText = await response.text();
+                    throw new Error(`Failed to serialize route: ${response.status} ${errorText}`);
                 }
 
-                const serialized = responseText;
-                const url = new URL(window.location.href);
+                const serialized = await response.text();
+                const url = new URL(window.location.origin + window.location.pathname);
                 url.searchParams.set('route', serialized);
                 
                 // Copy to clipboard
@@ -711,16 +776,16 @@
         // View route functionality
         document.getElementById('view_route').addEventListener('click', async function() {
             if (!currentRoute.name) {
-                showToast('Please enter a route name before viewing.');
+                showToast('Please enter a route name before viewing.', 'route_name');
                 document.getElementById('route_name').focus();
                 return;
             }
             if (!currentRoute.prop) {
-                showToast('Please select a prop type before viewing.');
+                showToast('Please select a prop type before viewing.', 'prop-slider');
                 return;
             }
             if (currentRoute.tricks.length === 0) {
-                showToast('Please add some tricks to your route before viewing.');
+                showToast('Please add some tricks to your route before viewing.', 'all_tricks');
                 return;
             }
 

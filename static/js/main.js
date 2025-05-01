@@ -21,11 +21,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize the props slider
     const propsSlider = document.getElementById('props-slider');
-    const propsRange = document.getElementById('props-range');
-    const propsMinInput = document.getElementById('min-props-input');
-    const propsMaxInput = document.getElementById('max-props-input');
+    if (propsSlider && !propsSlider.noUiSlider) {  // Check if slider exists and not already initialized
+        const propsRange = document.getElementById('props-range');
+        const propsMinInput = document.getElementById('min-props-input');
+        const propsMaxInput = document.getElementById('max-props-input');
 
-    if (propsSlider) {
         noUiSlider.create(propsSlider, {
             start: [3, 7],
             connect: true,
@@ -52,11 +52,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize the difficulty slider
     const difficultySlider = document.getElementById('difficulty-slider');
-    const difficultyRange = document.getElementById('difficulty-range');
-    const difficultyMinInput = document.getElementById('min-difficulty-input');
-    const difficultyMaxInput = document.getElementById('max-difficulty-input');
+    if (difficultySlider && !difficultySlider.noUiSlider) {  // Check if slider exists and not already initialized
+        const difficultyRange = document.getElementById('difficulty-range');
+        const difficultyMinInput = document.getElementById('min-difficulty-input');
+        const difficultyMaxInput = document.getElementById('max-difficulty-input');
 
-    if (difficultySlider) {
         noUiSlider.create(difficultySlider, {
             start: [20, 30],
             connect: true,
@@ -82,9 +82,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     const heightSlider = document.getElementById('height-slider');
-    const maxHeightInput = document.getElementById('max_height');
+    if (heightSlider && !heightSlider.noUiSlider) {  // Check if slider exists and not already initialized
+        const maxHeightInput = document.getElementById('max_height');
+        const maxHeightValue = document.getElementById('max-height-value');
 
-    if (heightSlider) {
         noUiSlider.create(heightSlider, {
             start: [3],
             range: {
@@ -98,7 +99,9 @@ document.addEventListener('DOMContentLoaded', function() {
         heightSlider.noUiSlider.on('update', function(values) {
             const value = Math.round(values[0]);
             maxHeightInput.value = value;
-            maxHeightValue.textContent = value;
+            if (maxHeightValue) {
+                maxHeightValue.textContent = value;
+            }
         });
     }
 

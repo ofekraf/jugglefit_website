@@ -26,10 +26,13 @@
                     <div class="trick-container">
                         {% for trick in tricks %}
                         <div class="prop-details-frame">
-                            <div class="trick-name">{{ trick.name }}</div>
-                            {% if trick.comment %}
-                            <div class="trick-comment">{{ trick.comment }}</div>
-                            {% endif %}
+                            <div class="trick-content">
+                                <span class="trick-number">{{ loop.index }}</span>
+                                <div class="trick-name">{{ trick.name }}</div>
+                                {% if trick.comment %}
+                                <div class="trick-comment">{{ trick.comment }}</div>
+                                {% endif %}
+                            </div>
                         </div>
                         {% endfor %}
                     </div>
