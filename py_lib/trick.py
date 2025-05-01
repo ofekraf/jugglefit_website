@@ -2,12 +2,11 @@ from dataclasses import dataclass
 from typing import Set, Optional
 
 from py_lib.tag import Tag
-
-# Because it breaks the UI
-MAX_TRICK_NAME_LENGTH = 75
-
-MIN_TRICK_DIFFICULTY = 0
-MAX_TRICK_DIFFICULTY = 100
+from py_lib.consts import (
+    MAX_TRICK_NAME_LENGTH,
+    MIN_TRICK_PROPS_COUNT, MAX_TRICK_PROPS_COUNT,
+    MIN_TRICK_DIFFICULTY, MAX_TRICK_DIFFICULTY
+)
 
 @dataclass(kw_only=True)
 class Trick:
@@ -24,6 +23,9 @@ class Trick:
         if (self.difficulty != -1 and 
         not MIN_TRICK_DIFFICULTY <= self.difficulty <= MAX_TRICK_DIFFICULTY):
             raise ValueError(f"Trick {self.name} difficulty must be between {MIN_TRICK_DIFFICULTY} and {MAX_TRICK_DIFFICULTY}.")
+
+        if not MIN_TRICK_PROPS_COUNT <= self.props_count <= MAX_TRICK_PROPS_COUNT:
+            raise ValueError(f"Trick {self.name} props count must be between {MIN_TRICK_PROPS_COUNT} and {MAX_TRICK_PROPS_COUNT}.")
 
     def to_dict(self) -> dict:
         """Convert the trick to a dictionary for JSON serialization."""

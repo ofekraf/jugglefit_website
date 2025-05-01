@@ -23,13 +23,42 @@
     <a href="{{ url_for('generate_route') }}" class="secondary-button">Generate New Route</a>
 </div>
 
+<style>
+    .trick-checkbox {
+        margin-right: 10px;
+        cursor: pointer;
+    }
+    @media print {
+        .trick-checkbox {
+            display: none;
+        }
+    }
+</style>
+
 <script>
     // Initialize countdown timer
-    let timeLeft = parseInt('{{ route.duration_seconds }}') || 600; // Default to 10 minutes if duration is invalid
-    console.log('Initial timeLeft:', timeLeft); // Debug log
+    let timeLeft = parseInt('{{ route.duration_seconds }}') || 600;
     let timerInterval = null;
     let isRunning = false;
     const originalTime = timeLeft;
+
+    // Add checkboxes to all tricks
+    document.addEventListener('DOMContentLoaded', function() {
+        const trickFrames = document.querySelectorAll('.prop-details-frame');
+        trickFrames.forEach(frame => {
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.className = 'trick-checkbox no-print';
+            checkbox.addEventListener('change', function() {
+                if (this.checked) {
+                    frame.classList.add('completed');
+                } else {
+                    frame.classList.remove('completed');
+                }
+            });
+            frame.querySelector('.trick-content').insertBefore(checkbox, frame.querySelector('.trick-content').firstChild);
+        });
+    });
 
     // Make timer draggable
     const timerContainer = document.getElementById('timer-container');

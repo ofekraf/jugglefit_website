@@ -1,30 +1,74 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for, flash
-import json
-from datetime import datetime
-
+from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, Blueprint
 from database.events.past_events import ALL_PAST_EVENTS, FRONT_PAGE_PAST_EVENTS
 from database.events.upcoming_events import UPCOMING_EVENTS
 from database.organization.affiliates import AFFILIATES
-from database.tricks import PROP_TO_TRICKS
 from py_lib.prop import PROP_OPTIONS, Prop
 from py_lib.tag import TAG_OPTIONS, Tag
 from py_lib.route import Route
-from py_lib.utils.general import has_intersection
-
+from py_lib.consts import (
+    MIN_TRICK_PROPS_COUNT, MAX_TRICK_PROPS_COUNT,
+    MIN_TRICK_DIFFICULTY, MAX_TRICK_DIFFICULTY,
+    DEFAULT_MIN_TRICK_PROPS_COUNT, DEFAULT_MAX_TRICK_PROPS_COUNT,
+    DEFAULT_MIN_TRICK_DIFFICULTY, DEFAULT_MAX_TRICK_DIFFICULTY
+)
+from py_lib.utils.filter_tricks import filter_tricks
 from route_generator.route_generator import RouteGenerator
 from route_generator.exceptions import NotEnoughTricksFoundException
 
 app = Flask(__name__)
 
+# Create API blueprint
+api = Blueprint('api', __name__, url_prefix='/api')
+
+@api.route('/serialize_route', methods=['POST'])
+def serialize_route():
+    route_data = request.json
+    try:
+        route = Route.from_dict(route_data)
+        serialized = route.serialize()
+        return serialized
+    except Exception as e:
+        return str(e), 400
+
+@api.route('/get_tricks', methods=['POST'])
+def get_tricks():
+    try:
+        data = request.get_json()
+        prop_type = Prop.get_key_by_value(data.get('prop_type'))
+        min_props = int(data.get('min_props', DEFAULT_MIN_TRICK_PROPS_COUNT))
+        max_props = int(data.get('max_props', DEFAULT_MAX_TRICK_PROPS_COUNT))
+        min_difficulty = int(data.get('min_difficulty', DEFAULT_MIN_TRICK_DIFFICULTY))
+        max_difficulty = int(data.get('max_difficulty', DEFAULT_MAX_TRICK_DIFFICULTY))
+        exclude_tags = data.get('exclude_tags', [])
+        limit = int(data.get('limit', 0))
+
+        exclude_tags_set = {Tag.get_key_by_value(tag) for tag in exclude_tags}
+
+        filtered_tricks = filter_tricks(
+            prop=prop_type,
+            min_props=min_props,
+            max_props=max_props,
+            min_difficulty=min_difficulty,
+            max_difficulty=max_difficulty,
+            limit=limit if limit > 0 else None,
+            exclude_tags=exclude_tags_set
+        )
+
+        tricks_dict = [trick.to_dict() for trick in filtered_tricks]
+        return jsonify(tricks_dict)
+    except Exception as e:
+        return str(e), 400
+
+# Register the API blueprint
+app.register_blueprint(api)
+
 @app.route('/')
 def home():
     return render_template('index.html', upcoming_events=UPCOMING_EVENTS, last_events=FRONT_PAGE_PAST_EVENTS)
 
-
 @app.route('/past_events', methods=['GET'])
 def past_events():
     return render_template('past_events.html', past_events=ALL_PAST_EVENTS)
-
 
 @app.route('/generate_route', methods=['GET', 'POST'])
 def generate_route():
@@ -41,7 +85,7 @@ def generate_route():
     min_difficulty = int(request.form['min_difficulty'])
     max_difficulty = int(request.form['max_difficulty'])
     route_length = int(request.form['route_length'])
-    route_duration_seconds = int(request.form['route_duration']) * 60  # Convert minutes to seconds
+    route_duration_seconds = int(request.form['route_duration']) * 60
     exclude_tags = {Tag.get_key_by_value(key) for key in request.form.getlist('exclude_tags')}
     
     try:
@@ -56,7 +100,6 @@ def generate_route():
             name=route_name,
             duration_seconds=route_duration_seconds
         )
-        # Serialize the route and redirect to created_route with POST data
         serialized = route.serialize()
         return redirect(url_for('created_route', route=serialized))
     except NotEnoughTricksFoundException:
@@ -68,60 +111,42 @@ def host_event():
 
 @app.route('/build_route')
 def build_route():
-    # Get the serialized route from query params if it exists
-    serialized_route = request.args.get('route')
+    route_param = request.args.get('route')
     initial_route = None
-    if serialized_route:
+    if route_param:
         try:
-            initial_route = Route.deserialize(serialized_route)
-        except:
-            # If there's any error in decoding, ignore the parameter
-            pass
-
-    # Get available props and tags
-    available_props = [prop.value for prop in Prop]  # Convert Prop enum to string values
-    available_tags = list(TAG_OPTIONS)
-
-    # Create a dictionary mapping each prop to its list of tricks
-    prop_to_tricks_dict = {}
-    for prop, tricks in PROP_TO_TRICKS.items():
-        prop_to_tricks_dict[prop.value] = [trick.to_dict() for trick in tricks]  # Use prop.value instead of prop
-
-    # Convert initial_route to dict if it exists
-    initial_route_dict = initial_route.to_dict() if initial_route else None
+            route = Route.deserialize(route_param)
+            initial_route = {
+                'name': route.name,
+                'prop': route.prop.value,
+                'duration_seconds': route.duration_seconds,
+                'tricks': [{
+                    'name': trick.name,
+                    'props_count': trick.props_count,
+                    'difficulty': trick.difficulty,
+                    'tags': [tag.value for tag in trick.tags],
+                    'comment': trick.comment
+                } for trick in route.tricks]
+            }
+        except Exception as e:
+            flash(f'Error loading route: {str(e)}', 'error')
+            return redirect(url_for('build_route'))
 
     return render_template('build_route.html',
-                         prop_options=available_props,
-                         tag_options=available_tags,
-                         prop_to_tricks=prop_to_tricks_dict,
-                         default_max_props=9,
-                         initial_route=initial_route_dict)
-
-@app.route('/api/serialize_route', methods=['POST'])
-def serialize_route():
-    route_data = request.json
-    try:
-        # Log the received data for debugging
-        print("Received route data:", route_data)
-        
-        # Create a Route instance from the JSON data
-        route = Route.from_dict(route_data)
-        
-        # Log the created route for debugging
-        print("Created route:", route)
-        
-        # Serialize using the Route class method
-        serialized = route.serialize()
-        print("Serialized route:", serialized)
-        
-        return serialized
-    except Exception as e:
-        print("Error serializing route:", str(e))
-        return str(e), 400
+                         prop_options=PROP_OPTIONS,
+                         tag_options=TAG_OPTIONS,
+                         initial_route=initial_route,
+                         MIN_TRICK_PROPS_COUNT=MIN_TRICK_PROPS_COUNT,
+                         MAX_TRICK_PROPS_COUNT=MAX_TRICK_PROPS_COUNT,
+                         MIN_TRICK_DIFFICULTY=MIN_TRICK_DIFFICULTY,
+                         MAX_TRICK_DIFFICULTY=MAX_TRICK_DIFFICULTY,
+                         DEFAULT_MIN_TRICK_PROPS_COUNT=DEFAULT_MIN_TRICK_PROPS_COUNT,
+                         DEFAULT_MAX_TRICK_PROPS_COUNT=DEFAULT_MAX_TRICK_PROPS_COUNT,
+                         DEFAULT_MIN_TRICK_DIFFICULTY=DEFAULT_MIN_TRICK_DIFFICULTY,
+                         DEFAULT_MAX_TRICK_DIFFICULTY=DEFAULT_MAX_TRICK_DIFFICULTY)
 
 @app.route('/created_route', methods=['GET', 'POST'])
 def created_route():
-    # Try to get route from either GET or POST parameters
     route_param = request.args.get('route') or request.form.get('route')
     if not route_param:
         return redirect(url_for('build_route'))
