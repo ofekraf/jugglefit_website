@@ -1,5 +1,5 @@
 # UI Constraints
-MAX_TRICK_NAME_LENGTH = 75
+MAX_TRICK_NAME_LENGTH = 100
 
 # Props Count Constraints
 MIN_TRICK_PROPS_COUNT = 1

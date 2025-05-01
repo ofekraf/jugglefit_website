@@ -7,36 +7,29 @@
     <div class="route-container">
         <div class="route-content">
             <div class="route-sections">
-                {% set grouped_tricks = {} %}
-                {% for trick in route.tricks %}
-                    {% if trick.props_count not in grouped_tricks %}
-                        {% set _ = grouped_tricks.update({trick.props_count: []}) %}
-                    {% endif %}
-                    {% set _ = grouped_tricks[trick.props_count].append(trick) %}
-                {% endfor %}
-                
-                {% for props_count, tricks in grouped_tricks.items() %}
-                <div class="prop-section">
-                    <div class="prop-color-bar" data-props="{{ props_count }}" data-prop-type="{{ route.prop.value }}">
-                        <div class="prop-count">
-                            <div class="prop-count-text">X</div>
-                            <div class="prop-count-text">{{ props_count }}</div>
-                        </div>
-                    </div>
-                    <div class="trick-container">
-                        {% for trick in tricks %}
-                        <div class="prop-details-frame">
-                            <div class="trick-content">
-                                <span class="trick-number">{{ loop.index }}</span>
-                                <div class="trick-name">{{ trick.name }}</div>
-                                {% if trick.comment %}
-                                <div class="trick-comment">{{ trick.comment }}</div>
-                                {% endif %}
+                {% set trick_counter = namespace(count=0) %}
+                {% for count in route.tricks|map(attribute='props_count')|unique %}
+                    <div class="prop-section">
+                        <div class="prop-color-bar" data-props="{{ count }}" data-prop-type="{{ route.prop }}">
+                            <div class="prop-count">
+                                <div class="prop-count-text">X {{ count }}</div>
                             </div>
                         </div>
-                        {% endfor %}
+                        <div class="trick-container">
+                            {% for trick in route.tricks if trick.props_count == count %}
+                                {% set trick_counter.count = trick_counter.count + 1 %}
+                                <div class="prop-details-frame">
+                                    <div class="trick-content">
+                                        <span class="trick-number">{{ trick_counter.count }}.</span>
+                                        <span class="trick-name">{{ trick.name }}</span>
+                                        {% if trick.comment %}
+                                            <span class="trick-comment"> [{{ trick.comment }}]</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
                     </div>
-                </div>
                 {% endfor %}
             </div>
         </div>

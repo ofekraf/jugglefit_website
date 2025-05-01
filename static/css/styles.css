@@ -33,6 +33,36 @@ body {
     background-color: var(--background-color);
 }
 
+/* Trick Content Styles */
+.trick-content {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.25rem 0;
+}
+
+.trick-number {
+    font-weight: 600;
+    color: var(--light-text);
+    min-width: 1.5rem;
+    font-size: 0.9rem;
+}
+
+.trick-name {
+    font-weight: 500;
+    color: var(--text-color);
+    font-size: 1rem;
+    display: block;
+    margin-bottom: 0rem;
+}
+
+.trick-comment {
+    color: var(--light-text);
+    font-style: italic;
+    font-size: 0.9rem;
+}
+
 /* Header Styles */
 .main-header {
     background-color: var(--background-color);
@@ -138,11 +168,20 @@ body {
 /* Main Content */
 .main-content {
     margin-top: 72px;
+    width: 100%;
+    max-width: none;
+    margin-left: 0;
+    margin-right: 0;
+    padding: 0 2rem;
 }
 
 /* Section Styles */
 .section {
     padding: 4rem 2rem;
+    width: 100%;
+    max-width: none;
+    margin-left: 0;
+    margin-right: 0;
 }
 
 .section-alt {
@@ -150,8 +189,9 @@ body {
 }
 
 .section-container {
-    max-width: 1200px;
-    margin: 0 auto;
+    width: 100%;
+    max-width: none;
+    margin: 0;
 }
 
 .section-title {
@@ -519,9 +559,11 @@ body {
 
 /* Route Page Styles */
 .route-page {
-    max-width: 1200px;
+    width: 100%;
+    max-width: 1000px;
     margin: 0 auto;
-    padding: 2rem;
+    padding: 1rem;
+    box-sizing: border-box;
 }
 
 .route-header {
@@ -760,13 +802,18 @@ body {
 }
 
 .route-container {
-    flex: 1;
-    background-color: white;
-    border-radius: 12px;
-    padding: 2rem;
-    box-shadow: 0 4px 12px var(--shadow-color);
+    width: 100%;
     max-width: 1200px;
     margin: 0 auto;
+    padding: 1rem;
+    box-sizing: border-box;
+}
+
+.route-content {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    box-sizing: border-box;
 }
 
 .route-details {
@@ -806,11 +853,6 @@ body {
     border-radius: 4px;
     border: 1px solid var(--border-color);
     width: 100%;
-}
-
-.trick-name {
-    font-size: 0.9rem;
-    color: var(--text-color);
 }
 
 .trick-details-container {
@@ -974,12 +1016,8 @@ body {
 }
 
 .past-event-container {
-    background-color: white;
-    border-radius: 12px;
-    padding: 2rem;
-    margin: 1rem auto;
-    max-width: 800px;
-    box-shadow: 0 4px 12px var(--shadow-color);
+    max-width: 1000px;
+    margin: 0 auto;
 }
 
 .past-event-container ul {
@@ -1033,16 +1071,11 @@ body {
 }
 
 .route-sections {
-    padding: 0 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    align-items: flex-start;
-    justify-content: flex-start;
-    position: relative;
-    overflow: hidden;
-    max-width: 2000px;
+    width: 100%;
+    max-width: 1200px;
     margin: 0 auto;
+    padding: 0 10px;
+    box-sizing: border-box;
 }
 
 .prop-section {
@@ -1056,6 +1089,7 @@ body {
     position: relative;
     overflow: hidden;
     width: 100%;
+    margin-bottom: 0.5rem;
 }
 
 .prop-color-bar {
@@ -1069,7 +1103,6 @@ body {
     box-sizing: border-box;
     display: flex;
     flex-direction: row;
-    gap: 10px;
     align-items: center;
     justify-content: center;
     padding: 0;
@@ -1285,100 +1318,6 @@ body {
     margin-bottom: 1.5rem;
 }
 
-.email-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 1.2rem;
-    color: var(--primary-color);
-    text-decoration: none;
-    padding: 1rem 2rem;
-    border: 2px solid var(--primary-color);
-    border-radius: 8px;
-    transition: all 0.3s ease;
-}
-
-.email-link:hover {
-    background-color: var(--primary-color);
-    color: white;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px var(--shadow-color);
-}
-
-.email-link i {
-    font-size: 1.4rem;
-}
-
-.past-event-container .route-container {
-    padding: 0;
-    margin: 0;
-    max-width: 100%;
-}
-
-.past-event-container .route-content {
-    padding: 0;
-    max-width: 100%;
-}
-
-.past-event-container .route-sections {
-    gap: 0.5rem;
-    max-width: 100%;
-}
-
-.past-event-container .prop-section {
-    margin-bottom: 0.5rem;
-    width: 100%;
-}
-
-.past-event-container .prop-color-bar {
-    width: 140px;
-}
-
-.past-event-container .trick-container {
-    padding: 0.5rem;
-    width: 100%;
-}
-
-.past-event-container .prop-details-frame {
-    padding: 0.5rem;
-    width: 100%;
-}
-
-.past-event-container .trick-name {
-    font-size: 12px;
-}
-
-.past-event-container .trick-comment {
-    color: var(--text-color);
-    text-align: left;
-    font-family: "Inter", sans-serif;
-    font-size: 10px;
-    line-height: 120%;
-    font-weight: 700;
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: flex-start;
-    white-space: nowrap;
-    opacity: 0.8;
-    margin-left: 8px;
-}
-
-.past-event-container .prop-details-frame {
-    border-radius: 15px;
-    padding: 4px 12px;
-    display: flex;
-    flex-direction: row;
-    gap: 8px;
-    align-items: center;
-    justify-content: flex-start;
-    flex: 0 0 auto;
-    min-width: 200px;
-    position: relative;
-    width: auto;
-    white-space: nowrap;
-}
-
 /* Print Styles */
 @media print {
     @page {
@@ -1463,7 +1402,7 @@ body {
 
     /* Increase font sizes for all text elements */
     .trick-name {
-        font-size: 16pt;
+        font-size: 14pt;
         line-height: 1.5;
     }
 
@@ -1698,11 +1637,6 @@ body {
     gap: 0.25rem;
 }
 
-.trick-name {
-    font-weight: 600;
-    font-size: 1.1rem;
-}
-
 .trick-props,
 .trick-difficulty,
 .trick-tags,
@@ -1759,16 +1693,6 @@ body {
     border-bottom: none;
 }
 
-.trick-info {
-    flex: 1;
-}
-
-.trick-name {
-    font-weight: bold;
-    display: block;
-    margin-bottom: 5px;
-}
-
 .trick-props, .trick-difficulty, .trick-tags, .trick-comment {
     display: block;
     color: #666;
@@ -1822,11 +1746,6 @@ body {
     border-radius: 4px;
     border: 1px solid var(--border-color);
     width: 100%;
-}
-
-.trick-name {
-    font-size: 0.9rem;
-    color: var(--text-color);
 }
 
 /* Timer Styles */
@@ -1888,4 +1807,53 @@ body {
 
 .timer-btn:hover:not(:disabled) {
     background: #e5e5e5;
+}
+
+.trick-content {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.25rem 0;
+}
+
+.trick-number {
+    font-weight: 600;
+    color: var(--light-text);
+    min-width: 1.5rem;
+    font-size: 0.9rem;
+}
+
+/* Past Event Container Styles */
+.past-event-container {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+/* Route Container inside Past Event */
+.past-event-container .route-container {
+    width: 100%;
+    max-width: 100%;
+    margin: 1rem 0;
+    padding: 1rem;
+}
+
+.past-event-container .route-page {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 1rem;
+}
+
+.past-event-container .route-content {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+}
+
+.past-event-container .route-sections {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0 10px;
 }
