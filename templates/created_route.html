@@ -26,6 +26,7 @@
 <script>
     // Initialize countdown timer
     let timeLeft = parseInt('{{ route.duration_seconds }}') || 600; // Default to 10 minutes if duration is invalid
+    console.log('Initial timeLeft:', timeLeft); // Debug log
     let timerInterval = null;
     let isRunning = false;
     const originalTime = timeLeft;
@@ -119,7 +120,7 @@
     document.getElementById('stopBtn').addEventListener('click', stopTimer);
     document.getElementById('resetBtn').addEventListener('click', resetTimer);
 
-    // Initialize timer display
+    // Initialize timer display immediately
     updateTimer();
 </script>
 {% endblock %}
