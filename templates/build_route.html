@@ -173,6 +173,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="{{ url_for('static', filename='js/tricks_utils.js') }}"></script>
 
 <!-- Pass Flask data to JavaScript -->
 <script>
@@ -237,49 +238,29 @@
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 allTricks = await response.json();
-    filterTricks();
+    updateSearchTricks();
             } catch (error) {
                 console.error('Error fetching tricks:', error);
                 showToast('Error loading tricks. Please try again.');
             }
         }
 
-        // Function to filter tricks based on current criteria
-    function filterTricks() {
+    // Function to filter tricks based on current criteria
+    function updateSearchTricks() {
             const minProps = parseInt(document.getElementById('min-props-input').value);
             const maxProps = parseInt(document.getElementById('max-props-input').value);
             const minDifficulty = parseInt(document.getElementById('min-difficulty-input').value);
             const maxDifficulty = parseInt(document.getElementById('max-difficulty-input').value);
-        const excludedTags = Array.from(document.querySelectorAll('input[name="exclude_tags"]:checked')).map(cb => cb.value);
-
-            console.log('Filtering criteria:', {
-                minProps,
-                maxProps,
-                minDifficulty,
-                maxDifficulty,
-                excludedTags,
-                totalTricks: allTricks.length
-            });
+            const excludedTags = Array.from(document.querySelectorAll('input[name="exclude_tags"]:checked')).map(cb => cb.value);
 
             // Filter tricks based on criteria
-            const filteredTricks = allTricks.filter(trick => {
-                const propsInRange = trick.props_count >= minProps && trick.props_count <= maxProps;
-                const difficultyInRange = trick.difficulty >= minDifficulty && trick.difficulty <= maxDifficulty;
-                const hasExcludedTag = excludedTags.length > 0 && trick.tags.some(tag => excludedTags.includes(tag));
-                return propsInRange && difficultyInRange && !hasExcludedTag;
-        });
+            const filteredTricks = filterTricks(allTricks, minProps, maxProps, minDifficulty, maxDifficulty, excludedTags);
 
         // Group filtered tricks by props count
-        const groupedTricks = {};
-        filteredTricks.forEach(trick => {
-            if (!groupedTricks[trick.props_count]) {
-                groupedTricks[trick.props_count] = [];
-            }
-            groupedTricks[trick.props_count].push(trick);
-        });
+        const groupedTricks = groupTricksByPropsCount(filteredTricks);
 
         // Update the tricks display
-            const tricksGrid = document.getElementById('all_tricks');
+        const tricksGrid = document.getElementById('all_tricks');
         tricksGrid.innerHTML = '';
 
         // Display tricks grouped by props count
@@ -407,7 +388,7 @@
         // Function to initialize other event listeners
         function initializeEventListeners() {
             document.querySelectorAll('input[name="exclude_tags"]').forEach(checkbox => {
-                checkbox.addEventListener('change', filterTricks);
+                checkbox.addEventListener('change', updateSearchTricks);
             });
 
             document.getElementById('route_name').addEventListener('input', function(e) {
@@ -658,7 +639,7 @@
                     propsRange.textContent = `Min: ${values[0]}, Max: ${values[1]}`;
                     propsMinInput.value = Math.round(values[0]);
                     propsMaxInput.value = Math.round(values[1]);
-                    filterTricks();
+                    updateSearchTricks();
                 });
             }
 
@@ -686,7 +667,7 @@
                     difficultyRange.textContent = `Min: ${values[0]}, Max: ${values[1]}`;
                     difficultyMinInput.value = Math.round(values[0]);
                     difficultyMaxInput.value = Math.round(values[1]);
-                    filterTricks();
+                    updateSearchTricks();
                 });
             }
         }
@@ -854,7 +835,7 @@
                 relatedCheckboxes.forEach(cb => {
                     cb.checked = this.checked;
                 });
-                filterTricks();
+                updateSearchTricks();
             });
         });
 
@@ -870,7 +851,7 @@
                 categoryCheckbox.checked = allChecked;
                 categoryCheckbox.indeterminate = someChecked && !allChecked;
                 
-                filterTricks();
+                updateSearchTricks();
             });
         });
     });
