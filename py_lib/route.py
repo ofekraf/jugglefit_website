@@ -25,7 +25,13 @@ class Route:
             'name': self.name,
             'prop': self.prop.value,
             'duration_seconds': self.duration_seconds,
-            'tricks': [trick.to_dict() for trick in self.tricks]
+            'tricks': [{
+                'name': trick.name,
+                'props_count': trick.props_count,
+                'difficulty': trick.difficulty,
+                'tags': [str(tag) for tag in trick.tags] if trick.tags else [],
+                'comment': trick.comment
+            } for trick in self.tricks]
         }
 
     @classmethod
@@ -55,4 +61,3 @@ class Route:
             return cls.from_dict(data)
         except Exception as e:
             raise ValueError(f"Failed to deserialize route: {str(e)}")
-

@@ -126,10 +126,10 @@
                                 </div>
                                 <div class="tag-category-content">
                         {% for tag in tag_options %}
-                                        {% if tag.value[1] == category %}
+                                        {% if tag_category_map[tag] == category %}
                             <div class="checkbox-container">
-                                                <input type="checkbox" id="tag-{{ tag.value[0] }}" name="exclude_tags" value="{{ tag.value[0] }}" class="tag-checkbox" data-category="{{ category.value }}">
-                                                <label for="tag-{{ tag.value[0] }}">{{ tag.value[0] }}</label>
+                                                <input type="checkbox" id="tag-{{ tag.value }}" name="exclude_tags" value="{{ tag.value }}" class="tag-checkbox" data-category="{{ category.value }}">
+                                                <label for="tag-{{ tag.value }}">{{ tag.value }}</label>
                                             </div>
                                         {% endif %}
                                     {% endfor %}
@@ -174,6 +174,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="{{ url_for('static', filename='js/tricks_utils.js') }}"></script>
+<script src="{{ url_for('static', filename='js/general.js') }}"></script>
 
 <!-- Pass Flask data to JavaScript -->
 <script>
@@ -222,31 +223,8 @@
         // Store all tricks for the current prop type
         let allTricks = [];
 
-        // Function to fetch all tricks for a prop type
-        async function fetchTricksForProp(propType) {
-            try {
-                const response = await fetch('/api/get_tricks', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        prop_type: propType,
-                    })
-                });
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                allTricks = await response.json();
-    updateSearchTricks();
-            } catch (error) {
-                console.error('Error fetching tricks:', error);
-                showToast('Error loading tricks. Please try again.');
-            }
-        }
-
-    // Function to filter tricks based on current criteria
-    function updateSearchTricks() {
+        // Function to update search tricks
+        function updateSearchTricks() {
             const minProps = parseInt(document.getElementById('min-props-input').value);
             const maxProps = parseInt(document.getElementById('max-props-input').value);
             const minDifficulty = parseInt(document.getElementById('min-difficulty-input').value);
@@ -256,30 +234,30 @@
             // Filter tricks based on criteria
             const filteredTricks = filterTricks(allTricks, minProps, maxProps, minDifficulty, maxDifficulty, excludedTags);
 
-        // Group filtered tricks by props count
-        const groupedTricks = groupTricksByPropsCount(filteredTricks);
+            // Group filtered tricks by props count
+            const groupedTricks = groupTricksByPropsCount(filteredTricks);
 
-        // Update the tricks display
-        const tricksGrid = document.getElementById('all_tricks');
-        tricksGrid.innerHTML = '';
+            // Update the tricks display
+            const tricksGrid = document.getElementById('all_tricks');
+            tricksGrid.innerHTML = '';
 
-        // Display tricks grouped by props count
-        Object.keys(groupedTricks).sort((a, b) => parseInt(a) - parseInt(b)).forEach(count => {
-            const group = document.createElement('div');
-            group.className = 'props-group';
-            
-            const header = document.createElement('h3');
-            header.className = 'props-count-header';
-            header.textContent = `${count} Props`;
-            group.appendChild(header);
-            
-            const tricksList = document.createElement('div');
-            tricksList.className = 'tricks-list';
-            
+            // Display tricks grouped by props count
+            Object.keys(groupedTricks).sort((a, b) => parseInt(a) - parseInt(b)).forEach(count => {
+                const group = document.createElement('div');
+                group.className = 'props-group';
+                
+                const header = document.createElement('h3');
+                header.className = 'props-count-header';
+                header.textContent = `${count} Props`;
+                group.appendChild(header);
+                
+                const tricksList = document.createElement('div');
+                tricksList.className = 'tricks-list';
+                
                 // Sort tricks by name within each group
                 groupedTricks[count].sort((a, b) => a.name.localeCompare(b.name)).forEach(trick => {
-                const trickItem = document.createElement('div');
-                trickItem.className = 'trick-item';
+                    const trickItem = document.createElement('div');
+                    trickItem.className = 'trick-item';
                     
                     const trickName = document.createElement('div');
                     trickName.className = 'trick-name';
@@ -299,13 +277,13 @@
                     addButton.onclick = () => addTrickToRoute(trick);
                     trickItem.appendChild(addButton);
                     
-                tricksList.appendChild(trickItem);
+                    tricksList.appendChild(trickItem);
+                });
+                
+                group.appendChild(tricksList);
+                tricksGrid.appendChild(group);
             });
-            
-            group.appendChild(tricksList);
-            tricksGrid.appendChild(group);
-        });
-    }
+        }
 
         // Initialize route from query parameter if it exists
         if (initialRoute) {
@@ -337,7 +315,15 @@
                     propOption.classList.add('selected');
                 }
                 // Fetch tricks for the initial prop type
-                fetchTricksForProp(initialRoute.prop);
+                fetchTricks({ propType: initialRoute.prop })
+                    .then(tricks => {
+                        allTricks = tricks;
+                        updateSearchTricks();
+                    })
+                    .catch(error => {
+                        console.error('Error fetching tricks:', error);
+                        showToast('Error loading tricks. Please try again.');
+                    });
             }
             
             // Set tricks
@@ -360,7 +346,15 @@
                             currentRoute.tricks = [];
                             currentRoute.prop = input.value;
                             // Fetch tricks only when prop type changes
-                            fetchTricksForProp(input.value);
+                            fetchTricks({ propType: input.value })
+                                .then(tricks => {
+                                    allTricks = tricks;
+                                    updateSearchTricks();
+                                })
+                                .catch(error => {
+                                    console.error('Error fetching tricks:', error);
+                                    showToast('Error loading tricks. Please try again.');
+                                });
                         }
                         updateRouteDisplay();
                     } else {
@@ -856,65 +850,4 @@
         });
     });
 </script>
-
-<style>
-.tag-category {
-    border: 1px solid #ddd;
-    margin-bottom: 10px;
-    border-radius: 4px;
-    position: relative;
-}
-
-.tag-category-header {
-    padding: 10px;
-    background-color: #f5f5f5;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-}
-
-.tag-category-title {
-    margin: 0;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    flex-grow: 1;
-}
-
-.tag-category-content {
-    padding: 10px;
-    background-color: white;
-    max-height: 0;
-    overflow: hidden;
-    transition: all 0.3s ease-out;
-    position: absolute;
-    width: 100%;
-    z-index: 1;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    border-radius: 0 0 4px 4px;
-    opacity: 0;
-    visibility: hidden;
-}
-
-.tag-category:hover .tag-category-content {
-    max-height: 1000px;
-    opacity: 1;
-    visibility: visible;
-}
-
-.checkbox-container {
-    margin: 5px 0;
-    padding-left: 20px;
-}
-
-.category-checkbox {
-    margin-right: 8px;
-    cursor: pointer;
-}
-
-.tag-category-title {
-    cursor: pointer;
-}
-</style>
 {% endblock %}

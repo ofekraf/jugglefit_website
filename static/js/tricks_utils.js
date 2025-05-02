@@ -20,3 +20,40 @@ function groupTricksByPropsCount(tricks) {
     });
     return groupedTricks;
 }
+
+async function fetchTricks({
+    propType = null,
+    minProps = null,
+    maxProps = null,
+    minDifficulty = null,
+    maxDifficulty = null,
+    excludedTags = null
+} = {}) {
+    try {
+        // Create request body with only non-null values
+        const requestBody = {};
+        if (propType !== null) requestBody.prop_type = propType;
+        if (minProps !== null) requestBody.min_props = minProps;
+        if (maxProps !== null) requestBody.max_props = maxProps;
+        if (minDifficulty !== null) requestBody.min_difficulty = minDifficulty;
+        if (maxDifficulty !== null) requestBody.max_difficulty = maxDifficulty;
+        if (excludedTags !== null) requestBody.exclude_tags = excludedTags;
+
+        const response = await fetch('/api/fetch_tricks', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestBody)
+        });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        return await response.json();
+    } catch (error) {
+        console.error('Error fetching tricks:', error);
+        throw error;
+    }
+}
