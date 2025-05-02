@@ -96,7 +96,7 @@ BALLS_TRICKS = [
     Trick(name="cascade -> 97522 3up 360 -> cascade", props_count=5, difficulty=29, tags={Tag.Spin360, Tag.AsyncSiteswap}),
     Trick(name="cascade -> aa55500 5up 360 -> cascade", props_count=5, difficulty=47, tags={Tag.Spin360, Tag.AsyncSiteswap}),
     Trick(name="cascade -> b666600 5up 360 -> cascade", props_count=5, difficulty=38, tags={Tag.Spin360, Tag.AsyncSiteswap}),
-    Trick(name="cascade -> 8x78x78x 5up 360 -> (6x,4)*", props_count=5, difficulty=36, tags={Tag.Spin360, Tag.SyncSiteswap}),
+    Trick(name="cascade -> 5up 360 -> (6x,4)*", props_count=5, difficulty=36, tags={Tag.Spin360, Tag.SyncSiteswap}, comment="spin notation: 8x78x78x"),
     
     # base 720
     Trick(name="3up 720 -> cascade", props_count=5, difficulty=45, tags={Tag.Spin720}),
