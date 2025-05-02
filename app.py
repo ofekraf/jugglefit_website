@@ -2,8 +2,8 @@ from flask import Flask, render_template, request, jsonify, redirect, url_for, f
 from database.events.past_events import ALL_PAST_EVENTS, FRONT_PAGE_PAST_EVENTS
 from database.events.upcoming_events import UPCOMING_EVENTS
 from database.organization.affiliates import AFFILIATES
-from py_lib.prop import PROP_OPTIONS, Prop
-from py_lib.tag import TAG_OPTIONS, Tag
+from py_lib.prop import Prop
+from py_lib.tag import Tag, TagCategory
 from py_lib.route import Route
 from py_lib.consts import (
     MIN_TRICK_PROPS_COUNT, MAX_TRICK_PROPS_COUNT,
@@ -35,10 +35,10 @@ def get_tricks():
     try:
         data = request.get_json()
         prop_type = Prop.get_key_by_value(data.get('prop_type'))
-        min_props = int(data.get('min_props', DEFAULT_MIN_TRICK_PROPS_COUNT))
-        max_props = int(data.get('max_props', DEFAULT_MAX_TRICK_PROPS_COUNT))
-        min_difficulty = int(data.get('min_difficulty', DEFAULT_MIN_TRICK_DIFFICULTY))
-        max_difficulty = int(data.get('max_difficulty', DEFAULT_MAX_TRICK_DIFFICULTY))
+        min_props = int(data.get('min_props', MIN_TRICK_PROPS_COUNT))
+        max_props = int(data.get('max_props', MAX_TRICK_PROPS_COUNT))
+        min_difficulty = int(data.get('min_difficulty', MIN_TRICK_DIFFICULTY))
+        max_difficulty = int(data.get('max_difficulty', MAX_TRICK_DIFFICULTY))
         exclude_tags = data.get('exclude_tags', [])
         limit = int(data.get('limit', 0))
 
@@ -75,8 +75,9 @@ def generate_route():
     if request.method == 'GET':
         return render_template('generate_route.html', 
                              current_page='generate_route', 
-                             tag_options=TAG_OPTIONS, 
-                             prop_options=PROP_OPTIONS)
+                             tag_options=list(Tag),
+                             tag_categories=list(TagCategory),
+                             prop_options=list(Prop))
     
     route_name = request.form['route_name']
     prop = request.form['prop']
@@ -86,7 +87,7 @@ def generate_route():
     max_difficulty = int(request.form['max_difficulty'])
     route_length = int(request.form['route_length'])
     route_duration_seconds = int(request.form['route_duration']) * 60
-    exclude_tags = {Tag.get_key_by_value(key) for key in request.form.getlist('exclude_tags')}
+    exclude_tags = {Tag.get_key_by_value(tag) for tag in request.form.getlist('exclude_tags') if Tag.get_key_by_value(tag) is not None}
     
     try:
         route = RouteGenerator.generate(
@@ -121,11 +122,11 @@ def build_route():
                 'prop': route.prop.value,
                 'duration_seconds': route.duration_seconds,
                 'tricks': [{
-                    'name': trick.name,
-                    'props_count': trick.props_count,
-                    'difficulty': trick.difficulty,
+            'name': trick.name,
+            'props_count': trick.props_count,
+            'difficulty': trick.difficulty,
                     'tags': [tag.value for tag in trick.tags] if trick.tags else None,
-                    'comment': trick.comment
+            'comment': trick.comment
                 } for trick in route.tricks]
             }
         except Exception as e:
@@ -133,8 +134,9 @@ def build_route():
             return redirect(url_for('build_route'))
 
     return render_template('build_route.html',
-                         prop_options=PROP_OPTIONS,
-                         tag_options=TAG_OPTIONS,
+                         prop_options=list(Prop),
+                         tag_options=list(Tag),
+                         tag_categories=list(TagCategory),
                          initial_route=initial_route,
                          MIN_TRICK_PROPS_COUNT=MIN_TRICK_PROPS_COUNT,
                          MAX_TRICK_PROPS_COUNT=MAX_TRICK_PROPS_COUNT,
