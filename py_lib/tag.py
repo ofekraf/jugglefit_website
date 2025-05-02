@@ -19,52 +19,89 @@ class TagCategory(ReverseLookupEnum):
 
 class Tag(ReverseLookupEnum):
     # Spin
-    Spin180 = "180 spin", TagCategory.Spin
-    Spin360 = "360 spin", TagCategory.Spin
-    Spin720 = "720 spin", TagCategory.Spin
-    Spin1080 = "1080 spin", TagCategory.Spin
-    Spin1440 = "1440 spin", TagCategory.Spin
-    MultiStage = "multi stage", TagCategory.Spin
+    Spin180 = "180 spin"
+    Spin360 = "360 spin"
+    Spin720 = "720 spin"
+    Spin1080 = "1080 spin"
+    Spin1440 = "1440 spin"
+    MultiStage = "multi stage"
     
     # Base Pattern
-    BasePattern = "base pattern", TagCategory.BasePattern
-    SyncBasePattern = "sync base pattern", TagCategory.BasePattern
-    AsyncBasePattern = "async base pattern", TagCategory.BasePattern
+    BasePattern = "base pattern"
+    SyncBasePattern = "sync base pattern"
+    AsyncBasePattern = "async base pattern"
     
     # Body Throws
-    Backcrosses = "backcrosses", TagCategory.BodyThrows
-    Shoulders = "shoulders", TagCategory.BodyThrows
-    Overheads = "overheads", TagCategory.BodyThrows
-    Necks = "necks", TagCategory.BodyThrows
-    UnderLegs = "under legs", TagCategory.BodyThrows
-    SpecialBodyThrows = "special body throws", TagCategory.BodyThrows
-    Lazies = "lazies", TagCategory.BodyThrows
-    ReverseShoulders = "reverse shoulders", TagCategory.BodyThrows
+    Backcrosses = "backcrosses"
+    Shoulders = "shoulders"
+    Overheads = "overheads"
+    Necks = "necks"
+    UnderLegs = "under legs"
+    SpecialBodyThrows = "special body throws"
+    Lazies = "lazies"
+    ReverseShoulders = "reverse shoulders"
 
     # Spin Control
-    Flats = "flats", TagCategory.SpinControl
-    SpinControl = "spin control", TagCategory.SpinControl
-    FlatFront = "flat front", TagCategory.SpinControl
+    Flats = "flats"
+    SpinControl = "spin control"
+    FlatFront = "flat front"
 
     # Siteswap
-    SyncSiteswap = "sync siteswap", TagCategory.Siteswap
-    AsyncSiteswap = "async siteswap", TagCategory.Siteswap
+    SyncSiteswap = "sync siteswap"
+    AsyncSiteswap = "async siteswap"
     
     # Isolation
-    Isolated = "isolated", TagCategory.Isolation
-    OnTheKnees = "on the knees", TagCategory.Isolation
-    Sitting = "sitting", TagCategory.Isolation
-    OnTheBack = "on the back", TagCategory.Isolation
-    
-    @classmethod
-    def _reverse_lookup(cls):
-        # Creates a dictionary for reverse lookup (value -> name)
-        return {item.value[0]: item for item in cls}
+    Isolated = "isolated"
+    OnTheKnees = "on the knees"
+    Sitting = "sitting"
+    OnTheBack = "on the back"
 
     def __lt__(self, other):
         """Make Tag sortable by comparing their values."""
-        return self.value[0] < other.value[0]
+        return self.value < other.value
 
     def __str__(self) -> str:
         """Make the tag JSON serializable by returning its value."""
-        return self.value[0]
+        return self.value
+    
+
+TAG_CATEGORY_MAP = {
+    # Spin
+    Tag.Spin180: TagCategory.Spin,
+    Tag.Spin360: TagCategory.Spin,
+    Tag.Spin720: TagCategory.Spin,
+    Tag.Spin1080: TagCategory.Spin,
+    Tag.Spin1440: TagCategory.Spin,
+    Tag.MultiStage: TagCategory.Spin,
+    
+    # Base Pattern
+    Tag.BasePattern: TagCategory.BasePattern,
+    Tag.SyncBasePattern: TagCategory.BasePattern,
+    Tag.AsyncBasePattern: TagCategory.BasePattern,
+    
+    # Body Throws
+    Tag.Backcrosses: TagCategory.BodyThrows,
+    Tag.Shoulders: TagCategory.BodyThrows,
+    Tag.Overheads: TagCategory.BodyThrows,
+    Tag.Necks: TagCategory.BodyThrows,
+    Tag.UnderLegs: TagCategory.BodyThrows,
+    Tag.SpecialBodyThrows: TagCategory.BodyThrows,
+    Tag.Lazies: TagCategory.BodyThrows,
+    Tag.ReverseShoulders: TagCategory.BodyThrows,
+
+    # Spin Control
+    Tag.Flats: TagCategory.SpinControl,
+    Tag.SpinControl: TagCategory.SpinControl,
+    Tag.FlatFront: TagCategory.SpinControl,
+
+    # Siteswap
+    Tag.SyncSiteswap: TagCategory.Siteswap,
+    Tag.AsyncSiteswap: TagCategory.Siteswap,
+    
+    # Isolation
+    Tag.Isolated: TagCategory.Isolation,
+    Tag.OnTheKnees: TagCategory.Isolation,
+    Tag.Sitting: TagCategory.Isolation,
+    Tag.OnTheBack: TagCategory.Isolation,
+    
+}

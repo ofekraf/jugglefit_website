@@ -3,7 +3,7 @@ from database.events.past_events import ALL_PAST_EVENTS, FRONT_PAGE_PAST_EVENTS
 from database.events.upcoming_events import UPCOMING_EVENTS
 from database.organization.affiliates import AFFILIATES
 from py_lib.prop import Prop
-from py_lib.tag import Tag, TagCategory
+from py_lib.tag import TAG_CATEGORY_MAP, Tag, TagCategory
 from py_lib.route import Route
 from py_lib.consts import (
     MIN_TRICK_PROPS_COUNT, MAX_TRICK_PROPS_COUNT,
@@ -30,8 +30,8 @@ def serialize_route():
     except Exception as e:
         return str(e), 400
 
-@api.route('/get_tricks', methods=['POST'])
-def get_tricks():
+@api.route('/fetch_tricks', methods=['POST'])
+def fetch_tricks():
     try:
         data = request.get_json()
         prop_type = Prop.get_key_by_value(data.get('prop_type'))
@@ -77,6 +77,7 @@ def generate_route():
                              current_page='generate_route', 
                              tag_options=list(Tag),
                              tag_categories=list(TagCategory),
+                             tag_category_map=TAG_CATEGORY_MAP,
                              prop_options=list(Prop))
     
     route_name = request.form['route_name']
@@ -117,18 +118,7 @@ def build_route():
     if route_param:
         try:
             route = Route.deserialize(route_param)
-            initial_route = {
-                'name': route.name,
-                'prop': route.prop.value,
-                'duration_seconds': route.duration_seconds,
-                'tricks': [{
-            'name': trick.name,
-            'props_count': trick.props_count,
-            'difficulty': trick.difficulty,
-                    'tags': [tag.value for tag in trick.tags] if trick.tags else None,
-            'comment': trick.comment
-                } for trick in route.tricks]
-            }
+            initial_route = route.to_dict()  # Convert to dict before passing to template
         except Exception as e:
             flash(f'Error loading route: {str(e)}', 'error')
             return redirect(url_for('build_route'))
@@ -137,6 +127,7 @@ def build_route():
                          prop_options=list(Prop),
                          tag_options=list(Tag),
                          tag_categories=list(TagCategory),
+                         tag_category_map=TAG_CATEGORY_MAP,
                          initial_route=initial_route,
                          MIN_TRICK_PROPS_COUNT=MIN_TRICK_PROPS_COUNT,
                          MAX_TRICK_PROPS_COUNT=MAX_TRICK_PROPS_COUNT,

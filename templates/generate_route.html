@@ -89,10 +89,10 @@
                                 </div>
                                 <div class="tag-category-content">
                                     {% for tag in tag_options %}
-                                        {% if tag.value[1] == category %}
+                                        {% if tag_category_map[tag] == category %}
                                             <div class="checkbox-container">
-                                                <input type="checkbox" id="tag-{{ tag.value[0] }}" name="exclude_tags" value="{{ tag.value[0] }}" class="tag-checkbox" data-category="{{ category.value }}">
-                                                <label for="tag-{{ tag.value[0] }}">{{ tag.value[0] }}</label>
+                                                <input type="checkbox" id="tag-{{ tag.value }}" name="exclude_tags" value="{{ tag.value }}" class="tag-checkbox" data-category="{{ category.value }}">
+                                                <label for="tag-{{ tag.value }}">{{ tag.value }}</label>
                                             </div>
                                         {% endif %}
                                     {% endfor %}
