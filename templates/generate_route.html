@@ -117,7 +117,7 @@
 <!-- Include noUISlider CSS and JS -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.js"></script>
-
+<script src="{{ url_for('static', filename='js/tricks_utils.js') }}"></script>
 <script>
     // Initialize the props slider (range 3 to 9)
     const propsSlider = document.getElementById('props-slider');
@@ -162,11 +162,73 @@
         }
     });
 
+    // Store all tricks for the current prop type
+    let allTricks = [];
+
+    // Function to show trick tooltip
+    function showTrickTooltip(event, difficulty) {
+        const minProps = parseInt(document.getElementById('min-props-input').value);
+        const maxProps = parseInt(document.getElementById('max-props-input').value);
+        const excludedTags = Array.from(document.querySelectorAll('input[name="exclude_tags"]:checked')).map(cb => cb.value);
+
+        const trick = getRandomTrickForDifficulty(allTricks, difficulty, minProps, maxProps, excludedTags);
+        if (!trick) return;
+
+        // Remove any existing tooltip
+        const existingTooltip = document.querySelector('.trick-tooltip');
+        if (existingTooltip) {
+            existingTooltip.remove();
+        }
+
+        const tooltip = document.createElement('div');
+        tooltip.className = 'trick-tooltip';
+        current_prop = document.querySelector('.prop-option-input:checked').value;
+        tooltip.textContent = `${trick.props_count} ${current_prop}: ${trick.name}`;
+        if (trick.comment) {
+            tooltip.textContent += ` [${trick.comment}]`;
+        }
+        
+        // Position the tooltip near the cursor
+        tooltip.style.left = `${event.clientX + 10}px`;
+        tooltip.style.top = `${event.clientY + 10}px`;
+        
+        document.body.appendChild(tooltip);
+    }
+
     // Update the difficulty range display
     difficultySlider.noUiSlider.on('update', function(values) {
         difficultyRange.textContent = `Min: ${values[0]}, Max: ${values[1]}`;
         difficultyMinInput.value = Math.round(values[0]);
         difficultyMaxInput.value = Math.round(values[1]);
+    });
+
+    // Add hover functionality only to the touch area
+    difficultySlider.querySelectorAll('.noUi-touch-area').forEach((element, index) => {
+        element.addEventListener('mouseenter', (event) => {
+            // Get the current value of the slider at this position
+            const currentValue = parseInt(difficultySlider.noUiSlider.get()[index]);
+            showTrickTooltip(event, currentValue);
+        });
+
+        element.addEventListener('mouseleave', () => {
+            const tooltip = document.querySelector('.trick-tooltip');
+            if (tooltip) {
+                tooltip.remove();
+            }
+        });
+    });
+
+    // Update tooltip when slider value changes
+    difficultySlider.noUiSlider.on('change', function(values) {
+        const touchAreas = difficultySlider.querySelectorAll('.noUi-touch-area');
+        touchAreas.forEach((area, index) => {
+            const isHovered = area.matches(':hover');
+            if (isHovered) {
+                const currentValue = parseInt(values[index]);
+                const event = { clientX: area.getBoundingClientRect().left, clientY: area.getBoundingClientRect().top };
+                showTrickTooltip(event, currentValue);
+            }
+        });
     });
 
     // Update the value displayed next to the "Number of Tricks" slider
@@ -198,31 +260,32 @@
             const input = option.querySelector('.prop-option-input');
             if (input.checked) {
                 option.classList.add('selected');
+                // Fetch tricks when prop type changes
+                fetchTricks({ propType: input.value })
+                    .then(tricks => {
+                        allTricks = tricks;
+                    })
+                    .catch(error => {
+                        console.error('Error fetching tricks:', error);
+                    });
             } else {
                 option.classList.remove('selected');
             }
         });
     }
 
-    // Set initial state
+    // Set initial state and fetch tricks for the initially selected prop
     updateSelectedState();
-
-    // Add click event listeners to all prop options
-    propOptions.forEach(option => {
-        option.addEventListener('click', function() {
-            // Uncheck all inputs
-            propInputs.forEach(input => input.checked = false);
-            // Check the clicked input
-            const input = this.querySelector('.prop-option-input');
-            input.checked = true;
-            updateSelectedState();
-        });
-    });
-
-    // Add change event listeners to all radio inputs
-    propInputs.forEach(input => {
-        input.addEventListener('change', updateSelectedState);
-    });
+    const initialProp = document.querySelector('.prop-option-input:checked');
+    if (initialProp) {
+        fetchTricks({ propType: initialProp.value })
+            .then(tricks => {
+                allTricks = tricks;
+            })
+            .catch(error => {
+                console.error('Error fetching tricks:', error);
+            });
+    }
 
     document.addEventListener('DOMContentLoaded', function() {
         // Tag category functionality

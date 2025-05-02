@@ -57,3 +57,13 @@ async function fetchTricks({
         throw error;
     }
 }
+
+function fetchRandomTrickForDifficulty(difficulty) {
+    const tricks = fetchTricks({ minDifficulty: difficulty, maxDifficulty: difficulty });
+    return tricks[Math.floor(Math.random() * tricks.length)];
+}
+
+function getRandomTrickForDifficulty(tricks, difficulty, minProps, maxProps, excludedTags) {
+    const filteredTricks = filterTricks(tricks, minProps, maxProps, difficulty, difficulty, excludedTags);
+    return filteredTricks[Math.floor(Math.random() * filteredTricks.length)];
+}

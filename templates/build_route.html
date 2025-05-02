@@ -229,35 +229,35 @@
             const maxProps = parseInt(document.getElementById('max-props-input').value);
             const minDifficulty = parseInt(document.getElementById('min-difficulty-input').value);
             const maxDifficulty = parseInt(document.getElementById('max-difficulty-input').value);
-            const excludedTags = Array.from(document.querySelectorAll('input[name="exclude_tags"]:checked')).map(cb => cb.value);
+        const excludedTags = Array.from(document.querySelectorAll('input[name="exclude_tags"]:checked')).map(cb => cb.value);
 
             // Filter tricks based on criteria
             const filteredTricks = filterTricks(allTricks, minProps, maxProps, minDifficulty, maxDifficulty, excludedTags);
 
-            // Group filtered tricks by props count
+        // Group filtered tricks by props count
             const groupedTricks = groupTricksByPropsCount(filteredTricks);
 
-            // Update the tricks display
+        // Update the tricks display
             const tricksGrid = document.getElementById('all_tricks');
-            tricksGrid.innerHTML = '';
+        tricksGrid.innerHTML = '';
 
-            // Display tricks grouped by props count
-            Object.keys(groupedTricks).sort((a, b) => parseInt(a) - parseInt(b)).forEach(count => {
-                const group = document.createElement('div');
-                group.className = 'props-group';
-                
-                const header = document.createElement('h3');
-                header.className = 'props-count-header';
-                header.textContent = `${count} Props`;
-                group.appendChild(header);
-                
-                const tricksList = document.createElement('div');
-                tricksList.className = 'tricks-list';
-                
+        // Display tricks grouped by props count
+        Object.keys(groupedTricks).sort((a, b) => parseInt(a) - parseInt(b)).forEach(count => {
+            const group = document.createElement('div');
+            group.className = 'props-group';
+            
+            const header = document.createElement('h3');
+            header.className = 'props-count-header';
+            header.textContent = `${count} Props`;
+            group.appendChild(header);
+            
+            const tricksList = document.createElement('div');
+            tricksList.className = 'tricks-list';
+            
                 // Sort tricks by name within each group
                 groupedTricks[count].sort((a, b) => a.name.localeCompare(b.name)).forEach(trick => {
-                    const trickItem = document.createElement('div');
-                    trickItem.className = 'trick-item';
+                const trickItem = document.createElement('div');
+                trickItem.className = 'trick-item';
                     
                     const trickName = document.createElement('div');
                     trickName.className = 'trick-name';
@@ -277,13 +277,13 @@
                     addButton.onclick = () => addTrickToRoute(trick);
                     trickItem.appendChild(addButton);
                     
-                    tricksList.appendChild(trickItem);
-                });
-                
-                group.appendChild(tricksList);
-                tricksGrid.appendChild(group);
+                tricksList.appendChild(trickItem);
             });
-        }
+            
+            group.appendChild(tricksList);
+            tricksGrid.appendChild(group);
+        });
+    }
 
         // Initialize route from query parameter if it exists
         if (initialRoute) {
