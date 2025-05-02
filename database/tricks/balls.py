@@ -55,7 +55,7 @@ BALLS_TRICKS = [
     Trick(name="3up 720 -> cascade", props_count=3, difficulty=32, tags={Tag.Spin720}),
     
     # multi-stage
-    Trick(name="9440022 3up 2-stage -> cascade", props_count=3, difficulty=29, tags={Tag.MultiStage, Tag.AsyncSiteswap}),
+    Trick(name="9440022 3up 2-stage -> cascade", props_count=3, difficulty=29, tags={Tag.MultiStage}),
     
     # connections
     Trick(name="441 -> 66300 3up 360 -> 441", props_count=3, difficulty=21, tags={Tag.Spin360, Tag.AsyncSiteswap}),

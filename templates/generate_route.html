@@ -118,10 +118,6 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.js"></script>
 
-<script src="{{ url_for('static', filename='js/filter_tricks.js') }}"></script>
-
-<div id="toast" class="toast"></div>
-
 <script>
     // Initialize the props slider (range 3 to 9)
     const propsSlider = document.getElementById('props-slider');
@@ -268,75 +264,6 @@
                 categoryCheckbox.checked = allChecked;
                 categoryCheckbox.indeterminate = someChecked && !allChecked;                
             });
-        });
-    });
-
-    let allTricks = [];
-
-    // Fetch all tricks when the page loads
-    document.addEventListener('DOMContentLoaded', async () => {
-        const propType = document.querySelector('input[name="prop"]:checked').value;
-        try {
-            const response = await fetch('/api/get_tricks', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    prop_type: propType,
-                    min_props: 1,
-                    max_props: 10,
-                    min_difficulty: 1,
-                    max_difficulty: 10
-                })
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            allTricks = await response.json();
-            filterTricks();
-        } catch (error) {
-            console.error('Error fetching tricks:', error);
-        }
-    });
-
-    // Add event listeners for filtering
-    document.getElementById('min-props-input').addEventListener('input', filterTricks);
-    document.getElementById('max-props-input').addEventListener('input', filterTricks);
-    document.getElementById('min-difficulty-input').addEventListener('input', filterTricks);
-    document.getElementById('max-difficulty-input').addEventListener('input', filterTricks);
-    document.querySelectorAll('input[name="exclude_tags"]').forEach(checkbox => {
-        checkbox.addEventListener('change', filterTricks);
-    });
-    document.querySelectorAll('input[name="prop"]').forEach(radio => {
-        radio.addEventListener('change', async () => {
-            const propType = radio.value;
-            try {
-                const response = await fetch('/api/get_tricks', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        prop_type: propType,
-                        min_props: 1,
-                        max_props: 10,
-                        min_difficulty: 1,
-                        max_difficulty: 10
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                allTricks = await response.json();
-                filterTricks();
-            } catch (error) {
-                console.error('Error fetching tricks:', error);
-            }
         });
     });
 </script>

@@ -35,7 +35,7 @@ CLUBS_TRICKS = [
     Trick(name="cascade -> 1up 720 -> flats", props_count=3, difficulty=28, tags={Tag.Spin720}),
     
     # multi-stage
-    Trick(name="9440022 3up 2-stage -> cascade", props_count=3, difficulty=34, tags={Tag.MultiStage, Tag.AsyncSiteswap}),
+    Trick(name="9440022 3up 2-stage -> cascade", props_count=3, difficulty=34, tags={Tag.MultiStage}),
     
     # connections
     Trick(name="backrosses -> 3up 360 in backrosses -> backrosses", props_count=3, difficulty=42, tags={Tag.Spin360, Tag.Backcrosses}),
