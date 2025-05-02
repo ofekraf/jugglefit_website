@@ -8,6 +8,7 @@ from py_lib.consts import (
     MIN_TRICK_DIFFICULTY, MAX_TRICK_DIFFICULTY
 )
 from database.tricks import PROP_TO_TRICKS
+from py_lib.utils.general import has_intersection
 
 def filter_tricks(
     prop: Prop,
@@ -29,7 +30,7 @@ def filter_tricks(
         trick for trick in tricks
         if (min_props <= trick.props_count <= max_props and
             min_difficulty <= trick.difficulty <= max_difficulty and
-            not any(tag in exclude_tags for tag in trick.tags))
+            not has_intersection(trick.tags, exclude_tags))
     ]
     
     if limit is not None and limit > 0:

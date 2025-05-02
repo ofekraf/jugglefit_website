@@ -21,5 +21,3 @@ class Prop(ReverseLookupEnum):
     def __str__(self) -> str:
         """Make the prop JSON serializable by returning its value."""
         return self.value
-
-PROP_OPTIONS = [p.value for p in Prop] 
