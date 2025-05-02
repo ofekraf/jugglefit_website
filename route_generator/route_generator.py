@@ -33,7 +33,8 @@ class RouteGenerator:
             max_props=max_props,
             min_difficulty=min_difficulty,
             max_difficulty=max_difficulty,
-            exclude_tags=exclude_tags
+            exclude_tags=exclude_tags,
+            limit=route_length
         )
 
         if len(relevant_tricks) < route_length:
