@@ -47,51 +47,6 @@
         });
     });
 
-    // Make timer draggable
-    const timerContainer = document.getElementById('timer-container');
-    let isDragging = false;
-    let currentX;
-    let currentY;
-    let initialX;
-    let initialY;
-    let xOffset;
-    let yOffset;
-
-    timerContainer.addEventListener('mousedown', dragStart);
-    document.addEventListener('mousemove', drag);
-    document.addEventListener('mouseup', dragEnd);
-
-    function dragStart(e) {
-        if (e.target.classList.contains('drag-handle') || e.target.closest('.timer-header')) {
-            initialX = e.clientX;
-            initialY = e.clientY;
-            isDragging = true;
-        }
-    }
-
-    function drag(e) {
-        if (isDragging) {
-            e.preventDefault();
-            currentX = e.clientX - initialX;
-            currentY = e.clientY - initialY;
-            
-            xOffset = currentX;
-            yOffset = currentY;
-            
-            setTranslate(currentX, currentY, timerContainer);
-        }
-    }
-
-    function dragEnd(e) {
-        initialX = currentX;
-        initialY = currentY;
-        isDragging = false;
-    }
-
-    function setTranslate(xPos, yPos, el) {
-        el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0)`;
-    }
-
     function updateTimer() {
         const minutes = Math.floor(timeLeft / 60);
         const seconds = timeLeft % 60;

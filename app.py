@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, Blueprint
 from database.events.past_events import ALL_PAST_EVENTS, FRONT_PAGE_PAST_EVENTS
 from database.events.upcoming_events import UPCOMING_EVENTS
-from database.organization.affiliates import AFFILIATES
+from database.organization.team import TEAM
 from py_lib.prop import Prop
 from py_lib.tag import TAG_CATEGORY_MAP, Tag, TagCategory
 from py_lib.route import Route
@@ -109,7 +109,7 @@ def generate_route():
 
 @app.route('/host_event', methods=['GET'])
 def host_event():
-    return render_template('host_event.html', affiliates=AFFILIATES)
+    return render_template('host_event.html', team=TEAM)
 
 @app.route('/build_route')
 def build_route():
@@ -122,8 +122,8 @@ def build_route():
         except Exception as e:
             flash(f'Error loading route: {str(e)}', 'error')
             return redirect(url_for('build_route'))
-
-    return render_template('build_route.html',
+    
+    return render_template('build_route.html', 
                          prop_options=list(Prop),
                          tag_options=list(Tag),
                          tag_categories=list(TagCategory),

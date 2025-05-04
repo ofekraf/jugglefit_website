@@ -33,17 +33,6 @@
                     <li>Community building</li>
                 </ul>
             </div>
-
-            <div class="feature">
-                <h3>Team Building</h3>
-                <p>Perfect for corporate events and team building activities.</p>
-                <ul class="feature-list">
-                    <li>Collaborative exercises</li>
-                    <li>Communication skills</li>
-                    <li>Stress relief</li>
-                    <li>Fun atmosphere</li>
-                </ul>
-            </div>
         </div>
 
         <!-- Hosting Process -->
@@ -56,34 +45,30 @@
                         <p>Get in touch with our team to discuss your event requirements and schedule.</p>
                     </div>
                     <div class="rule-card">
-                        <h3>2. Planning</h3>
-                        <p>We'll help you plan every detail, from venue selection to participant registration.</p>
+                        <h3>2. Support</h3>
+                        <p>A member of the team will host and run the event.</p>
                     </div>
                     <div class="rule-card">
-                        <h3>3. Equipment</h3>
-                        <p>We provide all necessary equipment and materials for your event.</p>
-                    </div>
-                    <div class="rule-card">
-                        <h3>4. Support</h3>
-                        <p>Our experienced instructors will guide you through the entire process.</p>
+                        <h3>3. Requirements</h3>
+                        <p>We provide the equipment and prizes, you provide the jugglers!</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Affiliates Carousel -->
+        <!-- Team Carousel -->
         <div class="section">
             <div class="section-container">
-                <h2 class="section-title">Our Affiliates</h2>
+                <h2 class="section-title">Our Team</h2>
                 <div class="events-carousel">
                     <div class="carousel-inner">
-                        {% for affiliate in affiliates %}
+                        {% for member in team %}
                         <div class="event-card {% if loop.first %}active{% endif %}">
                             <div class="event-content">
-                                <img src="{{ affiliate.image_url }}" alt="{{ affiliate.name }}" class="event-image">
-                                <h3>{{ affiliate.name }}</h3>
+                                <img src="{{ member.image_url }}" alt="{{ member.name }}" class="event-image">
+                                <h3>{{ member.name }}</h3>
                                 <div class="event-details">
-                                    <p><i class="fas fa-map-marker-alt"></i> {{ affiliate.residence }}</p>
+                                    <p><i class="fas fa-map-marker-alt"></i> {{ member.residence }}</p>
                                 </div>
                             </div>
                         </div>
