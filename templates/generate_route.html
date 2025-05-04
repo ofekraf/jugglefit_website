@@ -170,7 +170,9 @@
         const minProps = parseInt(document.getElementById('min-props-input').value);
         const maxProps = parseInt(document.getElementById('max-props-input').value);
         const excludedTags = Array.from(document.querySelectorAll('input[name="exclude_tags"]:checked')).map(cb => cb.value);
+        const currentProp = document.querySelector('.prop-option-input:checked').value;
 
+        // Get a random trick for the current difficulty
         const trick = getRandomTrickForDifficulty(allTricks, difficulty, minProps, maxProps, excludedTags);
         if (!trick) return;
 
@@ -182,11 +184,7 @@
 
         const tooltip = document.createElement('div');
         tooltip.className = 'trick-tooltip';
-        current_prop = document.querySelector('.prop-option-input:checked').value;
-        tooltip.textContent = `${trick.props_count} ${current_prop}: ${trick.name}`;
-        if (trick.comment) {
-            tooltip.textContent += ` [${trick.comment}]`;
-        }
+        tooltip.textContent = `${trick.props_count} ${currentProp}: ${trick.name}`;
         
         // Position the tooltip near the cursor
         tooltip.style.left = `${event.clientX + 10}px`;
@@ -202,15 +200,14 @@
         difficultyMaxInput.value = Math.round(values[1]);
     });
 
-    // Add hover functionality only to the touch area
-    difficultySlider.querySelectorAll('.noUi-touch-area').forEach((element, index) => {
-        element.addEventListener('mouseenter', (event) => {
-            // Get the current value of the slider at this position
+    // Add hover functionality to the difficulty slider
+    difficultySlider.querySelectorAll('.noUi-handle').forEach((handle, index) => {
+        handle.addEventListener('mouseenter', (event) => {
             const currentValue = parseInt(difficultySlider.noUiSlider.get()[index]);
             showTrickTooltip(event, currentValue);
         });
 
-        element.addEventListener('mouseleave', () => {
+        handle.addEventListener('mouseleave', () => {
             const tooltip = document.querySelector('.trick-tooltip');
             if (tooltip) {
                 tooltip.remove();
@@ -218,14 +215,17 @@
         });
     });
 
-    // Update tooltip when slider value changes
-    difficultySlider.noUiSlider.on('change', function(values) {
-        const touchAreas = difficultySlider.querySelectorAll('.noUi-touch-area');
-        touchAreas.forEach((area, index) => {
-            const isHovered = area.matches(':hover');
+    // Update tooltip when slider value changes (including while dragging)
+    difficultySlider.noUiSlider.on('update', function(values) {
+        const handles = difficultySlider.querySelectorAll('.noUi-handle');
+        handles.forEach((handle, index) => {
+            const isHovered = handle.matches(':hover');
             if (isHovered) {
                 const currentValue = parseInt(values[index]);
-                const event = { clientX: area.getBoundingClientRect().left, clientY: area.getBoundingClientRect().top };
+                const event = { 
+                    clientX: handle.getBoundingClientRect().left, 
+                    clientY: handle.getBoundingClientRect().top 
+                };
                 showTrickTooltip(event, currentValue);
             }
         });
