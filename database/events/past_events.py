@@ -1,7 +1,7 @@
-from classes.event import CompetitorResult, PastEvent, RouteResult
-from classes.route import Route
-from route_generator.prop import Prop
-from route_generator.tricks.base_trick import Trick
+from py_lib.event import CompetitorResult, PastEvent, RouteResult
+from py_lib.route import Route
+from py_lib.prop import Prop
+from py_lib.trick import Trick
 from datetime import date
 
 # Keep ordered by date
@@ -74,7 +74,11 @@ FRONT_PAGE_PAST_EVENTS = [
             RouteResult(
                 name="Balls open",
                 prop=Prop.Balls,
-                competitors={1: CompetitorResult(name="Sise juggler", tricks_accomplished=5)},
+                competitors={
+                    1: CompetitorResult(name="Sise juggler", tricks_accomplished=5),
+                    2: CompetitorResult(name="Spencer Androli", tricks_accomplished=5),
+                    3: CompetitorResult(name="Luca Pferdmenges", tricks_accomplished=5)
+                },
                 tricks=[
                     Trick(name="8c 7531, under the leg 1's", props_count=4),
                     Trick(name="async fountain -> 4up 360 -> 2up 360 -> sync fountain", props_count=4),
@@ -91,7 +95,11 @@ FRONT_PAGE_PAST_EVENTS = [
             RouteResult(
                 name="Clubs open",
                 prop=Prop.Clubs,
-                competitors={1: CompetitorResult(name="Spencer Androli", seconds=205)},
+                competitors={
+                    1: CompetitorResult(name="Spencer Androli", seconds=205),
+                    2: CompetitorResult(name="Luca Pferdmenges", tricks_accomplished=7),
+                    3: CompetitorResult(name="Sise Juggler", tricks_accomplished=6)
+                },
                 tricks=[
                     Trick(name="18c reverse spin", props_count=3),
                     Trick(name="4c singles -> 4c doubles -> 4c triples -> 4c singles", props_count=4),
@@ -108,7 +116,11 @@ FRONT_PAGE_PAST_EVENTS = [
             RouteResult(
                 name="Balls U18",
                 prop=Prop.Balls,
-                competitors={1: CompetitorResult(name="Noam Fruchter", seconds=151)},
+                competitors={
+                    1: CompetitorResult(name="Noam Fruchter", seconds=151),
+                    2: CompetitorResult(name="Yuval Levi", seconds=344),
+                    3: CompetitorResult(name="Eshel Halachmi", seconds=402)
+                },
                 tricks=[
                     Trick(name="24c 531 on the knees", props_count=3),
                     Trick(name="5 X (1up 360) in a run", props_count=3),
@@ -125,7 +137,11 @@ FRONT_PAGE_PAST_EVENTS = [
             RouteResult(
                 name="Clubs U18",
                 prop=Prop.Clubs,
-                competitors={1: CompetitorResult(name="Eshel Halachmi", seconds=212)},
+                competitors={
+                    1: CompetitorResult(name="Eshel Halachmi", seconds=212),
+                    2: CompetitorResult(name="Noam Fruchter", seconds=298),
+                    3: CompetitorResult(name="Nami Segev", tricks_accomplished=5)
+                },
                 tricks=[
                     Trick(name="3c cascade -> 3c 531, single 5, single 3 -> cascade", props_count=3),
                     Trick(name="triples cascade", props_count=3),

@@ -1,42 +1,57 @@
-import random
-from typing import Dict, List, Set
-
-from classes.route import Route
-from database.tricks.balls import BALLS_TRICKS
-from database.tricks.clubs import CLUBS_TRICKS
-from database.tricks.rings import RINGS_TRICKS
-
-from .tricks.tags import Tag
-from .utils.general import has_intersection
-
+from typing import List, Set, Optional
+from py_lib.prop import Prop
+from py_lib.tag import Tag
+from py_lib.trick import Trick
+from py_lib.route import Route
+from py_lib.consts import (
+    MIN_TRICK_PROPS_COUNT, MAX_TRICK_PROPS_COUNT,
+    MIN_TRICK_DIFFICULTY, MAX_TRICK_DIFFICULTY
+)
+from py_lib.utils.filter_tricks import filter_tricks
 from .exceptions import NotEnoughTricksFoundException
-from .prop import Prop
 
-PROP_TO_TRICKS = {
-    Prop.Balls: BALLS_TRICKS, 
-    Prop.Clubs: CLUBS_TRICKS,
-    Prop.Rings: RINGS_TRICKS,
-}
+class RouteGenerator:
+    @staticmethod
+    def generate(
+        prop: Prop,
+        min_props: int = MIN_TRICK_PROPS_COUNT,
+        max_props: int = MAX_TRICK_PROPS_COUNT,
+        min_difficulty: int = MIN_TRICK_DIFFICULTY,
+        max_difficulty: int = MAX_TRICK_DIFFICULTY,
+        route_length: int = 5,
+        exclude_tags: Optional[Set[Tag]] = None,
+        name: str = '',
+        duration_seconds: int = 600
+    ) -> Route:
+        if exclude_tags is None:
+            exclude_tags = set()
 
-def generate_route(*, 
-    prop: Prop,
-    min_props: int,
-    max_props: int, 
-    min_difficulty: int,
-    max_difficulty: int,
-    route_length: int,
-    exclude_tags: Set[Tag],
-    name: str
-) -> Route:
-    relevant_tricks = [trick for trick in PROP_TO_TRICKS[prop] if 
-                       max_difficulty >= trick.difficulty >= min_difficulty and
-                       max_props >= trick.props_count >= min_props and
-                       not has_intersection(trick.tags, exclude_tags)]
-    
-    if len(relevant_tricks) < route_length:
-        raise NotEnoughTricksFoundException()
-    tricks = random.sample(relevant_tricks, route_length)
-    tricks.sort(key=lambda trick: (trick.props_count, trick.difficulty))
-    
-    return Route(name=name, prop=prop, tricks=tricks)
+        # Get filtered tricks
+        relevant_tricks = filter_tricks(
+            prop=prop,
+            min_props=min_props,
+            max_props=max_props,
+            min_difficulty=min_difficulty,
+            max_difficulty=max_difficulty,
+            exclude_tags=exclude_tags,
+            limit=route_length
+        )
+
+        if len(relevant_tricks) < route_length:
+            raise NotEnoughTricksFoundException(
+                f"Not enough tricks found matching the criteria. Found {len(relevant_tricks)} tricks, but need {route_length}."
+            )
+
+        # Select random sample and sort by difficulty
+        selected_tricks = sorted(
+            relevant_tricks[:route_length],
+            key=lambda t: t.difficulty
+        )
+
+        return Route(
+            name=name,
+            prop=prop,
+            tricks=selected_tricks,
+            duration_seconds=duration_seconds
+        )
     
