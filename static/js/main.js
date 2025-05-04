@@ -19,39 +19,73 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Slider setup with noUISlider for props
+    // Initialize the props slider
     const propsSlider = document.getElementById('props-slider');
-    const minPropsInput = document.getElementById('min_props');
-    const maxPropsInput = document.getElementById('max_props');
-    const propsRangeValue = document.getElementById('propsRangeValue');
-    const maxHeight = document.getElementById('max_height');
-    const maxHeightValue = document.getElementById('maxHeightValue');
+    if (propsSlider && !propsSlider.noUiSlider) {  // Check if slider exists and not already initialized
+        const propsRange = document.getElementById('props-range');
+        const propsMinInput = document.getElementById('min-props-input');
+        const propsMaxInput = document.getElementById('max-props-input');
 
-    if (propsSlider) {
         noUiSlider.create(propsSlider, {
             start: [3, 7],
             connect: true,
             range: {
-                'min': 3,
+                'min': 2,
                 'max': 9
             },
-            step: 1,
-            behaviour: 'drag-tap'
+            format: {
+                to: (value) => Math.round(value),
+                from: (value) => parseFloat(value)
+            }
         });
 
-        propsSlider.noUiSlider.on('update', function(values, handle) {
-            const min = Math.round(values[0]);
-            const max = Math.round(values[1]);
-            minPropsInput.value = min;
-            maxPropsInput.value = max;
-            propsRangeValue.textContent = `${min} - ${max}`;
+        // Add event listener for props slider updates
+        propsSlider.noUiSlider.on('update', function(values) {
+            propsRange.textContent = `Min: ${values[0]}, Max: ${values[1]}`;
+            propsMinInput.value = Math.round(values[0]);
+            propsMaxInput.value = Math.round(values[1]);
+            if (typeof filterTricks === 'function') {
+                filterTricks();
+            }
+        });
+    }
+
+    // Initialize the difficulty slider
+    const difficultySlider = document.getElementById('difficulty-slider');
+    if (difficultySlider && !difficultySlider.noUiSlider) {  // Check if slider exists and not already initialized
+        const difficultyRange = document.getElementById('difficulty-range');
+        const difficultyMinInput = document.getElementById('min-difficulty-input');
+        const difficultyMaxInput = document.getElementById('max-difficulty-input');
+
+        noUiSlider.create(difficultySlider, {
+            start: [20, 30],
+            connect: true,
+            range: {
+                'min': 0,
+                'max': 100
+            },
+            format: {
+                to: (value) => Math.round(value),
+                from: (value) => parseFloat(value)
+            }
+        });
+
+        // Add event listener for difficulty slider updates
+        difficultySlider.noUiSlider.on('update', function(values) {
+            difficultyRange.textContent = `Min: ${values[0]}, Max: ${values[1]}`;
+            difficultyMinInput.value = Math.round(values[0]);
+            difficultyMaxInput.value = Math.round(values[1]);
+            if (typeof filterTricks === 'function') {
+                filterTricks();
+            }
         });
     }
 
     const heightSlider = document.getElementById('height-slider');
-    const maxHeightInput = document.getElementById('max_height');
+    if (heightSlider && !heightSlider.noUiSlider) {  // Check if slider exists and not already initialized
+        const maxHeightInput = document.getElementById('max_height');
+        const maxHeightValue = document.getElementById('max-height-value');
 
-    if (heightSlider) {
         noUiSlider.create(heightSlider, {
             start: [3],
             range: {
@@ -65,7 +99,9 @@ document.addEventListener('DOMContentLoaded', function() {
         heightSlider.noUiSlider.on('update', function(values) {
             const value = Math.round(values[0]);
             maxHeightInput.value = value;
-            maxHeightValue.textContent = value;
+            if (maxHeightValue) {
+                maxHeightValue.textContent = value;
+            }
         });
     }
 
@@ -92,43 +128,6 @@ document.addEventListener('DOMContentLoaded', function() {
     excludeCheckboxes.forEach(checkbox => {
         checkbox.addEventListener('change', () => updateCheckboxState(checkbox, includeCheckboxes));
     });
-
-    // Stopwatch Functionality
-    const stopwatch = document.getElementById('stopwatch');
-    const stopwatchToggle = document.getElementById('stopwatch-toggle');
-    let time = 10 * 60; // 10 minutes in seconds
-    let timer = null;
-    let isPaused = true;
-
-    function updateStopwatch() {
-        if (!isPaused) {
-            time--;
-            if (time <= 0) {
-                clearInterval(timer);
-                stopwatch.textContent = '00:00';
-                isPaused = true;
-                stopwatchToggle.textContent = 'START';
-                return;
-            }
-            const minutes = Math.floor(time / 60);
-            const seconds = time % 60;
-            stopwatch.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        }
-    }
-
-    if (stopwatch && stopwatchToggle) {
-        stopwatchToggle.addEventListener('click', function() {
-            if (isPaused) {
-                timer = setInterval(updateStopwatch, 1000);
-                isPaused = false;
-                stopwatchToggle.textContent = 'STOP';
-            } else {
-                clearInterval(timer);
-                isPaused = true;
-                stopwatchToggle.textContent = 'START';
-            }
-        });
-    }
 
     // Toggle Route Visibility
     function toggle_route(container_id) {

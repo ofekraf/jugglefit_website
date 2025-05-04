@@ -1,115 +1,159 @@
 {% extends "utils/base.html" %}
-{% block title %}Generated Route{% endblock %}
+{% block title %}{% endblock %}
 {% block content %}
 <div class="route-page">
-    <div class="route-header">
-        <div class="route-description">
-            <p>Complete each trick in sequence. Use the stopwatch to track your time.</p>
-        </div>
-    </div>
-
     <div class="route-layout">
-        <div class="route-timer">
-            <div class="stopwatch-container">
-                <div id="stopwatch" class="stopwatch">10:00</div>
-                <button id="stopwatch-toggle" class="stopwatch-button">START</button>
-            </div>
-        </div>
         {% include "utils/route_display.html" %}
     </div>
 </div>
 
 <div class="route-actions">
-    <a href="{{ url_for('create_route') }}" class="secondary-button">Generate New Route</a>
-    <button class="primary-button print-button" onclick="window.print()">Print Route</button>
+    <div class="countdown-timer" id="timer-container">
+        <div class="timer-header">
+            <span>Timer</span>
+            <button class="drag-handle">≡</button>
+        </div>
+        <div id="countdown">Time remaining: <span id="timer"></span></div>
+        <div class="timer-controls">
+            <button id="startBtn" class="timer-btn">Start</button>
+            <button id="stopBtn" class="timer-btn" disabled>Stop</button>
+            <button id="resetBtn" class="timer-btn">Reset</button>
+        </div>
+    </div>
 </div>
 
 <script>
+    // Initialize countdown timer
+    let timeLeft = parseInt('{{ route.duration_seconds }}') || 600;
+    let timerInterval = null;
+    let isRunning = false;
+    const originalTime = timeLeft;
+
+    // Add checkboxes to all tricks
     document.addEventListener('DOMContentLoaded', function() {
-        // Stopwatch functionality
-        const stopwatch = document.getElementById('stopwatch');
-        const toggleButton = document.getElementById('stopwatch-toggle');
-        let timeLeft = 600; // 10 minutes in seconds
-        let timer = null;
-
-        function updateStopwatch() {
-            const minutes = Math.floor(timeLeft / 60);
-            const seconds = timeLeft % 60;
-            stopwatch.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-            
-            if (timeLeft <= 0) {
-                clearInterval(timer);
-                toggleButton.textContent = 'RESET';
-                stopwatch.style.color = 'var(--danger-color)';
-            }
-        }
-
-        toggleButton.addEventListener('click', function() {
-            if (timer) {
-                clearInterval(timer);
-                timer = null;
-                toggleButton.textContent = 'START';
-            } else if (timeLeft <= 0) {
-                timeLeft = 600;
-                updateStopwatch();
-                stopwatch.style.color = '';
-                toggleButton.textContent = 'START';
-            } else {
-                timer = setInterval(function() {
-                    timeLeft--;
-                    updateStopwatch();
-                }, 1000);
-                toggleButton.textContent = 'STOP';
-            }
+        const trickFrames = document.querySelectorAll('.prop-details-frame');
+        trickFrames.forEach(frame => {
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.className = 'trick-checkbox no-print';
+            checkbox.addEventListener('change', function() {
+                if (this.checked) {
+                    frame.classList.add('completed');
+                } else {
+                    frame.classList.remove('completed');
+                }
+            });
+            frame.querySelector('.trick-content').insertBefore(checkbox, frame.querySelector('.trick-content').firstChild);
         });
+    });
 
-        updateStopwatch();
+    function updateTimer() {
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        document.getElementById('timer').textContent = 
+            minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
+        
+        if (timeLeft > 0) {
+            timeLeft--;
+        } else {
+            stopTimer();
+            document.getElementById('countdown').textContent = "Time's up!";
+        }
+    }
 
-        // Draggable timer functionality
-        const timerElement = document.querySelector('.route-timer');
-        let isDragging = false;
-        let currentX;
-        let currentY;
-        let initialX;
-        let initialY;
-        let xOffset = 0;
-        let yOffset = 0;
+    function startTimer() {
+        if (!isRunning) {
+            isRunning = true;
+            timerInterval = setInterval(updateTimer, 1000);
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('stopBtn').disabled = false;
+        }
+    }
 
-        timerElement.addEventListener('mousedown', dragStart);
-        document.addEventListener('mousemove', drag);
-        document.addEventListener('mouseup', dragEnd);
+    function stopTimer() {
+        if (isRunning) {
+            isRunning = false;
+            clearInterval(timerInterval);
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('stopBtn').disabled = true;
+        }
+    }
 
-        function dragStart(e) {
+    function resetTimer() {
+        stopTimer();
+        timeLeft = originalTime;
+        document.getElementById('countdown').innerHTML = 'Time remaining: <span id="timer"></span>';
+        updateTimer();
+    }
+
+    // Add event listeners for buttons
+    document.getElementById('startBtn').addEventListener('click', startTimer);
+    document.getElementById('stopBtn').addEventListener('click', stopTimer);
+    document.getElementById('resetBtn').addEventListener('click', resetTimer);
+
+    // Initialize timer display immediately
+    updateTimer();
+
+    // Timer drag functionality
+    const timer = document.querySelector('.countdown-timer');
+    const timerHeader = timer.querySelector('.timer-header');
+    let isDragging = false;
+    let currentX;
+    let currentY;
+    let initialX;
+    let initialY;
+    let xOffset = 0;
+    let yOffset = 0;
+
+    function dragStart(e) {
+        if (e.type === "touchstart") {
+            initialX = e.touches[0].clientX - xOffset;
+            initialY = e.touches[0].clientY - yOffset;
+        } else {
             initialX = e.clientX - xOffset;
             initialY = e.clientY - yOffset;
-
-            if (e.target === timerElement || e.target.closest('.stopwatch-container')) {
-                isDragging = true;
-            }
         }
 
-        function drag(e) {
-            if (isDragging) {
-                e.preventDefault();
+        if (e.target === timer || e.target === timerHeader || e.target.closest('.timer-header')) {
+            isDragging = true;
+        }
+    }
+
+    function dragEnd(e) {
+        initialX = currentX;
+        initialY = currentY;
+        isDragging = false;
+    }
+
+    function drag(e) {
+        if (isDragging) {
+            e.preventDefault();
+
+            if (e.type === "touchmove") {
+                currentX = e.touches[0].clientX - initialX;
+                currentY = e.touches[0].clientY - initialY;
+            } else {
                 currentX = e.clientX - initialX;
                 currentY = e.clientY - initialY;
-
-                xOffset = currentX;
-                yOffset = currentY;
-
-                setTranslate(currentX, currentY, timerElement);
             }
-        }
 
-        function dragEnd() {
-            initialX = currentX;
-            initialY = currentY;
-            isDragging = false;
-        }
+            xOffset = currentX;
+            yOffset = currentY;
 
-        function setTranslate(xPos, yPos, el) {
-            el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0)`;
+            setTranslate(currentX, currentY, timer);
         }
-    });
+    }
+
+    function setTranslate(xPos, yPos, el) {
+        el.style.transform = `translate(${xPos}px, ${yPos}px)`;
+    }
+
+    timerHeader.addEventListener("touchstart", dragStart, false);
+    timerHeader.addEventListener("touchend", dragEnd, false);
+    timerHeader.addEventListener("touchmove", drag, false);
+
+    timerHeader.addEventListener("mousedown", dragStart, false);
+    timerHeader.addEventListener("mouseup", dragEnd, false);
+    timerHeader.addEventListener("mousemove", drag, false);
 </script>
 {% endblock %}

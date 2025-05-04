@@ -1,0 +1,2 @@
+class WinnerNotSetException(Exception):
+    pass
