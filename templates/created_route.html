@@ -93,5 +93,67 @@
 
     // Initialize timer display immediately
     updateTimer();
+
+    // Timer drag functionality
+    const timer = document.querySelector('.countdown-timer');
+    const timerHeader = timer.querySelector('.timer-header');
+    let isDragging = false;
+    let currentX;
+    let currentY;
+    let initialX;
+    let initialY;
+    let xOffset = 0;
+    let yOffset = 0;
+
+    function dragStart(e) {
+        if (e.type === "touchstart") {
+            initialX = e.touches[0].clientX - xOffset;
+            initialY = e.touches[0].clientY - yOffset;
+        } else {
+            initialX = e.clientX - xOffset;
+            initialY = e.clientY - yOffset;
+        }
+
+        if (e.target === timer || e.target === timerHeader || e.target.closest('.timer-header')) {
+            isDragging = true;
+        }
+    }
+
+    function dragEnd(e) {
+        initialX = currentX;
+        initialY = currentY;
+        isDragging = false;
+    }
+
+    function drag(e) {
+        if (isDragging) {
+            e.preventDefault();
+
+            if (e.type === "touchmove") {
+                currentX = e.touches[0].clientX - initialX;
+                currentY = e.touches[0].clientY - initialY;
+            } else {
+                currentX = e.clientX - initialX;
+                currentY = e.clientY - initialY;
+            }
+
+            xOffset = currentX;
+            yOffset = currentY;
+
+            setTranslate(currentX, currentY, timer);
+        }
+    }
+
+    function setTranslate(xPos, yPos, el) {
+        el.style.transform = `translate(${xPos}px, ${yPos}px)`;
+    }
+
+    timerHeader.addEventListener("touchstart", dragStart, false);
+    timerHeader.addEventListener("touchend", dragEnd, false);
+    timerHeader.addEventListener("touchmove", drag, false);
+
+    timerHeader.addEventListener("mousedown", dragStart, false);
+    timerHeader.addEventListener("mouseup", dragEnd, false);
+    timerHeader.addEventListener("mousemove", drag, false);
 </script>
 {% endblock %}

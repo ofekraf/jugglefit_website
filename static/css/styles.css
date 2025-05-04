@@ -613,6 +613,94 @@ body {
     margin-bottom: 1rem;
 }
 
+/* Print Styles */
+@media print {
+    body {
+        background-color: white;
+        color: black;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .main-header,
+    .main-footer,
+    .orientation-message,
+    .no-print,
+    .countdown-timer {
+        display: none !important;
+    }
+
+    .main-content {
+        padding: 0;
+        margin: 0;
+    }
+
+    .route-page {
+        width: 100%;
+        max-width: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .trick-item {
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    .prop-section {
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    /* Maintain colors in print */
+    .prop-color-bar[data-props="3"] {
+        background: #ff4733 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .prop-color-bar[data-props="4"] {
+        background: #c0f564 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .prop-color-bar[data-props="5"] {
+        background: #2601f6 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .prop-color-bar[data-props="6"] {
+        background: #ff8c00 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .prop-color-bar[data-props="7"] {
+        background: #f238a7 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .prop-color-bar[data-props="8"] {
+        background: #00ced1 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .prop-color-bar[data-props="9"] {
+        background: #8a2be2 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    @page {
+        size: portrait;
+        margin: 1cm;
+    }
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .main-header {
@@ -781,19 +869,19 @@ body {
         gap: 1rem;
     }
 
-    /* Show orientation message in portrait mode */
+    /* Show orientation message in portrait mode only for print page */
     @media (orientation: portrait) {
-        .orientation-message {
+        .print-page .orientation-message {
             display: flex;
         }
 
-        body {
+        .print-page body {
             overflow: hidden;
         }
 
-        .main-content,
-        .main-header,
-        .main-footer {
+        .print-page .main-content,
+        .print-page .main-header,
+        .print-page .main-footer {
             display: none;
         }
     }
@@ -1783,4 +1871,93 @@ body {
     z-index: 1000;
     pointer-events: none;
     white-space: nowrap;
+}
+
+/* Countdown Timer Styles */
+.countdown-timer {
+    position: fixed;
+    top: 90px;
+    right: 20px;
+    background-color: white;
+    color: var(--text-color);
+    padding: 0;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    box-shadow: 0 2px 4px var(--shadow-color);
+    cursor: move;
+    z-index: 2000;
+    user-select: none;
+    width: 200px;
+}
+
+.timer-header {
+    background-color: var(--danger-color);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 8px 8px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.timer-header .drag-handle {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: move;
+    padding: 0;
+}
+
+#countdown {
+    padding: 15px;
+    text-align: center;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.timer-controls {
+    padding: 10px;
+    display: flex;
+    justify-content: space-around;
+    gap: 5px;
+}
+
+.timer-btn {
+    padding: 5px 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background-color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.timer-btn:hover {
+    background-color: var(--section-bg);
+}
+
+.timer-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.countdown-timer.running .timer-header {
+    background-color: var(--success-color);
+}
+
+.countdown-timer.paused .timer-header {
+    background-color: var(--warning-color);
+}
+
+.countdown-timer.finished .timer-header {
+    background-color: var(--danger-color);
+}
+
+/* Responsive adjustments for timer */
+@media (max-width: 768px) {
+    .countdown-timer {
+        top: 80px;
+        right: 10px;
+        width: 180px;
+    }
 }
