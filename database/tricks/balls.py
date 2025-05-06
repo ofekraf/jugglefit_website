@@ -85,13 +85,13 @@ BALLS_TRICKS = [
     Trick(name="async fountain -> 666700 4up 360 -> 561 ", props_count=4, difficulty=32, tags={Tag.Spin360, Tag.AsyncSiteswap}),
     Trick(name="async fountain -> 667700 4up 360 -> 714 ", props_count=4, difficulty=38, tags={Tag.Spin360, Tag.AsyncSiteswap}),
     Trick(name="async fountain -> 4up 360 -> 2up 360 -> sync fountain", props_count=4, difficulty=30, tags={Tag.Spin360}),
-    Trick(name="4c sync fountain -> (8x,6)(2,2) up 360 -> shower", props_count=4, difficulty=34, tags={Tag.Spin360, Tag.SyncSiteswap}),
+    Trick(name="4c sync fountain -> (8x,6)(2,2) 2up 360 -> shower", props_count=4, difficulty=30, tags={Tag.Spin360, Tag.SyncSiteswap}),
     
     ### 5 props spins ###
     # base 360
     Trick(name="3up 360 -> cascade", props_count=5, difficulty=26, tags={Tag.Spin360}),
     Trick(name="5up 360 -> cascade", props_count=5, difficulty=33, tags={Tag.Spin360}),
-    Trick(name="744 -> 96622 3 up 360 -> 744", props_count=5, difficulty=35, tags={Tag.Spin360, Tag.AsyncSiteswap}),
+    Trick(name="744 -> 96622 3up 360 -> 744", props_count=5, difficulty=35, tags={Tag.Spin360, Tag.AsyncSiteswap}),
     Trick(name="6c 753 -> 97522 3up 360 -> cascade", props_count=5, difficulty=36, tags={Tag.Spin360, Tag.AsyncSiteswap}),
     Trick(name="cascade -> 97522 3up 360 -> cascade", props_count=5, difficulty=29, tags={Tag.Spin360, Tag.AsyncSiteswap}),
     Trick(name="cascade -> aa55500 5up 360 -> cascade", props_count=5, difficulty=47, tags={Tag.Spin360, Tag.AsyncSiteswap}),
@@ -289,8 +289,8 @@ BALLS_TRICKS = [
     Trick(name="30c overheads", props_count=5, difficulty=36, tags={Tag.Overheads}),
     Trick(name="overheads -> 6c 744 overheads -> overheads", props_count=5, difficulty=40, tags={Tag.Overheads, Tag.AsyncSiteswap}),
     Trick(name="10c laying on the back", props_count=5, difficulty=32, tags={Tag.OnTheBack, Tag.Overheads}),
-    Trick(name="half shower -> overheads -> other side half shower", props_count=5, difficulty=32, tags={Tag.Overheads}),
-    Trick(name="cascade -> 8c 7733, neck throws 3's", props_count=5, difficulty=67, tags={Tag.Necks, Tag.AsyncSiteswap}),
+    Trick(name="half shower -> overheads -> other side half shower", props_count=5, difficulty=40, tags={Tag.Overheads}),
+    Trick(name="cascade -> 8c 7733, neck throws 3's", props_count=5, difficulty=82, tags={Tag.Necks, Tag.AsyncSiteswap}),
     
     ### 6 props body throws ###
     Trick(name="756 -> 6c 756, backross 5 -> 756", props_count=6, difficulty=66, tags={Tag.Backcrosses, Tag.AsyncSiteswap}),
