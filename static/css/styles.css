@@ -1367,7 +1367,13 @@ body {
 }
 
 .trick-checkbox {
-    display: none;
+    margin-right: 10px;
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: var(--success-color);
+    position: relative;
+    top: 2px;
 }
 
 .trick-checkbox-label {
@@ -1959,5 +1965,37 @@ body {
         top: 80px;
         right: 10px;
         width: 180px;
+    }
+}
+
+/* Trick Checkbox Styles */
+.trick-checkbox {
+    margin-right: 10px;
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: var(--success-color);
+    position: relative;
+    top: 2px;
+}
+
+.trick-content {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.25rem 0;
+}
+
+.trick-number,
+.trick-name,
+.trick-comment {
+    transition: text-decoration 0.3s ease;
+}
+
+/* Print Styles */
+@media print {
+    .trick-checkbox {
+        display: none;
     }
 }
