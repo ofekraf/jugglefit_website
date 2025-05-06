@@ -258,17 +258,27 @@
                 const trickItem = document.createElement('div');
                 trickItem.className = 'trick-item';
                     
-                    const trickName = document.createElement('div');
-                    trickName.className = 'trick-name';
-                    trickName.textContent = trick.name;
-                    trickItem.appendChild(trickName);
+                    const trickContent = document.createElement('div');
+                    trickContent.className = 'trick-content';
+                    
+                    const number = document.createElement('span');
+                    number.className = 'trick-number';
+                    number.textContent = `${trickCounter}.`;
+                    trickContent.appendChild(number);
+                    
+                    const name = document.createElement('span');
+                    name.className = 'trick-name';
+                    name.textContent = trick.name;
+                    trickContent.appendChild(name);
                     
                     if (trick.comment) {
-                        const trickComment = document.createElement('div');
-                        trickComment.className = 'trick-comment';
-                        trickComment.textContent = trick.comment;
-                        trickItem.appendChild(trickComment);
+                        const comment = document.createElement('span');
+                        comment.className = 'trick-comment';
+                        comment.textContent = ` [${trick.comment}]`;
+                        trickContent.appendChild(comment);
                     }
+                    
+                    trickItem.appendChild(trickContent);
                     
                     const addButton = document.createElement('button');
                     addButton.className = 'add-trick';
@@ -417,6 +427,7 @@
 
             // Create sections for each props count in the order they appear in currentRoute.tricks
             const seenPropCounts = new Set();
+            let trickCounter = 1; // Add counter for trick numbers
             currentRoute.tricks.forEach(trick => {
                 if (seenPropCounts.has(trick.props_count)) return;
                 seenPropCounts.add(trick.props_count);
@@ -456,6 +467,12 @@
                     const trickContent = document.createElement('div');
                     trickContent.className = 'trick-content';
                     
+                    // Add trick number
+                    const number = document.createElement('span');
+                    number.className = 'trick-number';
+                    number.textContent = `${trickCounter}.`;
+                    trickContent.appendChild(number);
+                    
                     const name = document.createElement('span');
                     name.className = 'trick-name';
                     name.textContent = trick.name;
@@ -483,6 +500,7 @@
                     frame.addEventListener('dragend', handleDragEnd);
                     
                     trickContainer.appendChild(frame);
+                    trickCounter++; // Increment counter after adding each trick
                 });
                 
                 section.appendChild(trickContainer);
