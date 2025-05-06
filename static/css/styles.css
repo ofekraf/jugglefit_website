@@ -43,6 +43,7 @@ body {
     width: 100%;
     padding: 0.25rem 0;
     flex-wrap: wrap;
+    word-wrap: break-word;
 }
 
 .trick-number {
@@ -73,6 +74,7 @@ body {
     margin-bottom: 0;
     white-space: normal;
     word-wrap: break-word;
+    flex-wrap: wrap;
     text-indent: 0;
     padding-left: 0;
     margin-left: 0;
@@ -83,6 +85,8 @@ body {
     font-style: italic;
     font-size: 0.9rem;
     white-space: normal;
+    word-wrap: break-word;
+    flex-wrap: wrap;
     display: block;
     margin-left: 0;
     padding-left: 0;

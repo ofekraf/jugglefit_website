@@ -258,27 +258,27 @@
                 const trickItem = document.createElement('div');
                 trickItem.className = 'trick-item';
                     
-                    const trickName = document.createElement('div');
-                    trickName.className = 'trick-main';
+                    const trickContent = document.createElement('div');
+                    trickContent.className = 'trick-content';
                     
                     const number = document.createElement('span');
                     number.className = 'trick-number';
                     number.textContent = `${trickCounter}.`;
-                    trickName.appendChild(number);
+                    trickContent.appendChild(number);
                     
                     const name = document.createElement('span');
                     name.className = 'trick-name';
                     name.textContent = trick.name;
-                    trickName.appendChild(name);
+                    trickContent.appendChild(name);
                     
                     if (trick.comment) {
                         const comment = document.createElement('span');
                         comment.className = 'trick-comment';
                         comment.textContent = ` [${trick.comment}]`;
-                        trickName.appendChild(comment);
+                        trickContent.appendChild(comment);
                     }
                     
-                    trickItem.appendChild(trickName);
+                    trickItem.appendChild(trickContent);
                     
                     const addButton = document.createElement('button');
                     addButton.className = 'add-trick';
