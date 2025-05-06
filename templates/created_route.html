@@ -31,19 +31,30 @@
 
     // Add checkboxes to all tricks
     document.addEventListener('DOMContentLoaded', function() {
-        const trickFrames = document.querySelectorAll('.prop-details-frame');
-        trickFrames.forEach(frame => {
+        const trickContents = document.querySelectorAll('.trick-content');
+        trickContents.forEach(content => {
             const checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
             checkbox.className = 'trick-checkbox no-print';
+            
             checkbox.addEventListener('change', function() {
+                const trickNumber = content.querySelector('.trick-number');
+                const trickName = content.querySelector('.trick-name');
+                const trickComment = content.querySelector('.trick-comment');
+                
                 if (this.checked) {
-                    frame.classList.add('completed');
+                    if (trickNumber) trickNumber.style.textDecoration = 'line-through';
+                    if (trickName) trickName.style.textDecoration = 'line-through';
+                    if (trickComment) trickComment.style.textDecoration = 'line-through';
                 } else {
-                    frame.classList.remove('completed');
+                    if (trickNumber) trickNumber.style.textDecoration = 'none';
+                    if (trickName) trickName.style.textDecoration = 'none';
+                    if (trickComment) trickComment.style.textDecoration = 'none';
                 }
             });
-            frame.querySelector('.trick-content').insertBefore(checkbox, frame.querySelector('.trick-content').firstChild);
+            
+            // Insert checkbox at the beginning of the trick content
+            content.insertBefore(checkbox, content.firstChild);
         });
     });
 
