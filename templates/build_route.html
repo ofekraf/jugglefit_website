@@ -253,6 +253,7 @@
             const tricksList = document.createElement('div');
             tricksList.className = 'tricks-list';
             
+            let trickCounter = 1; // Initialize the counter for each props group
                 // Sort tricks by name within each group
                 groupedTricks[count].sort((a, b) => a.name.localeCompare(b.name)).forEach(trick => {
                 const trickItem = document.createElement('div');
