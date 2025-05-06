@@ -20,10 +20,12 @@
                                 {% set trick_counter.count = trick_counter.count + 1 %}
                                 <div class="prop-details-frame">
                                     <div class="trick-content">
-                                        <span class="trick-number">{{ trick_counter.count }}.</span>
-                                        <span class="trick-name">{{ trick.name }}</span>
+                                        <div class="trick-main">
+                                            <span class="trick-number">{{ trick_counter.count }}.</span>
+                                            <span class="trick-name">{{ trick.name }}</span>
+                                        </div>
                                         {% if trick.comment %}
-                                            <span class="trick-comment"> [{{ trick.comment }}]</span>
+                                            <span class="trick-comment">[{{ trick.comment }}]</span>
                                         {% endif %}
                                     </div>
                                 </div>
