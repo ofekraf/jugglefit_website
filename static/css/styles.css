@@ -43,7 +43,6 @@ body {
     width: 100%;
     padding: 0.25rem 0;
     flex-wrap: wrap;
-    word-wrap: break-word;
 }
 
 .trick-number {
@@ -56,28 +55,14 @@ body {
     align-self: flex-start;
 }
 
-.trick-name-container {
-    flex: 1;
-    min-width: 150px;
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-    padding-left: 0;
-    margin-left: 0;
-}
-
 .trick-name {
     font-weight: 500;
     color: var(--text-color);
     font-size: 1rem;
-    display: block;
-    margin-bottom: 0;
+    display: inline;
+    margin: 0;
     white-space: normal;
     word-wrap: break-word;
-    flex-wrap: wrap;
-    text-indent: 0;
-    padding-left: 0;
-    margin-left: 0;
 }
 
 .trick-comment {
@@ -86,10 +71,8 @@ body {
     font-size: 0.9rem;
     white-space: normal;
     word-wrap: break-word;
-    flex-wrap: wrap;
-    display: block;
-    margin-left: 0;
-    padding-left: 0;
+    display: inline;
+    margin: 0;
 }
 
 .remove-trick {
@@ -816,33 +799,19 @@ body {
 
     .trick-content {
         gap: 0.25rem;
-        padding: 0.15rem 0;
-        align-items: flex-start;
     }
 
     .trick-number {
         font-size: 0.8rem;
         min-width: 1.25rem;
-        padding-top: 0.15rem;
-        margin-right: 0;
-    }
-
-    .trick-name-container {
-        min-width: 120px;
-        margin-left: 0;
-        padding-left: 0;
     }
 
     .trick-name {
         font-size: 0.9rem;
-        margin-left: 0;
-        padding-left: 0;
     }
 
     .trick-comment {
         font-size: 0.8rem;
-        margin-left: 0;
-        padding-left: 0;
     }
 
     .prop-count-text {
@@ -906,31 +875,19 @@ body {
 
     .trick-content {
         gap: 0.2rem;
-        align-items: flex-start;
     }
 
     .trick-number {
         font-size: 0.75rem;
         min-width: 1.1rem;
-        margin-right: 0;
-    }
-
-    .trick-name-container {
-        min-width: 100px;
-        margin-left: 0;
-        padding-left: 0;
     }
 
     .trick-name {
         font-size: 0.85rem;
-        margin-left: 0;
-        padding-left: 0;
     }
 
     .trick-comment {
         font-size: 0.75rem;
-        margin-left: 0;
-        padding-left: 0;
     }
 
     .remove-trick {
@@ -1933,10 +1890,11 @@ body {
 
 .trick-content {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 0.5rem;
     width: 100%;
     padding: 0.25rem 0;
+    flex-wrap: wrap;
 }
 
 .trick-number,
