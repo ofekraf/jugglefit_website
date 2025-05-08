@@ -8,30 +8,38 @@
         <div class="route-content">
             <div class="route-sections">
                 {% set trick_counter = namespace(count=0) %}
-                {% for count in route.tricks|map(attribute='props_count')|unique %}
-                    <div class="prop-section">
-                        <div class="prop-color-bar" data-props="{{ count }}" data-prop-type="{{ route.prop }}">
-                            <div class="prop-count">
-                                <div class="prop-count-text">X {{ count }}</div>
+                {% set current_props = namespace(count=none) %}
+                {% for trick in route.tricks %}
+                    {% if current_props.count != trick.props_count %}
+                        {% if not loop.first %}
                             </div>
                         </div>
-                        <div class="trick-container">
-                            {% for trick in route.tricks if trick.props_count == count %}
-                                {% set trick_counter.count = trick_counter.count + 1 %}
-                                <div class="prop-details-frame">
-                                    <div class="trick-content">
-                                        <div class="trick-main">
-                                            <span class="trick-number">{{ trick_counter.count }}.</span>
-                                            <span class="trick-name">{{ trick.name }}</span>
-                                        </div>
-                                        {% if trick.comment %}
-                                            <span class="trick-comment">[{{ trick.comment }}]</span>
-                                        {% endif %}
-                                    </div>
+                        {% endif %}
+                        <div class="prop-section">
+                            <div class="prop-color-bar" data-props="{{ trick.props_count }}" data-prop-type="{{ route.prop }}">
+                                <div class="prop-count">
+                                    <div class="prop-count-text">X {{ trick.props_count }}</div>
                                 </div>
-                            {% endfor %}
+                            </div>
+                            <div class="trick-container">
+                        {% set current_props.count = trick.props_count %}
+                    {% endif %}
+                    {% set trick_counter.count = trick_counter.count + 1 %}
+                    <div class="prop-details-frame">
+                        <div class="trick-content">
+                            <div class="trick-main">
+                                <span class="trick-number">{{ trick_counter.count }}.</span>
+                                <span class="trick-name">{{ trick.name }}</span>
+                            </div>
+                            {% if trick.comment %}
+                                <span class="trick-comment">[{{ trick.comment }}]</span>
+                            {% endif %}
                         </div>
                     </div>
+                    {% if loop.last %}
+                        </div>
+                    </div>
+                    {% endif %}
                 {% endfor %}
             </div>
         </div>

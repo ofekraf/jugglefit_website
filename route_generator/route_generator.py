@@ -45,7 +45,7 @@ class RouteGenerator:
         # Select random sample and sort by difficulty
         selected_tricks = sorted(
             relevant_tricks[:route_length],
-            key=lambda t: t.difficulty
+            key=lambda t: (t.props_count, t.difficulty)
         )
 
         return Route(

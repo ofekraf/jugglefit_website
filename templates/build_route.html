@@ -270,12 +270,28 @@
                     const name = document.createElement('span');
                     name.className = 'trick-name';
                     name.textContent = trick.name;
+                    name.contentEditable = true;
+                    name.addEventListener('blur', function() {
+                        const newName = this.textContent.trim();
+                        if (newName) {
+                            trick.name = newName;
+                            frame.setAttribute('data-trick-name', newName);
+                        } else {
+                            this.textContent = trick.name;
+                        }
+                    });
                     trickContent.appendChild(name);
                     
                     if (trick.comment) {
                         const comment = document.createElement('span');
                         comment.className = 'trick-comment';
                         comment.textContent = ` [${trick.comment}]`;
+                        comment.contentEditable = true;
+                        comment.addEventListener('blur', function() {
+                            const newComment = this.textContent.replace(/[\[\]]/g, '').trim();
+                            trick.comment = newComment;
+                            this.textContent = newComment ? ` [${newComment}]` : '';
+                        });
                         trickContent.appendChild(comment);
                     }
                     
@@ -417,102 +433,117 @@
             const routeSections = document.getElementById('route-sections');
             routeSections.innerHTML = '';
 
-            // Group tricks by props count
-            const groupedTricks = {};
-            currentRoute.tricks.forEach(trick => {
-                if (!groupedTricks[trick.props_count]) {
-                    groupedTricks[trick.props_count] = [];
-                }
-                groupedTricks[trick.props_count].push(trick);
-            });
+            let currentPropsCount = null;
+            let currentSection = null;
+            let trickCounter = 1;
 
-            // Create sections for each props count in the order they appear in currentRoute.tricks
-            const seenPropCounts = new Set();
-            let trickCounter = 1; // Add counter for trick numbers
-            currentRoute.tricks.forEach(trick => {
-                if (seenPropCounts.has(trick.props_count)) return;
-                seenPropCounts.add(trick.props_count);
-                
-                const count = trick.props_count;
-                const section = document.createElement('div');
-                section.className = 'prop-section';
-                section.setAttribute('draggable', 'true');
-                section.setAttribute('data-props-count', count);
-                
-                const colorBar = document.createElement('div');
-                colorBar.className = 'prop-color-bar';
-                colorBar.setAttribute('data-props', count);
-                colorBar.setAttribute('data-prop-type', currentRoute.prop);
-                
-                const propCount = document.createElement('div');
-                propCount.className = 'prop-count';
-                
-                const propCountText = document.createElement('div');
-                propCountText.className = 'prop-count-text';
-                propCountText.textContent = count;
-                
-                propCount.appendChild(propCountText);
-                colorBar.appendChild(propCount);
-                section.appendChild(colorBar);
-                
-                const trickContainer = document.createElement('div');
-                trickContainer.className = 'trick-container';
-                trickContainer.setAttribute('data-props-count', count);
-                
-                groupedTricks[count].forEach(trick => {
-                    const frame = document.createElement('div');
-                    frame.className = 'prop-details-frame';
-                    frame.setAttribute('draggable', 'true');
-                    frame.setAttribute('data-trick-name', trick.name);
-                    
-                    const trickContent = document.createElement('div');
-                    trickContent.className = 'trick-content';
-                    
-                    // Add trick number
-                    const number = document.createElement('span');
-                    number.className = 'trick-number';
-                    number.textContent = `${trickCounter}.`;
-                    trickContent.appendChild(number);
-                    
-                    const name = document.createElement('span');
-                    name.className = 'trick-name';
-                    name.textContent = trick.name;
-                    trickContent.appendChild(name);
-                    
-                    if (trick.comment) {
-                        const comment = document.createElement('span');
-                        comment.className = 'trick-comment';
-                        comment.textContent = ` [${trick.comment}]`;
-                        trickContent.appendChild(comment);
+            currentRoute.tricks.forEach((trick, index) => {
+                // Check if we need to create a new section
+                if (currentPropsCount !== trick.props_count || 
+                    (index > 0 && currentRoute.tricks[index - 1].props_count !== trick.props_count)) {
+                    // Close previous section if it exists
+                    if (currentSection) {
+                        currentSection.querySelector('.trick-container').appendChild(document.createElement('div'));
                     }
+
+                    // Create new section
+                    const section = document.createElement('div');
+                    section.className = 'prop-section';
+                    section.setAttribute('data-props-count', trick.props_count);
                     
-                    const removeButton = document.createElement('button');
-                    removeButton.className = 'remove-trick';
-                    removeButton.textContent = '×';
-                    removeButton.onclick = () => removeTrick(trick);
-                    trickContent.appendChild(removeButton);
+                    const colorBar = document.createElement('div');
+                    colorBar.className = 'prop-color-bar';
+                    colorBar.setAttribute('data-props', trick.props_count);
+                    colorBar.setAttribute('data-prop-type', currentRoute.prop);
+                    colorBar.setAttribute('draggable', 'true');
                     
-                    frame.appendChild(trickContent);
+                    const propCount = document.createElement('div');
+                    propCount.className = 'prop-count';
                     
-                    // Add drag and drop event listeners for tricks
-                    frame.addEventListener('dragstart', handleDragStart);
-                    frame.addEventListener('dragover', handleDragOver);
-                    frame.addEventListener('drop', handleDrop);
-                    frame.addEventListener('dragend', handleDragEnd);
+                    const propCountText = document.createElement('div');
+                    propCountText.className = 'prop-count-text';
+                    propCountText.textContent = trick.props_count;
                     
-                    trickContainer.appendChild(frame);
-                    trickCounter++; // Increment counter after adding each trick
+                    propCount.appendChild(propCountText);
+                    colorBar.appendChild(propCount);
+                    section.appendChild(colorBar);
+                    
+                    const trickContainer = document.createElement('div');
+                    trickContainer.className = 'trick-container';
+                    trickContainer.setAttribute('data-props-count', trick.props_count);
+                    
+                    section.appendChild(trickContainer);
+                    routeSections.appendChild(section);
+                    
+                    // Add drag and drop event listeners for the color bar
+                    colorBar.addEventListener('dragstart', handleSectionDragStart);
+                    colorBar.addEventListener('dragover', handleSectionDragOver);
+                    colorBar.addEventListener('drop', handleSectionDrop);
+                    colorBar.addEventListener('dragend', handleSectionDragEnd);
+                    
+                    currentSection = section;
+                    currentPropsCount = trick.props_count;
+                }
+
+                // Create trick frame
+                const frame = document.createElement('div');
+                frame.className = 'prop-details-frame';
+                frame.setAttribute('draggable', 'true');
+                frame.setAttribute('data-trick-name', trick.name);
+                
+                const trickContent = document.createElement('div');
+                trickContent.className = 'trick-content';
+                
+                // Add trick number
+                const number = document.createElement('span');
+                number.className = 'trick-number';
+                number.textContent = `${trickCounter}.`;
+                trickContent.appendChild(number);
+                
+                const name = document.createElement('span');
+                name.className = 'trick-name';
+                name.textContent = trick.name;
+                name.contentEditable = true;
+                name.addEventListener('blur', function() {
+                    const newName = this.textContent.trim();
+                    if (newName) {
+                        trick.name = newName;
+                        frame.setAttribute('data-trick-name', newName);
+                    } else {
+                        this.textContent = trick.name;
+                    }
                 });
+                trickContent.appendChild(name);
                 
-                section.appendChild(trickContainer);
+                if (trick.comment) {
+                    const comment = document.createElement('span');
+                    comment.className = 'trick-comment';
+                    comment.textContent = ` [${trick.comment}]`;
+                    comment.contentEditable = true;
+                    comment.addEventListener('blur', function() {
+                        const newComment = this.textContent.replace(/[\[\]]/g, '').trim();
+                        trick.comment = newComment;
+                        this.textContent = newComment ? ` [${newComment}]` : '';
+                    });
+                    trickContent.appendChild(comment);
+                }
                 
-                // Add drag and drop event listeners for sections
-                section.addEventListener('dragstart', handleSectionDragStart);
-                section.addEventListener('dragover', handleSectionDragOver);
-                section.addEventListener('drop', handleSectionDrop);
-                section.addEventListener('dragend', handleSectionDragEnd);
+                const removeButton = document.createElement('button');
+                removeButton.className = 'remove-trick';
+                removeButton.textContent = '×';
+                removeButton.onclick = () => removeTrick(trick);
+                trickContent.appendChild(removeButton);
                 
-                routeSections.appendChild(section);
+                frame.appendChild(trickContent);
+                
+                // Add drag and drop event listeners for tricks
+                frame.addEventListener('dragstart', handleDragStart);
+                frame.addEventListener('dragover', handleDragOver);
+                frame.addEventListener('drop', handleDrop);
+                frame.addEventListener('dragend', handleDragEnd);
+                
+                currentSection.querySelector('.trick-container').appendChild(frame);
+                trickCounter++;
             });
         }
 
@@ -552,17 +583,32 @@
             
             // Update the tricks array to match the new DOM order
             const frames = document.querySelectorAll('.prop-details-frame');
-            currentRoute.tricks = Array.from(frames).map(frame => {
+            const newTricks = [];
+            let currentPropsCount = null;
+            let currentSection = null;
+            
+            frames.forEach(frame => {
                 const name = frame.getAttribute('data-trick-name');
-                return currentRoute.tricks.find(t => t.name === name);
+                const trick = currentRoute.tricks.find(t => t.name === name);
+                if (trick) {
+                    // If this is a new props count or we're in a different section
+                    if (currentPropsCount !== trick.props_count || currentSection !== frame.closest('.prop-section')) {
+                        currentPropsCount = trick.props_count;
+                        currentSection = frame.closest('.prop-section');
+                    }
+                    newTricks.push(trick);
+                }
             });
             
+            currentRoute.tricks = newTricks;
             updateRouteDisplay();
         }
 
         function handleSectionDragStart(e) {
             draggedSection = e.target.closest('.prop-section');
             draggedSection.classList.add('dragging');
+            // Add a visual indicator that the entire section is being dragged
+            draggedSection.style.opacity = '0.5';
         }
 
         function handleSectionDragOver(e) {
@@ -588,6 +634,7 @@
 
         function handleSectionDragEnd(e) {
             e.target.classList.remove('dragging');
+            draggedSection.style.opacity = '1';
             draggedSection = null;
             
             // Update the tricks array to match the new section order
@@ -602,6 +649,12 @@
                 });
             });
             currentRoute.tricks = newTricks;
+            
+            // Update the route display to reflect the new order and numbers
+            updateRouteDisplay();
+            
+            // Update the tricks list to reflect the new order
+            updateSearchTricks();
         }
 
         function addTrickToRoute(trick) {
@@ -615,7 +668,10 @@
                 return;
             }
             
+            // Add the trick to the end of the route
             currentRoute.tricks.push(trick);
+            
+            // Update the display to show the new trick at the end
             updateRouteDisplay();
         }
 
@@ -729,10 +785,6 @@
         document.getElementById('export_route').addEventListener('click', async function() {
             if (!currentRoute.prop) {
                 showToast('Please select a prop type before copying the URL.', 'prop-slider');
-                return;
-            }
-            if (currentRoute.tricks.length === 0) {
-                showToast('Please add some tricks to your route before copying the URL.', 'all_tricks');
                 return;
             }
 
