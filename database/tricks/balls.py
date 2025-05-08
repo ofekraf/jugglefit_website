@@ -224,7 +224,7 @@ BALLS_TRICKS = [
     
     # other period
     Trick(name="32c (6x,4x)(6,4x)*", props_count=5, difficulty=29, tags={Tag.SyncSiteswap}),
-    Trick(name="24c (6x,4)(6,4)*", props_count=5, difficulty=28, tags={Tag.SyncSiteswap}),
+    Trick(name="24c (6,4)(6x,4)*", props_count=5, difficulty=28, tags={Tag.SyncSiteswap}),
     Trick(name="36c (6,4)(6x,4)(6x,4x)*", props_count=5, difficulty=33, tags={Tag.SyncSiteswap}),
     
     ### 6 props siteswaps ###
