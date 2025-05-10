@@ -19,7 +19,8 @@ class CompetitorResult:
             raise ValueError("Cannot have both seconds and tricks_accomplished set")
     
 @dataclass(kw_only=True)
-class RouteResult(Route):
+class RouteResult:
+    route: Route
     # dict[place] -> Competitor
     competitors: Dict[int, CompetitorResult]   
     
@@ -27,6 +28,22 @@ class RouteResult(Route):
         if 1 not in self.competitors:
             raise WinnerNotSetException()
     
+    @property
+    def name(self) -> str:
+        return self.route.name
+    
+    @property
+    def prop(self) -> str:
+        return self.route.prop
+    
+    @property
+    def tricks(self) -> List:
+        return self.route.tricks
+    
+    @property
+    def duration_seconds(self) -> int:
+        return self.route.duration_seconds
+
 @dataclass(kw_only=True)
 class BaseEvent:
     # Make sure to include hosting event if exists
