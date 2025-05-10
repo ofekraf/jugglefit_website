@@ -28,12 +28,14 @@
                     <div class="prop-details-frame">
                         <div class="trick-content">
                             <div class="trick-main">
-                                <span class="trick-number">{{ trick_counter.count }}.</span>
-                                <span class="trick-name">{{ trick.name }}</span>
+                                <div class="trick-label">
+                                    <span class="trick-number">{{ trick_counter.count }}.</span>
+                                    <span class="trick-name">{{ trick.name }}</span>
+                                </div>
+                                {% if trick.comment %}
+                                    <span class="trick-comment">[{{ trick.comment }}]</span>
+                                {% endif %}
                             </div>
-                            {% if trick.comment %}
-                                <span class="trick-comment">[{{ trick.comment }}]</span>
-                            {% endif %}
                         </div>
                     </div>
                     {% if loop.last %}
