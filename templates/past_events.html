@@ -20,27 +20,45 @@
                     <img src="{{ event.image_url }}" alt="{{ event.name }} winners" class="event-winners-image">
                 </div>
                 <ul>
-                    {% for route in event.results %}
-                    <li>
-                        <strong>{{ route.name }}</strong> - Winner: {{ route.competitors[1].name }} 
-                        {% if route.competitors[1].seconds %}
-                            ({{ "%02d"|format(route.competitors[1].seconds // 60) }}:{{ "%02d"|format(route.competitors[1].seconds % 60) }})
-                        {% else %}
-                            ({{ route.competitors[1].tricks_accomplished }}/10 tricks)
-                        {% endif %}
-                        <button class="primary-button" onclick="toggle_object('{{event.name}}+{{route.name}}')">View Route</button>
-                        {% set route_container_id = event.name ~ "+" ~ route.name %}
+                    {% for result in event.results %}
+                    <li class="route-result-item">
+                        <div class="route-result-header">
+                            <div class="route-result-info">
+                                <strong>{{ result.route.name }}</strong> - Winner: {{ result.competitors[1].name }} 
+                                {% if result.competitors[1].seconds %}
+                                    ({{ "%02d"|format(result.competitors[1].seconds // 60) }}:{{ "%02d"|format(result.competitors[1].seconds % 60) }})
+                                {% else %}
+                                    ({{ result.competitors[1].tricks_accomplished }}/10 tricks)
+                                {% endif %}
+                            </div>
+                            <button class="primary-button" onclick="toggle_object('{{ event.name }}+{{ result.route.name }}')">Show Route</button>
+                        </div>
+                        {% set route_container_id = event.name ~ "+" ~ result.route.name %}
                         <div class="route-container" id="{{ route_container_id }}" style="display: none">
-                            {% with route=route %}
+                            {% with route=result.route %}
                                 {% include "utils/route_display.html" %}
+                                <a href="/created_route?route={{ result.route.serialize() | urlencode }}" class="primary-button outline">Try it Yourself</a>
                             {% endwith %}
                         </div>
                     </li>
                     {% endfor %}
                 </ul>
             </li>
+
+            </li>
         </ul>
     </div>
     {% endfor %}
 </div>
+
+<script>
+function toggle_object(object_id) {
+    const object = document.getElementById(object_id);
+    if (object.style.display === 'none' || object.style.display === '') {
+        object.style.display = 'block';
+    } else {
+        object.style.display = 'none';
+    }
+}
+</script>
 {% endblock %}
