@@ -44,43 +44,5 @@
             </div>
         </div>
     </div>
-    
-    <div class="route-actions no-print">
-        <button class="primary-button print-button" onclick="printRoute()">Print Route</button>
-    </div>
 </div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script>
-    function printRoute() {
-        // Create a temporary container for the QR code
-        let qrContainer = document.createElement('div');
-        qrContainer.className = 'qr-code';
-        document.body.appendChild(qrContainer);
-
-        // Clear any existing QR code
-        qrContainer.innerHTML = '';
-
-        // Generate QR code for the current URL
-        new QRCode(qrContainer, {
-            text: window.location.href,
-            width: 300,
-            height: 300,
-            colorDark: "#000000",
-            colorLight: "#ffffff",
-            correctLevel: QRCode.CorrectLevel.H
-        });
-
-        // Add event listener for afterprint
-        window.addEventListener('afterprint', () => {
-            qrContainer.remove();
-        });
-
-        // Trigger print
-        window.print();
-    }
-
-    // Make the function globally available
-    window.printRoute = printRoute;
-</script>
 {% endblock %}
