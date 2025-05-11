@@ -264,10 +264,14 @@
                     const trickContent = document.createElement('div');
                     trickContent.className = 'trick-content';
                     
+                    const trickMain = document.createElement('div');
+                    trickMain.className = 'trick-main';
+                    
+                    // Add trick number
                     const number = document.createElement('span');
                     number.className = 'trick-number';
                     number.textContent = `${trickCounter}.`;
-                    trickContent.appendChild(number);
+                    trickMain.appendChild(number);
                     
                     const name = document.createElement('span');
                     name.className = 'trick-name';
@@ -282,7 +286,7 @@
                             this.textContent = trick.name;
                         }
                     });
-                    trickContent.appendChild(name);
+                    trickMain.appendChild(name);
                     
                     if (trick.comment) {
                         const comment = document.createElement('span');
@@ -294,10 +298,10 @@
                             trick.comment = newComment;
                             this.textContent = newComment ? ` [${newComment}]` : '';
                         });
-                        trickContent.appendChild(comment);
+                        trickMain.appendChild(comment);
                     }
                     
-                    trickItem.appendChild(trickContent);
+                    trickContent.appendChild(trickMain);
                     
                     const addButton = document.createElement('button');
                     addButton.className = 'add-trick';
@@ -496,11 +500,14 @@
                 const trickContent = document.createElement('div');
                 trickContent.className = 'trick-content';
                 
+                const trickMain = document.createElement('div');
+                trickMain.className = 'trick-main';
+                
                 // Add trick number
                 const number = document.createElement('span');
                 number.className = 'trick-number';
                 number.textContent = `${trickCounter}.`;
-                trickContent.appendChild(number);
+                trickMain.appendChild(number);
                 
                 const name = document.createElement('span');
                 name.className = 'trick-name';
@@ -515,7 +522,7 @@
                         this.textContent = trick.name;
                     }
                 });
-                trickContent.appendChild(name);
+                trickMain.appendChild(name);
                 
                 if (trick.comment) {
                     const comment = document.createElement('span');
@@ -527,8 +534,10 @@
                         trick.comment = newComment;
                         this.textContent = newComment ? ` [${newComment}]` : '';
                     });
-                    trickContent.appendChild(comment);
+                    trickMain.appendChild(comment);
                 }
+                
+                trickContent.appendChild(trickMain);
                 
                 const removeButton = document.createElement('button');
                 removeButton.className = 'remove-trick';
