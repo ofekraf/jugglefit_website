@@ -51,7 +51,6 @@
             </div>
             <div class="route-actions">
                 <div class="route-buttons">
-                    <button type="button" id="export_route" class="primary-button">Copy Route URL</button>
                     <button type="button" id="view_route" class="primary-button">View Route</button>
                 </div>
             </div>
@@ -790,66 +789,6 @@
         customTrickPropsSlider.addEventListener('input', () => {
             const value = parseInt(customTrickPropsSlider.value);
             customTrickPropsValue.textContent = value;
-        });
-
-        // Export route functionality
-        document.getElementById('export_route').addEventListener('click', async function() {
-            if (!currentRoute.prop) {
-                showToast('Please select a prop type before copying the URL.', 'prop-slider');
-                return;
-            }
-
-            try {
-                // Prepare the route data in the correct format
-                const routeData = {
-                    name: currentRoute.name,
-                    prop: currentRoute.prop,
-                    duration_seconds: currentRoute.duration_seconds || 600, // Default to 10 minutes if not set
-                    tricks: currentRoute.tricks.map(trick => ({
-                        name: trick.name,
-                        props_count: trick.props_count,
-                        difficulty: trick.difficulty || 30, // Default difficulty if not set
-                        tags: trick.tags || [], // Default empty tags if not set
-                        comment: trick.comment || null
-                    }))
-                };
-
-                // Create a Route instance and serialize it
-                const response = await fetch('/api/serialize_route', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(routeData)
-                });
-
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`Failed to serialize route: ${response.status} ${errorText}`);
-                }
-
-                const serialized = await response.text();
-                const url = new URL(window.location.origin + window.location.pathname);
-                url.searchParams.set('route', serialized);
-                
-                // Copy to clipboard
-                try {
-                    await navigator.clipboard.writeText(url.toString());
-                    showToast('Route URL copied to clipboard!');
-                } catch (clipboardError) {
-                    // If clipboard API fails, show the URL in a prompt
-                    showToast('Failed to copy to clipboard. Please copy the URL manually.');
-                    const manualCopy = prompt('Copy this URL to share your route:', url.toString());
-                    if (manualCopy === null) {
-                        showToast('URL copy cancelled');
-                    } else {
-                        showToast('URL copied manually');
-                    }
-                }
-            } catch (error) {
-                console.error('Error copying route URL:', error);
-                showToast('Error copying route URL. Please try again.');
-            }
         });
 
         // View route functionality
