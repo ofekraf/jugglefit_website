@@ -677,14 +677,7 @@ body {
         print-color-adjust: exact;
     }
 
-    .main-header,
-    .main-footer,
-    .orientation-message,
-    .no-print,
-    .countdown-timer,
-    .route-actions,
-    .print-button,
-    button.print-button {
+    .no-print {
         display: none !important;
     }
 
@@ -711,14 +704,6 @@ body {
         break-inside: avoid;
     }
 
-    .trick-checkbox {
-        display: none;
-    }
-
-    .qr-code {
-        display: none;
-    }
-
     .qr-code.print-only {
         display: block !important;
         position: fixed !important;
@@ -738,10 +723,6 @@ body {
         width: 280px !important;
         height: 280px !important;
         display: block !important;
-    }
-
-    .print-only {
-        display: none;
     }
 
     /* Maintain colors in print */

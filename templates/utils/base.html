@@ -30,7 +30,7 @@
             {% endfor %}
         {% endif %}
     {% endwith %}
-    <header class="main-header">
+    <header class="main-header no-print">
         <div class="header-container">
             <a href="{{ url_for('home') }}" class="logo-link">
                 <img src="{{ url_for('static', filename='images/jugglefit_logo.png') }}" alt="JuggleFit Logo" class="logo-image">
@@ -65,7 +65,7 @@
     <main class="main-content">
         {% block content %}{% endblock %}
     </main>
-    <footer class="main-footer">
+    <footer class="main-footer no-print">
         <div class="footer-container">
             <div class="footer-content">
                 <div class="footer-links">
