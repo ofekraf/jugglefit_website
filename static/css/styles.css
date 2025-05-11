@@ -356,11 +356,30 @@ body {
     font-weight: 600;
     text-decoration: none;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: none;
 }
 
 .primary-button {
     background-color: var(--accent-color);
     color: white;
+}
+
+/* Edit and Print button styles */
+a.primary-button[href*="build_route"],
+button.print-button {
+    background-color: transparent;
+    color: var(--accent-color);
+    padding: 0.75rem 1.5rem;
+    border: 2px solid var(--accent-color);
+}
+
+a.primary-button[href*="build_route"]:hover,
+button.print-button:hover {
+    background-color: transparent;
+    color: var(--accent-color);
+    opacity: 0.8;
+    transform: translateY(-2px);
+    border-color: var(--accent-color);
 }
 
 .secondary-button {
@@ -2017,4 +2036,27 @@ body {
     text-align: center;
     width: auto;
     display: inline-block;
+}
+
+/* Toast Notification */
+.toast-notification {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background-color: var(--primary-color);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    z-index: 9999;
+    opacity: 0;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px var(--shadow-color);
+}
+
+.toast-notification.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
 }
