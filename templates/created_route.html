@@ -173,31 +173,43 @@
 
     // Print Route functionality
     function printRoute() {
+        // Remove any existing QR code containers and their contents
+        const existingQRCodes = document.querySelectorAll('.qr-code');
+        existingQRCodes.forEach(qr => {
+            qr.innerHTML = '';
+            qr.remove();
+        });
+
         // Create a temporary container for the QR code
         let qrContainer = document.createElement('div');
-        qrContainer.className = 'qr-code';
-        document.body.appendChild(qrContainer);
-
-        // Clear any existing QR code
-        qrContainer.innerHTML = '';
+        qrContainer.className = 'qr-code print-only';
+        
+        // Append to the route content instead of body
+        const routeContent = document.querySelector('.route-content');
+        routeContent.appendChild(qrContainer);
 
         // Generate QR code for the current URL
         new QRCode(qrContainer, {
             text: window.location.href,
-            width: 300,
-            height: 300,
+            width: 280,
+            height: 280,
             colorDark: "#000000",
             colorLight: "#ffffff",
             correctLevel: QRCode.CorrectLevel.H
         });
 
         // Add event listener for afterprint
-        window.addEventListener('afterprint', () => {
+        const cleanup = () => {
+            qrContainer.innerHTML = '';
             qrContainer.remove();
-        });
+            window.removeEventListener('afterprint', cleanup);
+        };
+        window.addEventListener('afterprint', cleanup);
 
-        // Trigger print
-        window.print();
+        // Wait for QR code to be generated before printing
+        setTimeout(() => {
+            window.print();
+        }, 100);
     }
 </script>
 {% endblock %}

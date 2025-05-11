@@ -154,7 +154,7 @@ FRONT_PAGE_PAST_EVENTS = [
             ),
             RouteResult(
                 route=Route(
-                    name="Clubs U18",
+                    name="IJC 2025 - Clubs U18",
                     prop=Prop.Clubs,
                     duration_seconds=600,
                     tricks=[
