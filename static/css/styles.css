@@ -677,17 +677,14 @@ body {
         print-color-adjust: exact;
     }
 
-    .main-header,
-    .main-footer,
-    .orientation-message,
-    .no-print,
-    .countdown-timer {
+    .no-print {
         display: none !important;
     }
 
     .main-content {
         padding: 0;
         margin: 0;
+        margin-top: -50px !important;
     }
 
     .route-page {
@@ -707,21 +704,25 @@ body {
         break-inside: avoid;
     }
 
-    .trick-checkbox {
-        display: none;
+    .qr-code.print-only {
+        display: block !important;
+        position: fixed !important;
+        bottom: 20px !important;
+        right: 20px !important;
+        width: 300px !important;
+        height: 300px !important;
+        background-color: white !important;
+        padding: 10px !important;
+        border: 1px solid #ddd !important;
+        z-index: 9999 !important;
+        visibility: visible !important;
+        opacity: 1 !important;
     }
 
-    .qr-code {
-        display: block;
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        width: 300px;
-        height: 300px;
-        background-color: white;
-        padding: 10px;
-        border: 1px solid #ddd;
-        z-index: 1000;
+    .qr-code img {
+        width: 280px !important;
+        height: 280px !important;
+        display: block !important;
     }
 
     /* Maintain colors in print */
@@ -770,6 +771,18 @@ body {
     @page {
         size: portrait;
         margin: 1cm;
+    }
+}
+
+/* Hide QR code by default */
+.qr-code {
+    display: none;
+}
+
+/* Only show QR code in print preview */
+@media screen {
+    .qr-code.print-only {
+        display: none !important;
     }
 }
 
@@ -879,6 +892,12 @@ body {
     .primary-button {
         padding: 0.75rem 1.5rem;
         font-size: 0.9rem;
+    }
+
+    /* Hide Print Route button in responsive */
+    .print-button,
+    button.print-button {
+        display: none !important;
     }
 
     @media (orientation: portrait) {
@@ -1359,7 +1378,7 @@ body {
 .route-buttons .print-button {
     width: auto !important;
     min-width: 120px;
-    display: inline-block !important;
+    display: inline-block;
     padding: 0.75rem 1.5rem;
     font-size: 1rem;
     text-align: center;
