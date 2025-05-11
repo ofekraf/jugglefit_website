@@ -56,9 +56,32 @@ function toggle_object(object_id) {
     const object = document.getElementById(object_id);
     if (object.style.display === 'none' || object.style.display === '') {
         object.style.display = 'block';
+        // Scroll to the element with smooth behavior
+        object.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } else {
         object.style.display = 'none';
     }
 }
+
+// Function to handle URL hash
+function handleHash() {
+    const hash = decodeURIComponent(window.location.hash.substring(1)); // Remove the # symbol and decode
+    if (hash) {
+        // Find the button that contains this event name
+        const buttons = document.querySelectorAll('.past-event-button');
+        for (const button of buttons) {
+            if (button.textContent.trim() === hash) {
+                button.click();
+                break;
+            }
+        }
+    }
+}
+
+// Handle hash on page load
+document.addEventListener('DOMContentLoaded', handleHash);
+
+// Handle hash changes
+window.addEventListener('hashchange', handleHash);
 </script>
 {% endblock %}

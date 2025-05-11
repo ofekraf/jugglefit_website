@@ -45,46 +45,49 @@ body {
 }
 
 .trick-main {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0;
-    flex: 1;
+    display: inline;
+    width: 100%;
+    white-space: normal;
+    word-break: break-word;
 }
 
-.trick-label {
-    display: flex;
-    align-items: baseline;
-    gap: 0.5rem;
-    width: 100%;
+.trick-number,
+.trick-name,
+.trick-comment {
+    display: inline;
+    margin: 0;
+    white-space: normal;
+    word-break: break-word;
 }
 
 .trick-number {
+    flex: 0 0 auto;
     font-weight: 600;
     color: var(--light-text);
     font-size: 0.9rem;
-    flex-shrink: 0;
     padding-top: 0.25rem;
 }
 
 .trick-name {
+    flex: 1 1 0;
+    min-width: 0;
     font-weight: 500;
     color: var(--text-color);
     font-size: 1rem;
     display: inline;
     margin: 0;
     white-space: normal;
-    word-wrap: break-word;
+    word-break: break-word;
 }
 
 .trick-comment {
     color: var(--light-text);
     font-style: italic;
     font-size: 0.9rem;
+    display: inline;
+    margin: 0;
     white-space: normal;
-    word-wrap: break-word;
-    display: block;
-    margin: 0 0 0 1.5rem;
+    word-break: break-word;
 }
 
 .remove-trick {
@@ -510,8 +513,7 @@ body {
     font-weight: 500;
     margin-top: 1.5rem;
     padding: 0.5rem 1rem;
-    border: 2px solid var(--accent-color);
-    border-radius: 4px;
+    border: none;
     transition: all 0.3s ease;
 }
 

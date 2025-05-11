@@ -74,10 +74,10 @@
     <section id="upcoming_events" class="section">
         <div class="section-container">
             <h2 class="section-title">Upcoming Events</h2>
-            <div class="events-carousel">
-                <div class="carousel-inner" id="upcoming-events-carousel-inner">
+            <div class="carousel-container">
+                <div class="carousel">
                     {% for event in upcoming_events %}
-                    <div class="event-card {% if loop.first %}active{% endif %}">
+                    <div class="carousel-item">
                         <div class="event-content">
                             <h3>{{ event.name }}</h3>
                             <div class="event-details">
@@ -90,8 +90,14 @@
                     </div>
                     {% endfor %}
                 </div>
-                <button class="carousel-prev" id="upcoming-events-carousel-prev">❮</button>
-                <button class="carousel-next" id="upcoming-events-carousel-next">❯</button>
+                <div class="carousel-controls">
+                    <button class="carousel-control prev">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="carousel-control next">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
             </div>
         </div>
     </section>
@@ -100,19 +106,27 @@
     <section id="last_events" class="section section-alt">
         <div class="section-container">
             <h2 class="section-title">Last Events</h2>
-            <div class="events-carousel">
-                <div class="carousel-inner" id="last-events-carousel-inner">
+            <div class="carousel-container">
+                <div class="carousel">
                     {% for event in last_events|sort(attribute='date', reverse=True) %}
-                    <div class="event-card {% if loop.first %}active{% endif %}">
-                        <img class="event-image" src="{{event.image_url}}" alt="{{ event.name }}">
+                    <div class="carousel-item">
                         <div class="event-content">
+                            <a href="{{ url_for('past_events') }}#{{ event.name|urlencode }}" class="event-image-link">
+                                <img class="event-image" src="{{event.image_url}}" alt="{{ event.name }}">
+                            </a>
                             <h3>{{ event.name }}</h3>
                         </div>
                     </div>
                     {% endfor %}
                 </div>
-                <button class="carousel-prev" id="last-events-carousel-prev">❮</button>
-                <button class="carousel-next" id="last-events-carousel-next">❯</button>
+                <div class="carousel-controls">
+                    <button class="carousel-control prev">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="carousel-control next">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
             </div>
         </div>
     </section>
@@ -131,49 +145,265 @@
     </section>
 </main>
 
+<style>
+/* Add this to your existing styles */
+.carousel-container {
+    position: relative;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    overflow: hidden;
+    padding: 0 40px;
+}
+
+.carousel {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+    gap: 20px;
+    padding: 20px 0;
+    will-change: transform;
+}
+
+.carousel-item {
+    flex: 0 0 calc(50% - 10px); /* Show 2 items by default */
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+    backface-visibility: hidden;
+    transform: translateZ(0);
+}
+
+/* Responsive styles */
+@media (max-width: 1024px) {
+    .carousel-item {
+        flex: 0 0 calc(50% - 10px); /* Show 2 items on tablets */
+    }
+}
+
+@media (max-width: 768px) {
+    .carousel-container {
+        padding: 0 30px;
+    }
+    
+    .carousel-item {
+        flex: 0 0 calc(100% - 20px); /* Show 1 item on mobile */
+    }
+
+    .carousel-control {
+        width: 35px;
+        height: 35px;
+    }
+
+    .event-content {
+        padding: 15px;
+    }
+
+    .event-content h3 {
+        font-size: 1.2em;
+    }
+
+    .event-details p {
+        font-size: 0.9em;
+    }
+
+    .event-image,
+    .event-image-link {
+        height: 250px; /* Slightly smaller on mobile */
+    }
+}
+
+.event-content {
+    padding: 20px;
+}
+
+.event-content h3 {
+    margin: 0 0 15px;
+    font-size: 1.4em;
+    color: #333;
+}
+
+.event-details {
+    margin-bottom: 20px;
+}
+
+.event-details p {
+    margin: 8px 0;
+    font-size: 1em;
+    color: #666;
+}
+
+.event-details i {
+    width: 25px;
+    color: #007bff;
+}
+
+.event-image {
+    width: 100%;
+    height: 300px; /* Fixed height instead of padding-bottom */
+    object-fit: cover;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    transition: box-shadow 0.3s ease;
+}
+
+.event-link {
+    display: inline-block;
+    padding: 12px 25px;
+    background: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.event-link:hover {
+    background: #0056b3;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.carousel-controls {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    transform: translateY(-50%);
+    display: flex;
+    justify-content: space-between;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.carousel-control {
+    background: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    pointer-events: auto;
+    transition: all 0.3s ease;
+}
+
+.carousel-control:hover:not([style*="opacity: 0.5"]) {
+    transform: scale(1.1);
+}
+
+.carousel-control[style*="opacity: 0.5"] {
+    cursor: default;
+}
+
+.event-image-link {
+    display: block;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    height: 300px; /* Match image height */
+    overflow: hidden;
+    border-radius: 5px;
+}
+
+.event-image-link:hover {
+    transform: scale(1.02);
+}
+
+.event-image-link:hover .event-image {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+</style>
+
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // Upcoming events carousel
-        const prevButtonUpcoming = document.getElementById('upcoming-events-carousel-prev');
-        const nextButtonUpcoming = document.getElementById('upcoming-events-carousel-next');
-        const carouselItemsUpcoming = document.querySelectorAll('#upcoming-events-carousel-inner .event-card');
-        let currentIndexUpcoming = 0;
+document.addEventListener('DOMContentLoaded', function() {
+    // Function to initialize carousel
+    function initCarousel(carouselSelector) {
+        const carousel = document.querySelector(carouselSelector);
+        const items = carousel.querySelectorAll('.carousel-item');
+        const prevBtn = carousel.parentElement.querySelector('.carousel-control.prev');
+        const nextBtn = carousel.parentElement.querySelector('.carousel-control.next');
+        
+        let currentIndex = 0;
+        let isAnimating = false;
 
-        function updateCarouselUpcoming() {
-            carouselItemsUpcoming.forEach(item => item.classList.remove('active'));
-            carouselItemsUpcoming[currentIndexUpcoming].classList.add('active');
+        function getItemWidth() {
+            const item = items[0];
+            if (!item) return 0;
+            const style = window.getComputedStyle(item);
+            return item.offsetWidth + parseInt(style.marginRight);
         }
 
-        prevButtonUpcoming.addEventListener('click', function () {
-            currentIndexUpcoming = (currentIndexUpcoming === 0) ? carouselItemsUpcoming.length - 1 : currentIndexUpcoming - 1;
-            updateCarouselUpcoming();
-        });
-
-        nextButtonUpcoming.addEventListener('click', function () {
-            currentIndexUpcoming = (currentIndexUpcoming === carouselItemsUpcoming.length - 1) ? 0 : currentIndexUpcoming + 1;
-            updateCarouselUpcoming();
-        });
-
-        // Last events carousel
-        const prevButtonLast = document.getElementById('last-events-carousel-prev');
-        const nextButtonLast = document.getElementById('last-events-carousel-next');
-        const carouselItemsLast = document.querySelectorAll('#last-events-carousel-inner .event-card');
-        let currentIndexLast = 0;
-
-        function updateCarouselLast() {
-            carouselItemsLast.forEach(item => item.classList.remove('active'));
-            carouselItemsLast[currentIndexLast].classList.add('active');
+        function updateCarousel(animate = true) {
+            if (animate) {
+                carousel.style.transition = 'transform 0.5s ease-in-out';
+            } else {
+                carousel.style.transition = 'none';
+            }
+            const itemWidth = getItemWidth();
+            const offset = -currentIndex * itemWidth;
+            carousel.style.transform = `translateX(${offset}px)`;
         }
 
-        prevButtonLast.addEventListener('click', function () {
-            currentIndexLast = (currentIndexLast === 0) ? carouselItemsLast.length - 1 : currentIndexLast - 1;
-            updateCarouselLast();
+        function updateButtons() {
+            const itemsPerView = window.innerWidth <= 768 ? 1 : 2;
+            const maxIndex = items.length - itemsPerView;
+            
+            // Disable prev button at start
+            prevBtn.style.opacity = currentIndex === 0 ? '0.5' : '1';
+            prevBtn.style.pointerEvents = currentIndex === 0 ? 'none' : 'auto';
+            
+            // Disable next button at end
+            nextBtn.style.opacity = currentIndex >= maxIndex ? '0.5' : '1';
+            nextBtn.style.pointerEvents = currentIndex >= maxIndex ? 'none' : 'auto';
+        }
+
+        function slide(direction) {
+            if (isAnimating) return;
+            
+            const itemsPerView = window.innerWidth <= 768 ? 1 : 2;
+            const maxIndex = items.length - itemsPerView;
+            const newIndex = currentIndex + direction;
+            
+            if (newIndex < 0 || newIndex > maxIndex) return;
+            
+            isAnimating = true;
+            currentIndex = newIndex;
+            updateCarousel();
+            updateButtons();
+            
+            setTimeout(() => {
+                isAnimating = false;
+            }, 500);
+        }
+
+        prevBtn.addEventListener('click', () => slide(-1));
+        nextBtn.addEventListener('click', () => slide(1));
+
+        // Handle window resize
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                updateCarousel(false);
+                updateButtons();
+            }, 250);
         });
 
-        nextButtonLast.addEventListener('click', function () {
-            currentIndexLast = (currentIndexLast === carouselItemsLast.length - 1) ? 0 : currentIndexLast + 1;
-            updateCarouselLast();
-        });
-    });
+        // Initialize carousel
+        updateCarousel(false);
+        updateButtons();
+    }
+
+    // Initialize both carousels
+    initCarousel('#upcoming_events .carousel');
+    initCarousel('#last_events .carousel');
+});
 </script>
 {% endblock %}
