@@ -21,7 +21,9 @@
         </div>
     </div>
     <div class="route-buttons">
-        <button class="primary-button print-button" onclick="printRoute()">Print Route</button>
+        <button class="primary-button" onclick="shareRoute()">Share</button>
+        <a href="/build_route?route={{ route.serialize() | urlencode }}" class="primary-button">Edit</a>
+        <button class="primary-button print-button" onclick="printRoute()">Print</button>
     </div>
 </div>
 
@@ -32,6 +34,37 @@
     let timerInterval = null;
     let isRunning = false;
     const originalTime = timeLeft;
+
+    // Share Route functionality
+    function shareRoute() {
+        navigator.clipboard.writeText(window.location.href).then(() => {
+            showToast('Route URL copied to clipboard!');
+        }).catch(err => {
+            console.error('Failed to copy URL: ', err);
+            showToast('Failed to copy URL. Please try again.');
+        });
+    }
+
+    // Toast notification function
+    function showToast(message) {
+        const toast = document.createElement('div');
+        toast.className = 'toast-notification';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        
+        // Show the toast
+        setTimeout(() => {
+            toast.classList.add('show');
+        }, 100);
+        
+        // Hide and remove the toast after 3 seconds
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => {
+                toast.remove();
+            }, 300);
+        }, 3000);
+    }
 
     // Add checkboxes to all tricks
     document.addEventListener('DOMContentLoaded', function() {
