@@ -12,6 +12,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="{{ url_for('static', filename='js/navigation.js') }}" defer></script>
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "JuggleFit",
+      "url": "{{ url_for('home', _external=True) }}",
+      "logo": "{{ url_for('static', filename='images/jugglefit_logo.png', _external=True) }}"
+    }
+    </script>
     {% block head %}{% endblock %}
 </head>
 <body>
