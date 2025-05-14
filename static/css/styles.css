@@ -865,7 +865,7 @@ button.print-button:hover {
     }
 
     .route-title {
-        font-size: 1.8rem;
+        font-size: 1.5rem;
     }
 
     .form-section {
@@ -988,7 +988,7 @@ button.print-button:hover {
 }
 
 .route-title {
-    font-size: 2.5rem;
+    font-size: 2rem;
     font-weight: 700;
     color: var(--primary-color);
     margin-bottom: 1rem;
