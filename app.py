@@ -113,7 +113,7 @@ def host_event():
 
 @app.route('/build_route')
 def build_route():
-    route_param = request.args.get('route')
+    route_param = request.args.get('route', type=str)
     initial_route = None
     if route_param:
         try:
@@ -138,9 +138,9 @@ def build_route():
                          DEFAULT_MIN_TRICK_DIFFICULTY=DEFAULT_MIN_TRICK_DIFFICULTY,
                          DEFAULT_MAX_TRICK_DIFFICULTY=DEFAULT_MAX_TRICK_DIFFICULTY)
 
-@app.route('/created_route', methods=['GET', 'POST'])
+@app.route('/created_route', methods=['GET'])
 def created_route():
-    route_param = request.args.get('route') or request.form.get('route')
+    route_param = request.args.get('route')
     if not route_param:
         return redirect(url_for('build_route'))
     
