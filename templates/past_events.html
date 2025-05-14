@@ -37,7 +37,7 @@
                         <div class="route-container" id="{{ route_container_id }}" style="display: none">
                             {% with route=result.route %}
                                 {% include "utils/route_display.html" %}
-                                <a href="/created_route?route={{ result.route.serialize() | urlencode }}" class="primary-button outline">Try it Yourself</a>
+                                <a href="{{ url_for('route', route=result.route.serialize()|urlencode) }}" class="primary-button outline">Try it Yourself</a>
                             {% endwith %}
                         </div>
                     </li>

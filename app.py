@@ -103,7 +103,7 @@ def generate_route():
             duration_seconds=route_duration_seconds
         )
         serialized = route.serialize()
-        return redirect(url_for('created_route', route=serialized))
+        return redirect(url_for('route', route=serialized))
     except NotEnoughTricksFoundException:
         return '<p class="no-tricks">No tricks were generated. Try adjusting your criteria.</p>'
 
@@ -111,45 +111,33 @@ def generate_route():
 def host_event():
     return render_template('host_event.html', team=TEAM)
 
-@app.route('/build_route')
-def build_route():
+@app.route('/route')
+def route():
     route_param = request.args.get('route')
-    initial_route = None
-    if route_param:
-        try:
-            route = Route.deserialize(route_param)
-            initial_route = route.to_dict()  # Convert to dict before passing to template
-        except Exception as e:
-            flash(f'Error loading route: {str(e)}', 'error')
-            return redirect(url_for('build_route'))
+    action = request.args.get('action')
     
-    return render_template('build_route.html', 
-                         prop_options=list(Prop),
-                         tag_options=list(Tag),
-                         tag_categories=list(TagCategory),
-                         tag_category_map=TAG_CATEGORY_MAP,
-                         initial_route=initial_route,
-                         MIN_TRICK_PROPS_COUNT=MIN_TRICK_PROPS_COUNT,
-                         MAX_TRICK_PROPS_COUNT=MAX_TRICK_PROPS_COUNT,
-                         MIN_TRICK_DIFFICULTY=MIN_TRICK_DIFFICULTY,
-                         MAX_TRICK_DIFFICULTY=MAX_TRICK_DIFFICULTY,
-                         DEFAULT_MIN_TRICK_PROPS_COUNT=DEFAULT_MIN_TRICK_PROPS_COUNT,
-                         DEFAULT_MAX_TRICK_PROPS_COUNT=DEFAULT_MAX_TRICK_PROPS_COUNT,
-                         DEFAULT_MIN_TRICK_DIFFICULTY=DEFAULT_MIN_TRICK_DIFFICULTY,
-                         DEFAULT_MAX_TRICK_DIFFICULTY=DEFAULT_MAX_TRICK_DIFFICULTY)
-
-@app.route('/created_route', methods=['GET', 'POST'])
-def created_route():
-    route_param = request.args.get('route') or request.form.get('route')
-    if not route_param:
-        return redirect(url_for('build_route'))
+    if not route_param and action != 'edit':
+        return redirect(url_for('route', action='edit'))
     
     try:
-        route = Route.deserialize(route_param)
-        return render_template('created_route.html', route=route)
+        route = Route.deserialize(route_param) if route_param else Route()
+        return render_template('route.html', 
+                             route=route,
+                             prop_options=list(Prop),
+                             tag_options=list(Tag),
+                             tag_categories=list(TagCategory),
+                             tag_category_map=TAG_CATEGORY_MAP,
+                             MIN_TRICK_PROPS_COUNT=MIN_TRICK_PROPS_COUNT,
+                             MAX_TRICK_PROPS_COUNT=MAX_TRICK_PROPS_COUNT,
+                             MIN_TRICK_DIFFICULTY=MIN_TRICK_DIFFICULTY,
+                             MAX_TRICK_DIFFICULTY=MAX_TRICK_DIFFICULTY,
+                             DEFAULT_MIN_TRICK_PROPS_COUNT=DEFAULT_MIN_TRICK_PROPS_COUNT,
+                             DEFAULT_MAX_TRICK_PROPS_COUNT=DEFAULT_MAX_TRICK_PROPS_COUNT,
+                             DEFAULT_MIN_TRICK_DIFFICULTY=DEFAULT_MIN_TRICK_DIFFICULTY,
+                             DEFAULT_MAX_TRICK_DIFFICULTY=DEFAULT_MAX_TRICK_DIFFICULTY)
     except Exception as e:
         flash(f'Error loading route: {str(e)}')
-        return redirect(url_for('build_route'))
+        return redirect(url_for('route', action='edit'))
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001, debug=True)

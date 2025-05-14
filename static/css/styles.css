@@ -365,7 +365,7 @@ body {
 }
 
 /* Edit and Print button styles */
-a.primary-button[href*="build_route"],
+a.primary-button[href*="route"],
 button.print-button {
     background-color: transparent;
     color: var(--accent-color);
@@ -373,7 +373,7 @@ button.print-button {
     border: 2px solid var(--accent-color);
 }
 
-a.primary-button[href*="build_route"]:hover,
+a.primary-button[href*="route"]:hover,
 button.print-button:hover {
     background-color: transparent;
     color: var(--accent-color);
