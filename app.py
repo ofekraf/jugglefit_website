@@ -12,8 +12,8 @@ from py_lib.consts import (
     DEFAULT_MIN_TRICK_DIFFICULTY, DEFAULT_MAX_TRICK_DIFFICULTY
 )
 from py_lib.utils.filter_tricks import filter_tricks
-from route_generator.route_generator import RouteGenerator
-from route_generator.exceptions import NotEnoughTricksFoundException
+from py_lib.route_generator.route_generator import RouteGenerator
+from py_lib.route_generator.exceptions import NotEnoughTricksFoundException
 
 app = Flask(__name__)
 
