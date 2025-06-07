@@ -1,0 +1,134 @@
+{% extends "utils/base.html" %}
+{% block title %}Donate to JuggleFit{% endblock %}
+{% block content %}
+<main class="main-content">
+    <section class="section donation-section">
+        <div class="section-container">
+            <h1 class="section-title">Support JuggleFit</h1>
+            <div class="donation-content">
+                <p class="donation-text">Your donation helps us grow the juggling community and make JuggleFit events more accessible to everyone. With your support, we can:</p>
+                <ul class="donation-benefits">
+                    <li>Organize more events and competitions</li>
+                    <li>Develop new features and improvements</li>
+                    <li>Provide equipment and resources to participants</li>
+                    <li>Create educational content and tutorials</li>
+                </ul>
+                
+                <div class="donation-options">
+                    <div class="currency-selector">
+                        <label for="currency-select">Select Currency:</label>
+                        <select id="currency-select" class="currency-select">
+                            <option value="ILS">ILS (₪)</option>
+                            <option value="USD">USD ($)</option>
+                            <option value="EUR">EUR (€)</option>
+                            <option value="GBP">GBP (£)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="donation-amounts">
+                        <button class="amount-button" data-amount="50">₪50</button>
+                        <button class="amount-button" data-amount="100">₪100</button>
+                        <button class="amount-button" data-amount="200">₪200</button>
+                        <button class="amount-button" data-amount="500">₪500</button>
+                        <div class="custom-amount">
+                            <input type="number" id="custom-amount" placeholder="Custom amount" min="1">
+                        </div>
+                    </div>
+                    
+                    <div class="donation-button-container">
+                        <button id="checkout-button" class="checkout-button">Donate Now</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Stripe with your publishable key
+        const stripe = Stripe('{{ stripe_publishable_key }}');
+        let selectedAmount = 0;
+        let selectedCurrency = 'ILS';
+        
+        // Handle currency selection
+        document.getElementById('currency-select').addEventListener('change', function() {
+            selectedCurrency = this.value;
+            updateAmountButtons();
+        });
+        
+        // Update amount buttons based on currency
+        function updateAmountButtons() {
+            const buttons = document.querySelectorAll('.amount-button');
+            const amounts = {
+                'ILS': [50, 100, 200, 500],
+                'USD': [10, 25, 50, 100],
+                'EUR': [10, 25, 50, 100],
+                'GBP': [10, 25, 50, 100]
+            };
+            const symbols = {
+                'ILS': '₪',
+                'USD': '$',
+                'EUR': '€',
+                'GBP': '£'
+            };
+            
+            buttons.forEach((button, index) => {
+                const amount = amounts[selectedCurrency][index];
+                button.dataset.amount = amount;
+                button.textContent = `${symbols[selectedCurrency]}${amount}`;
+            });
+        }
+        
+        // Handle amount button clicks
+        document.querySelectorAll('.amount-button').forEach(button => {
+            button.addEventListener('click', function() {
+                document.querySelectorAll('.amount-button').forEach(btn => btn.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedAmount = parseFloat(this.dataset.amount);
+                document.getElementById('custom-amount').value = '';
+            });
+        });
+        
+        // Handle custom amount input
+        document.getElementById('custom-amount').addEventListener('input', function() {
+            document.querySelectorAll('.amount-button').forEach(btn => btn.classList.remove('selected'));
+            selectedAmount = parseFloat(this.value) || 0;
+        });
+        
+        // Handle checkout button click
+        document.getElementById('checkout-button').addEventListener('click', function() {
+            const amount = selectedAmount || 50; // Default to 50 if no amount selected
+            
+            // Create a checkout session on your server
+            fetch('/create-checkout-session', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    amount: amount,
+                    currency: selectedCurrency
+                }),
+            })
+            .then(response => response.json())
+            .then(session => {
+                return stripe.redirectToCheckout({ sessionId: session.id });
+            })
+            .then(result => {
+                if (result.error) {
+                    alert(result.error.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            });
+        });
+        
+        // Initialize with default currency
+        updateAmountButtons();
+    });
+</script>
+{% endblock %} 
