@@ -1,0 +1,353 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="552baee5-abe5-4f75-a5c0-d7b189be8b2c" name="Changes" comment="first run through figma edits" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Flask Main" />
+        <option value="HTML File" />
+      </list>
+    </option>
+  </component>
+  <component name="FlaskConsoleOptions" custom-start-script="import sys&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;from flask.cli import ScriptInfo&#10;locals().update(ScriptInfo(create_app=None).load_app().make_shell_context())&#10;print(&quot;Python %s on %s\nApp: %s [%s]\nInstance: %s&quot; % (sys.version, sys.platform, app.import_name, app.env, app.instance_path))">
+    <envs>
+      <env key="FLASK_APP" value="app" />
+    </envs>
+    <option name="myCustomStartScript" value="import sys&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;from flask.cli import ScriptInfo&#10;locals().update(ScriptInfo(create_app=None).load_app().make_shell_context())&#10;print(&quot;Python %s on %s\nApp: %s [%s]\nInstance: %s&quot; % (sys.version, sys.platform, app.import_name, app.env, app.instance_path))" />
+    <option name="myEnvs">
+      <map>
+        <entry key="FLASK_APP" value="app" />
+      </map>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "ofekraf"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/ofekraf/jugglefit_website.git",
+    "accountId": "fca75fb9-c150-4eb7-aab4-de4daa59ab3a"
+  }
+}]]></component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 0
+}</component>
+  <component name="ProjectId" id="2tJKzbJgbVoZLsGmgvfwBdxSXPU" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "DefaultHtmlFileTemplate": "HTML File",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "git-widget-placeholder": "main",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable",
+    "vue.rearranger.settings.migration": "true"
+  },
+  "keyToStringList": {
+    "com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File": [
+      "Python"
+    ]
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/static/images" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Python.scratch_18">
+    <configuration name="scratch_17" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="jugglefit_website" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$APPLICATION_CONFIG_DIR$/scratches" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$APPLICATION_CONFIG_DIR$/scratches/scratch_17.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="scratch_18" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="jugglefit_website" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$APPLICATION_CONFIG_DIR$/scratches" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$APPLICATION_CONFIG_DIR$/scratches/scratch_18.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="jugglefit_website" type="Python.FlaskServer">
+      <module name="jugglefit_website" />
+      <option name="target" value="$PROJECT_DIR$/app.py" />
+      <option name="targetType" value="PATH" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="launchJavascriptDebuger" value="false" />
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Python.scratch_17" />
+      <item itemvalue="Python.scratch_18" />
+      <item itemvalue="Flask server.jugglefit_website" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.scratch_18" />
+        <item itemvalue="Python.scratch_17" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-python-sdk-880ecab49056-36ea0e71a18c-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-251.25410.122" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="552baee5-abe5-4f75-a5c0-d7b189be8b2c" name="Changes" comment="" />
+      <created>1740065001027</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1740065001027</updated>
+      <workItem from="1740065003924" duration="23989000" />
+      <workItem from="1740312169890" duration="1535000" />
+      <workItem from="1740388096179" duration="45380000" />
+      <workItem from="1741034525787" duration="5676000" />
+      <workItem from="1741097261171" duration="221000" />
+      <workItem from="1741180676286" duration="105000" />
+      <workItem from="1743005674955" duration="7570000" />
+      <workItem from="1743346906261" duration="3251000" />
+      <workItem from="1743524564807" duration="16967000" />
+      <workItem from="1749306710986" duration="33000" />
+    </task>
+    <task id="LOCAL-00001" summary="Initial commit of existing project">
+      <option name="closed" value="true" />
+      <created>1740067493553</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1740067493553</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Updated to ensure footer doesn’t overlap content; content remains centered with larger font. + Updated with side-by-side Include/Exclude sections, mutually exclusive checkboxes via JavaScript, and footer fix">
+      <option name="closed" value="true" />
+      <created>1740144875605</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1740144875605</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Updated to include the JavaScript file and fix footer positioning">
+      <option name="closed" value="true" />
+      <created>1740145239398</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1740145239398</updated>
+    </task>
+    <task id="LOCAL-00004" summary="fixed instagram handle">
+      <option name="closed" value="true" />
+      <created>1740145602426</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1740145602426</updated>
+    </task>
+    <task id="LOCAL-00005" summary="added previous competitions sections">
+      <option name="closed" value="true" />
+      <created>1740146628254</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1740146628254</updated>
+    </task>
+    <task id="LOCAL-00006" summary="added a generation of a path">
+      <option name="closed" value="true" />
+      <created>1740158861675</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1740158861675</updated>
+    </task>
+    <task id="LOCAL-00007" summary="added inclusion and exclusion of tricks to trick generation">
+      <option name="closed" value="true" />
+      <created>1740228186936</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1740228186936</updated>
+    </task>
+    <task id="LOCAL-00008" summary="move sliders on the page">
+      <option name="closed" value="true" />
+      <created>1740228841176</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1740228841176</updated>
+    </task>
+    <task id="LOCAL-00009" summary="slider view adjustments">
+      <option name="closed" value="true" />
+      <created>1740231206256</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1740231206256</updated>
+    </task>
+    <task id="LOCAL-00010" summary="updated style to match logo colors">
+      <option name="closed" value="true" />
+      <created>1740234246481</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1740234246481</updated>
+    </task>
+    <task id="LOCAL-00011" summary="fix bold letters">
+      <option name="closed" value="true" />
+      <created>1740670396269</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1740670396269</updated>
+    </task>
+    <task id="LOCAL-00012" summary="beutifying created_route">
+      <option name="closed" value="true" />
+      <created>1740743589030</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1740743589030</updated>
+    </task>
+    <task id="LOCAL-00013" summary="updated README.md">
+      <option name="closed" value="true" />
+      <created>1740744624003</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1740744624003</updated>
+    </task>
+    <task id="LOCAL-00014" summary="change notation of tags">
+      <option name="closed" value="true" />
+      <created>1741038298756</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1741038298756</updated>
+    </task>
+    <task id="LOCAL-00015" summary="make difficulty optional for tricks">
+      <option name="closed" value="true" />
+      <created>1741038335753</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1741038335753</updated>
+    </task>
+    <task id="LOCAL-00016" summary="added ~40 tricks in clubs">
+      <option name="closed" value="true" />
+      <created>1741039475696</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1741039475696</updated>
+    </task>
+    <task id="LOCAL-00017" summary="first run through figma edits">
+      <option name="closed" value="true" />
+      <created>1743348140888</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1743348140888</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Initial commit of existing project" />
+    <MESSAGE value="Updated to ensure footer doesn’t overlap content; content remains centered with larger font. + Updated with side-by-side Include/Exclude sections, mutually exclusive checkboxes via JavaScript, and footer fix" />
+    <MESSAGE value="Updated to include the JavaScript file and fix footer positioning" />
+    <MESSAGE value="fixed instagram handle" />
+    <MESSAGE value="added previous competitions sections" />
+    <MESSAGE value="added a generation of a path" />
+    <MESSAGE value="added inclusion and exclusion of tricks to trick generation" />
+    <MESSAGE value="move sliders on the page" />
+    <MESSAGE value="slider view adjustments" />
+    <MESSAGE value="updated style to match logo colors" />
+    <MESSAGE value="fix bold letters" />
+    <MESSAGE value="beutifying created_route" />
+    <MESSAGE value="updated README.md" />
+    <MESSAGE value="change notation of tags" />
+    <MESSAGE value="make difficulty optional for tricks" />
+    <MESSAGE value="added ~40 tricks in clubs" />
+    <MESSAGE value="first run through figma edits" />
+    <option name="LAST_COMMIT_MESSAGE" value="first run through figma edits" />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/jugglefit_website$jugglefit_website.coverage" NAME="jugglefit_website Coverage Results" MODIFIED="1740670550614" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/jugglefit_website$scratch_18.coverage" NAME="scratch_18 Coverage Results" MODIFIED="1740827201761" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$APPLICATION_CONFIG_DIR$/scratches" />
+    <SUITE FILE_PATH="coverage/jugglefit_website$scratch_17.coverage" NAME="scratch_17 Coverage Results" MODIFIED="1740824278447" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$APPLICATION_CONFIG_DIR$/scratches" />
+  </component>
+</project>
