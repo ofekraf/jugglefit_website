@@ -111,6 +111,10 @@ def generate_route():
 def host_event():
     return render_template('host_event.html', team=TEAM)
 
+@app.route('/equipment_list', methods=['GET'])
+def equipment_list():
+    return render_template('equipment_list.html')
+
 @app.route('/build_route')
 def build_route():
     route_param = request.args.get('route', type=str)
