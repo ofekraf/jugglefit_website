@@ -2,14 +2,14 @@
 {% block title %}Past Events{% endblock %}
 {% block content %}
 
-<div class="centered-content fade-in">
+<div class="past-events-page">
     <div class="section-container">
         <h1 class="section-title">Past JuggleFit Competitions</h1>
         <p class="section-description">Explore the history of JuggleFit competitions, showcasing past events, their locations, routes, and champions.</p>
     </div>
     {% for event in past_events[::-1] %}
     <div class="past-event-button-container">
-        <button class="past-event-button" onclick="toggle_object('{{event.name}}')">{{ event.name }}</button>
+        <button class="past-event-button primary-button" onclick="toggle_object('{{event.name}}')">{{ event.name }}</button>
     </div>
     <div class="past-event-container" id="{{ event.name }}"  style="display: none">
         <ul>
@@ -43,8 +43,6 @@
                     </li>
                     {% endfor %}
                 </ul>
-            </li>
-
             </li>
         </ul>
     </div>
