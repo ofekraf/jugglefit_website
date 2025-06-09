@@ -195,7 +195,7 @@ FRONT_PAGE_PAST_EVENTS = [
                         Trick(name="9440022 3up 2-stage -> cascade", props_count=3),
                         Trick(name="30c 801", props_count=3),
                         Trick(name="overheads cascade laying on the back", props_count=5),
-                        Trick(name="(4x,6)* -> shower)", props_count=5, comment="Transition: (8,6x)"),
+                        Trick(name="(6,4x)* -> shower", props_count=5, comment="Transition: (8,6x)"),
                         Trick(name="50c sync fountain", props_count=6),
                         Trick(name="6c async any -> 4c 9555, backrosses 5's -> async any", props_count=6),
                         Trick(name="cascade -> 10c 99944 -> cascade", props_count=7),
