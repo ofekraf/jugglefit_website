@@ -58,6 +58,57 @@ def fetch_tricks():
         return jsonify(tricks_dict)
     except Exception as e:
         return str(e), 400
+    
+@api.route('/suggest_trick', methods=['POST'])
+def api_suggest_trick():
+    try:
+        data = request.get_json()
+        
+        # Validate required fields
+        required_fields = ['name', 'prop', 'props_count', 'difficulty']
+        for field in required_fields:
+            if field not in data:
+                return f'Missing required field: {field}', 400
+        
+        # Create the trick suggestion string
+        prop = Prop.get_key_by_value(data['prop'])
+        if not prop:
+            return 'Invalid prop type', 400
+            
+        suggestion = {
+            'name': data['name'],
+            'props_count': int(data['props_count']),
+            'difficulty': int(data['difficulty']),
+            'tags': data.get('tags', []),
+            'comment': data.get('comment')
+        }
+        
+        # Format the suggestion as a line to be added to the file
+        suggestion_line = f"{suggestion['name']} | {suggestion['props_count']} | {suggestion['difficulty']}"
+        if suggestion['tags']:
+            suggestion_line += f" | {', '.join(suggestion['tags'])}"
+        if suggestion['comment']:
+            suggestion_line += f" | {suggestion['comment']}"
+        suggestion_line += "\n"
+        
+        # Determine the target file based on prop type
+        prop_file_map = {
+            Prop.BALLS: 'balls.txt',
+            Prop.CLUBS: 'clubs.txt',
+            Prop.RINGS: 'rings.txt'
+        }
+        
+        target_file = f"database/tricks/suggestions/{prop_file_map[prop]}"
+        
+        # Append the suggestion to the file
+        with open(target_file, 'a', encoding='utf-8') as f:
+            f.write(suggestion_line)
+        
+        return 'Suggestion submitted successfully', 200
+        
+    except Exception as e:
+        return str(e), 400
+
 
 # Register the API blueprint
 app.register_blueprint(api)
@@ -154,6 +205,27 @@ def created_route():
     except Exception as e:
         flash(f'Error loading route: {str(e)}')
         return redirect(url_for('build_route'))
+
+@app.route('/donate')
+def donate():
+    return render_template('donate.html')
+
+@app.route('/suggest_trick', methods=['GET'])
+def suggest_trick():
+    return render_template('suggest_trick.html',
+                         prop_options=list(Prop),
+                         tag_options=list(Tag),
+                         tag_categories=list(TagCategory),
+                         tag_category_map=TAG_CATEGORY_MAP,
+                         MIN_TRICK_PROPS_COUNT=MIN_TRICK_PROPS_COUNT,
+                         MAX_TRICK_PROPS_COUNT=MAX_TRICK_PROPS_COUNT,
+                         MIN_TRICK_DIFFICULTY=MIN_TRICK_DIFFICULTY,
+                         MAX_TRICK_DIFFICULTY=MAX_TRICK_DIFFICULTY,
+                         DEFAULT_MIN_TRICK_PROPS_COUNT=DEFAULT_MIN_TRICK_PROPS_COUNT,
+                         DEFAULT_MAX_TRICK_PROPS_COUNT=DEFAULT_MAX_TRICK_PROPS_COUNT,
+                         DEFAULT_MIN_TRICK_DIFFICULTY=DEFAULT_MIN_TRICK_DIFFICULTY,
+                         DEFAULT_MAX_TRICK_DIFFICULTY=DEFAULT_MAX_TRICK_DIFFICULTY)
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001, debug=True)

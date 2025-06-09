@@ -1,0 +1,466 @@
+{% extends "utils/base.html" %}
+{% block title %}Suggest a New Trick{% endblock %}
+{% block content %}
+<div class="suggestion-page">
+    <h1>Suggest a New Trick</h1>
+    <p class="suggestion-intro">
+        Help us expand the JuggleFit tricks database! Fill out the form below to suggest a new trick.
+        Your contribution will help make JuggleFit more diverse and challenging.
+    </p>
+
+    <div class="suggestion-form">
+        <div class="form-section">
+            <label class="form-label">Trick Name</label>
+            <input type="text" id="trick_name" class="form-input" placeholder="Enter trick name" required>
+        </div>
+
+        <div class="form-section">
+            <label class="form-label">Prop Type</label>
+            <div class="prop-options">
+                {% for prop in prop_options %}
+                <label class="prop-option">
+                    <input type="radio" name="prop" value="{{ prop.value }}" {% if loop.first %}checked{% endif %}>
+                    <span class="prop-label">{{ prop.value }}</span>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="form-section">
+            <label class="form-label">Number of Props</label>
+            <div id="props_slider" class="slider"></div>
+            <div class="slider-values">
+                <span id="props_value">{{ DEFAULT_MIN_TRICK_PROPS_COUNT }}</span>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <label class="form-label">Difficulty Level</label>
+            <div id="difficulty_slider" class="slider"></div>
+            <div class="slider-values">
+                <span id="difficulty_value">{{ DEFAULT_MIN_TRICK_DIFFICULTY }}</span>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <label class="form-label">Tags (Optional)</label>
+            <div class="tag-categories">
+                {% for category in tag_categories %}
+                <div class="tag-category">
+                    <div class="category-header" onclick="toggleCategory('{{ category.value }}')">
+                        <span>{{ category.value }}</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="category-tags" id="{{ category.value }}_tags">
+                        {% for tag in tag_category_map[category] %}
+                        <label class="tag-option">
+                            <input type="checkbox" name="tags" value="{{ tag.value }}">
+                            <span class="tag-label">{{ tag.value }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="form-section">
+            <label class="form-label">Comment (Optional)</label>
+            <textarea id="comment" class="form-textarea" placeholder="Add any additional details about the trick"></textarea>
+        </div>
+
+        <button id="submit_suggestion" class="submit-button">Submit Suggestion</button>
+    </div>
+
+    <div class="inspiration-section">
+        <h2>Need Inspiration?</h2>
+        <p>Browse existing tricks to get ideas for your suggestion:</p>
+        <div class="tricks-container">
+            <div class="tricks-column">
+                <div id="all_tricks" class="tricks-grid">
+                    <!-- Tricks will be populated by filterTricks function -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div id="toast" class="toast-notification"></div>
+
+<!-- Include noUISlider CSS and JS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.js"></script>
+<script src="{{ url_for('static', filename='js/tricks_utils.js') }}"></script>
+<script src="{{ url_for('static', filename='js/general.js') }}"></script>
+
+<script>
+    // Constants from trick.py
+    const MIN_TRICK_PROPS_COUNT = parseInt('{{ MIN_TRICK_PROPS_COUNT }}');
+    const MAX_TRICK_PROPS_COUNT = parseInt('{{ MAX_TRICK_PROPS_COUNT }}');
+    const MIN_TRICK_DIFFICULTY = parseInt('{{ MIN_TRICK_DIFFICULTY }}');
+    const MAX_TRICK_DIFFICULTY = parseInt('{{ MAX_TRICK_DIFFICULTY }}');
+    const DEFAULT_MIN_TRICK_PROPS_COUNT = parseInt('{{ DEFAULT_MIN_TRICK_PROPS_COUNT }}');
+    const DEFAULT_MAX_TRICK_PROPS_COUNT = parseInt('{{ DEFAULT_MAX_TRICK_PROPS_COUNT }}');
+    const DEFAULT_MIN_TRICK_DIFFICULTY = parseInt('{{ DEFAULT_MIN_TRICK_DIFFICULTY }}');
+    const DEFAULT_MAX_TRICK_DIFFICULTY = parseInt('{{ DEFAULT_MAX_TRICK_DIFFICULTY }}');
+
+    // Toast notification function
+    function showToast(message, focusElementId = null) {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.classList.add('show');
+        
+        if (focusElementId) {
+            const element = document.getElementById(focusElementId);
+            if (element) {
+                element.focus();
+                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+        
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3000);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize sliders
+        const propsSlider = document.getElementById('props_slider');
+        const difficultySlider = document.getElementById('difficulty_slider');
+        
+        noUiSlider.create(propsSlider, {
+            start: [DEFAULT_MIN_TRICK_PROPS_COUNT],
+            connect: true,
+            range: {
+                'min': MIN_TRICK_PROPS_COUNT,
+                'max': MAX_TRICK_PROPS_COUNT
+            },
+            step: 1
+        });
+
+        noUiSlider.create(difficultySlider, {
+            start: [DEFAULT_MIN_TRICK_DIFFICULTY],
+            connect: true,
+            range: {
+                'min': MIN_TRICK_DIFFICULTY,
+                'max': MAX_TRICK_DIFFICULTY
+            },
+            step: 1
+        });
+
+        // Update slider value displays
+        propsSlider.noUiSlider.on('update', function(values) {
+            document.getElementById('props_value').textContent = Math.round(values[0]);
+        });
+
+        difficultySlider.noUiSlider.on('update', function(values) {
+            document.getElementById('difficulty_value').textContent = Math.round(values[0]);
+        });
+
+        // Handle prop selection for inspiration section
+        const propInputs = document.querySelectorAll('input[name="prop"]');
+        propInputs.forEach(input => {
+            input.addEventListener('change', function() {
+                filterTricks();
+            });
+        });
+
+        // Initialize tricks display
+        filterTricks();
+
+        // Handle form submission
+        document.getElementById('submit_suggestion').addEventListener('click', async function() {
+            const name = document.getElementById('trick_name').value.trim();
+            const prop = document.querySelector('input[name="prop"]:checked').value;
+            const propsCount = Math.round(propsSlider.noUiSlider.get());
+            const difficulty = Math.round(difficultySlider.noUiSlider.get());
+            const tags = Array.from(document.querySelectorAll('input[name="tags"]:checked')).map(cb => cb.value);
+            const comment = document.getElementById('comment').value.trim();
+
+            if (!name) {
+                showToast('Please enter a trick name', 'trick_name');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/suggest_trick', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name,
+                        prop,
+                        props_count: propsCount,
+                        difficulty,
+                        tags,
+                        comment
+                    })
+                });
+
+                if (response.ok) {
+                    showToast('Thank you for your suggestion!');
+                    // Reset form
+                    document.getElementById('trick_name').value = '';
+                    document.getElementById('comment').value = '';
+                    propsSlider.noUiSlider.set(DEFAULT_MIN_TRICK_PROPS_COUNT);
+                    difficultySlider.noUiSlider.set(DEFAULT_MIN_TRICK_DIFFICULTY);
+                    document.querySelectorAll('input[name="tags"]:checked').forEach(cb => cb.checked = false);
+                } else {
+                    const error = await response.text();
+                    showToast(error);
+                }
+            } catch (error) {
+                showToast('An error occurred. Please try again.');
+            }
+        });
+    });
+
+    function toggleCategory(categoryId) {
+        const categoryTags = document.getElementById(`${categoryId}_tags`);
+        const header = categoryTags.previousElementSibling;
+        const icon = header.querySelector('i');
+        
+        categoryTags.classList.toggle('expanded');
+        icon.classList.toggle('fa-chevron-up');
+        icon.classList.toggle('fa-chevron-down');
+    }
+
+    async function filterTricks() {
+        const prop = document.querySelector('input[name="prop"]:checked').value;
+        const tricksContainer = document.getElementById('all_tricks');
+        
+        try {
+            const response = await fetch('/api/fetch_tricks', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    prop_type: prop,
+                    min_props: MIN_TRICK_PROPS_COUNT,
+                    max_props: MAX_TRICK_PROPS_COUNT,
+                    min_difficulty: MIN_TRICK_DIFFICULTY,
+                    max_difficulty: MAX_TRICK_DIFFICULTY
+                })
+            });
+
+            if (response.ok) {
+                const tricks = await response.json();
+                tricksContainer.innerHTML = tricks.map(trick => `
+                    <div class="trick-card">
+                        <h3>${trick.name}</h3>
+                        <p>Props: ${trick.props_count}</p>
+                        <p>Difficulty: ${trick.difficulty}</p>
+                        ${trick.tags.length ? `<p>Tags: ${trick.tags.join(', ')}</p>` : ''}
+                        ${trick.comment ? `<p>${trick.comment}</p>` : ''}
+                    </div>
+                `).join('');
+            } else {
+                tricksContainer.innerHTML = '<p class="error">Failed to load tricks</p>';
+            }
+        } catch (error) {
+            tricksContainer.innerHTML = '<p class="error">Failed to load tricks</p>';
+        }
+    }
+</script>
+
+<style>
+.suggestion-page {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.suggestion-intro {
+    text-align: center;
+    margin-bottom: 3rem;
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+.suggestion-form {
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 3rem;
+}
+
+.form-section {
+    margin-bottom: 2rem;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+    color: #333;
+}
+
+.form-input,
+.form-textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+.form-textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.prop-options {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.prop-option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+.slider {
+    margin: 1rem 0;
+}
+
+.slider-values {
+    display: flex;
+    justify-content: space-between;
+    color: #666;
+}
+
+.tag-categories {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.category-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem;
+    background: #f5f5f5;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.category-tags {
+    display: none;
+    padding: 1rem;
+    background: #f9f9f9;
+    border-radius: 0 0 5px 5px;
+}
+
+.category-tags.expanded {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 0.5rem;
+}
+
+.tag-option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+.submit-button {
+    display: block;
+    width: 100%;
+    padding: 1rem;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.submit-button:hover {
+    background: #45a049;
+}
+
+.inspiration-section {
+    margin-top: 3rem;
+}
+
+.inspiration-section h2 {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.inspiration-section p {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: #666;
+}
+
+.tricks-container {
+    margin-top: 1rem;
+}
+
+.tricks-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+}
+
+.trick-card {
+    background: white;
+    padding: 1rem;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.trick-card h3 {
+    margin: 0 0 0.5rem 0;
+    color: #333;
+}
+
+.trick-card p {
+    margin: 0.25rem 0;
+    color: #666;
+}
+
+.toast-notification {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 5px;
+    display: none;
+    z-index: 1000;
+}
+
+.toast-notification.show {
+    display: block;
+}
+
+@media (max-width: 768px) {
+    .suggestion-form {
+        padding: 1rem;
+    }
+
+    .category-tags.expanded {
+        grid-template-columns: 1fr;
+    }
+
+    .tricks-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %} 
