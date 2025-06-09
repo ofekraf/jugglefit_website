@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, Blueprint
-from database.events.past_events import ALL_PAST_EVENTS, FRONT_PAGE_PAST_EVENTS
-from database.events.upcoming_events import UPCOMING_EVENTS
-from database.organization.team import TEAM
+from hardcoded_database.events.past_events import ALL_PAST_EVENTS, FRONT_PAGE_PAST_EVENTS
+from hardcoded_database.events.upcoming_events import UPCOMING_EVENTS
+from hardcoded_database.organization.team import TEAM
 from py_lib.prop import Prop
 from py_lib.tag import TAG_CATEGORY_MAP, Tag, TagCategory
 from py_lib.route import Route
@@ -14,8 +14,15 @@ from py_lib.consts import (
 from py_lib.utils.filter_tricks import filter_tricks
 from py_lib.route_generator.route_generator import RouteGenerator
 from py_lib.route_generator.exceptions import NotEnoughTricksFoundException
+from urllib.parse import unquote
+from database.url_shortener_db import init_db, get_or_create_short_url, get_long_url_and_refresh, start_cleanup_thread
 
 app = Flask(__name__)
+
+# Call init_db and start cleanup thread on app startup
+with app.app_context():
+    init_db()
+    start_cleanup_thread()
 
 # Create API blueprint
 api = Blueprint('api', __name__, url_prefix='/api')
@@ -58,6 +65,18 @@ def fetch_tricks():
         return jsonify(tricks_dict)
     except Exception as e:
         return str(e), 400
+
+@api.route('/shorten_url', methods=['POST'])
+def shorten_url():
+    long_url = request.json.get('long_url')
+    if not long_url:
+        return jsonify({"error": "long_url is required"}), 400
+    try:
+        code = get_or_create_short_url(long_url)
+        short_url = url_for('redirect_to_long_url', code=code, _external=True)
+        return jsonify({"short_url": short_url, "code": code}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 # Register the API blueprint
 app.register_blueprint(api)
@@ -121,7 +140,7 @@ def build_route():
     initial_route = None
     if route_param:
         try:
-            route = Route.deserialize(route_param)
+            route = Route.deserialize(unquote(route_param))
             initial_route = route.to_dict()  # Convert to dict before passing to template
         except Exception as e:
             flash(f'Error loading route: {str(e)}', 'error')
@@ -144,7 +163,7 @@ def build_route():
 
 @app.route('/created_route', methods=['GET'])
 def created_route():
-    route_param = request.args.get('route')
+    route_param = request.args.get('route', type=str)
     if not route_param:
         return redirect(url_for('build_route'))
     
@@ -154,6 +173,19 @@ def created_route():
     except Exception as e:
         flash(f'Error loading route: {str(e)}')
         return redirect(url_for('build_route'))
+
+@app.route('/shortener/<code>')
+def redirect_to_long_url(code):
+    try:
+        long_url = get_long_url_and_refresh(code)
+        if long_url:
+            return redirect(long_url)
+        else:
+            flash('Short URL not found.', 'error')
+            return redirect(url_for('home'))
+    except Exception as e:
+        flash(f'Error retrieving URL: {str(e)}', 'error')
+        return redirect(url_for('home'))
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001, debug=True)

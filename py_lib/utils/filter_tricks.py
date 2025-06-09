@@ -7,7 +7,7 @@ from py_lib.consts import (
     MIN_TRICK_PROPS_COUNT, MAX_TRICK_PROPS_COUNT,
     MIN_TRICK_DIFFICULTY, MAX_TRICK_DIFFICULTY
 )
-from database.tricks import PROP_TO_TRICKS
+from hardcoded_database.tricks import PROP_TO_TRICKS
 from py_lib.utils.general import has_intersection
 
 def filter_tricks(

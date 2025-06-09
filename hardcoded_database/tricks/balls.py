@@ -295,6 +295,7 @@ BALLS_TRICKS = [
     ### 6 props body throws ###
     Trick(name="756 -> 6c 756, backross 5 -> 756", props_count=6, difficulty=66, tags={Tag.Backcrosses, Tag.AsyncSiteswap}),
     Trick(name="6c fountain -> 6c overheads -> 6c fountain", props_count=6, difficulty=45, tags={Tag.Overheads}),
+    Trick(name="12c 774 -> 12c 774, shoulder 4", props_count=6, difficulty=62, tags={Tag.Shoulders, Tag.AsyncSiteswap}),
     
     ### 7 props body throws ###
     Trick(name="cascade -> 7c backrosses", props_count=7, difficulty=74, tags={Tag.Backcrosses})
