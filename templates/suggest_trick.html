@@ -1,84 +1,108 @@
 {% extends "utils/base.html" %}
 {% block title %}Suggest a New Trick{% endblock %}
 {% block content %}
-<div class="suggestion-page">
-    <h1>Suggest a New Trick</h1>
-    <p class="suggestion-intro">
-        Help us expand the JuggleFit tricks database! Fill out the form below to suggest a new trick.
-        Your contribution will help make JuggleFit more diverse and challenging.
-    </p>
-
-    <div class="suggestion-form">
-        <div class="form-section">
-            <label class="form-label">Trick Name</label>
-            <input type="text" id="trick_name" class="form-input" placeholder="Enter trick name" required>
+<div class="route-page suggest-trick">
+    <div class="route-header">
+        <h1 class="route-title">Suggest a New Trick</h1>
+        <div class="route-description">
+            <p>Help us expand the JuggleFit tricks database! Fill out the form below to suggest a new trick.
+            Your contribution will help make JuggleFit more diverse and challenging.</p>
         </div>
+    </div>
 
-        <div class="form-section">
-            <label class="form-label">Prop Type</label>
-            <div class="prop-options">
-                {% for prop in prop_options %}
-                <label class="prop-option">
-                    <input type="radio" name="prop" value="{{ prop.value }}" {% if loop.first %}checked{% endif %}>
-                    <span class="prop-label">{{ prop.value }}</span>
-                </label>
-                {% endfor %}
-            </div>
-        </div>
-
-        <div class="form-section">
-            <label class="form-label">Number of Props</label>
-            <div id="props_slider" class="slider"></div>
-            <div class="slider-values">
-                <span id="props_value">{{ DEFAULT_MIN_TRICK_PROPS_COUNT }}</span>
-            </div>
-        </div>
-
-        <div class="form-section">
-            <label class="form-label">Difficulty Level</label>
-            <div id="difficulty_slider" class="slider"></div>
-            <div class="slider-values">
-                <span id="difficulty_value">{{ DEFAULT_MIN_TRICK_DIFFICULTY }}</span>
-            </div>
-        </div>
-
-        <div class="form-section">
-            <label class="form-label">Tags (Optional)</label>
-            <div class="tag-categories">
-                {% for category in tag_categories %}
-                <div class="tag-category">
-                    <div class="category-header" onclick="toggleCategory('{{ category.value }}')">
-                        <span>{{ category.value }}</span>
-                        <i class="fas fa-chevron-down"></i>
+    <div class="route-form">
+        <!-- Add Custom Trick Section -->
+        <div class="form-section custom-trick-section">
+            <h4 class="subsection-title">Add Custom Trick</h4>
+            <div class="custom-trick-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="trick_name">Trick Name</label>
+                        <input type="text" id="trick_name" class="form-input" placeholder="Enter trick name">
                     </div>
-                    <div class="category-tags" id="{{ category.value }}_tags">
-                        {% for tag in tag_category_map[category] %}
-                        <label class="tag-option">
-                            <input type="checkbox" name="tags" value="{{ tag.value }}">
-                            <span class="tag-label">{{ tag.value }}</span>
+                    <div class="form-group">
+                        <label for="props_count">Number of Props</label>
+                        <div class="slider-container">
+                            <div class="slider-wrapper">
+                                <input type="range" id="props_count" class="custom-range" 
+                                    min="{{ MIN_TRICK_PROPS_COUNT }}" 
+                                    max="{{ MAX_TRICK_PROPS_COUNT }}" 
+                                    value="{{ DEFAULT_MIN_TRICK_PROPS_COUNT }}">
+                                <span id="props_value" class="slider-value">{{ DEFAULT_MIN_TRICK_PROPS_COUNT }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="prop_type">Prop Type</label>
+                    <div class="prop-group">
+                        {% for prop in prop_options %}
+                        <label class="prop-option {% if loop.first %}selected{% endif %}" data-prop-type="{{ prop }}">
+                            <input type="radio" name="prop" class="prop-option-input" value="{{ prop.value }}" {% if loop.first %}checked{% endif %}> 
+                            <span class="prop-option-name">{{ prop.value }}</span>
+                            <div class="prop-icon"></div>
                         </label>
                         {% endfor %}
                     </div>
                 </div>
-                {% endfor %}
+
+                <div class="form-group">
+                    <label for="difficulty">Difficulty Level</label>
+                    <div class="slider-container">
+                        <div class="slider-wrapper">
+                            <input type="range" id="difficulty" class="custom-range" 
+                                min="{{ MIN_TRICK_DIFFICULTY }}" 
+                                max="{{ MAX_TRICK_DIFFICULTY }}" 
+                                value="{{ DEFAULT_MIN_TRICK_DIFFICULTY }}">
+                            <span id="difficulty_value" class="slider-value">{{ DEFAULT_MIN_TRICK_DIFFICULTY }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="tags">Tags (Optional)</label>
+                    <div class="tags-grid">
+                        {% for category in tag_categories %}
+                        <div class="tag-category">
+                            <div class="tag-category-header">
+                                <input type="checkbox" id="category-{{ category.value }}" class="category-checkbox">
+                                <label for="category-{{ category.value }}" class="tag-category-title">
+                                    {{ category.value }}
+                                </label>
+                            </div>
+                            <div class="tag-category-content">
+                                {% for tag in tag_options %}
+                                    {% if tag_category_map[tag] == category %}
+                                    <div class="checkbox-container">
+                                        <input type="checkbox" id="tag-{{ tag.value }}" name="tags" value="{{ tag.value }}" class="tag-checkbox" data-category="{{ category.value }}">
+                                        <label for="tag-{{ tag.value }}">{{ tag.value }}</label>
+                                    </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="comment">Comment (Optional)</label>
+                    <textarea id="comment" class="form-input" placeholder="Add any additional details about the trick"></textarea>
+                </div>
+
+                <button id="submit_suggestion" class="add-trick">Submit Suggestion</button>
             </div>
         </div>
-
-        <div class="form-section">
-            <label class="form-label">Comment (Optional)</label>
-            <textarea id="comment" class="form-textarea" placeholder="Add any additional details about the trick"></textarea>
-        </div>
-
-        <button id="submit_suggestion" class="submit-button">Submit Suggestion</button>
     </div>
 
-    <div class="inspiration-section">
-        <h2>Need Inspiration?</h2>
-        <p>Browse existing tricks to get ideas for your suggestion:</p>
+    <div class="section">
+        <h2 class="section-title">Need Inspiration?</h2>
+        <p class="section-description">Browse existing tricks to get ideas for your suggestion:</p>
         <div class="tricks-container">
             <div class="tricks-column">
                 <div id="all_tricks" class="tricks-grid">
-                    <!-- Tricks will be populated by filterTricks function -->
+                    <!-- Tricks will be populated by updateInspirationTricks function -->
                 </div>
             </div>
         </div>
@@ -124,57 +148,78 @@
         }, 3000);
     }
 
+    // Store all tricks for client-side filtering
+    let allTricks = [];
+
     document.addEventListener('DOMContentLoaded', function() {
         // Initialize sliders
-        const propsSlider = document.getElementById('props_slider');
-        const difficultySlider = document.getElementById('difficulty_slider');
-        
-        noUiSlider.create(propsSlider, {
-            start: [DEFAULT_MIN_TRICK_PROPS_COUNT],
-            connect: true,
-            range: {
-                'min': MIN_TRICK_PROPS_COUNT,
-                'max': MAX_TRICK_PROPS_COUNT
-            },
-            step: 1
-        });
-
-        noUiSlider.create(difficultySlider, {
-            start: [DEFAULT_MIN_TRICK_DIFFICULTY],
-            connect: true,
-            range: {
-                'min': MIN_TRICK_DIFFICULTY,
-                'max': MAX_TRICK_DIFFICULTY
-            },
-            step: 1
-        });
+        const propsSlider = document.getElementById('props_count');
+        const difficultySlider = document.getElementById('difficulty');
+        const propsValue = document.getElementById('props_value');
+        const difficultyValue = document.getElementById('difficulty_value');
 
         // Update slider value displays
-        propsSlider.noUiSlider.on('update', function(values) {
-            document.getElementById('props_value').textContent = Math.round(values[0]);
+        propsSlider.addEventListener('input', function() {
+            propsValue.textContent = this.value;
+            updateInspirationTricks();
         });
 
-        difficultySlider.noUiSlider.on('update', function(values) {
-            document.getElementById('difficulty_value').textContent = Math.round(values[0]);
+        difficultySlider.addEventListener('input', function() {
+            difficultyValue.textContent = this.value;
+            updateInspirationTricks();
         });
 
-        // Handle prop selection for inspiration section
-        const propInputs = document.querySelectorAll('input[name="prop"]');
-        propInputs.forEach(input => {
-            input.addEventListener('change', function() {
-                filterTricks();
+        // Initialize prop selection
+        function initializePropSelection() {
+            const propOptions = document.querySelectorAll('.prop-option');
+            const propInputs = document.querySelectorAll('.prop-option-input');
+
+            function updateSelectedState() {
+                propOptions.forEach(option => {
+                    const input = option.querySelector('.prop-option-input');
+                    if (input.checked) {
+                        option.classList.add('selected');
+                        // Fetch tricks when prop type changes
+                        fetchTricks({ propType: input.value })
+                            .then(tricks => {
+                                allTricks = tricks;
+                                updateInspirationTricks();
+                            })
+                            .catch(error => {
+                                console.error('Error fetching tricks:', error);
+                                showToast('Error loading tricks. Please try again.');
+                            });
+                    } else {
+                        option.classList.remove('selected');
+                    }
+                });
+            }
+
+            updateSelectedState();
+
+            propOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    propInputs.forEach(input => input.checked = false);
+                    const input = this.querySelector('.prop-option-input');
+                    input.checked = true;
+                    updateSelectedState();
+                });
             });
-        });
 
-        // Initialize tricks display
-        filterTricks();
+            propInputs.forEach(input => {
+                input.addEventListener('change', updateSelectedState);
+            });
+        }
+
+        // Initialize prop selection
+        initializePropSelection();
 
         // Handle form submission
         document.getElementById('submit_suggestion').addEventListener('click', async function() {
             const name = document.getElementById('trick_name').value.trim();
             const prop = document.querySelector('input[name="prop"]:checked').value;
-            const propsCount = Math.round(propsSlider.noUiSlider.get());
-            const difficulty = Math.round(difficultySlider.noUiSlider.get());
+            const propsCount = Math.round(propsSlider.value);
+            const difficulty = Math.round(difficultySlider.value);
             const tags = Array.from(document.querySelectorAll('input[name="tags"]:checked')).map(cb => cb.value);
             const comment = document.getElementById('comment').value.trim();
 
@@ -204,8 +249,8 @@
                     // Reset form
                     document.getElementById('trick_name').value = '';
                     document.getElementById('comment').value = '';
-                    propsSlider.noUiSlider.set(DEFAULT_MIN_TRICK_PROPS_COUNT);
-                    difficultySlider.noUiSlider.set(DEFAULT_MIN_TRICK_DIFFICULTY);
+                    propsSlider.value = DEFAULT_MIN_TRICK_PROPS_COUNT;
+                    difficultySlider.value = DEFAULT_MIN_TRICK_DIFFICULTY;
                     document.querySelectorAll('input[name="tags"]:checked').forEach(cb => cb.checked = false);
                 } else {
                     const error = await response.text();
@@ -215,252 +260,111 @@
                 showToast('An error occurred. Please try again.');
             }
         });
+
+        // Tag category functionality
+        document.querySelectorAll('.tag-category-title').forEach(title => {
+            title.addEventListener('click', function(e) {
+                if (e.target.type === 'checkbox') return;
+                const header = this.closest('.tag-category-header');
+                const content = header.nextElementSibling;
+                content.classList.toggle('expanded');
+            });
+        });
+
+        // Category checkbox functionality
+        document.querySelectorAll('.category-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', function(e) {
+                e.stopPropagation();
+                const category = this.id.replace('category-', '');
+                const relatedCheckboxes = document.querySelectorAll(`.tag-checkbox[data-category="${category}"]`);
+                relatedCheckboxes.forEach(cb => {
+                    cb.checked = this.checked;
+                });
+                updateInspirationTricks();
+            });
+        });
+
+        // Update category checkbox when individual tags change
+        document.querySelectorAll('.tag-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const category = this.dataset.category;
+                const categoryCheckbox = document.getElementById(`category-${category}`);
+                const relatedCheckboxes = document.querySelectorAll(`.tag-checkbox[data-category="${category}"]`);
+                const allChecked = Array.from(relatedCheckboxes).every(cb => cb.checked);
+                const someChecked = Array.from(relatedCheckboxes).some(cb => cb.checked);
+                
+                categoryCheckbox.checked = allChecked;
+                categoryCheckbox.indeterminate = someChecked && !allChecked;
+                updateInspirationTricks();
+            });
+        });
     });
 
-    function toggleCategory(categoryId) {
-        const categoryTags = document.getElementById(`${categoryId}_tags`);
-        const header = categoryTags.previousElementSibling;
-        const icon = header.querySelector('i');
-        
-        categoryTags.classList.toggle('expanded');
-        icon.classList.toggle('fa-chevron-up');
-        icon.classList.toggle('fa-chevron-down');
-    }
-
-    async function filterTricks() {
+    function updateInspirationTricks() {
         const prop = document.querySelector('input[name="prop"]:checked').value;
+        const currentDifficulty = parseInt(document.getElementById('difficulty').value);
+        const currentPropsCount = parseInt(document.getElementById('props_count').value);
+        const minDifficulty = Math.max(MIN_TRICK_DIFFICULTY, currentDifficulty - 5);
+        const maxDifficulty = Math.min(MAX_TRICK_DIFFICULTY, currentDifficulty + 5);
         const tricksContainer = document.getElementById('all_tricks');
         
-        try {
-            const response = await fetch('/api/fetch_tricks', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    prop_type: prop,
-                    min_props: MIN_TRICK_PROPS_COUNT,
-                    max_props: MAX_TRICK_PROPS_COUNT,
-                    min_difficulty: MIN_TRICK_DIFFICULTY,
-                    max_difficulty: MAX_TRICK_DIFFICULTY
-                })
-            });
+        // Get selected tags
+        const selectedTags = Array.from(document.querySelectorAll('input[name="tags"]:checked')).map(cb => cb.value);
+        
+        // First filter by props count and difficulty
+        const filteredTricks = filterTricks(allTricks, currentPropsCount, currentPropsCount, minDifficulty, maxDifficulty, []);
+        
+        // Then filter by include tags
+        const filteredByTags = filterTricksIncludeTags(filteredTricks, selectedTags);
+        
+        const groupedTricks = groupTricksByPropsCount(filteredByTags);
 
-            if (response.ok) {
-                const tricks = await response.json();
-                tricksContainer.innerHTML = tricks.map(trick => `
-                    <div class="trick-card">
-                        <h3>${trick.name}</h3>
-                        <p>Props: ${trick.props_count}</p>
-                        <p>Difficulty: ${trick.difficulty}</p>
-                        ${trick.tags.length ? `<p>Tags: ${trick.tags.join(', ')}</p>` : ''}
-                        ${trick.comment ? `<p>${trick.comment}</p>` : ''}
-                    </div>
-                `).join('');
-            } else {
-                tricksContainer.innerHTML = '<p class="error">Failed to load tricks</p>';
-            }
-        } catch (error) {
-            tricksContainer.innerHTML = '<p class="error">Failed to load tricks</p>';
+        tricksContainer.innerHTML = '';
+        
+        // Display tricks for current props count only
+        if (groupedTricks[currentPropsCount]) {
+            const group = document.createElement('div');
+            group.className = 'props-group';
+            
+            const header = document.createElement('h3');
+            header.className = 'props-count-header';
+            header.textContent = `${currentPropsCount} Props`;
+            group.appendChild(header);
+            
+            const tricksList = document.createElement('div');
+            tricksList.className = 'tricks-list';
+            
+            // Sort tricks by name
+            groupedTricks[currentPropsCount].sort((a, b) => a.name.localeCompare(b.name)).forEach(trick => {
+                const trickItem = document.createElement('div');
+                trickItem.className = 'trick-item';
+                
+                const trickContent = document.createElement('div');
+                trickContent.className = 'trick-content';
+                
+                const trickMain = document.createElement('div');
+                trickMain.className = 'trick-main';
+                
+                const name = document.createElement('span');
+                name.className = 'trick-name';
+                name.textContent = trick.name;
+                trickMain.appendChild(name);
+                
+                if (trick.comment) {
+                    const comment = document.createElement('span');
+                    comment.className = 'trick-comment';
+                    comment.textContent = ` [${trick.comment}]`;
+                    trickMain.appendChild(comment);
+                }
+                
+                trickContent.appendChild(trickMain);
+                trickItem.appendChild(trickContent);
+                tricksList.appendChild(trickItem);
+            });
+            
+            group.appendChild(tricksList);
+            tricksContainer.appendChild(group);
         }
     }
 </script>
-
-<style>
-.suggestion-page {
-    max-width: 1200px;
-    margin: 2rem auto;
-    padding: 0 1rem;
-}
-
-.suggestion-intro {
-    text-align: center;
-    margin-bottom: 3rem;
-    font-size: 1.1rem;
-    line-height: 1.6;
-}
-
-.suggestion-form {
-    background: white;
-    padding: 2rem;
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    margin-bottom: 3rem;
-}
-
-.form-section {
-    margin-bottom: 2rem;
-}
-
-.form-label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: bold;
-    color: #333;
-}
-
-.form-input,
-.form-textarea {
-    width: 100%;
-    padding: 0.75rem;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 1rem;
-}
-
-.form-textarea {
-    min-height: 100px;
-    resize: vertical;
-}
-
-.prop-options {
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-}
-
-.prop-option {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    cursor: pointer;
-}
-
-.slider {
-    margin: 1rem 0;
-}
-
-.slider-values {
-    display: flex;
-    justify-content: space-between;
-    color: #666;
-}
-
-.tag-categories {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.category-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.5rem;
-    background: #f5f5f5;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-.category-tags {
-    display: none;
-    padding: 1rem;
-    background: #f9f9f9;
-    border-radius: 0 0 5px 5px;
-}
-
-.category-tags.expanded {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 0.5rem;
-}
-
-.tag-option {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    cursor: pointer;
-}
-
-.submit-button {
-    display: block;
-    width: 100%;
-    padding: 1rem;
-    background: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-size: 1.1rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.submit-button:hover {
-    background: #45a049;
-}
-
-.inspiration-section {
-    margin-top: 3rem;
-}
-
-.inspiration-section h2 {
-    text-align: center;
-    margin-bottom: 1rem;
-}
-
-.inspiration-section p {
-    text-align: center;
-    margin-bottom: 2rem;
-    color: #666;
-}
-
-.tricks-container {
-    margin-top: 1rem;
-}
-
-.tricks-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 1rem;
-}
-
-.trick-card {
-    background: white;
-    padding: 1rem;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.trick-card h3 {
-    margin: 0 0 0.5rem 0;
-    color: #333;
-}
-
-.trick-card p {
-    margin: 0.25rem 0;
-    color: #666;
-}
-
-.toast-notification {
-    position: fixed;
-    bottom: 2rem;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0, 0, 0, 0.8);
-    color: white;
-    padding: 1rem 2rem;
-    border-radius: 5px;
-    display: none;
-    z-index: 1000;
-}
-
-.toast-notification.show {
-    display: block;
-}
-
-@media (max-width: 768px) {
-    .suggestion-form {
-        padding: 1rem;
-    }
-
-    .category-tags.expanded {
-        grid-template-columns: 1fr;
-    }
-
-    .tricks-grid {
-        grid-template-columns: 1fr;
-    }
-}
-</style>
-{% endblock %} 
+{% endblock %}
