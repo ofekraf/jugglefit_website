@@ -1,0 +1,389 @@
+{% extends "utils/base.html" %}
+{% block title %}Suggest a New Trick{% endblock %}
+{% block content %}
+<div class="route-page suggest-trick">
+    <div class="route-header">
+        <h1 class="route-title">Suggest a New Trick</h1>
+        <div class="route-description">
+            <p>Help us expand the JuggleFit tricks database! Fill out the form below to suggest a new trick.
+            Your contribution will help make JuggleFit more diverse and challenging.
+            If you are familiar with git, it would be easier if you bulk-add tricks as a PR.
+        </p>
+        </div>
+    </div>
+
+    <div class="route-form">
+        <!-- Add Custom Trick Section -->
+        <div class="form-section custom-trick-section">
+            <h4 class="subsection-title">Add Custom Trick</h4>
+            <div class="custom-trick-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="trick_name">Trick Name</label>
+                        <input type="text" id="trick_name" class="form-input" placeholder="Enter trick name">
+                    </div>
+                    <div class="form-group">
+                        <label for="props_count">Number of Props</label>
+                        <div class="slider-container">
+                            <div class="slider-wrapper">
+                                <input type="range" id="props_count" class="custom-range" 
+                                    min="{{ MIN_TRICK_PROPS_COUNT }}" 
+                                    max="{{ MAX_TRICK_PROPS_COUNT }}" 
+                                    value="{{ DEFAULT_MIN_TRICK_PROPS_COUNT }}">
+                                <span id="props_value" class="slider-value">{{ DEFAULT_MIN_TRICK_PROPS_COUNT }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="prop_type">Prop Type</label>
+                    <div class="prop-group">
+                        {% for prop in prop_options %}
+                        <label class="prop-option {% if loop.first %}selected{% endif %}" data-prop-type="{{ prop }}">
+                            <input type="radio" name="prop" class="prop-option-input" value="{{ prop.value }}" {% if loop.first %}checked{% endif %}> 
+                            <span class="prop-option-name">{{ prop.value }}</span>
+                            <div class="prop-icon"></div>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="difficulty">Difficulty Level</label>
+                    <div class="slider-container">
+                        <div class="slider-wrapper">
+                            <input type="range" id="difficulty" class="custom-range" 
+                                min="{{ MIN_TRICK_DIFFICULTY }}" 
+                                max="{{ MAX_TRICK_DIFFICULTY }}" 
+                                value="{{ MIN_TRICK_DIFFICULTY }}">
+                            <span id="difficulty_value" class="slider-value">{{ MIN_TRICK_DIFFICULTY }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="tags">Tags (Optional)</label>
+                    <div class="tags-grid">
+                        {% for category in tag_categories %}
+                        <div class="tag-category">
+                            <div class="tag-category-header">
+                                <input type="checkbox" id="category-{{ category.value }}" class="category-checkbox">
+                                <label for="category-{{ category.value }}" class="tag-category-title">
+                                    {{ category.value }}
+                                </label>
+                            </div>
+                            <div class="tag-category-content">
+                                {% for tag in tag_options %}
+                                    {% if tag_category_map[tag] == category %}
+                                    <div class="checkbox-container">
+                                        <input type="checkbox" id="tag-{{ tag.value }}" name="tags" value="{{ tag.value }}" class="tag-checkbox" data-category="{{ category.value }}">
+                                        <label for="tag-{{ tag.value }}">{{ tag.value }}</label>
+                                    </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="comment">Comment (Optional)</label>
+                    <textarea id="comment" class="form-input" placeholder="Add any additional details about the trick"></textarea>
+                </div>
+
+                <button id="submit_suggestion" class="add-trick">Submit Suggestion</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2 class="section-title">Need Inspiration?</h2>
+        <p class="section-description">Browse existing tricks to get ideas for your suggestion:</p>
+        <div class="tricks-container">
+            <div class="tricks-column">
+                <div id="all_tricks" class="tricks-grid">
+                    <!-- Tricks will be populated by updateInspirationTricks function -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div id="toast" class="toast-notification"></div>
+
+<!-- Include noUISlider CSS and JS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.js"></script>
+<script src="{{ url_for('static', filename='js/tricks_utils.js') }}"></script>
+<script src="{{ url_for('static', filename='js/general.js') }}"></script>
+
+<script>
+    // Constants from trick.py
+    const MIN_TRICK_PROPS_COUNT = parseInt('{{ MIN_TRICK_PROPS_COUNT }}');
+    const MAX_TRICK_PROPS_COUNT = parseInt('{{ MAX_TRICK_PROPS_COUNT }}');
+    const MIN_TRICK_DIFFICULTY = parseInt('{{ MIN_TRICK_DIFFICULTY }}');
+    const MAX_TRICK_DIFFICULTY = parseInt('{{ MAX_TRICK_DIFFICULTY }}');
+    const DEFAULT_MIN_TRICK_PROPS_COUNT = parseInt('{{ DEFAULT_MIN_TRICK_PROPS_COUNT }}');
+    const DEFAULT_MAX_TRICK_PROPS_COUNT = parseInt('{{ DEFAULT_MAX_TRICK_PROPS_COUNT }}');
+    const DEFAULT_MIN_TRICK_DIFFICULTY = parseInt('{{ DEFAULT_MIN_TRICK_DIFFICULTY }}');
+    const DEFAULT_MAX_TRICK_DIFFICULTY = parseInt('{{ DEFAULT_MAX_TRICK_DIFFICULTY }}');
+
+    // Toast notification function
+    function showToast(message, focusElementId = null) {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.classList.add('show');
+        
+        if (focusElementId) {
+            const element = document.getElementById(focusElementId);
+            if (element) {
+                element.focus();
+                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+        
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3000);
+    }
+
+    // Store all tricks for client-side filtering
+    let allTricks = [];
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize sliders
+        const propsSlider = document.getElementById('props_count');
+        const difficultySlider = document.getElementById('difficulty');
+        const propsValue = document.getElementById('props_value');
+        const difficultyValue = document.getElementById('difficulty_value');
+
+        // Update slider value displays
+        propsSlider.addEventListener('input', function() {
+            propsValue.textContent = this.value;
+            updateInspirationTricks();
+        });
+
+        difficultySlider.addEventListener('input', function() {
+            difficultyValue.textContent = this.value;
+            updateInspirationTricks();
+        });
+
+        // Initialize prop selection
+        function initializePropSelection() {
+            const propOptions = document.querySelectorAll('.prop-option');
+            const propInputs = document.querySelectorAll('.prop-option-input');
+
+            function updateSelectedState() {
+                propOptions.forEach(option => {
+                    const input = option.querySelector('.prop-option-input');
+                    if (input.checked) {
+                        option.classList.add('selected');
+                        // Fetch tricks when prop type changes
+                        fetchTricks({ propType: input.value })
+                            .then(tricks => {
+                                allTricks = tricks;
+                                updateInspirationTricks();
+                            })
+                            .catch(error => {
+                                console.error('Error fetching tricks:', error);
+                                showToast('Error loading tricks. Please try again.');
+                            });
+                    } else {
+                        option.classList.remove('selected');
+                    }
+                });
+            }
+
+            updateSelectedState();
+
+            propOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    propInputs.forEach(input => input.checked = false);
+                    const input = this.querySelector('.prop-option-input');
+                    input.checked = true;
+                    updateSelectedState();
+                });
+            });
+
+            propInputs.forEach(input => {
+                input.addEventListener('change', updateSelectedState);
+            });
+        }
+
+        // Initialize prop selection
+        initializePropSelection();
+
+        // Handle form submission
+        document.getElementById('submit_suggestion').addEventListener('click', async function() {
+            const name = document.getElementById('trick_name').value.trim();
+            const prop = document.querySelector('input[name="prop"]:checked').value;
+            const propsCount = Math.round(propsSlider.value);
+            const difficulty = Math.round(difficultySlider.value);
+            const selectedTags = Array.from(document.querySelectorAll('input[name="tags"]:checked')).map(cb => cb.value);
+            const comment = document.getElementById('comment').value.trim();
+
+            if (!name) {
+                showToast('Please enter a trick name', 'trick_name');
+                return;
+            }
+
+            // Check if trick already exists
+            if (trickExists(allTricks, name, propsCount)) {
+                showToast('The trick already exists in the database.', 'trick_name');
+                return;
+            }
+
+            // Create request body with only non-empty values
+            const requestBody = {
+                name,
+                prop,
+                props_count: propsCount,
+                difficulty
+            };
+
+            // Only add tags if any are selected
+            if (selectedTags.length > 0) {
+                requestBody.tags = selectedTags;
+            }
+
+            // Only add comment if it's not empty
+            if (comment) {
+                requestBody.comment = comment;
+            }
+
+            try {
+                const response = await fetch('/api/suggest_trick', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                if (response.ok) {
+                    showToast('Thank you for your suggestion!');
+                    // Reset form
+                    document.getElementById('trick_name').value = '';
+                    document.getElementById('comment').value = '';
+                    difficultySlider.value = MIN_TRICK_DIFFICULTY;
+                    difficultyValue.textContent = MIN_TRICK_DIFFICULTY;
+                    document.querySelectorAll('input[name="tags"]:checked').forEach(cb => cb.checked = false);
+                } else {
+                    const error = await response.text();
+                    showToast(error);
+                }
+            } catch (error) {
+                showToast('An error occurred. Please try again.');
+            }
+        });
+
+        // Tag category functionality
+        document.querySelectorAll('.tag-category-title').forEach(title => {
+            title.addEventListener('click', function(e) {
+                if (e.target.type === 'checkbox') return;
+                const header = this.closest('.tag-category-header');
+                const content = header.nextElementSibling;
+                content.classList.toggle('expanded');
+            });
+        });
+
+        // Category checkbox functionality
+        document.querySelectorAll('.category-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', function(e) {
+                e.stopPropagation();
+                const category = this.id.replace('category-', '');
+                const relatedCheckboxes = document.querySelectorAll(`.tag-checkbox[data-category="${category}"]`);
+                relatedCheckboxes.forEach(cb => {
+                    cb.checked = this.checked;
+                });
+                updateInspirationTricks();
+            });
+        });
+
+        // Update category checkbox when individual tags change
+        document.querySelectorAll('.tag-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const category = this.dataset.category;
+                const categoryCheckbox = document.getElementById(`category-${category}`);
+                const relatedCheckboxes = document.querySelectorAll(`.tag-checkbox[data-category="${category}"]`);
+                const allChecked = Array.from(relatedCheckboxes).every(cb => cb.checked);
+                const someChecked = Array.from(relatedCheckboxes).some(cb => cb.checked);
+                
+                categoryCheckbox.checked = allChecked;
+                categoryCheckbox.indeterminate = someChecked && !allChecked;
+                updateInspirationTricks();
+            });
+        });
+    });
+
+    function updateInspirationTricks() {
+        const prop = document.querySelector('input[name="prop"]:checked').value;
+        const currentDifficulty = parseInt(document.getElementById('difficulty').value);
+        const currentPropsCount = parseInt(document.getElementById('props_count').value);
+        const minDifficulty = Math.max(MIN_TRICK_DIFFICULTY, currentDifficulty - 5);
+        const maxDifficulty = Math.min(MAX_TRICK_DIFFICULTY, currentDifficulty + 5);
+        const tricksContainer = document.getElementById('all_tricks');
+        
+        // Get selected tags
+        const selectedTags = Array.from(document.querySelectorAll('input[name="tags"]:checked')).map(cb => cb.value);
+        
+        // First filter by props count and difficulty
+        const filteredTricks = filterTricks(allTricks, currentPropsCount, currentPropsCount, minDifficulty, maxDifficulty, []);
+        
+        // Then filter by include tags
+        const filteredByTags = filterTricksIncludeTags(filteredTricks, selectedTags);
+        
+        const groupedTricks = groupTricksByPropsCount(filteredByTags);
+
+        tricksContainer.innerHTML = '';
+        
+        // Display tricks for current props count only
+        if (groupedTricks[currentPropsCount]) {
+            const group = document.createElement('div');
+            group.className = 'props-group';
+            
+            const header = document.createElement('h3');
+            header.className = 'props-count-header';
+            header.textContent = `${currentPropsCount} Props`;
+            group.appendChild(header);
+            
+            const tricksList = document.createElement('div');
+            tricksList.className = 'tricks-list';
+            
+            // Sort tricks by name
+            groupedTricks[currentPropsCount].sort((a, b) => a.name.localeCompare(b.name)).forEach(trick => {
+                const trickItem = document.createElement('div');
+                trickItem.className = 'trick-item';
+                
+                const trickContent = document.createElement('div');
+                trickContent.className = 'trick-content';
+                
+                const trickMain = document.createElement('div');
+                trickMain.className = 'trick-main';
+                
+                const name = document.createElement('span');
+                name.className = 'trick-name';
+                name.textContent = trick.name;
+                trickMain.appendChild(name);
+                
+                if (trick.comment) {
+                    const comment = document.createElement('span');
+                    comment.className = 'trick-comment';
+                    comment.textContent = ` [${trick.comment}]`;
+                    trickMain.appendChild(comment);
+                }
+                
+                trickContent.appendChild(trickMain);
+                trickItem.appendChild(trickContent);
+                tricksList.appendChild(trickItem);
+            });
+            
+            group.appendChild(tricksList);
+            tricksContainer.appendChild(group);
+        }
+    }
+</script>
+{% endblock %}

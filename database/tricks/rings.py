@@ -1,5 +1,5 @@
-from py_lib.trick import Trick
-from py_lib.tag import Tag
+from pylib.classes.trick import Trick
+from pylib.classes.tag import Tag
 
 # @todo: Add TONS of trick
 RINGS_TRICKS = [

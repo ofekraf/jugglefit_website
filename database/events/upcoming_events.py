@@ -1,4 +1,4 @@
-from py_lib.event import UpcomingEvent
+from pylib.classes.event import UpcomingEvent
 from datetime import date
 
 # Keep ordered by date

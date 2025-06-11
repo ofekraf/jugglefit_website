@@ -1,5 +1,5 @@
 # Order for team page
-from py_lib.team_member import TeamMember
+from pylib.classes.team_member import TeamMember
 
 
 TEAM = [

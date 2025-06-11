@@ -67,3 +67,21 @@ function getRandomTrickForDifficulty(tricks, difficulty, minProps, maxProps, exc
     const filteredTricks = filterTricks(tricks, minProps, maxProps, difficulty, difficulty, excludedTags);
     return filteredTricks[Math.floor(Math.random() * filteredTricks.length)];
 }
+
+function filterTricksIncludeTags(tricks, includeTags) {
+    if (!includeTags || includeTags.length === 0) {
+        return tricks;
+    }
+    
+    return tricks.filter(trick => {
+        // Check if trick has all the required tags
+        return includeTags.every(tag => trick.tags.includes(tag));
+    });
+}
+
+function trickExists(tricks, name, propsCount) {
+    return tricks.some(trick => 
+        trick.name.toLowerCase() === name.toLowerCase() && 
+        trick.props_count === propsCount
+    );
+}
