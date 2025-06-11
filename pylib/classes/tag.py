@@ -1,4 +1,7 @@
-from .utils.reverse_lookup_enum import ReverseLookupEnum
+
+
+from pylib.utils.reverse_lookup_enum import ReverseLookupEnum
+
 
 class TagCategory(ReverseLookupEnum):
     Spin = "spin"

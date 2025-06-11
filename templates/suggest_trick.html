@@ -54,8 +54,8 @@
                             <input type="range" id="difficulty" class="custom-range" 
                                 min="{{ MIN_TRICK_DIFFICULTY }}" 
                                 max="{{ MAX_TRICK_DIFFICULTY }}" 
-                                value="{{ DEFAULT_MIN_TRICK_DIFFICULTY }}">
-                            <span id="difficulty_value" class="slider-value">{{ DEFAULT_MIN_TRICK_DIFFICULTY }}</span>
+                                value="{{ MIN_TRICK_DIFFICULTY }}">
+                            <span id="difficulty_value" class="slider-value">{{ MIN_TRICK_DIFFICULTY }}</span>
                         </div>
                     </div>
                 </div>
@@ -220,12 +220,30 @@
             const prop = document.querySelector('input[name="prop"]:checked').value;
             const propsCount = Math.round(propsSlider.value);
             const difficulty = Math.round(difficultySlider.value);
-            const tags = Array.from(document.querySelectorAll('input[name="tags"]:checked')).map(cb => cb.value);
+            const selectedTags = Array.from(document.querySelectorAll('input[name="tags"]:checked')).map(cb => cb.value);
             const comment = document.getElementById('comment').value.trim();
 
             if (!name) {
                 showToast('Please enter a trick name', 'trick_name');
                 return;
+            }
+
+            // Create request body with only non-empty values
+            const requestBody = {
+                name,
+                prop,
+                props_count: propsCount,
+                difficulty
+            };
+
+            // Only add tags if any are selected
+            if (selectedTags.length > 0) {
+                requestBody.tags = selectedTags;
+            }
+
+            // Only add comment if it's not empty
+            if (comment) {
+                requestBody.comment = comment;
             }
 
             try {
@@ -234,14 +252,7 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({
-                        name,
-                        prop,
-                        props_count: propsCount,
-                        difficulty,
-                        tags,
-                        comment
-                    })
+                    body: JSON.stringify(requestBody)
                 });
 
                 if (response.ok) {
@@ -249,8 +260,7 @@
                     // Reset form
                     document.getElementById('trick_name').value = '';
                     document.getElementById('comment').value = '';
-                    propsSlider.value = DEFAULT_MIN_TRICK_PROPS_COUNT;
-                    difficultySlider.value = DEFAULT_MIN_TRICK_DIFFICULTY;
+                    difficultySlider.value = MIN_TRICK_DIFFICULTY;
                     document.querySelectorAll('input[name="tags"]:checked').forEach(cb => cb.checked = false);
                 } else {
                     const error = await response.text();

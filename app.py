@@ -2,18 +2,22 @@ from flask import Flask, render_template, request, jsonify, redirect, url_for, f
 from database.events.past_events import ALL_PAST_EVENTS, FRONT_PAGE_PAST_EVENTS
 from database.events.upcoming_events import UPCOMING_EVENTS
 from database.organization.team import TEAM
-from py_lib.prop import Prop
-from py_lib.tag import TAG_CATEGORY_MAP, Tag, TagCategory
-from py_lib.route import Route
-from py_lib.consts import (
+from database.tricks import PROP_TO_TRICKS
+from pylib.utils.trick_suggestions import add_trick_suggestion
+from pylib.classes.prop import Prop
+from pylib.classes.tag import TAG_CATEGORY_MAP, Tag, TagCategory
+from pylib.classes.route import Route
+from pylib.consts import (
     MIN_TRICK_PROPS_COUNT, MAX_TRICK_PROPS_COUNT,
     MIN_TRICK_DIFFICULTY, MAX_TRICK_DIFFICULTY,
     DEFAULT_MIN_TRICK_PROPS_COUNT, DEFAULT_MAX_TRICK_PROPS_COUNT,
     DEFAULT_MIN_TRICK_DIFFICULTY, DEFAULT_MAX_TRICK_DIFFICULTY
 )
-from py_lib.utils.filter_tricks import filter_tricks
-from py_lib.route_generator.route_generator import RouteGenerator
-from py_lib.route_generator.exceptions import NotEnoughTricksFoundException
+from pylib.classes.trick import Trick
+from pylib.route_generator.exceptions import NotEnoughTricksFoundException
+from pylib.route_generator.route_generator import RouteGenerator
+from pylib.utils.filter_tricks import filter_tricks
+
 
 app = Flask(__name__)
 
@@ -70,40 +74,13 @@ def api_suggest_trick():
             if field not in data:
                 return f'Missing required field: {field}', 400
         
-        # Create the trick suggestion string
         prop = Prop.get_key_by_value(data['prop'])
-        if not prop:
-            return 'Invalid prop type', 400
             
-        suggestion = {
-            'name': data['name'],
-            'props_count': int(data['props_count']),
-            'difficulty': int(data['difficulty']),
-            'tags': data.get('tags', []),
-            'comment': data.get('comment')
-        }
-        
-        # Format the suggestion as a line to be added to the file
-        suggestion_line = f"{suggestion['name']} | {suggestion['props_count']} | {suggestion['difficulty']}"
-        if suggestion['tags']:
-            suggestion_line += f" | {', '.join(suggestion['tags'])}"
-        if suggestion['comment']:
-            suggestion_line += f" | {suggestion['comment']}"
-        suggestion_line += "\n"
-        
-        # Determine the target file based on prop type
-        prop_file_map = {
-            Prop.BALLS: 'balls.txt',
-            Prop.CLUBS: 'clubs.txt',
-            Prop.RINGS: 'rings.txt'
-        }
-        
-        target_file = f"database/tricks/suggestions/{prop_file_map[prop]}"
-        
-        # Append the suggestion to the file
-        with open(target_file, 'a', encoding='utf-8') as f:
-            f.write(suggestion_line)
-        
+        trick_suggestion = Trick.from_dict(data=data)
+        if trick_suggestion in PROP_TO_TRICKS[prop]:
+            return "Trick already exists in database", 200
+            
+        add_trick_suggestion(prop=prop, trick=trick_suggestion)
         return 'Suggestion submitted successfully', 200
         
     except Exception as e:
