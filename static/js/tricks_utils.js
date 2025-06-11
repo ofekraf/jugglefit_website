@@ -78,3 +78,10 @@ function filterTricksIncludeTags(tricks, includeTags) {
         return includeTags.every(tag => trick.tags.includes(tag));
     });
 }
+
+function trickExists(tricks, name, propsCount) {
+    return tricks.some(trick => 
+        trick.name.toLowerCase() === name.toLowerCase() && 
+        trick.props_count === propsCount
+    );
+}

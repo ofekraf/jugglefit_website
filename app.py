@@ -77,9 +77,6 @@ def api_suggest_trick():
         prop = Prop.get_key_by_value(data['prop'])
             
         trick_suggestion = Trick.from_dict(data=data)
-        if trick_suggestion in PROP_TO_TRICKS[prop]:
-            return "Trick already exists in database", 200
-            
         add_trick_suggestion(prop=prop, trick=trick_suggestion)
         return 'Suggestion submitted successfully', 200
         
@@ -203,6 +200,9 @@ def suggest_trick():
                          DEFAULT_MIN_TRICK_DIFFICULTY=DEFAULT_MIN_TRICK_DIFFICULTY,
                          DEFAULT_MAX_TRICK_DIFFICULTY=DEFAULT_MAX_TRICK_DIFFICULTY)
 
+@app.route('/contribute/software')
+def software_contribution():
+    return render_template('software_contribution.html')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5001, debug=True)

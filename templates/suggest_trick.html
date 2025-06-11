@@ -6,7 +6,9 @@
         <h1 class="route-title">Suggest a New Trick</h1>
         <div class="route-description">
             <p>Help us expand the JuggleFit tricks database! Fill out the form below to suggest a new trick.
-            Your contribution will help make JuggleFit more diverse and challenging.</p>
+            Your contribution will help make JuggleFit more diverse and challenging.
+            If you are familiar with git, it would be easier if you bulk-add tricks as a PR.
+        </p>
         </div>
     </div>
 
@@ -228,6 +230,12 @@
                 return;
             }
 
+            // Check if trick already exists
+            if (trickExists(allTricks, name, propsCount)) {
+                showToast('The trick already exists in the database.', 'trick_name');
+                return;
+            }
+
             // Create request body with only non-empty values
             const requestBody = {
                 name,
@@ -261,6 +269,7 @@
                     document.getElementById('trick_name').value = '';
                     document.getElementById('comment').value = '';
                     difficultySlider.value = MIN_TRICK_DIFFICULTY;
+                    difficultyValue.textContent = MIN_TRICK_DIFFICULTY;
                     document.querySelectorAll('input[name="tags"]:checked').forEach(cb => cb.checked = false);
                 } else {
                     const error = await response.text();
