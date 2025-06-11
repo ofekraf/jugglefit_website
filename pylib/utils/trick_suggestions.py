@@ -22,42 +22,40 @@ def add_trick_suggestion(*, prop, trick):
         GitCommandError: If any git operation fails
     """
     target_file = get_trick_suggestion_file(prop)
+    current_branch = jugglefit_bot_repo.active_branch.name
     
-    with acquired(git_mutex):
-        # Add the trick to the file
-        with target_file.open('a', encoding='utf-8') as f:
-            f.write(str(trick) + ',\n')
-        
-        try:
-            # Store current branch
-            current_branch = jugglefit_bot_repo.active_branch.name
-            
-            try:
-                # Create and checkout suggestion branch
-                if TRICK_SUGGESTIONS_BRANCH_NAME in jugglefit_bot_repo.heads:
-                    jugglefit_bot_repo.heads[TRICK_SUGGESTIONS_BRANCH_NAME].checkout()
-                    origin = jugglefit_bot_repo.remote(GIT_REMOTE_NAME)
-                    origin.pull(TRICK_SUGGESTIONS_BRANCH_NAME)
-                else:
-                    jugglefit_bot_repo.create_head(TRICK_SUGGESTIONS_BRANCH_NAME).checkout()
-                
-                # Add and commit changes
-                jugglefit_bot_repo.index.add([str(target_file)])
-                commit_message = f"Add trick suggestion: {trick.name} for {prop.value}"
-                jugglefit_bot_repo.index.commit(commit_message)
-                
-                # Push changes
+    try:
+        with acquired(git_mutex):
+            # Create and checkout suggestion branch
+            if TRICK_SUGGESTIONS_BRANCH_NAME in jugglefit_bot_repo.heads:
+                jugglefit_bot_repo.heads[TRICK_SUGGESTIONS_BRANCH_NAME].checkout()
                 origin = jugglefit_bot_repo.remote(GIT_REMOTE_NAME)
-                origin.push(TRICK_SUGGESTIONS_BRANCH_NAME, force=True)
-                
-            finally:
-                # Always try to restore original branch
-                try:
-                    jugglefit_bot_repo.heads[current_branch].checkout()
-                except (ValueError, GitCommandError):
-                    # If we can't restore the original branch, try main
-                    jugglefit_bot_repo.heads[GIT_MAIN_BRANCH].checkout()
+                origin.pull(TRICK_SUGGESTIONS_BRANCH_NAME)
+            else:
+                jugglefit_bot_repo.create_head(TRICK_SUGGESTIONS_BRANCH_NAME).checkout()
             
-        except GitCommandError as e:
-            print(f"Error during git operations: {e}")
-            raise
+            # Add the trick to the file
+            with target_file.open('a', encoding='utf-8') as f:
+                f.write(str(trick) + ',\n')
+            
+            # Add and commit changes
+            jugglefit_bot_repo.index.add([str(target_file)])
+            commit_message = f"Add trick suggestion: {trick.name} for {prop.value}"
+            jugglefit_bot_repo.index.commit(commit_message)
+            
+            # Push changes
+            origin = jugglefit_bot_repo.remote(GIT_REMOTE_NAME)
+            origin.push(TRICK_SUGGESTIONS_BRANCH_NAME, force=True)
+            
+            # Restore original branch
+            jugglefit_bot_repo.heads[current_branch].checkout()
+            
+    except GitCommandError as e:
+        print(f"Error during git operations: {e}")
+        # Try to restore original branch if we're not already on it
+        if jugglefit_bot_repo.active_branch.name != current_branch:
+            try:
+                jugglefit_bot_repo.heads[current_branch].checkout()
+            except (ValueError, GitCommandError):
+                jugglefit_bot_repo.heads[GIT_MAIN_BRANCH].checkout()
+        raise
