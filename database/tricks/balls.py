@@ -17,13 +17,13 @@ BALLS_TRICKS = [
     Trick(name="30c reverse cascade", props_count=5, difficulty=37, tags={Tag.AsyncBasePattern}),
     
     ### 6 props base patterns ###
-    Trick(name="ANY", props_count=6, difficulty=24, tags={Tag.BasePattern}),
+    Trick(name="ANY", props_count=6, difficulty=24, tags={Tag.AnyBasePattern}),
     Trick(name="async fountain", props_count=6, difficulty=29, tags={Tag.AsyncBasePattern}),
     Trick(name="20c async fountain", props_count=6, difficulty=30, tags={Tag.AsyncBasePattern}),
     Trick(name="isolated sync fountain", props_count=6, difficulty=32, tags={Tag.SyncBasePattern, Tag.Isolated}),
     Trick(name="sync fountain -> async fountain", props_count=6, difficulty=34, tags={Tag.SyncBasePattern, Tag.AsyncBasePattern}, comment="transition: (7x,6)(7x,6)"),
     Trick(name="async fountain -> sync fountain", props_count=6, difficulty=34, tags={Tag.AsyncBasePattern, Tag.SyncBasePattern}, comment="transition: 7x67x6"),
-    Trick(name="ANY on the knees", props_count=6, difficulty=28, tags={Tag.BasePattern, Tag.OnTheKnees}),
+    Trick(name="ANY on the knees", props_count=6, difficulty=28, tags={Tag.AnyBasePattern, Tag.OnTheKnees}),
     
     ### 7 props base patterns ###
     Trick(name="7c cascade", props_count=7, difficulty=26, tags={Tag.AsyncBasePattern}),

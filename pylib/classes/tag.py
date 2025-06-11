@@ -30,7 +30,7 @@ class Tag(ReverseLookupEnum):
     MultiStage = "multi stage"
     
     # Base Pattern
-    BasePattern = "base pattern"
+    AnyBasePattern = "any base pattern"
     SyncBasePattern = "sync base pattern"
     AsyncBasePattern = "async base pattern"
     
@@ -78,7 +78,7 @@ TAG_CATEGORY_MAP = {
     Tag.MultiStage: TagCategory.Spin,
     
     # Base Pattern
-    Tag.BasePattern: TagCategory.BasePattern,
+    Tag.AnyBasePattern: TagCategory.BasePattern,
     Tag.SyncBasePattern: TagCategory.BasePattern,
     Tag.AsyncBasePattern: TagCategory.BasePattern,
     

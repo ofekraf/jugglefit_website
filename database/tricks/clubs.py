@@ -16,7 +16,7 @@ CLUBS_TRICKS = [
     Trick(name="50c isolated cascade", props_count=5, difficulty=37, tags={Tag.Isolated, Tag.AsyncBasePattern}),
 
     ### 6 props base patterns ###
-    Trick(name="fountain", props_count=6, difficulty=55, tags={Tag.BasePattern}),
+    Trick(name="fountain", props_count=6, difficulty=55, tags={Tag.AnyBasePattern}),
     Trick(name="6c sync fountain", props_count=6, difficulty=46, tags={Tag.SyncBasePattern}),
     
     ### 7 props base patterns ###
