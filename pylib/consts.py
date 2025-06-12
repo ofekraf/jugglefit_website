@@ -1,9 +1,7 @@
-# UI Constraints
 from pathlib import Path
-import os
+from google.oauth2 import service_account
 
-from pylib.classes.prop import Prop
-
+PYLIB_ROOT = Path(__file__).parent
 
 MAX_TRICK_NAME_LENGTH = 100
 
@@ -20,20 +18,14 @@ DEFAULT_MIN_TRICK_DIFFICULTY = 20
 DEFAULT_MAX_TRICK_DIFFICULTY = 30 
 
 
-PYLIB_ROOT = Path(__file__).parent
-DATABASE_ROOT = PYLIB_ROOT.parent / 'database'
-TRICK_SUGGESTIONS_FOLDER = DATABASE_ROOT / "tricks" / "suggestions"
-TRICK_SUGGESTIONS_PROP_FILE_MAP = {
-    Prop.Balls: 'balls.txt',
-    Prop.Clubs: 'clubs.txt',
-    Prop.Rings: 'rings.txt'
-}
+TRICK_SUGGESTIONS_SPREADSHEET_ID = '1cQtg5wUoy_BaAEC2Nn2i1qbAChZ_kXbCpEUi2vLMo1c'
 
-TRICK_SUGGESTIONS_BRANCH_NAME = f"bot/trick_suggestions"
+# Don't yet worry about permissions and secrets stuff, currently it has only access to the trick_suggestions sheet
+JUGGLEFIT_BOT_SERVICE_ACCOUNT_FILE = PYLIB_ROOT / "utils" / "JuggleFitBot_credentials.json"
 
-# Git Configuration
-GIT_REPO_PATH = os.getenv('GIT_REPO_PATH', str(PYLIB_ROOT.parent))
-GIT_USER_NAME = os.getenv('GIT_USER_NAME', 'JuggleFit Bot')
-GIT_USER_EMAIL = os.getenv('GIT_USER_EMAIL', 'bot@jugglefit.com')
-GIT_REMOTE_NAME = os.getenv('GIT_REMOTE_NAME', 'origin')
-GIT_MAIN_BRANCH = os.getenv('GIT_MAIN_BRANCH', 'main')
+# If modifying these scopes, consider the principle of least privilege.
+# 'https://www.googleapis.com/auth/spreadsheets' gives full read/write access to spreadsheets.
+# You could use 'https://www.googleapis.com/auth/spreadsheets.readonly' for read-only.
+JUGGLEFIT_BOT_SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
+JUGGLEFIT_BOT_CREDS = service_account.Credentials.from_service_account_file(
+        JUGGLEFIT_BOT_SERVICE_ACCOUNT_FILE, scopes=JUGGLEFIT_BOT_SCOPES)
