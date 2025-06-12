@@ -2,8 +2,7 @@ from flask import Flask, render_template, request, jsonify, redirect, url_for, f
 from database.events.past_events import ALL_PAST_EVENTS, FRONT_PAGE_PAST_EVENTS
 from database.events.upcoming_events import UPCOMING_EVENTS
 from database.organization.team import TEAM
-from database.tricks import PROP_TO_TRICKS
-from pylib.utils.trick_suggestions import add_trick_suggestion
+from pylib.utils.google_sheets_trick_suggestions import append_trick_suggestion
 from pylib.classes.prop import Prop
 from pylib.classes.tag import TAG_CATEGORY_MAP, Tag, TagCategory
 from pylib.classes.route import Route
@@ -73,11 +72,12 @@ def api_suggest_trick():
         for field in required_fields:
             if field not in data:
                 return f'Missing required field: {field}', 400
-        
-        prop = Prop.get_key_by_value(data['prop'])
-            
+
+        prop = Prop.get_key_by_value(data.get("prop"))
         trick_suggestion = Trick.from_dict(data=data)
-        add_trick_suggestion(prop=prop, trick=trick_suggestion)
+        
+        # Append to Google Sheet
+        append_trick_suggestion(prop=prop, trick=trick_suggestion)
         return 'Suggestion submitted successfully', 200
         
     except Exception as e:
