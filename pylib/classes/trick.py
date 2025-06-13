@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Set, Optional
 
 from pylib.classes.tag import Tag
-from pylib.consts import (
+from pylib.configuration.consts import (
     MAX_TRICK_NAME_LENGTH,
     MIN_TRICK_PROPS_COUNT, MAX_TRICK_PROPS_COUNT,
     MIN_TRICK_DIFFICULTY, MAX_TRICK_DIFFICULTY

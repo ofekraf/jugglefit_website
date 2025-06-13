@@ -6,7 +6,7 @@ from pylib.utils.google_sheets_trick_suggestions import append_trick_suggestion
 from pylib.classes.prop import Prop
 from pylib.classes.tag import TAG_CATEGORY_MAP, Tag, TagCategory
 from pylib.classes.route import Route
-from pylib.consts import (
+from pylib.configuration.consts import (
     MIN_TRICK_PROPS_COUNT, MAX_TRICK_PROPS_COUNT,
     MIN_TRICK_DIFFICULTY, MAX_TRICK_DIFFICULTY,
     DEFAULT_MIN_TRICK_PROPS_COUNT, DEFAULT_MAX_TRICK_PROPS_COUNT,
@@ -17,6 +17,10 @@ from pylib.route_generator.exceptions import NotEnoughTricksFoundException
 from pylib.route_generator.route_generator import RouteGenerator
 from pylib.utils.filter_tricks import filter_tricks
 
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 app = Flask(__name__)
 
