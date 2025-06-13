@@ -6,7 +6,7 @@
         <h1 class="route-title">Suggest a New Trick</h1>
         <div class="route-description">
             <p>Help us expand the JuggleFit tricks database! Fill out the form below to suggest a new trick.
-            Your contribution will help make JuggleFit more diverse and challenging.
+        Your contribution will help make JuggleFit more diverse and challenging.
             If you are familiar with git, it would be easier if you bulk-add tricks as a PR.
         </p>
         </div>
@@ -34,20 +34,20 @@
                             </div>
                         </div>
                     </div>
-                </div>
+        </div>
 
                 <div class="form-group">
                     <label for="prop_type">Prop Type</label>
                     <div class="prop-group">
-                        {% for prop in prop_options %}
+                {% for prop in prop_options %}
                         <label class="prop-option {% if loop.first %}selected{% endif %}" data-prop-type="{{ prop }}">
                             <input type="radio" name="prop" class="prop-option-input" value="{{ prop.value }}" {% if loop.first %}checked{% endif %}> 
                             <span class="prop-option-name">{{ prop.value }}</span>
                             <div class="prop-icon"></div>
-                        </label>
-                        {% endfor %}
-                    </div>
-                </div>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
 
                 <div class="form-group">
                     <label for="difficulty">Difficulty Level</label>
@@ -58,15 +58,15 @@
                                 max="{{ MAX_TRICK_DIFFICULTY }}" 
                                 value="{{ MIN_TRICK_DIFFICULTY }}">
                             <span id="difficulty_value" class="slider-value">{{ MIN_TRICK_DIFFICULTY }}</span>
-                        </div>
-                    </div>
-                </div>
+        </div>
+            </div>
+        </div>
 
                 <div class="form-group">
                     <label for="tags">Tags (Optional)</label>
                     <div class="tags-grid">
-                        {% for category in tag_categories %}
-                        <div class="tag-category">
+                {% for category in tag_categories %}
+                <div class="tag-category">
                             <div class="tag-category-header">
                                 <input type="checkbox" id="category-{{ category.value }}" class="category-checkbox">
                                 <label for="category-{{ category.value }}" class="tag-category-title">
@@ -79,14 +79,14 @@
                                     <div class="checkbox-container">
                                         <input type="checkbox" id="tag-{{ tag.value }}" name="tags" value="{{ tag.value }}" class="tag-checkbox" data-category="{{ category.value }}">
                                         <label for="tag-{{ tag.value }}">{{ tag.value }}</label>
-                                    </div>
+                    </div>
                                     {% endif %}
-                                {% endfor %}
-                            </div>
-                        </div>
                         {% endfor %}
                     </div>
                 </div>
+                {% endfor %}
+            </div>
+        </div>
 
                 <div class="form-group">
                     <label for="comment">Comment (Optional)</label>
@@ -208,7 +208,7 @@
                 });
             });
 
-            propInputs.forEach(input => {
+        propInputs.forEach(input => {
                 input.addEventListener('change', updateSelectedState);
             });
         }
@@ -386,4 +386,4 @@
         }
     }
 </script>
-{% endblock %}
+{% endblock %} 

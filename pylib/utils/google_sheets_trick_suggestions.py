@@ -2,7 +2,7 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from pylib.classes.prop import Prop
 from pylib.classes.trick import Trick
-from pylib.consts import JUGGLEFIT_BOT_CREDS, TRICK_SUGGESTIONS_SPREADSHEET_ID
+from pylib.configuration.bot_consts import JUGGLEFIT_BOT_CREDS, TRICK_SUGGESTIONS_SPREADSHEET_ID
 
 
 def append_trick_suggestion(*, prop: Prop, trick: Trick) -> None:
@@ -19,7 +19,7 @@ def append_trick_suggestion(*, prop: Prop, trick: Trick) -> None:
                 str(trick.props_count),
                 str(trick.difficulty),
                 trick.comment if trick.comment else '',
-                ', '.join(tag.value for tag in trick.tags),
+                ', '.join(tag.value for tag in trick.tags) if trick.tags is not None else "",
                 repr(trick)
             ]
         ]
@@ -70,5 +70,7 @@ def append_row_to_sheet(*, spreadsheet_id, range_name, values_to_append):
     except HttpError as err:
         print(f"An API error occurred: {err}")
         print("Check if the spreadsheet ID is correct and the service account has permission.")
+        raise
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
+        raise

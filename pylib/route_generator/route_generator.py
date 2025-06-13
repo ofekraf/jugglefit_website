@@ -3,7 +3,7 @@ from pylib.classes.prop import Prop
 from pylib.classes.tag import Tag
 from pylib.classes.trick import Trick
 from pylib.classes.route import Route
-from pylib.consts import (
+from pylib.configuration.consts import (
     MIN_TRICK_PROPS_COUNT, MAX_TRICK_PROPS_COUNT,
     MIN_TRICK_DIFFICULTY, MAX_TRICK_DIFFICULTY
 )
