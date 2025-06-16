@@ -15,3 +15,4 @@ google-auth-httplib2
 google-auth-oauthlib
 python-dotenv
 json5
+pandas
