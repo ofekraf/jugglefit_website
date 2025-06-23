@@ -1,0 +1,13 @@
+blinker
+click
+uvicorn
+importlib_metadata
+packaging
+zipp
+requests
+google-api-python-client
+google-auth-httplib2
+google-auth-oauthlib
+python-dotenv
+json5
+fastapi

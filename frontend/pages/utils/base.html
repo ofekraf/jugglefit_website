@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="JuggleFit - A sport-juggling competition that's motivating to practice, requires minimal preparation, and is fun to watch">
+    <title><slot name="title"></slot> - JuggleFit</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="/static/js/navigation.js" type="module" defer></script>
+    <link rel="icon" type="image/png" sizes="192x192" href="/static/images/jugglefit_logo.png">
+    <link rel="icon" type="image/x-icon" href="/static/images/favicon.ico">
+    <link rel="apple-touch-icon" sizes="192x192" href="/static/images/jugglefit_logo.png">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "AboutPage",
+      "name": "JuggleFit",
+      "url": "https://jugglefit.com",
+      "image": "/static/images/jugglefit_logo.png"
+    }
+    </script>
+    <slot name="head"></slot>
+</head>
+<body>
+    <!-- Orientation Alert -->
+    <div class="orientation-alert">
+        <i class="fas fa-mobile-alt rotate-icon"></i>
+        <span>Rotate your phone for better experience</span>
+        <button class="close-btn" onclick="this.parentElement.classList.remove('show')">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+    <div id="flash-messages"></div>
+
+    <header class="main-header no-print">
+        <div class="header-container">
+            <a href="/" class="logo-link">
+                <img src="/static/images/jugglefit_logo.png" alt="JuggleFit Logo" class="logo-image">
+            </a>
+            <nav class="main-nav">
+                <ul class="nav-list">
+                    <li class="nav-item">
+                        <a href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/#about">About</a>
+                    </li>
+                    <li class="nav-item dropdown">Routes
+                        <span class="dropdown-arrow">▼</span>
+                        <ul class="dropdown-menu">
+                            <li><a href="/generate_route.html">Route Generator</a></li>
+                            <li><a href="/build_route.html">Manual Route Builder</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">Events
+                        <span class="dropdown-arrow">▼</span>
+                        <ul class="dropdown-menu">
+                            <li><a href="/#upcoming_events">Upcoming Events</a></li>
+                            <li><a href="/past_events.html">Past Events</a></li>
+                            <li><a href="/host_event.html">Host Event</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">Contribute
+                        <span class="dropdown-arrow">▼</span>
+                        <ul class="dropdown-menu">
+                            <li><a href="/donate.html">Donate Money</a></li>
+                            <li><a href="/suggest_trick.html">Suggest Tricks</a></li>
+                            <li><a href="/software_contribution.html">Software</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    <main class="main-content">
+        <slot name="content"></slot>
+    </main>
+    <footer class="main-footer no-print">
+        <div class="footer-container">
+            <div class="footer-content">
+                <div class="footer-links">
+                    <a href="mailto:jugglefit_competition@gmail.com" target="_blank" class="footer-link">Email</a>
+                    <a href="https://www.instagram.com/juggle_fit/" target="_blank" class="footer-link">Instagram</a>
+                    <a href="https://github.com/ofekraf/jugglefit_website" target="_blank" class="footer-link">Website's Github</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <script src="/static/js/main.js" type="module"></script>
+    <script>
+        // Check device orientation
+        function checkOrientation() {
+            const alert = document.querySelector('.orientation-alert');
+            if (window.innerWidth <= 768 && window.innerHeight > window.innerWidth) {
+                alert.classList.add('show');
+            } else {
+                alert.classList.remove('show');
+            }
+        }
+
+        // Listen for orientation changes
+        window.addEventListener('orientationchange', checkOrientation);
+        window.addEventListener('resize', checkOrientation);
+        
+        // Initial check
+        checkOrientation();
+    </script>
+</body>
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JuggleFit - Home</title>
+  <link rel="stylesheet" href="/static/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<main class="main-content">
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-content">
+      <h1 class="hero-title">Welcome to JuggleFit</h1>
+      <p class="hero-subtitle">A sport-juggling competition that's motivating to practice, requires minimal preparation, and is fun to watch</p>
+      <div class="hero-buttons">
+        <a href="/#upcoming_events" class="primary-button">Join Event</a>
+        <a href="/pages/generate_route.html" class="secondary-button">Generate Route</a>
+      </div>
+    </div>
+  </section>
+  <!-- About Section -->
+  <section id="about" class="section">
+    <div class="section-container">
+      <h2 class="section-title">About JuggleFit</h2>
+      <div class="about-content">
+        <p>JuggleFit was founded to create a sport-juggling competition that's motivating to practice, requires minimal preparation, is fun and enjoyable to watch, and ensures the best juggler wins.</p>
+        <p>Inspired by CrossFit's challenge of defining athleticism, we set out to build a fair, exciting, and accessible juggling competition for everyone.</p>
+        <div class="about-features">
+          <div class="feature">
+            <i class="fas fa-trophy"></i>
+            <h3>Fair Competition</h3>
+            <p>Ensures the best juggler wins through skill-based challenges</p>
+          </div>
+          <div class="feature">
+            <i class="fas fa-clock"></i>
+            <h3>Minimal Prep</h3>
+            <p>Quick setup and easy participation for all skill levels</p>
+          </div>
+          <div class="feature">
+            <i class="fas fa-users"></i>
+            <h3>Community Driven</h3>
+            <p>Built for and by the juggling community</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- Rules Section -->
+  <section id="rules" class="section section-alt">
+    <div class="section-container">
+      <h2 class="section-title">Rules of JuggleFit</h2>
+      <div class="rules-grid">
+        <div class="rule-card">
+          <h3>Routes</h3>
+          <p>JuggleFit is built around "routes" — sequences of juggling tricks drawn from a list of general skills. A secret route is revealed just minutes before the competition begins.</p>
+          <div class="rule-card-button-container">
+            <a href="/pages/generate_route.html" class="primary-button">Try out our route generator!</a>
+          </div>
+        </div>
+        <div class="rule-card">
+          <h3>Competition Format</h3>
+          <p>Competitors race to complete the route, and the first to finish wins. If no one completes the route within 10 minutes, the winner is the one who progresses furthest the fastest.</p>
+        </div>
+        <div class="rule-card">
+          <h3>Qualifications</h3>
+          <p>Competitors complete as many tricks as possible from the qualification list within 30 minutes.</p>
+        </div>
+        <div class="rule-card">
+          <h3>Categories</h3>
+          <p>Routes are divided by props: balls, clubs and rings. Optional categories include Youth (under 16/18).</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- Events Section -->
+  <section id="upcoming_events" class="section">
+    <div class="section-container">
+      <h2 class="section-title">Upcoming Events</h2>
+      <div class="carousel-container">
+        <div class="carousel" id="upcoming-events-carousel"></div>
+        <div class="carousel-controls">
+          <button class="carousel-control prev"><i class="fas fa-chevron-left"></i></button>
+          <button class="carousel-control next"><i class="fas fa-chevron-right"></i></button>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- Past Events Section -->
+  <section id="last_events" class="section section-alt">
+    <div class="section-container">
+      <h2 class="section-title">Last Events</h2>
+      <div class="carousel-container">
+        <div class="carousel" id="last-events-carousel"></div>
+        <div class="carousel-controls">
+          <button class="carousel-control prev"><i class="fas fa-chevron-left"></i></button>
+          <button class="carousel-control next"><i class="fas fa-chevron-right"></i></button>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- CTA Section -->
+  <section class="section cta-section">
+    <div class="section-container">
+      <h2 class="section-title">Ready to Get Started?</h2>
+      <p class="cta-text">Join an event, host your own, or generate a practice route today!</p>
+      <div class="cta-buttons">
+        <a href="/#upcoming_events" class="primary-button">Join Event</a>
+        <a href="/pages/host_event.html" class="secondary-button">Host Event</a>
+        <a href="/pages/generate_route.html" class="secondary-button">Generate Route</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<link rel="stylesheet" href="/static/styles.css">
+<script type="module">
+  import { UPCOMING_EVENTS } from '../database/events/upcoming_events.js';
+  import { FRONT_PAGE_PAST_EVENTS } from '../database/events/past_events.js';
+
+  // Render upcoming events
+  const upcomingCarousel = document.getElementById('upcoming-events-carousel');
+  if (upcomingCarousel) {
+    upcomingCarousel.innerHTML = UPCOMING_EVENTS.map(event => `
+      <div class="carousel-item">
+        <div class="event-content">
+          <h3>${event.name}</h3>
+          <div class="event-details">
+            <p><i class="fas fa-calendar"></i> ${new Date(event.date).toLocaleDateString()}</p>
+            <p><i class="fas fa-map-marker-alt"></i> ${event.location}</p>
+            <p><i class="fas fa-bullseye"></i> ${event.routes.join(', ')}</p>
+          </div>
+          <a href="${event.url}" target="_blank" class="event-link">Learn More</a>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Render last events
+  const lastCarousel = document.getElementById('last-events-carousel');
+  if (lastCarousel) {
+    // Sort by date descending
+    const sorted = [...FRONT_PAGE_PAST_EVENTS].sort((a, b) => new Date(b.date) - new Date(a.date));
+    lastCarousel.innerHTML = sorted.map(event => `
+      <div class="carousel-item">
+        <div class="event-content">
+          <a href="/pages/past_events.html#${encodeURIComponent(event.name)}" class="event-image-link">
+            <img class="event-image" src="${event.image_url}" alt="${event.name}">
+          </a>
+          <h3>${event.name}</h3>
+        </div>
+      </div>
+    `).join('');
+  }
+</script>
+</body>
+</html>

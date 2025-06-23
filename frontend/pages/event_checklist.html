@@ -1,0 +1,240 @@
+{% extends "utils/base.html" %}
+
+{% block title %}Event Checklist{% endblock %}
+
+{% block content %}
+<div class="section">
+    <div class="section-container">
+        <h1 class="section-title">Event Checklist</h1>
+        
+        <div class="about-content">
+            <p class="hero-subtitle">Use this checklist to ensure you have everything you need for your JuggleFit event.</p>
+        </div>
+
+        <!-- Pre-Convention Checklist -->
+        <div class="section-alt">
+            <div class="section-container">
+                <h2 class="section-title">Pre-Convention Preparation</h2>
+                <div class="checklist-container">
+                    <div class="checklist-section">
+                        <h3>From JuggleFit Organization</h3>
+                        <ul class="checklist">
+                            <li>
+                                <input type="checkbox" id="pre-jugglefit-1">
+                                <label for="pre-jugglefit-1">Duct tape</label>
+                            </li>
+                            <li>
+                                <input type="checkbox" id="pre-jugglefit-2">
+                                <label for="pre-jugglefit-2">Stapler</label>
+                            </li>
+                            <li>
+                                <input type="checkbox" id="pre-jugglefit-3">
+                                <label for="pre-jugglefit-3">Rope</label>
+                            </li>
+                            <li>
+                                <input type="checkbox" id="pre-jugglefit-4">
+                                <label for="pre-jugglefit-4">Clothes pins</label>
+                            </li>
+                            <li>
+                                <input type="checkbox" id="pre-jugglefit-5">
+                                <label for="pre-jugglefit-5">Lighting for floor markings</label>
+                            </li>
+                            <li>
+                                <input type="checkbox" id="pre-jugglefit-6">
+                                <label for="pre-jugglefit-6">3 copies of each qualification route</label>
+                            </li>
+                            <li>
+                                <input type="checkbox" id="pre-jugglefit-7">
+                                <label for="pre-jugglefit-7">1 results page per qualification route</label>
+                            </li>
+                            <li>
+                                <input type="checkbox" id="pre-jugglefit-8">
+                                <label for="pre-jugglefit-8">20 copies of each finals route</label>
+                            </li>
+                            <li>
+                                <input type="checkbox" id="pre-jugglefit-9">
+                                <label for="pre-jugglefit-9">Two sets of large printed numbers (1-10)</label>
+                            </li>
+                            <li>
+                                <input type="checkbox" id="pre-jugglefit-10">
+                                <label for="pre-jugglefit-10">JuggleFit Shirts (1 per route)</label>
+                            </li>
+                            <li>
+                                <input type="checkbox" id="pre-jugglefit-11">
+                                <label for="pre-jugglefit-11">JuggleFit head sweatbands</label>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="checklist-section">
+                        <h3>From Convention Organization</h3>
+                        <ul class="checklist">
+                            <li>
+                                <input type="checkbox" id="pre-convention-1">
+                                <label for="pre-convention-1">Large timer or clock</label>
+                            </li>
+                            <li>
+                                <input type="checkbox" id="pre-convention-2">
+                                <label for="pre-convention-2">Microphone and speakers</label>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Qualification Checklist -->
+        <div class="section-alt">
+            <div class="section-container">
+                <h2 class="section-title">Qualification Setup</h2>
+                <div class="checklist-container">
+                    <div class="checklist-section">
+                        <h3>Space Setup</h3>
+                        <ul class="checklist">
+                            <li>
+                                <input type="checkbox" id="qual-space-1">
+                                <label for="qual-space-1">Defined qualification space in gym</label>
+                            </li>
+                            <li>
+                                <input type="checkbox" id="qual-space-2">
+                                <label for="qual-space-2">Wall space for displaying tricks list</label>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="checklist-section">
+                        <h3>Display Materials</h3>
+                        <ul class="checklist">
+                            <li>
+                                <input type="checkbox" id="qual-display-1">
+                                <label for="qual-display-1">Duct tape, stapler, rope, or clothes pins</label>
+                            </li>
+                            <li>
+                                <input type="checkbox" id="qual-display-2">
+                                <label for="qual-display-2">Large timer or clock for self-timing</label>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="checklist-section">
+                        <h3>Printed Materials</h3>
+                        <ul class="checklist">
+                            <li>
+                                <input type="checkbox" id="qual-print-1">
+                                <label for="qual-print-1">3 copies of each qualification route</label>
+                            </li>
+                            <li>
+                                <input type="checkbox" id="qual-print-2">
+                                <label for="qual-print-2">1 results page per qualification route</label>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Finals Checklist -->
+        <div class="section-alt">
+            <div class="section-container">
+                <h2 class="section-title">Finals Setup</h2>
+                <div class="checklist-container">
+                    <div class="checklist-section">
+                        <h3>Space Requirements</h3>
+                        <ul class="checklist">
+                            <li>
+                                <input type="checkbox" id="finals-space-1">
+                                <label for="finals-space-1">12-meter long gym area</label>
+                            </li>
+                            <li>
+                                <input type="checkbox" id="finals-space-2">
+                                <label for="finals-space-2">1-meter spacing between competitors</label>
+                            </li>
+                            <li>
+                                <input type="checkbox" id="finals-space-3">
+                                <label for="finals-space-3">Audience seating area</label>
+                            </li>
+                            <li>
+                                <input type="checkbox" id="finals-space-4">
+                                <label for="finals-space-4">Microphone and speakers</label>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="checklist-section">
+                        <h3>Floor Markings</h3>
+                        <ul class="checklist">
+                            <li>
+                                <input type="checkbox" id="finals-floor-1">
+                                <label for="finals-floor-1">Clear floor markings for trick phases</label>
+                            </li>
+                            <li>
+                                <input type="checkbox" id="finals-floor-2">
+                                <label for="finals-floor-2">Safe and visible marking materials</label>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="checklist-section">
+                        <h3>Printed Materials</h3>
+                        <ul class="checklist">
+                            <li>
+                                <input type="checkbox" id="finals-print-1">
+                                <label for="finals-print-1">20 copies of each route</label>
+                            </li>
+                            <li>
+                                <input type="checkbox" id="finals-print-2">
+                                <label for="finals-print-2">Two sets of large printed numbers (1-10)</label>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Save Progress -->
+        <div class="section">
+            <div class="section-container">
+                <div class="save-progress-container">
+                    <button id="saveProgress" class="button">Save Progress</button>
+                    <button id="clearProgress" class="button secondary">Clear All</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Load saved progress
+    const savedProgress = JSON.parse(localStorage.getItem('eventChecklist')) || {};
+    Object.keys(savedProgress).forEach(id => {
+        const checkbox = document.getElementById(id);
+        if (checkbox) {
+            checkbox.checked = savedProgress[id];
+        }
+    });
+
+    // Save progress
+    document.getElementById('saveProgress').addEventListener('click', function() {
+        const checkboxes = document.querySelectorAll('.checklist input[type="checkbox"]');
+        const progress = {};
+        checkboxes.forEach(checkbox => {
+            progress[checkbox.id] = checkbox.checked;
+        });
+        localStorage.setItem('eventChecklist', JSON.stringify(progress));
+        alert('Progress saved!');
+    });
+
+    // Clear progress
+    document.getElementById('clearProgress').addEventListener('click', function() {
+        if (confirm('Are you sure you want to clear all checkboxes?')) {
+            const checkboxes = document.querySelectorAll('.checklist input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            localStorage.removeItem('eventChecklist');
+        }
+    });
+});
+</script>
+{% endblock %} 

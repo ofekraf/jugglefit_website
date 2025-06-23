@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Route - JuggleFit</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div class="route-page">
+        <div class="route-layout" id="route-layout">
+            <!-- Route content will be populated by JavaScript -->
+        </div>
+    </div>
+
+    <div class="route-actions no-print">
+        <div class="countdown-timer" id="timer-container">
+            <div class="timer-header">
+                <span>Timer</span>
+                <button class="drag-handle">≡</button>
+            </div>
+            <div id="countdown">Time remaining: <span id="timer"></span></div>
+            <div class="timer-controls">
+                <button id="startBtn" class="timer-btn">Start</button>
+                <button id="stopBtn" class="timer-btn" disabled>Stop</button>
+                <button id="resetBtn" class="timer-btn">Reset</button>
+            </div>
+        </div>
+        <div class="route-buttons">
+            <button class="primary-button" onclick="shareRoute()">Share</button>
+            <a href="#" id="edit-link" class="primary-button">Edit</a>
+            <button class="primary-button print-button" onclick="printRoute()">Print</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script type="module">
+        import { DEFAULT_FINALS_ROUTE_DURATION } from '/globals/globals.js';
+
+        // Initialize countdown timer
+        let finalTime = null;
+        let timerInterval = null;
+        let isRunning = false;
+        let originalDuration = DEFAULT_FINALS_ROUTE_DURATION;
+        let currentRoute = null;
+
+        // Get route data from URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const routeParam = urlParams.get('route');
+        
+        if (routeParam) {
+            try {
+                currentRoute = JSON.parse(decodeURIComponent(routeParam));
+                originalDuration = currentRoute.durationSeconds || DEFAULT_FINALS_ROUTE_DURATION;
+                
+                // Update page title
+                document.title = `${currentRoute.name} - JuggleFit`;
+                
+                // Update edit link
+                const editLink = document.getElementById('edit-link');
+                editLink.href = `/build_route.html?route=${encodeURIComponent(JSON.stringify(currentRoute))}`;
+                
+                // Display the route
+                displayRoute(currentRoute);
+            } catch (error) {
+                console.error('Error parsing route parameter:', error);
+                document.getElementById('route-layout').innerHTML = '<p>Error loading route. Please try again.</p>';
+            }
+        } else {
+            document.getElementById('route-layout').innerHTML = '<p>No route data found.</p>';
+        }
+
+        function displayRoute(route) {
+            const routeLayout = document.getElementById('route-layout');
+            
+            let html = `
+                <div class="route-header">
+                    <h1 class="route-title">${route.name}</h1>
+                </div>
+
+                <div class="route-container">
+                    <div class="route-content">
+                        <div class="route-sections">
+            `;
+
+            let currentPropsCount = null;
+            let trickCounter = 1;
+
+            route.tricks.forEach((trick, index) => {
+                if (currentPropsCount !== trick.props_count) {
+                    if (currentPropsCount !== null) {
+                        html += '</div></div>';
+                    }
+                    
+                    html += `
+                        <div class="prop-section">
+                            <div class="prop-color-bar" data-props="${trick.props_count}" data-prop-type="${route.prop}">
+                                <div class="prop-count">
+                                    <div class="prop-count-text">X ${trick.props_count}</div>
+                                </div>
+                            </div>
+                            <div class="trick-container">
+                    `;
+                    
+                    currentPropsCount = trick.props_count;
+                }
+
+                html += `
+                    <div class="prop-details-frame">
+                        <div class="trick-content">
+                            <div class="trick-main">
+                                <span class="trick-number">${trickCounter}.</span>
+                                <span class="trick-name">${trick.name}</span>
+                                ${trick.comment ? `<span class="trick-comment">[${trick.comment}]</span>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                trickCounter++;
+            });
+
+            if (currentPropsCount !== null) {
+                html += '</div></div>';
+            }
+
+            html += `
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            routeLayout.innerHTML = html;
+
+            // Add checkboxes to all tricks
+            const trickContents = document.querySelectorAll('.trick-content');
+            trickContents.forEach(content => {
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.className = 'trick-checkbox no-print';
+                
+                checkbox.addEventListener('change', function() {
+                    const trickNumber = content.querySelector('.trick-number');
+                    const trickName = content.querySelector('.trick-name');
+                    const trickComment = content.querySelector('.trick-comment');
+                    
+                    if (this.checked) {
+                        if (trickNumber) trickNumber.style.textDecoration = 'line-through';
+                        if (trickName) trickName.style.textDecoration = 'line-through';
+                        if (trickComment) trickComment.style.textDecoration = 'line-through';
+                    } else {
+                        if (trickNumber) trickNumber.style.textDecoration = 'none';
+                        if (trickName) trickName.style.textDecoration = 'none';
+                        if (trickComment) trickComment.style.textDecoration = 'none';
+                    }
+                });
+                
+                content.insertBefore(checkbox, content.firstChild);
+            });
+        }
+
+        // Share Route functionality
+        window.shareRoute = function() {
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                showToast('Route URL copied to clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy URL: ', err);
+                showToast('Failed to copy URL. Please try again.');
+            });
+        };
+
+        function updateTimer() {
+            if (!finalTime) return;
+            
+            const now = new Date().getTime();
+            const timeLeft = Math.max(0, Math.floor((finalTime - now) / 1000));
+            
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            document.getElementById('timer').textContent = 
+                minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
+            
+            if (timeLeft <= 0) {
+                stopTimer();
+                document.getElementById('countdown').textContent = "Time's up!";
+            }
+        }
+
+        function startTimer() {
+            if (!isRunning) {
+                isRunning = true;
+                if (!finalTime) {
+                    finalTime = new Date().getTime() + (originalDuration * 1000);
+                }
+                timerInterval = setInterval(updateTimer, 100);
+                document.getElementById('startBtn').disabled = true;
+                document.getElementById('stopBtn').disabled = false;
+                updateTimer();
+            }
+        }
+
+        function stopTimer() {
+            if (isRunning) {
+                isRunning = false;
+                clearInterval(timerInterval);
+                document.getElementById('startBtn').disabled = false;
+                document.getElementById('stopBtn').disabled = true;
+            }
+        }
+
+        function resetTimer() {
+            stopTimer();
+            finalTime = null;
+            document.getElementById('countdown').innerHTML = 'Time remaining: <span id="timer"></span>';
+            const minutes = Math.floor(originalDuration / 60);
+            const seconds = originalDuration % 60;
+            document.getElementById('timer').textContent = 
+                minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
+        }
+
+        // Add event listeners for buttons
+        document.getElementById('startBtn').addEventListener('click', startTimer);
+        document.getElementById('stopBtn').addEventListener('click', stopTimer);
+        document.getElementById('resetBtn').addEventListener('click', resetTimer);
+
+        // Initialize timer display immediately
+        resetTimer();
+
+        // Timer drag functionality
+        const timer = document.querySelector('.countdown-timer');
+        const timerHeader = timer.querySelector('.timer-header');
+        let isDragging = false;
+        let currentX;
+        let currentY;
+        let initialX;
+        let initialY;
+        let xOffset = 0;
+        let yOffset = 0;
+
+        function dragStart(e) {
+            if (e.type === "touchstart") {
+                initialX = e.touches[0].clientX - xOffset;
+                initialY = e.touches[0].clientY - yOffset;
+            } else {
+                initialX = e.clientX - xOffset;
+                initialY = e.clientY - yOffset;
+            }
+
+            if (e.target === timer || e.target === timerHeader || e.target.closest('.timer-header')) {
+                isDragging = true;
+            }
+        }
+
+        function dragEnd(e) {
+            initialX = currentX;
+            initialY = currentY;
+            isDragging = false;
+        }
+
+        function drag(e) {
+            if (isDragging) {
+                e.preventDefault();
+
+                if (e.type === "touchmove") {
+                    currentX = e.touches[0].clientX - initialX;
+                    currentY = e.touches[0].clientY - initialY;
+                } else {
+                    currentX = e.clientX - initialX;
+                    currentY = e.clientY - initialY;
+                }
+
+                xOffset = currentX;
+                yOffset = currentY;
+
+                setTranslate(currentX, currentY, timer);
+            }
+        }
+
+        function setTranslate(xPos, yPos, el) {
+            el.style.transform = `translate(${xPos}px, ${yPos}px)`;
+        }
+
+        timerHeader.addEventListener("touchstart", dragStart, false);
+        timerHeader.addEventListener("touchend", dragEnd, false);
+        timerHeader.addEventListener("touchmove", drag, false);
+
+        timerHeader.addEventListener("mousedown", dragStart, false);
+        timerHeader.addEventListener("mouseup", dragEnd, false);
+        timerHeader.addEventListener("mousemove", drag, false);
+
+        // Print Route functionality
+        window.printRoute = function() {
+            // Remove any existing QR code containers and their contents
+            const existingQRCodes = document.querySelectorAll('.qr-code');
+            existingQRCodes.forEach(qr => {
+                qr.innerHTML = '';
+                qr.remove();
+            });
+
+            // Create a temporary container for the QR code
+            let qrContainer = document.createElement('div');
+            qrContainer.className = 'qr-code print-only';
+            
+            // Append to the route content instead of body
+            const routeContent = document.querySelector('.route-content');
+            routeContent.appendChild(qrContainer);
+
+            // Generate QR code for the current URL
+            new QRCode(qrContainer, {
+                text: window.location.href,
+                width: 280,
+                height: 280,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+
+            // Add event listener for afterprint
+            const cleanup = () => {
+                qrContainer.innerHTML = '';
+                qrContainer.remove();
+                window.removeEventListener('afterprint', cleanup);
+            };
+            window.addEventListener('afterprint', cleanup);
+
+            // Wait for QR code to be generated before printing
+            setTimeout(() => {
+                window.print();
+            }, 100);
+        };
+
+        // Simple toast function
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast-notification';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

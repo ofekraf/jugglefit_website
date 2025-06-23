@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Your Own Route - JuggleFit</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.css">
+</head>
+<body>
+    <div class="route-page">
+        <div class="route-header">
+            <h1 class="route-title">Generate New Route</h1>
+            <div class="route-description">
+                <p>Customize your route by selecting props, difficulty, and length. Get a personalized sequence of tricks to practice.</p>
+            </div>
+        </div>
+
+        <form id="route-form" class="route-form">
+            <div class="form-section">
+                <label for="route_name" class="form-label">Route Name</label>
+                <input type="text" id="route_name" name="route_name" placeholder="My awesome route" class="form-input" required>
+            </div>
+
+            <div class="form-section">
+                <label class="form-label">Select Prop</label>
+                <div class="prop-group" id="prop-options">
+                    <!-- Props will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <div class="form-section">
+                <label class="form-label">Number of Props</label>
+                <div class="slider-container">
+                    <div id="props-slider" class="custom-slider"></div>
+                    <div class="slider-values">
+                        <span id="props-range">Min: 3, Max: 9</span>
+                    </div>
+                    <input type="hidden" id="min-props-input" name="min_props" value="3">
+                    <input type="hidden" id="max-props-input" name="max_props" value="9">
+                </div>
+            </div>
+
+            <div class="form-section">
+                <label class="form-label">Difficulty Range</label>
+                <div class="slider-container">
+                    <div id="difficulty-slider" class="custom-slider"></div>
+                    <div class="slider-values">
+                        <span id="difficulty-range">Min: 20, Max: 30</span>
+                    </div>
+                    <input type="hidden" id="min-difficulty-input" name="min_difficulty" value="20">
+                    <input type="hidden" id="max-difficulty-input" name="max_difficulty" value="30">
+                </div>
+            </div>
+
+            <div class="form-section">
+                <label class="form-label">Number of Tricks</label>
+                <div class="slider-container">
+                    <div class="slider-wrapper">
+                        <input type="range" id="route-length-slider" min="1" max="20" value="10" class="custom-range">
+                        <span id="route-length-value" class="slider-value">10</span>
+                    </div>
+                    <input type="hidden" id="route-length-input" name="route_length" value="10">
+                </div>
+            </div>
+
+            <div class="form-section">
+                <label class="form-label">Route Duration (minutes)</label>
+                <div class="slider-container">
+                    <div class="slider-wrapper">
+                        <input type="range" id="route-duration-slider" min="1" max="30" value="10" class="custom-range">
+                        <span id="route-duration-value" class="slider-value">10</span>
+                    </div>
+                    <input type="hidden" id="route-duration-input" name="route_duration" value="10">
+                </div>
+            </div>
+
+            <div class="form-section">
+                <label class="form-label">Exclude Tags</label>
+                <div class="tricks-container">
+                    <div class="tricks-column">
+                        <div id="exclude_tags" class="tags-grid">
+                            <!-- Tags will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="primary-button">Generate Route</button>
+            </div>
+        </form>
+
+        <div class="tricks-database">
+            <p>Juggler and Open-Source contributor? You can expand the database <a target="_blank" href="https://github.com/ofekraf/jugglefit_website/tree/main/database/tricks">here</a></p>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.js"></script>
+    <script type="module">
+        import {
+            MIN_TRICK_PROPS_COUNT,
+            MAX_TRICK_PROPS_COUNT,
+            DEFAULT_MIN_TRICK_PROPS_COUNT,
+            DEFAULT_MAX_TRICK_PROPS_COUNT,
+            MIN_TRICK_DIFFICULTY,
+            MAX_TRICK_DIFFICULTY,
+            DEFAULT_MIN_TRICK_DIFFICULTY,
+            DEFAULT_MAX_TRICK_DIFFICULTY,
+            DEFAULT_FINALS_ROUTE_LENGTH,
+            DEFAULT_FINALS_ROUTE_DURATION
+        } from '/globals/globals.js';
+
+        import { BALLS_TRICKS } from '/database/tricks/balls.js';
+        import { CLUBS_TRICKS } from '/database/tricks/clubs.js';
+        import { RINGS_TRICKS } from '/database/tricks/rings.js';
+        import { generateRoute } from '/static/js/generate_route.js';
+        import { filterTricks } from '/static/js/tricks_utils.js';
+
+        // Define available props
+        const PROPS = ['balls', 'clubs', 'rings'];
+        const PROP_TRICKS = {
+            'balls': BALLS_TRICKS,
+            'clubs': CLUBS_TRICKS,
+            'rings': RINGS_TRICKS
+        };
+
+        // Get all unique tags from tricks
+        const ALL_TAGS = new Set();
+        Object.values(PROP_TRICKS).forEach(tricks => {
+            tricks.forEach(trick => {
+                trick.tags.forEach(tag => ALL_TAGS.add(tag));
+            });
+        });
+
+        // Group tags by category (you may want to define these categories explicitly)
+        const TAG_CATEGORIES = {
+            'Base Patterns': ['async base pattern', 'sync base pattern', 'any base pattern'],
+            'Spins': ['360 spin', '720 spin', 'multi stage'],
+            'Siteswaps': ['async siteswap', 'sync siteswap'],
+            'Body Throws': ['under legs', 'overheads', 'backcrosses'],
+            'Other': ['isolated', 'on the knees']
+        };
+
+        // Populate prop options
+        const propGroup = document.getElementById('prop-options');
+        PROPS.forEach((prop, index) => {
+            const label = document.createElement('label');
+            label.className = `prop-option ${index === 0 ? 'selected' : ''}`;
+            label.dataset.propType = prop;
+            label.innerHTML = `
+                <input type="radio" name="prop" class="prop-option-input" value="${prop}" ${index === 0 ? 'checked' : ''}>
+                <span class="prop-option-name">${prop}</span>
+                <div class="prop-icon"></div>
+            `;
+            propGroup.appendChild(label);
+        });
+
+        // Populate tag categories
+        const tagsGrid = document.getElementById('exclude_tags');
+        Object.entries(TAG_CATEGORIES).forEach(([category, tags]) => {
+            const categoryDiv = document.createElement('div');
+            categoryDiv.className = 'tag-category';
+            categoryDiv.innerHTML = `
+                <div class="tag-category-header">
+                    <input type="checkbox" id="category-${category}" class="category-checkbox">
+                    <label for="category-${category}" class="tag-category-title">
+                        ${category}
+                    </label>
+                </div>
+                <div class="tag-category-content">
+                    ${tags.map(tag => `
+                        <div class="checkbox-container">
+                            <input type="checkbox" id="tag-${tag}" name="exclude_tags" value="${tag}" class="tag-checkbox" data-category="${category}">
+                            <label for="tag-${tag}">${tag}</label>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            tagsGrid.appendChild(categoryDiv);
+        });
+
+        // Initialize sliders
+        const propsSlider = document.getElementById('props-slider');
+        noUiSlider.create(propsSlider, {
+            start: [DEFAULT_MIN_TRICK_PROPS_COUNT, DEFAULT_MAX_TRICK_PROPS_COUNT],
+            connect: true,
+            range: {
+                'min': MIN_TRICK_PROPS_COUNT,
+                'max': MAX_TRICK_PROPS_COUNT
+            },
+            format: {
+                to: value => Math.round(value),
+                from: value => parseInt(value)
+            }
+        });
+
+        const difficultySlider = document.getElementById('difficulty-slider');
+        noUiSlider.create(difficultySlider, {
+            start: [DEFAULT_MIN_TRICK_DIFFICULTY, DEFAULT_MAX_TRICK_DIFFICULTY],
+            connect: true,
+            range: {
+                'min': MIN_TRICK_DIFFICULTY,
+                'max': MAX_TRICK_DIFFICULTY
+            },
+            format: {
+                to: value => Math.round(value),
+                from: value => parseInt(value)
+            }
+        });
+
+        // Update hidden inputs when sliders change
+        propsSlider.noUiSlider.on('update', function(values) {
+            document.getElementById('props-range').textContent = `Min: ${values[0]}, Max: ${values[1]}`;
+            document.getElementById('min-props-input').value = values[0];
+            document.getElementById('max-props-input').value = values[1];
+        });
+
+        difficultySlider.noUiSlider.on('update', function(values) {
+            document.getElementById('difficulty-range').textContent = `Min: ${values[0]}, Max: ${values[1]}`;
+            document.getElementById('min-difficulty-input').value = values[0];
+            document.getElementById('max-difficulty-input').value = values[1];
+        });
+
+        // Handle route length and duration sliders
+        const routeLengthSlider = document.getElementById('route-length-slider');
+        const routeDurationSlider = document.getElementById('route-duration-slider');
+
+        routeLengthSlider.value = DEFAULT_FINALS_ROUTE_LENGTH;
+        routeDurationSlider.value = DEFAULT_FINALS_ROUTE_DURATION / 60;
+
+        routeLengthSlider.addEventListener('input', function() {
+            document.getElementById('route-length-value').textContent = this.value;
+            document.getElementById('route-length-input').value = this.value;
+        });
+
+        routeDurationSlider.addEventListener('input', function() {
+            document.getElementById('route-duration-value').textContent = this.value;
+            document.getElementById('route-duration-input').value = this.value;
+        });
+
+        // Handle form submission
+        document.getElementById('route-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+            const prop = formData.get('prop');
+            const tricks = PROP_TRICKS[prop];
+            
+            try {
+                const route = generateRoute({
+                    tricks,
+                    minProps: parseInt(formData.get('min_props')),
+                    maxProps: parseInt(formData.get('max_props')),
+                    minDifficulty: parseInt(formData.get('min_difficulty')),
+                    maxDifficulty: parseInt(formData.get('max_difficulty')),
+                    routeLength: parseInt(formData.get('route_length')),
+                    excludeTags: Array.from(formData.getAll('exclude_tags')),
+                    name: formData.get('route_name'),
+                    durationSeconds: parseInt(formData.get('route_duration')) * 60
+                });
+
+                // Redirect to the created route page with the route data
+                const routeData = encodeURIComponent(JSON.stringify(route));
+                window.location.href = `/created_route.html?route=${routeData}`;
+            } catch (error) {
+                alert(error.message);
+            }
+        });
+
+        // Handle category checkboxes
+        document.querySelectorAll('.category-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const category = this.id.replace('category-', '');
+                const categoryTags = document.querySelectorAll(`input[data-category="${category}"]`);
+                categoryTags.forEach(tag => tag.checked = this.checked);
+            });
+        });
+
+        // Show trick tooltip on difficulty slider hover
+        let currentPropTricks = BALLS_TRICKS;
+        document.querySelectorAll('.prop-option-input').forEach(input => {
+            input.addEventListener('change', function() {
+                currentPropTricks = PROP_TRICKS[this.value];
+            });
+        });
+
+        function showTrickTooltip(event, difficulty) {
+            const minProps = parseInt(document.getElementById('min-props-input').value);
+            const maxProps = parseInt(document.getElementById('max-props-input').value);
+            const excludedTags = Array.from(document.querySelectorAll('input[name="exclude_tags"]:checked')).map(cb => cb.value);
+            const currentProp = document.querySelector('.prop-option-input:checked').value;
+
+            const filteredTricks = filterTricks(
+                currentPropTricks,
+                minProps,
+                maxProps,
+                difficulty,
+                difficulty,
+                excludedTags
+            );
+
+            if (filteredTricks.length === 0) return;
+
+            const trick = filteredTricks[Math.floor(Math.random() * filteredTricks.length)];
+
+            const existingTooltip = document.querySelector('.trick-tooltip');
+            if (existingTooltip) {
+                existingTooltip.remove();
+            }
+
+            const tooltip = document.createElement('div');
+            tooltip.className = 'trick-tooltip';
+            tooltip.textContent = `${trick.props_count} ${currentProp}: ${trick.name}`;
+            
+            tooltip.style.left = `${event.clientX + 10}px`;
+            tooltip.style.top = `${event.clientY + 10}px`;
+            
+            document.body.appendChild(tooltip);
+        }
+
+        difficultySlider.addEventListener('mousemove', function(e) {
+            const rect = this.getBoundingClientRect();
+            const pos = (e.clientX - rect.left) / rect.width;
+            const difficulty = Math.round(pos * (MAX_TRICK_DIFFICULTY - MIN_TRICK_DIFFICULTY) + MIN_TRICK_DIFFICULTY);
+            showTrickTooltip(e, difficulty);
+        });
+
+        difficultySlider.addEventListener('mouseleave', function() {
+            const tooltip = document.querySelector('.trick-tooltip');
+            if (tooltip) {
+                tooltip.remove();
+            }
+        });
+    </script>
+</body>
+</html>

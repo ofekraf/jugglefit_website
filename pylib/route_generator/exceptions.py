@@ -1,2 +1,0 @@
-class NotEnoughTricksFoundException(Exception):
-    pass

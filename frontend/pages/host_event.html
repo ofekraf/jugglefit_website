@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Host a JuggleFit Event - JuggleFit</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="section">
+        <div class="section-container">
+            <h1 class="section-title">Host a JuggleFit Event</h1>
+            
+            <div class="about-content">
+                <p class="hero-subtitle">Bring the excitement of JuggleFit to your community! We provide everything you need to host a successful event.</p>
+            </div>
+
+            <!-- Event Types -->
+            <div class="about-features">
+                <div class="feature">
+                    <h3>Workshops</h3>
+                    <h5>Learn the fundamentals of juggling in a fun, interactive environment</h5>
+                    <ul class="feature-list">
+                        <li>Juggling techniques and terminology for all levels</li>
+                        <li>Figuring out tricks from text</li>
+                        <li>Trying new tricks</li>
+                    </ul>
+                </div>
+
+                <div class="feature">
+                    <h3>Competitions</h3>
+                    <h5>Organize exciting JuggleFit competitions for all skill levels</h5>
+                    <ul class="feature-list">
+                        <li>Multiple categories</li>
+                        <li>Professional judging</li>
+                        <li>Prizes and awards</li>
+                        <li>Community building</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Hosting Process -->
+            <div class="section-alt">
+                <div class="section-container">
+                    <h2 class="section-title">How to Host</h2>
+                    <div class="rules-grid">
+                        <div class="rule-card">
+                            <h3>1. Contact Us</h3>
+                            <p>Get in touch with our team to discuss your event requirements and schedule.</p>
+                        </div>
+                        <div class="rule-card">
+                            <h3>2. Support</h3>
+                            <p>A member of the team will host and run the event.</p>
+                        </div>
+                        <div class="rule-card">
+                            <h3>3. Requirements</h3>
+                            <p>We take care of (most) <a href="/equipment_list.html" class="link">logistics and prizes</a>, you provide the jugglers!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Team Carousel -->
+            <div class="section">
+                <div class="section-container">
+                    <h2 class="section-title">Our Team</h2>
+                    <div class="carousel-container">
+                        <div class="carousel" id="team-carousel">
+                            <!-- Team members will be populated by JavaScript -->
+                        </div>
+                        <div class="carousel-controls">
+                            <button class="carousel-control prev">
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <button class="carousel-control next">
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Section -->
+            <div class="section">
+                <div class="section-container">
+                    <h2 class="section-title">Contact Us</h2>
+                    <div class="contact-info">
+                        <p>For any questions or to host an event, please contact us at:</p>
+                        <a href="mailto:jugglefit.competition@gmail.com" class="email-link">
+                            <i class="fas fa-envelope"></i> jugglefit.competition@gmail.com
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { TEAM_MEMBERS } from '/database/organization/team.js';
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const carousel = document.getElementById('team-carousel');
+            const prevBtn = document.querySelector('.carousel-control.prev');
+            const nextBtn = document.querySelector('.carousel-control.next');
+            
+            let currentIndex = 0;
+            const itemWidth = 300; // 280px width + 20px gap
+            let isAnimating = false;
+            const itemsToShow = 4; // Number of items to show at once
+
+            // Populate carousel with team members
+            TEAM_MEMBERS.forEach(member => {
+                const carouselItem = document.createElement('div');
+                carouselItem.className = 'carousel-item';
+                carouselItem.innerHTML = `
+                    <div class="carousel-item-image">
+                        <img src="${member.image_url}" alt="${member.name}">
+                    </div>
+                    <div class="carousel-item-content">
+                        <h3>${member.name}</h3>
+                        <p><i class="fas fa-map-marker-alt"></i> ${member.residence}</p>
+                    </div>
+                `;
+                carousel.appendChild(carouselItem);
+            });
+
+            const items = document.querySelectorAll('.carousel-item');
+
+            // Clone items for infinite loop
+            const firstItems = Array.from(items).slice(0, itemsToShow);
+            const lastItems = Array.from(items).slice(-itemsToShow);
+            
+            firstItems.forEach(item => {
+                const clone = item.cloneNode(true);
+                carousel.appendChild(clone);
+            });
+            
+            lastItems.forEach(item => {
+                const clone = item.cloneNode(true);
+                carousel.insertBefore(clone, items[0]);
+            });
+
+            function updateCarousel(animate = true) {
+                if (animate) {
+                    carousel.style.transition = 'transform 0.5s ease-in-out';
+                } else {
+                    carousel.style.transition = 'none';
+                }
+                const offset = -(currentIndex + itemsToShow) * itemWidth;
+                carousel.style.transform = `translateX(${offset}px)`;
+            }
+
+            function handleTransitionEnd() {
+                // If we're at the clone of the last items, jump to the real items
+                if (currentIndex >= items.length) {
+                    carousel.style.transition = 'none';
+                    currentIndex = 0;
+                    updateCarousel(false);
+                }
+                // If we're at the clone of the first items, jump to the real items
+                if (currentIndex < 0) {
+                    carousel.style.transition = 'none';
+                    currentIndex = items.length - 1;
+                    updateCarousel(false);
+                }
+                isAnimating = false;
+            }
+
+            carousel.addEventListener('transitionend', handleTransitionEnd);
+
+            function slide(direction) {
+                if (isAnimating) return;
+                isAnimating = true;
+                currentIndex += direction;
+                updateCarousel();
+            }
+
+            prevBtn.addEventListener('click', () => slide(-1));
+            nextBtn.addEventListener('click', () => slide(1));
+
+            // Initialize carousel
+            updateCarousel(false);
+        });
+    </script>
+</body>
+</html>

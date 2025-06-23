@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Past Events - JuggleFit</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <div class="past-events-page">
+        <div class="section-container">
+            <h1 class="section-title">Past JuggleFit Competitions</h1>
+            <p class="section-description">Explore the history of JuggleFit competitions, showcasing past events, their locations, routes, and champions.</p>
+        </div>
+        <div id="past-events-container">
+            <!-- Past events will be populated by JavaScript -->
+        </div>
+    </div>
+
+    <!-- Template for past events -->
+    <template id="past-event-template">
+        <div class="past-event-button-container">
+            <button class="past-event-button primary-button" data-event-name="{{event.name}}">
+                {{event.name}}
+            </button>
+        </div>
+        <div class="past-event-container" id="{{event.name}}" style="display: none">
+            <ul>
+                <li><strong>Date: </strong>{{event.formattedDate}}</li>
+                <li><strong>Location: </strong>{{event.location}}</li>
+                <li>
+                    <strong>Routes & Winners:</strong>
+                    <div class="event-image-container">
+                        <img src="{{event.image_url}}" alt="{{event.name}} winners" class="event-winners-image">
+                    </div>
+                    <ul>
+                        {{event.routesHtml}}
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </template>
+
+    <!-- Template for route results -->
+    <template id="route-result-template">
+        <li class="route-result-item">
+            <div class="route-result-header">
+                <div class="route-result-info">
+                    <strong>{{route.name}}</strong> - Winner: {{winner.name}} 
+                    {{winnerScore}}
+                </div>
+                <button class="primary-button" data-route-toggle="{{routeToggleId}}">
+                    Show Route
+                </button>
+            </div>
+            <div class="route-container" id="{{routeToggleId}}" style="display: none">
+                <div class="route-page">
+                    <div class="route-header">
+                        <h1 class="route-title">{{route.name}}</h1>
+                    </div>
+                    <div class="route-container">
+                        <div class="route-content">
+                            <div class="route-sections">
+                                {{routeSectionsHtml}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <a href="/created_route.html?route={{routeEncoded}}" class="primary-button outline">
+                    Try it Yourself
+                </a>
+            </div>
+        </li>
+    </template>
+
+    <!-- Template for prop section -->
+    <template id="prop-section-template">
+        <div class="prop-section">
+            <div class="prop-color-bar" data-props="{{propsCount}}" data-prop-type="{{propType}}">
+                <div class="prop-count">
+                    <div class="prop-count-text">X {{propsCount}}</div>
+                </div>
+            </div>
+            <div class="trick-container">
+                {{tricksHtml}}
+            </div>
+        </div>
+    </template>
+
+    <!-- Template for trick -->
+    <template id="trick-template">
+        <div class="prop-details-frame">
+            <div class="trick-content">
+                <div class="trick-main">
+                    <span class="trick-number">{{number}}.</span>
+                    <span class="trick-name">{{name}}</span>
+                    {{comment}}
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <script type="module">
+        import { PAST_EVENTS } from '/database/events/past_events.js';
+
+        class PastEventsRenderer {
+            constructor() {
+                this.templates = {
+                    event: document.getElementById('past-event-template').innerHTML,
+                    routeResult: document.getElementById('route-result-template').innerHTML,
+                    propSection: document.getElementById('prop-section-template').innerHTML,
+                    trick: document.getElementById('trick-template').innerHTML
+                };
+            }
+
+            render() {
+                const container = document.getElementById('past-events-container');
+                const sortedEvents = [...PAST_EVENTS].reverse();
+                
+                const eventsHtml = sortedEvents.map(event => this.renderEvent(event)).join('');
+                container.innerHTML = eventsHtml;
+
+                this.setupEventListeners();
+            }
+
+            renderEvent(event) {
+                return this.interpolate(this.templates.event, {
+                    event: {
+                        ...event,
+                        formattedDate: this.formatDate(event.date),
+                        routesHtml: event.results.map(result => this.renderRouteResult(event, result)).join('')
+                    }
+                });
+            }
+
+            renderRouteResult(event, result) {
+                const routeToggleId = `${event.name}+${result.route.name}`;
+                const winner = result.competitors[1];
+                const winnerScore = winner.seconds ? 
+                    `(${this.formatTime(winner.seconds)})` : 
+                    `(${winner.tricks_accomplished}/10 tricks)`;
+
+                return this.interpolate(this.templates.routeResult, {
+                    route: result.route,
+                    winner,
+                    winnerScore,
+                    routeToggleId,
+                    routeSectionsHtml: this.renderRouteSections(result.route),
+                    routeEncoded: encodeURIComponent(JSON.stringify(result.route))
+                });
+            }
+
+            renderRouteSections(route) {
+                let html = '';
+                let currentPropsCount = null;
+                let trickCounter = 1;
+
+                route.tricks.forEach(trick => {
+                    if (currentPropsCount !== trick.props_count) {
+                        if (currentPropsCount !== null) {
+                            html += '</div></div>';
+                        }
+                        
+                        html += this.interpolate(this.templates.propSection, {
+                            propsCount: trick.props_count,
+                            propType: route.prop,
+                            tricksHtml: ''
+                        });
+                        
+                        currentPropsCount = trick.props_count;
+                    }
+
+                    html += this.interpolate(this.templates.trick, {
+                        number: trickCounter,
+                        name: trick.name,
+                        comment: trick.comment ? `<span class="trick-comment">[${trick.comment}]</span>` : ''
+                    });
+
+                    trickCounter++;
+                });
+
+                if (currentPropsCount !== null) {
+                    html += '</div></div>';
+                }
+
+                return html;
+            }
+
+            interpolate(template, data) {
+                return template.replace(/\{\{([^}]+)\}\}/g, (match, key) => {
+                    return key.split('.').reduce((obj, key) => obj?.[key], data) ?? '';
+                });
+            }
+
+            formatDate(dateString) {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('en-GB');
+            }
+
+            formatTime(seconds) {
+                const minutes = Math.floor(seconds / 60);
+                const remainingSeconds = seconds % 60;
+                return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+            }
+
+            setupEventListeners() {
+                // Event buttons
+                document.querySelectorAll('.past-event-button').forEach(button => {
+                    button.addEventListener('click', () => {
+                        const eventName = button.dataset.eventName;
+                        this.toggleObject(eventName);
+                    });
+                });
+
+                // Route toggle buttons
+                document.querySelectorAll('[data-route-toggle]').forEach(button => {
+                    button.addEventListener('click', () => {
+                        const routeId = button.dataset.routeToggle;
+                        this.toggleObject(routeId);
+                    });
+                });
+            }
+
+            toggleObject(objectId) {
+                const object = document.getElementById(objectId);
+                if (object.style.display === 'none' || object.style.display === '') {
+                    object.style.display = 'block';
+                    object.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                } else {
+                    object.style.display = 'none';
+                }
+            }
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', () => {
+            const renderer = new PastEventsRenderer();
+            renderer.render();
+
+            // Handle URL hash
+            function handleHash() {
+                const hash = decodeURIComponent(window.location.hash.substring(1));
+                if (hash) {
+                    const button = document.querySelector(`[data-event-name="${hash}"]`);
+                    if (button) {
+                        button.click();
+                    }
+                }
+            }
+
+            handleHash();
+            window.addEventListener('hashchange', handleHash);
+        });
+    </script>
+</body>
+</html>
