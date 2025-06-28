@@ -1550,7 +1550,7 @@ button.print-button:hover {
 }
 
 .prop-color-bar[data-prop-type="rings"]::before {
-    background-image: url('/static/images/juggling_rings.jpg');
+    background-image: url('/static/images/juggling_rings.png');
 }
 
 /* Ensure white text for all prop counts */
