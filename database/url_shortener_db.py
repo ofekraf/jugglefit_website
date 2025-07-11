@@ -30,10 +30,10 @@ def init_db():
         cur = conn.cursor()
         cur.execute(f"""
             CREATE TABLE IF NOT EXISTS short_urls (
-                code VARCHAR(6) PRIMARY KEY,
+                code VARCHAR(8) PRIMARY KEY,
                 long_url TEXT NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                expires_at TIMESTAMP DEFAULT (CURRENT_TIMESTAMP + INTERVAL '{URL_CONFIG["expiry_months"]} months')
+                expires_at TIMESTAMP DEFAULT (CURRENT_TIMESTAMP + INTERVAL '{SHORT_URL_EXPIRY_MONTHS} months')
             );
         """)
         conn.commit()
@@ -55,7 +55,7 @@ def get_or_create_short_url(long_url):
         if row:
             code = row[0]
             # Update expiry to N months from now
-            cur.execute(f"UPDATE short_urls SET expires_at = (CURRENT_TIMESTAMP + INTERVAL '{URL_CONFIG['expiry_months']} months') WHERE code = %s", (code,))
+            cur.execute(f"UPDATE short_urls SET expires_at = (CURRENT_TIMESTAMP + INTERVAL '{SHORT_URL_EXPIRY_MONTHS} months') WHERE code = %s", (code,))
             conn.commit()
             cur.close()
             return code
@@ -66,7 +66,7 @@ def get_or_create_short_url(long_url):
             if cur.fetchone() is None:
                 break
         # Insert with expiry N months from now
-        cur.execute(f"INSERT INTO short_urls (code, long_url, expires_at) VALUES (%s, %s, (CURRENT_TIMESTAMP + INTERVAL '{URL_CONFIG['expiry_months']} months'))", (code, long_url))
+        cur.execute(f"INSERT INTO short_urls (code, long_url, expires_at) VALUES (%s, %s, (CURRENT_TIMESTAMP + INTERVAL '{SHORT_URL_EXPIRY_MONTHS} months'))", (code, long_url))
         conn.commit()
         cur.close()
         return code
