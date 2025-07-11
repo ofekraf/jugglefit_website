@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from typing import Set, Optional
 
-from py_lib.tag import Tag
-from py_lib.consts import (
+from pylib.classes.tag import Tag
+from pylib.configuration.consts import (
     MAX_TRICK_NAME_LENGTH,
     MIN_TRICK_PROPS_COUNT, MAX_TRICK_PROPS_COUNT,
     MIN_TRICK_DIFFICULTY, MAX_TRICK_DIFFICULTY
@@ -26,6 +26,31 @@ class Trick:
 
         if not MIN_TRICK_PROPS_COUNT <= self.props_count <= MAX_TRICK_PROPS_COUNT:
             raise ValueError(f"Trick {self.name} props count must be between {MIN_TRICK_PROPS_COUNT} and {MAX_TRICK_PROPS_COUNT}.")
+        
+    def __eq__(self, other):
+        return self.name == other.name and self.props_count == other.props_count
+        
+    def __repr__(self) -> str:
+        # Start building the string for mandatory fields
+        parts = [
+            f"name='{self.name}'",
+            f"props_count={self.props_count}",
+            f"difficulty={self.difficulty}" # Difficulty always included, as it has a default
+        ]
+
+        # Conditionally add optional fields if they are not None
+        if self.tags is not None:
+            # Format tags as a Python set literal with tag names
+            tag_names = [f"Tag.{tag.name}" for tag in self.tags]
+            parts.append(f"tags={{{', '.join(tag_names)}}}")
+
+        if self.comment is not None:
+            # We explicitly quote the comment string to match Python string literal syntax
+            parts.append(f"comment='{self.comment}'")
+
+        # Join all parts and format as 'ClassName(field1=value1, field2=value2, ...)'
+        return f"Trick({', '.join(parts)})"
+
 
     def to_dict(self) -> dict:
         """Convert the trick to a dictionary for JSON serialization."""

@@ -7,8 +7,7 @@ import os
 from datetime import datetime, timedelta
 from database.hardcoded_config import (
     EXPIRED_URL_CLEANUP_INTERVAL, POSTGRESQL_DBNAME, POSTGRESQL_USERNAME, POSTGRESQL_PASSWORD, 
-    POSTGRESQL_HOST, POSTGRESQL_PORT, SHORT_URL_EXPIRY_MONTHS, SHORT_URL_REFRESH_DAYS, 
-    SHORT_URL_EXTEND_MONTHS
+    POSTGRESQL_HOST, POSTGRESQL_PORT, SHORT_URL_EXPIRY_MONTHS, SHORT_URL_EXTEND_MONTHS
 )
 
 # Get configuration from environment variables with hardcoded fallbacks
@@ -18,13 +17,6 @@ DB_CONFIG = {
     'password': os.getenv('POSTGRESQL_PASSWORD', POSTGRESQL_PASSWORD),
     'host': os.getenv('POSTGRESQL_HOST', POSTGRESQL_HOST),
     'port': os.getenv('POSTGRESQL_PORT', POSTGRESQL_PORT)
-}
-
-URL_CONFIG = {
-    'expiry_months': int(os.getenv('SHORT_URL_EXPIRY_MONTHS', SHORT_URL_EXPIRY_MONTHS)),
-    'refresh_days': int(os.getenv('SHORT_URL_REFRESH_DAYS', SHORT_URL_REFRESH_DAYS)),
-    'extend_months': int(os.getenv('SHORT_URL_EXTEND_MONTHS', SHORT_URL_EXTEND_MONTHS)),
-    'cleanup_interval': int(os.getenv('EXPIRED_URL_CLEANUP_INTERVAL', EXPIRED_URL_CLEANUP_INTERVAL))
 }
 
 def get_db_connection():
@@ -96,8 +88,8 @@ def get_long_url_and_refresh(code):
             cur.execute("SELECT CURRENT_TIMESTAMP AT TIME ZONE 'UTC'")
             now = cur.fetchone()[0]
             # If expires_at is less than refresh days away, update to extend months ahead
-            if expires_at and (expires_at - now).days < URL_CONFIG['refresh_days']:
-                cur.execute(f"UPDATE short_urls SET expires_at = (CURRENT_TIMESTAMP + INTERVAL '{URL_CONFIG['extend_months']} month') WHERE code = %s", (code,))
+            if expires_at and (expires_at - now).days < SHORT_URL_EXTEND_MONTHS:
+                cur.execute(f"UPDATE short_urls SET expires_at = (CURRENT_TIMESTAMP + INTERVAL '{SHORT_URL_EXTEND_MONTHS} month') WHERE code = %s", (code,))
                 conn.commit()
             cur.close()
             return long_url
@@ -143,7 +135,7 @@ def cleanup_thread():
             print(f"[{datetime.now()}] Error in cleanup thread: {e}")
         
         # Sleep until next cleanup
-        time.sleep(URL_CONFIG['cleanup_interval'])
+        time.sleep(EXPIRED_URL_CLEANUP_INTERVAL)
 
 def start_cleanup_thread():
     """
@@ -154,11 +146,3 @@ def start_cleanup_thread():
     print(f"[{datetime.now()}] Started cleanup thread")
     return thread
 
-# Example of how to run this periodically:
-# 1. Using cron (Linux/Mac):
-#    0 0 * * * python3 -c "from database.url_shortener_db import delete_expired_urls; delete_expired_urls()"
-#
-# 2. Using Windows Task Scheduler:
-#    Create a task that runs a Python script containing:
-#    from database.url_shortener_db import delete_expired_urls
-#    delete_expired_urls() 

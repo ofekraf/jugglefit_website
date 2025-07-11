@@ -4,8 +4,8 @@ import json
 import zlib
 from base64 import b64encode, b64decode
 
-from py_lib.prop import Prop
-from py_lib.trick import Trick
+from pylib.classes.prop import Prop
+from pylib.classes.trick import Trick
 
 
 DEFAULT_ROUTE_DURATION_SECONDS = 600  # 10 minutes

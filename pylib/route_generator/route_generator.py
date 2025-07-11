@@ -1,13 +1,13 @@
 from typing import List, Set, Optional
-from py_lib.prop import Prop
-from py_lib.tag import Tag
-from py_lib.trick import Trick
-from py_lib.route import Route
-from py_lib.consts import (
+from pylib.classes.prop import Prop
+from pylib.classes.tag import Tag
+from pylib.classes.trick import Trick
+from pylib.classes.route import Route
+from pylib.configuration.consts import (
     MIN_TRICK_PROPS_COUNT, MAX_TRICK_PROPS_COUNT,
     MIN_TRICK_DIFFICULTY, MAX_TRICK_DIFFICULTY
 )
-from py_lib.utils.filter_tricks import filter_tricks
+from pylib.utils.filter_tricks import filter_tricks
 from .exceptions import NotEnoughTricksFoundException
 
 class RouteGenerator:

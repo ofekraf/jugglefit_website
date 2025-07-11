@@ -30,10 +30,10 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
     // Initialize countdown timer
-    let timeLeft = parseInt('{{ route.duration_seconds }}') || 600;
+    let finalTime = null;
     let timerInterval = null;
     let isRunning = false;
-    const originalTime = timeLeft;
+    const originalDuration = parseInt('{{ route.duration_seconds }}') || 600;
 
     // Share Route functionality
     function shareRoute() {
@@ -96,14 +96,17 @@
     });
 
     function updateTimer() {
+        if (!finalTime) return;
+        
+        const now = new Date().getTime();
+        const timeLeft = Math.max(0, Math.floor((finalTime - now) / 1000));
+        
         const minutes = Math.floor(timeLeft / 60);
         const seconds = timeLeft % 60;
         document.getElementById('timer').textContent = 
             minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
         
-        if (timeLeft > 0) {
-            timeLeft--;
-        } else {
+        if (timeLeft <= 0) {
             stopTimer();
             document.getElementById('countdown').textContent = "Time's up!";
         }
@@ -112,9 +115,14 @@
     function startTimer() {
         if (!isRunning) {
             isRunning = true;
-            timerInterval = setInterval(updateTimer, 1000);
+            // Only set finalTime if it's not already set (i.e., not resuming)
+            if (!finalTime) {
+                finalTime = new Date().getTime() + (originalDuration * 1000);
+            }
+            timerInterval = setInterval(updateTimer, 100); // Update more frequently for smoother display
             document.getElementById('startBtn').disabled = true;
             document.getElementById('stopBtn').disabled = false;
+            updateTimer(); // Update immediately
         }
     }
 
@@ -122,6 +130,7 @@
         if (isRunning) {
             isRunning = false;
             clearInterval(timerInterval);
+            // Don't reset finalTime when stopping, so we can resume from the same point
             document.getElementById('startBtn').disabled = false;
             document.getElementById('stopBtn').disabled = true;
         }
@@ -129,9 +138,12 @@
 
     function resetTimer() {
         stopTimer();
-        timeLeft = originalTime;
+        finalTime = null; // Only reset finalTime when explicitly resetting
         document.getElementById('countdown').innerHTML = 'Time remaining: <span id="timer"></span>';
-        updateTimer();
+        const minutes = Math.floor(originalDuration / 60);
+        const seconds = originalDuration % 60;
+        document.getElementById('timer').textContent = 
+            minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
     }
 
     // Add event listeners for buttons
@@ -140,7 +152,7 @@
     document.getElementById('resetBtn').addEventListener('click', resetTimer);
 
     // Initialize timer display immediately
-    updateTimer();
+    resetTimer();
 
     // Timer drag functionality
     const timer = document.querySelector('.countdown-timer');

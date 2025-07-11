@@ -23,13 +23,104 @@
       "image": "{{ url_for('static', filename='images/jugglefit_logo.png', _external=True) }}"
     }
     </script>
+    <style>
+        .orientation-alert {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 20px 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            z-index: 1000;
+            align-items: center;
+            gap: 15px;
+            animation: fadeIn 0.3s ease-out;
+            max-width: 90%;
+            text-align: center;
+        }
+
+        .orientation-alert.show {
+            display: flex;
+        }
+
+        .orientation-alert .close-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            margin-left: 10px;
+            color: #666;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+
+        .orientation-alert .rotate-icon {
+            animation: rotate 2s infinite linear;
+            color: #666;
+            font-size: 24px;
+        }
+
+        .orientation-alert span {
+            font-size: 16px;
+            color: #333;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+            from { 
+                opacity: 0;
+                transform: translate(-50%, -40%);
+            }
+            to { 
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+
+        /* Donation page styles */
+        .text-center {
+            text-align: center;
+        }
+
+        .accounting-info {
+            margin-top: 2rem;
+            text-align: center;
+            padding: 1rem;
+            border-top: 1px solid #eee;
+        }
+
+        .accounting-info p {
+            margin: 0;
+            color: #666;
+        }
+
+        .accounting-info a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .accounting-info a:hover {
+            text-decoration: underline;
+        }
+    </style>
     {% block head %}{% endblock %}
 </head>
 <body>
-    <!-- Orientation Message -->
-    <div class="orientation-message">
-        <i class="fas fa-mobile-alt"></i>
-        <p>Please rotate your device to landscape mode for the best experience.</p>
+    <!-- Orientation Alert -->
+    <div class="orientation-alert">
+        <i class="fas fa-mobile-alt rotate-icon"></i>
+        <span>Rotate your phone for better experience</span>
+        <button class="close-btn" onclick="this.parentElement.classList.remove('show')">
+            <i class="fas fa-times"></i>
+        </button>
     </div>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -69,6 +160,14 @@
                             <li><a href="{{ url_for('host_event') }}">Host Event</a></li>
                         </ul>
                     </li>
+                    <li class="nav-item dropdown">Contribute
+                        <span class="dropdown-arrow">▼</span>
+                        <ul class="dropdown-menu">
+                            <li><a href="{{ url_for('donate') }}">Donate Money</a></li>
+                            <li><a href="{{ url_for('suggest_trick') }}">Suggest Tricks</a></li>
+                            <li><a href="{{ url_for('software_contribution') }}">Software</a></li>
+                        </ul>
+                    </li>
                 </ul>
             </nav>
         </div>
@@ -91,10 +190,11 @@
     <script>
         // Check device orientation
         function checkOrientation() {
+            const alert = document.querySelector('.orientation-alert');
             if (window.innerWidth <= 768 && window.innerHeight > window.innerWidth) {
-                document.querySelector('.orientation-message').style.display = 'flex';
+                alert.classList.add('show');
             } else {
-                document.querySelector('.orientation-message').style.display = 'none';
+                alert.classList.remove('show');
             }
         }
 

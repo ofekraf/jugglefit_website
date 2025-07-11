@@ -1,7 +1,7 @@
 from hardcoded_database.tricks.balls import BALLS_TRICKS
 from hardcoded_database.tricks.clubs import CLUBS_TRICKS
 from hardcoded_database.tricks.rings import RINGS_TRICKS
-from py_lib.prop import Prop
+from pylib.classes.prop import Prop
 
 
 PROP_TO_TRICKS = {

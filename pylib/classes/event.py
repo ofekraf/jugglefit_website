@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from typing import Dict, List, Optional
 from datetime import date
-from py_lib.route import Route
-from py_lib.exceptions.database import WinnerNotSetException
+from pylib.classes.route import Route
+from pylib.exceptions.database import WinnerNotSetException
 
 @dataclass(kw_only=True)
 class CompetitorResult:
