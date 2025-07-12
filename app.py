@@ -98,7 +98,6 @@ def shorten_url():
         return jsonify({"error": "long_url is required"}), 400
     try:
         code = get_or_create_short_url(long_url)
-        print("Short code for url_for:", code)
         short_url = url_for('redirect_to_long_url', code=code, _external=True)
         return jsonify({"short_url": short_url, "code": code}), 200
     except Exception as e:
@@ -239,6 +238,4 @@ def software_contribution():
     return render_template('software_contribution.html')
 
 if __name__ == '__main__':
-    with app.app_context():
-        print(url_for('redirect_to_long_url', code='test', _external=True))
     app.run(host='0.0.0.0', port=5001, debug=True)

@@ -38,8 +38,6 @@ def init_db():
         """)
         conn.commit()
         cur.close()
-    except Exception as e:
-        print(f"Error initializing database: {e}")
     finally:
         if conn:
             conn.close()
@@ -70,8 +68,6 @@ def get_or_create_short_url(long_url):
         conn.commit()
         cur.close()
         return code
-    except Exception as e:
-        pass
     finally:
         if conn:
             conn.close()
@@ -116,7 +112,6 @@ def delete_expired_urls():
         cur.close()
         return deleted_count
     except Exception as e:
-        print(f"Error deleting expired URLs: {e}")
         return 0
     finally:
         if conn:
@@ -128,14 +123,10 @@ def cleanup_thread():
     """
     while True:
         try:
-            print(f"[{datetime.now()}] Running expired URLs cleanup...")
-            deleted_count = delete_expired_urls()
-            print(f"[{datetime.now()}] Cleanup completed. Deleted {deleted_count} expired URLs")
-        except Exception as e:
-            print(f"[{datetime.now()}] Error in cleanup thread: {e}")
-        
-        # Sleep until next cleanup
-        time.sleep(EXPIRED_URL_CLEANUP_INTERVAL)
+            delete_expired_urls()
+        finally:
+            # Sleep until next cleanup
+            time.sleep(EXPIRED_URL_CLEANUP_INTERVAL)
 
 def start_cleanup_thread():
     """
@@ -143,6 +134,5 @@ def start_cleanup_thread():
     """
     thread = threading.Thread(target=cleanup_thread, daemon=True)
     thread.start()
-    print(f"[{datetime.now()}] Started cleanup thread")
     return thread
 
