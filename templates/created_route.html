@@ -217,7 +217,7 @@
     timerHeader.addEventListener("mousemove", drag, false);
 
     // Print Route functionality
-    function printRoute() {
+    async function printRoute() {
         // Remove any existing QR code containers and their contents
         const existingQRCodes = document.querySelectorAll('.qr-code');
         existingQRCodes.forEach(qr => {
@@ -233,15 +233,43 @@
         const routeContent = document.querySelector('.route-content');
         routeContent.appendChild(qrContainer);
 
-        // Generate QR code for the current URL
-        new QRCode(qrContainer, {
-            text: window.location.href,
-            width: 280,
-            height: 280,
-            colorDark: "#000000",
-            colorLight: "#ffffff",
-            correctLevel: QRCode.CorrectLevel.H
-        });
+        // Get the current long URL
+        const longUrl = window.location.href;
+
+        try {
+            // Request a short URL from the API
+            const response = await fetch('/api/shorten_url', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ long_url: longUrl })
+            });
+            const data = await response.json();
+            const shortUrl = data.short_url || longUrl; // fallback to longUrl if error
+
+            // Generate QR code for the short URL
+            new QRCode(qrContainer, {
+                text: shortUrl,
+                width: 280,
+                height: 280,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+            if (!data.short_url) {
+                showToast('Heavy QR generated due to server error');
+            }
+        } catch (error) {
+            // Fallback: generate QR for the long URL if API fails
+            new QRCode(qrContainer, {
+                text: longUrl,
+                width: 280,
+                height: 280,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+            showToast('Heavy QR generated due to server error');
+        }
 
         // Add event listener for afterprint
         const cleanup = () => {

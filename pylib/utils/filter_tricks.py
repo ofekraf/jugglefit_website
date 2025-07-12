@@ -1,5 +1,6 @@
 import random
 from typing import Set, List, Optional
+from hardcoded_database.tricks import PROP_TO_TRICKS
 from pylib.classes.prop import Prop
 from pylib.classes.tag import Tag
 from pylib.classes.trick import Trick
@@ -7,8 +8,10 @@ from pylib.configuration.consts import (
     MIN_TRICK_PROPS_COUNT, MAX_TRICK_PROPS_COUNT,
     MIN_TRICK_DIFFICULTY, MAX_TRICK_DIFFICULTY
 )
-from database.tricks import PROP_TO_TRICKS
+
+
 from pylib.utils.general import has_intersection
+
 
 def filter_tricks(
     prop: Prop,

@@ -1,28 +1,31 @@
+from urllib.parse import unquote
 from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, Blueprint
-from database.events.past_events import ALL_PAST_EVENTS, FRONT_PAGE_PAST_EVENTS
-from database.events.upcoming_events import UPCOMING_EVENTS
-from database.organization.team import TEAM
-from pylib.utils.google_sheets_trick_suggestions import append_trick_suggestion
+from database.url_shortener_db import get_long_url_and_refresh, get_or_create_short_url, init_db, start_cleanup_thread
+from hardcoded_database.events.past_events import ALL_PAST_EVENTS, FRONT_PAGE_PAST_EVENTS
+from hardcoded_database.events.upcoming_events import UPCOMING_EVENTS
+from hardcoded_database.organization.team import TEAM
+
+from dotenv import load_dotenv
+
 from pylib.classes.prop import Prop
-from pylib.classes.tag import TAG_CATEGORY_MAP, Tag, TagCategory
 from pylib.classes.route import Route
-from pylib.configuration.consts import (
-    MIN_TRICK_PROPS_COUNT, MAX_TRICK_PROPS_COUNT,
-    MIN_TRICK_DIFFICULTY, MAX_TRICK_DIFFICULTY,
-    DEFAULT_MIN_TRICK_PROPS_COUNT, DEFAULT_MAX_TRICK_PROPS_COUNT,
-    DEFAULT_MIN_TRICK_DIFFICULTY, DEFAULT_MAX_TRICK_DIFFICULTY
-)
+from pylib.classes.tag import TAG_CATEGORY_MAP, Tag, TagCategory
 from pylib.classes.trick import Trick
+from pylib.configuration.consts import DEFAULT_MAX_TRICK_DIFFICULTY, DEFAULT_MAX_TRICK_PROPS_COUNT, DEFAULT_MIN_TRICK_DIFFICULTY, DEFAULT_MIN_TRICK_PROPS_COUNT, MAX_TRICK_DIFFICULTY, MAX_TRICK_PROPS_COUNT, MIN_TRICK_DIFFICULTY, MIN_TRICK_PROPS_COUNT
 from pylib.route_generator.exceptions import NotEnoughTricksFoundException
 from pylib.route_generator.route_generator import RouteGenerator
 from pylib.utils.filter_tricks import filter_tricks
-
-from dotenv import load_dotenv
+from pylib.utils.google_sheets_trick_suggestions import append_trick_suggestion
 
 # Load environment variables
 load_dotenv()
 
 app = Flask(__name__)
+
+# Call init_db and start cleanup thread on app startup
+with app.app_context():
+    init_db()
+    start_cleanup_thread()
 
 # Create API blueprint
 api = Blueprint('api', __name__, url_prefix='/api')
@@ -88,6 +91,32 @@ def api_suggest_trick():
         return str(e), 400
 
 
+@api.route('/shorten_url', methods=['POST'])
+def shorten_url():
+    long_url = request.json.get('long_url')
+    if not long_url:
+        return jsonify({"error": "long_url is required"}), 400
+    try:
+        code = get_or_create_short_url(long_url)
+        short_url = url_for('redirect_to_long_url', code=code, _external=True)
+        return jsonify({"short_url": short_url, "code": code}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+@app.route('/shortener/<code>')
+def redirect_to_long_url(code):
+    try:
+        long_url = get_long_url_and_refresh(code)
+        if long_url:
+            return redirect(long_url)
+        else:
+            flash('Short URL not found.', 'error')
+            return redirect(url_for('home'))
+    except Exception as e:
+        flash(f'Error retrieving URL: {str(e)}', 'error')
+        return redirect(url_for('home'))
+
+
 # Register the API blueprint
 app.register_blueprint(api)
 
@@ -150,7 +179,7 @@ def build_route():
     initial_route = None
     if route_param:
         try:
-            route = Route.deserialize(route_param)
+            route = Route.deserialize(unquote(route_param))
             initial_route = route.to_dict()  # Convert to dict before passing to template
         except Exception as e:
             flash(f'Error loading route: {str(e)}', 'error')
@@ -173,7 +202,7 @@ def build_route():
 
 @app.route('/created_route', methods=['GET'])
 def created_route():
-    route_param = request.args.get('route')
+    route_param = request.args.get('route', type=str)
     if not route_param:
         return redirect(url_for('build_route'))
     

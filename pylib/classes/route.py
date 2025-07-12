@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict, List, Optional
+from typing import List
 import json
 import zlib
 from base64 import b64encode, b64decode

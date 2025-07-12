@@ -789,7 +789,7 @@ button.print-button:hover {
 
     @page {
         size: portrait;
-        margin: 1cm;
+        margin: 0.25cm;
     }
 }
 

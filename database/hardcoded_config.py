@@ -1,0 +1,11 @@
+import os
+
+POSTGRESQL_DBNAME = os.environ.get("POSTGRESQL_DBNAME", "jugglefit_db")
+POSTGRESQL_USERNAME = os.environ.get("POSTGRESQL_USERNAME", "postgres")
+POSTGRESQL_PASSWORD = os.environ.get("POSTGRESQL_PASSWORD", "Password1!")
+POSTGRESQL_HOST = os.environ.get("POSTGRESQL_HOST", "localhost")
+POSTGRESQL_PORT = os.environ.get("POSTGRESQL_PORT", "5432")
+
+SHORT_URL_EXPIRY_MONTHS = 3
+SHORT_URL_EXTEND_MONTHS = 1
+EXPIRED_URL_CLEANUP_INTERVAL = 7 * 24 * 60 * 60  # 7 days in seconds

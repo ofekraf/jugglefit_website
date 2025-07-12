@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "5001:5001"
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=development
+      - PYTHONUNBUFFERED=1
+    env_file:
+      - ./.env
+    volumes:
+      - .:/app
+    command: python app.py
+    restart: unless-stopped 
