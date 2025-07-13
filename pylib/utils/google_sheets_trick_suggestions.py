@@ -3,6 +3,7 @@ from googleapiclient.errors import HttpError
 from pylib.classes.prop import Prop
 from pylib.classes.trick import Trick
 from pylib.configuration.bot_consts import JUGGLEFIT_BOT_CREDS, TRICK_SUGGESTIONS_SPREADSHEET_ID
+from pylib.utils.general import quote_string
 
 
 def append_trick_suggestion(*, prop: Prop, trick: Trick) -> None:
@@ -13,16 +14,16 @@ def append_trick_suggestion(*, prop: Prop, trick: Trick) -> None:
         trick: The trick to add
     """
     try:
-        values = [
-            [
-                trick.name,
-                str(trick.props_count),
-                str(trick.difficulty),
-                trick.comment if trick.comment else '',
-                ', '.join(tag.value for tag in trick.tags) if trick.tags is not None else "",
-                repr(trick)
-            ]
+        tags_csv = quote_string('|'.join(tag.value for tag in trick.tags) if trick.tags is not None else '')
+        csv_row = [
+            quote_string(trick.name),
+            str(trick.props_count),
+            str(trick.difficulty),
+            quote_string(trick.comment if trick.comment else ''),
+            tags_csv
         ]
+        csv_row_str = ','.join(csv_row)
+        values = [csv_row + [csv_row_str]]
 
         # Use the Google Sheets API v4 endpoint
         append_row_to_sheet(
