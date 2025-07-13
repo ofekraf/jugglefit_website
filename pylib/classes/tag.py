@@ -105,6 +105,5 @@ TAG_CATEGORY_MAP = {
     Tag.Isolated: TagCategory.Isolation,
     Tag.OnTheKnees: TagCategory.Isolation,
     Tag.Sitting: TagCategory.Isolation,
-    Tag.OnTheBack: TagCategory.Isolation,
-    
+    Tag.OnTheBack: TagCategory.Isolation,   
 }
