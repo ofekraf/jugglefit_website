@@ -1,6 +1,6 @@
 from urllib.parse import unquote
 from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, Blueprint
-from database.url_shortener_db import get_long_url_and_refresh, get_or_create_short_url, init_db, start_cleanup_thread
+from database.memory_url_shortener import get_long_url_and_refresh, get_or_create_short_url, init_db, start_cleanup_thread
 from hardcoded_database.events.past_events import ALL_PAST_EVENTS, FRONT_PAGE_PAST_EVENTS
 from hardcoded_database.events.upcoming_events import UPCOMING_EVENTS
 from hardcoded_database.organization.team import TEAM
@@ -10,12 +10,10 @@ from dotenv import load_dotenv
 from pylib.classes.prop import Prop
 from pylib.classes.route import Route
 from pylib.classes.tag import TAG_CATEGORY_MAP, Tag, TagCategory
-from pylib.classes.trick import Trick
 from pylib.configuration.consts import DEFAULT_MAX_TRICK_DIFFICULTY, DEFAULT_MAX_TRICK_PROPS_COUNT, DEFAULT_MIN_TRICK_DIFFICULTY, DEFAULT_MIN_TRICK_PROPS_COUNT, MAX_TRICK_DIFFICULTY, MAX_TRICK_PROPS_COUNT, MIN_TRICK_DIFFICULTY, MIN_TRICK_PROPS_COUNT
 from pylib.route_generator.exceptions import NotEnoughTricksFoundException
 from pylib.route_generator.route_generator import RouteGenerator
 from pylib.utils.filter_tricks import filter_tricks
-from pylib.utils.google_sheets_trick_suggestions import append_trick_suggestion
 
 # Load environment variables
 load_dotenv()
@@ -71,24 +69,25 @@ def fetch_tricks():
     
 @api.route('/suggest_trick', methods=['POST'])
 def api_suggest_trick():
-    try:
-        data = request.get_json()
-        
-        # Validate required fields
-        required_fields = ['name', 'prop', 'props_count', 'difficulty']
-        for field in required_fields:
-            if field not in data:
-                return f'Missing required field: {field}', 400
-
-        prop = Prop.get_key_by_value(data.get("prop"))
-        trick_suggestion = Trick.from_dict(data=data)
-        
-        # Append to Google Sheet
-        append_trick_suggestion(prop=prop, trick=trick_suggestion)
-        return 'Suggestion submitted successfully', 200
-        
-    except Exception as e:
-        return str(e), 400
+    return "currently unsupported, in the process of building"
+    # try:
+    #     data = request.get_json()
+    #
+    #     # Validate required fields
+    #     required_fields = ['name', 'prop', 'props_count', 'difficulty']
+    #     for field in required_fields:
+    #         if field not in data:
+    #             return f'Missing required field: {field}', 400
+    #
+    #     prop = Prop.get_key_by_value(data.get("prop"))
+    #     trick_suggestion = Trick.from_dict(data=data)
+    #
+    #     # Append to Google Sheet
+    #     append_trick_suggestion(prop=prop, trick=trick_suggestion)
+    #     return 'Suggestion submitted successfully', 200
+    #
+    # except Exception as e:
+    #     return str(e), 400
 
 
 @api.route('/shorten_url', methods=['POST'])

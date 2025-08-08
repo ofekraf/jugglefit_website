@@ -27,8 +27,8 @@ _creds_content = JUGGLEFIT_BOT_SERVICE_ACCOUNT_FILE.read_text()
 _creds_content = os.path.expandvars(_creds_content)
 JUGGLEFIT_BOT_CREDS_INFO = json5.loads(_creds_content)
 
-# Create credentials object
-JUGGLEFIT_BOT_CREDS = service_account.Credentials.from_service_account_info(
-    JUGGLEFIT_BOT_CREDS_INFO,
-    scopes=JUGGLEFIT_BOT_SCOPES
-) 
+# # Create credentials object
+# JUGGLEFIT_BOT_CREDS = service_account.Credentials.from_service_account_info(
+#     JUGGLEFIT_BOT_CREDS_INFO,
+#     scopes=JUGGLEFIT_BOT_SCOPES
+# )
