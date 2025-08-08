@@ -4,11 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="552baee5-abe5-4f75-a5c0-d7b189be8b2c" name="Changes" comment="added flask to dockerfile">
+    <list default="true" id="552baee5-abe5-4f75-a5c0-d7b189be8b2c" name="Changes" comment="removing &quot;api_suggest_trick&quot; from logic to get the site running">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pylib/configuration/bot_consts.py" beforeDir="false" afterPath="$PROJECT_DIR$/pylib/configuration/bot_consts.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pylib/utils/google_sheets_trick_suggestions.py" beforeDir="false" afterPath="$PROJECT_DIR$/pylib/utils/google_sheets_trick_suggestions.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -218,7 +216,7 @@
       <workItem from="1751193877160" duration="9032000" />
       <workItem from="1753277976618" duration="35000" />
       <workItem from="1753642838633" duration="1292000" />
-      <workItem from="1754663995900" duration="4571000" />
+      <workItem from="1754663995900" duration="5251000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit of existing project">
       <option name="closed" value="true" />
@@ -380,7 +378,15 @@
       <option name="project" value="LOCAL" />
       <updated>1751198636670</updated>
     </task>
-    <option name="localTasksCounter" value="21" />
+    <task id="LOCAL-00021" summary="removing &quot;api_suggest_trick&quot; from logic to get the site running">
+      <option name="closed" value="true" />
+      <created>1754672669965</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1754672669965</updated>
+    </task>
+    <option name="localTasksCounter" value="22" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -407,7 +413,8 @@
     <MESSAGE value="add pandas to requirements.txt" />
     <MESSAGE value="add dockerfile" />
     <MESSAGE value="added flask to dockerfile" />
-    <option name="LAST_COMMIT_MESSAGE" value="added flask to dockerfile" />
+    <MESSAGE value="removing &quot;api_suggest_trick&quot; from logic to get the site running" />
+    <option name="LAST_COMMIT_MESSAGE" value="removing &quot;api_suggest_trick&quot; from logic to get the site running" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/jugglefit_website$scratch_17.coverage" NAME="scratch_17 Coverage Results" MODIFIED="1740824278447" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$APPLICATION_CONFIG_DIR$/scratches" />
