@@ -71,24 +71,25 @@ def fetch_tricks():
     
 @api.route('/suggest_trick', methods=['POST'])
 def api_suggest_trick():
-    try:
-        data = request.get_json()
-        
-        # Validate required fields
-        required_fields = ['name', 'prop', 'props_count', 'difficulty']
-        for field in required_fields:
-            if field not in data:
-                return f'Missing required field: {field}', 400
-
-        prop = Prop.get_key_by_value(data.get("prop"))
-        trick_suggestion = Trick.from_dict(data=data)
-        
-        # Append to Google Sheet
-        append_trick_suggestion(prop=prop, trick=trick_suggestion)
-        return 'Suggestion submitted successfully', 200
-        
-    except Exception as e:
-        return str(e), 400
+    return "currently unsupported, in the process of building"
+    # try:
+    #     data = request.get_json()
+    #
+    #     # Validate required fields
+    #     required_fields = ['name', 'prop', 'props_count', 'difficulty']
+    #     for field in required_fields:
+    #         if field not in data:
+    #             return f'Missing required field: {field}', 400
+    #
+    #     prop = Prop.get_key_by_value(data.get("prop"))
+    #     trick_suggestion = Trick.from_dict(data=data)
+    #
+    #     # Append to Google Sheet
+    #     append_trick_suggestion(prop=prop, trick=trick_suggestion)
+    #     return 'Suggestion submitted successfully', 200
+    #
+    # except Exception as e:
+    #     return str(e), 400
 
 
 @api.route('/shorten_url', methods=['POST'])

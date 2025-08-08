@@ -2,8 +2,8 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from pylib.classes.prop import Prop
 from pylib.classes.trick import Trick
-from pylib.configuration.bot_consts import JUGGLEFIT_BOT_CREDS, TRICK_SUGGESTIONS_SPREADSHEET_ID
 from pylib.utils.general import quote_string
+from pylib.configuration.bot_consts import  TRICK_SUGGESTIONS_SPREADSHEET_ID
 
 
 def append_trick_suggestion(*, prop: Prop, trick: Trick) -> None:
