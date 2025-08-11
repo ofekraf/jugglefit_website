@@ -14,4 +14,15 @@ UPCOMING_EVENTS = [
             "Balls U18",
         ]
     ),
+    UpcomingEvent(
+        name="Israeli Juggling Convention 2026 (IJC)",
+        date=date(2026, 4, 5),
+        location="Gan Hashlosha, Israel",
+        url="https://www.ijc.co.il/",
+        routes=[
+            "Balls Open",
+            "Clubs Open",
+            "Balls U18",
+        ]
+    ),
 ]
