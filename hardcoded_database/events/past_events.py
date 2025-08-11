@@ -275,7 +275,7 @@ FRONT_PAGE_PAST_EVENTS = [
                         Trick(name="21c 9555855", props_count=6),
                         Trick(name="6c sync fountain -> 8c (c,c)(4,4)(4,4)(4,4) -> sync fountain", props_count=6),
                         Trick(name="6c async fountain -> 999522 4up 360 -> 756", props_count=6),
-                        Trick(name="7c isolated cascade", props_count=7),
+                        Trick(name="70c isolated cascade", props_count=7),
                         Trick(name="7c cascade -> db97522 5up 360 -> cascade", props_count=7),
                         Trick(name="24c any", props_count=8)
                     ]
