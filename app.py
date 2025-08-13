@@ -212,6 +212,19 @@ def created_route():
         flash(f'Error loading route: {str(e)}')
         return redirect(url_for('build_route'))
 
+@app.route('/live_event', methods=['GET'])
+def live_event():
+    route_param = request.args.get('route', type=str)
+    if not route_param:
+        return redirect(url_for('build_route'))
+    
+    try:
+        route = Route.deserialize(route_param)
+        return render_template('live_event.html', route=route)
+    except Exception as e:
+        flash(f'Error loading route: {str(e)}')
+        return redirect(url_for('build_route'))
+
 @app.route('/donate')
 def donate():
     return render_template('donate.html')

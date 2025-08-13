@@ -1,0 +1,548 @@
+{% extends "utils/base.html" %}
+{% block title %}Live Event - {{ route.name }}{% endblock %}
+{% block content %}
+<div class="live-event-page">
+    <!-- Podium Section -->
+    <div class="podium-section">
+        <h2>🏆</h2>
+        <div class="podium-container">
+            <div class="podium-place" id="podium-1">
+                <div class="place-number">1st</div>
+                <div class="competitor-name" id="podium-name-1">-</div>
+                <div class="competitor-result" id="podium-result-1">-</div>
+            </div>
+            <div class="podium-place" id="podium-2">
+                <div class="place-number">2nd</div>
+                <div class="competitor-name" id="podium-name-2">-</div>
+                <div class="competitor-result" id="podium-result-2">-</div>
+            </div>
+            <div class="podium-place" id="podium-3">
+                <div class="place-number">3rd</div>
+                <div class="competitor-name" id="podium-name-3">-</div>
+                <div class="competitor-result" id="podium-result-3">-</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Timer Section -->
+    <div class="live-timer-section">
+        <div class="countdown-timer" id="timer-container">
+            <div class="timer-header">
+                <span>Event Timer</span>
+                <button class="drag-handle">≡</button>
+            </div>
+            <div id="countdown"><span id="timer"></span></div>
+            <div class="timer-controls">
+                <button id="startBtn" class="timer-btn">Start</button>
+                <button id="stopBtn" class="timer-btn" disabled>Stop</button>
+                <button id="resetBtn" class="timer-btn">Reset</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="live-event-layout">
+        <!-- Left Side - Competitor Tracking -->
+        <div class="competitor-section">
+            <div class="competitor-header">
+                <h3>Competitors</h3>
+                <div class="add-competitor">
+                    <input type="text" id="newCompetitorName" placeholder="Competitor name" maxlength="50" onkeypress="handleEnterKey(event)">
+                    <button onclick="addCompetitor()" class="add-btn">Add</button>
+                </div>
+            </div>
+            
+            <div class="competitor-table-container">
+                <div class="competitor-list-container" id="competitorListContainer">
+                    <!-- Rows will be generated dynamically -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side - Route Map -->
+        <div class="route-section">
+            <div class="route-content">
+                {% include "utils/route_display.html" %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Initialize countdown timer
+    let finalTime = null;
+    let timerInterval = null;
+    let isRunning = false;
+    const originalDuration = parseInt('{{ route.duration_seconds }}') || 600;
+    let competitors = [];
+    let routeLength = parseInt('{{ route.tricks | length }}');
+
+    // Initialize competitor table
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeCompetitorTable();
+        resetTimer();
+    });
+
+    function initializeCompetitorTable() {
+        const container = document.getElementById('competitorListContainer');
+        container.innerHTML = '';
+        
+        for (let i = 1; i <= routeLength; i++) {
+            const row = document.createElement('div');
+            row.className = 'competitor-row';
+            row.innerHTML = `
+                <div class="trick-number">${i}</div>
+                <div class="competitor-cell" id="cell-${i}">
+                    <div class="competitor-list" id="competitor-list-${i}"></div>
+                </div>
+            `;
+            container.appendChild(row);
+        }
+    }
+
+    function addCompetitor() {
+        const nameInput = document.getElementById('newCompetitorName');
+        const name = nameInput.value.trim();
+        
+        if (!name) {
+            showToast('Please enter a competitor name');
+            return;
+        }
+        
+        if (competitors.some(c => c.name === name)) {
+            showToast('Competitor already exists');
+            return;
+        }
+        
+        const competitor = {
+            name: name,
+            currentTrick: 1,
+            startTime: null,
+            finishTime: null,
+            tricksCompleted: 0
+        };
+        
+        competitors.push(competitor);
+        updateCompetitorDisplay();
+        nameInput.value = '';
+        showToast(`Added competitor: ${name}`);
+    }
+
+    function updateCompetitorDisplay() {
+        // Clear all competitor displays
+        for (let i = 1; i <= routeLength; i++) {
+            const list = document.getElementById(`competitor-list-${i}`);
+            list.innerHTML = '';
+        }
+        
+        // Add competitors to their current positions
+        competitors.forEach(competitor => {
+            if (competitor.currentTrick <= routeLength) {
+                const list = document.getElementById(`competitor-list-${competitor.currentTrick}`);
+                const competitorDiv = document.createElement('div');
+                competitorDiv.className = 'competitor-item';
+                competitorDiv.draggable = true;
+                competitorDiv.dataset.competitorName = competitor.name;
+                competitorDiv.innerHTML = `
+                    <div class="competitor-info">
+                        <div class="competitor-name-line">
+                            <span class="competitor-display-name competitor-name-editable" 
+                                  ondblclick="editCompetitorName(this, '${competitor.name}')"
+                                  data-competitor-name="${competitor.name}">${competitor.name}</span>
+                            <button class="advance-btn" onclick="advanceCompetitor('${competitor.name}')" 
+                                    ${competitor.currentTrick === routeLength ? '' : ''}>
+                                ${competitor.currentTrick === routeLength ? '🏆' : 'V'}
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                // Add drag and drop event listeners
+                competitorDiv.addEventListener('dragstart', handleDragStart);
+                competitorDiv.addEventListener('dragend', handleDragEnd);
+                
+                list.appendChild(competitorDiv);
+            }
+        });
+        
+        // Add drag and drop event listeners to all rows
+        setupDragAndDrop();
+    }
+
+    function advanceCompetitor(competitorName) {
+        const competitor = competitors.find(c => c.name === competitorName);
+        if (!competitor) return;
+        
+        if (competitor.currentTrick === routeLength) {
+            // Check if this is the first competitor to finish
+            const finishedCompetitors = competitors.filter(c => c.finishTime !== null);
+            if (finishedCompetitors.length === 0) {
+                // First to finish - record finish time and move to podium
+                competitor.finishTime = new Date().getTime();
+                moveToPodium(competitor);
+            } else {
+                // Not first - record finish time but remove from map (no podium)
+                competitor.finishTime = new Date().getTime();
+                competitors = competitors.filter(c => c.name !== competitor.name);
+                updateCompetitorDisplay();
+                showToast(`${competitor.name} finished but didn't make the podium`);
+            }
+        } else {
+            competitor.currentTrick++;
+            competitor.tricksCompleted++;
+            updateCompetitorDisplay();
+        }
+    }
+
+    function moveToPodium(competitor) {
+        // Find next available podium position
+        let podiumPosition = 1;
+        while (podiumPosition <= 3 && document.getElementById(`podium-name-${podiumPosition}`).textContent !== '-') {
+            podiumPosition++;
+        }
+        
+        if (podiumPosition <= 3) {
+            const nameElement = document.getElementById(`podium-name-${podiumPosition}`);
+            const resultElement = document.getElementById(`podium-result-${podiumPosition}`);
+            
+            if (competitor.finishTime) {
+                // Completed the route - show time taken
+                const timeTaken = Math.floor((competitor.finishTime - competitor.startTime) / 1000);
+                const timeMinutes = Math.floor(timeTaken / 60);
+                const timeSeconds = timeTaken % 60;
+                const timeText = `${timeMinutes}:${timeSeconds.toString().padStart(2, '0')}`;
+                
+                nameElement.textContent = `${competitor.name} (${timeText})`;
+                resultElement.textContent = `Completed`;
+            } else {
+                // Didn't finish, show tricks completed
+                nameElement.textContent = competitor.name;
+                resultElement.textContent = `${competitor.tricksCompleted} tricks`;
+            }
+            
+            // Remove from competitors list
+            competitors = competitors.filter(c => c.name !== competitor.name);
+            updateCompetitorDisplay();
+            showToast(`${competitor.name} finished in ${podiumPosition}${getOrdinalSuffix(podiumPosition)} place!`);
+        }
+    }
+
+    function getOrdinalSuffix(num) {
+        if (num === 1) return 'st';
+        if (num === 2) return 'nd';
+        if (num === 3) return 'rd';
+        return 'th';
+    }
+
+    function updateTimer() {
+        if (!finalTime) return;
+        
+        const now = new Date().getTime();
+        const timeLeft = Math.max(0, Math.floor((finalTime - now) / 1000));
+        
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        document.getElementById('timer').textContent = 
+            minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
+        
+        if (timeLeft <= 0) {
+            stopTimer();
+            document.getElementById('timer').textContent = "Time's up!";
+            handleTimeUp();
+        }
+    }
+
+    function handleTimeUp() {
+        // Move most advanced competitors to podium
+        const sortedCompetitors = [...competitors].sort((a, b) => {
+            if (a.currentTrick !== b.currentTrick) {
+                return b.currentTrick - a.currentTrick;
+            }
+            return b.tricksCompleted - a.tricksCompleted;
+        });
+        
+        // Move top competitors to podium
+        for (let i = 0; i < Math.min(3, sortedCompetitors.length); i++) {
+            const competitor = sortedCompetitors[i];
+            if (document.getElementById(`podium-name-${i + 1}`).textContent === '-') {
+                moveToPodium(competitor);
+            }
+        }
+        
+        showToast("Time's up! Final results calculated.");
+    }
+
+    function startTimer() {
+        if (!isRunning) {
+            isRunning = true;
+            if (!finalTime) {
+                finalTime = new Date().getTime() + (originalDuration * 1000);
+            }
+            
+            // Set start time for all competitors
+            competitors.forEach(competitor => {
+                if (!competitor.startTime) {
+                    competitor.startTime = new Date().getTime();
+                }
+            });
+            
+            timerInterval = setInterval(updateTimer, 100);
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('stopBtn').disabled = false;
+            updateTimer();
+        }
+    }
+
+    function stopTimer() {
+        if (isRunning) {
+            isRunning = false;
+            clearInterval(timerInterval);
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('stopBtn').disabled = true;
+        }
+    }
+
+    function resetTimer() {
+        stopTimer();
+        finalTime = null;
+        document.getElementById('countdown').innerHTML = '<span id="timer"></span>';
+        const minutes = Math.floor(originalDuration / 60);
+        const seconds = originalDuration % 60;
+        document.getElementById('timer').textContent = 
+            minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
+        
+        // Reset competitors
+        competitors.forEach(competitor => {
+            competitor.currentTrick = 1;
+            competitor.startTime = null;
+            competitor.finishTime = null;
+            competitor.tricksCompleted = 0;
+        });
+        updateCompetitorDisplay();
+    }
+
+    // Add event listeners for timer buttons
+    document.getElementById('startBtn').addEventListener('click', startTimer);
+    document.getElementById('stopBtn').addEventListener('click', stopTimer);
+    document.getElementById('resetBtn').addEventListener('click', resetTimer);
+
+    // Timer drag functionality
+    const timer = document.querySelector('.countdown-timer');
+    const timerHeader = timer.querySelector('.timer-header');
+    let isDragging = false;
+    let currentX;
+    let currentY;
+    let initialX;
+    let initialY;
+    let xOffset = 0;
+    let yOffset = 0;
+
+    function dragStart(e) {
+        if (e.type === "touchstart") {
+            initialX = e.touches[0].clientX - xOffset;
+            initialY = e.touches[0].clientY - yOffset;
+        } else {
+            initialX = e.clientX - xOffset;
+            initialY = e.clientY - yOffset;
+        }
+
+        if (e.target === timer || e.target === timerHeader || e.target.closest('.timer-header')) {
+            isDragging = true;
+        }
+    }
+
+    function drag(e) {
+        if (isDragging) {
+            e.preventDefault();
+
+            if (e.type === "touchmove") {
+                currentX = e.touches[0].clientX - initialX;
+                currentY = e.touches[0].clientY - initialY;
+            } else {
+                currentX = e.clientX - initialX;
+                currentY = e.clientY - initialY;
+            }
+
+            xOffset = currentX;
+            yOffset = currentY;
+
+            setTranslate(currentX, currentY, timer);
+        }
+    }
+
+    function dragEnd(e) {
+        initialX = currentX;
+        initialY = currentY;
+        isDragging = false;
+    }
+
+    function setTranslate(xPos, yPos, el) {
+        el.style.transform = `translate(${xPos}px, ${yPos}px)`;
+    }
+
+    timerHeader.addEventListener("touchstart", dragStart, false);
+    timerHeader.addEventListener("touchend", dragEnd, false);
+    timerHeader.addEventListener("touchmove", drag, false);
+
+    timerHeader.addEventListener("mousedown", dragStart, false);
+    timerHeader.addEventListener("mouseup", dragEnd, false);
+    timerHeader.addEventListener("mousemove", drag, false);
+
+    // Handle Enter key in competitor input
+    function handleEnterKey(event) {
+        if (event.key === 'Enter') {
+            addCompetitor();
+        }
+    }
+
+    // Toast notification function
+    function showToast(message) {
+        const toast = document.createElement('div');
+        toast.className = 'toast-notification';
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.classList.add('show');
+        }, 100);
+        
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => {
+                toast.remove();
+            }, 300);
+        }, 3000);
+    }
+
+    function editCompetitorName(element, oldName) {
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = oldName;
+        input.className = 'competitor-name-editable';
+        input.style.width = '100%';
+        input.style.fontSize = 'inherit';
+        input.style.fontWeight = 'inherit';
+        input.style.border = 'none';
+        input.style.background = 'transparent';
+        input.style.padding = '2px 4px';
+        
+        const originalText = element.textContent;
+        
+        input.addEventListener('blur', function() {
+            const newName = input.value.trim();
+            if (newName && newName !== oldName) {
+                if (competitors.some(c => c.name === newName)) {
+                    showToast('Competitor name already exists');
+                    element.textContent = originalText;
+                } else {
+                    // Update competitor name
+                    const competitor = competitors.find(c => c.name === oldName);
+                    if (competitor) {
+                        competitor.name = newName;
+                        element.textContent = newName;
+                        element.dataset.competitorName = newName;
+                        element.parentElement.parentElement.dataset.competitorName = newName;
+                        showToast(`Renamed competitor to: ${newName}`);
+                    }
+                }
+            } else {
+                element.textContent = originalText;
+            }
+        });
+        
+        input.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                input.blur();
+            }
+        });
+        
+        element.textContent = '';
+        element.appendChild(input);
+        input.focus();
+        input.select();
+    }
+
+    function setupDragAndDrop() {
+        // Add drag and drop event listeners to all competitor rows
+        for (let i = 1; i <= routeLength; i++) {
+            const row = document.querySelector(`.competitor-row:nth-child(${i})`);
+            if (row) {
+                row.addEventListener('dragover', handleDragOver);
+                row.addEventListener('dragenter', handleDragEnter);
+                row.addEventListener('dragleave', handleDragLeave);
+                row.addEventListener('drop', handleDrop);
+            }
+        }
+    }
+
+    function handleDragStart(e) {
+        e.dataTransfer.setData('text/plain', e.target.dataset.competitorName);
+        e.target.classList.add('dragging');
+    }
+
+    function handleDragEnd(e) {
+        e.target.classList.remove('dragging');
+        // Remove drag-over styling from all rows
+        document.querySelectorAll('.competitor-row').forEach(row => {
+            row.classList.remove('drag-over');
+        });
+    }
+
+    function handleDragOver(e) {
+        e.preventDefault();
+    }
+
+    function handleDragEnter(e) {
+        e.preventDefault();
+        const row = e.target.closest('.competitor-row');
+        if (row) {
+            // Remove drag-over from all rows first
+            document.querySelectorAll('.competitor-row').forEach(r => r.classList.remove('drag-over'));
+            // Add drag-over to current row
+            row.classList.add('drag-over');
+        }
+    }
+
+    function handleDragLeave(e) {
+        const row = e.target.closest('.competitor-row');
+        if (row && !row.contains(e.relatedTarget)) {
+            row.classList.remove('drag-over');
+        }
+    }
+
+    function handleDrop(e) {
+        e.preventDefault();
+        const competitorName = e.dataTransfer.getData('text/plain');
+        const targetRow = e.target.closest('.competitor-row');
+        
+        if (targetRow && competitorName) {
+            const targetTrickNumber = parseInt(targetRow.querySelector('.trick-number').textContent);
+            moveCompetitorToTrick(competitorName, targetTrickNumber);
+        }
+        
+        // Remove drag-over styling
+        document.querySelectorAll('.competitor-row').forEach(row => {
+            row.classList.remove('drag-over');
+        });
+    }
+
+    function moveCompetitorToTrick(competitorName, targetTrick) {
+        const competitor = competitors.find(c => c.name === competitorName);
+        if (!competitor) return;
+        
+        // Update competitor's current trick and tricks completed
+        const oldTrick = competitor.currentTrick;
+        competitor.currentTrick = targetTrick;
+        
+        // Calculate tricks completed based on new position
+        if (targetTrick > oldTrick) {
+            competitor.tricksCompleted = Math.max(competitor.tricksCompleted, targetTrick - 1);
+        } else if (targetTrick < oldTrick) {
+            competitor.tricksCompleted = Math.max(0, targetTrick - 1);
+        }
+        
+        updateCompetitorDisplay();
+        showToast(`Moved ${competitorName} to trick ${targetTrick}`);
+    }
+</script>
+{% endblock %}

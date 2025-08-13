@@ -13,7 +13,7 @@
             <span>Timer</span>
             <button class="drag-handle">≡</button>
         </div>
-        <div id="countdown">Time remaining: <span id="timer"></span></div>
+        <div id="countdown"><span id="timer"></span></div>
         <div class="timer-controls">
             <button id="startBtn" class="timer-btn">Start</button>
             <button id="stopBtn" class="timer-btn" disabled>Stop</button>
@@ -22,6 +22,7 @@
     </div>
     <div class="route-buttons">
         <button class="primary-button" onclick="shareRoute()">Share</button>
+        <a href="/live_event?route={{ route.serialize() | urlencode }}" class="primary-button live-event-button">Live Event</a>
         <a href="/build_route?route={{ route.serialize() | urlencode }}" class="primary-button">Edit</a>
         <button class="primary-button print-button" onclick="printRoute()">Print</button>
     </div>
