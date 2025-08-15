@@ -21,7 +21,8 @@ class RouteGenerator:
         route_length: int = 5,
         exclude_tags: Optional[Set[Tag]] = None,
         name: str = '',
-        duration_seconds: int = 600
+        duration_seconds: int = 600,
+        max_throw: Optional[int] = None,
     ) -> Route:
         if exclude_tags is None:
             exclude_tags = set()
@@ -34,7 +35,8 @@ class RouteGenerator:
             min_difficulty=min_difficulty,
             max_difficulty=max_difficulty,
             exclude_tags=exclude_tags,
-            limit=route_length
+            limit=route_length,
+            max_throw=max_throw,
         )
 
         if len(relevant_tricks) < route_length:

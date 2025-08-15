@@ -21,7 +21,8 @@ def filter_tricks(
     max_difficulty: int = MAX_TRICK_DIFFICULTY,
     limit: Optional[int] = None,
     exclude_tags: Optional[Set[Tag]] = None,
-    tricks: Optional[List[Trick]] = None
+    tricks: Optional[List[Trick]] = None,
+    max_throw: Optional[int] = None,
 ) -> List[Trick]:
     if exclude_tags is None:
         exclude_tags = set()
@@ -33,7 +34,11 @@ def filter_tricks(
         trick for trick in tricks
         if (min_props <= trick.props_count <= max_props and
             min_difficulty <= trick.difficulty <= max_difficulty and
-            not has_intersection(trick.tags, exclude_tags))
+            not has_intersection(trick.tags, exclude_tags) and
+            (max_throw is None or (
+                trick.max_throw is not None and trick.max_throw <= max_throw
+                )
+            ))
     ]
     
     if limit is not None and limit > 0:
