@@ -364,9 +364,10 @@ body {
     color: white;
 }
 
-/* Edit and Print button styles */
+/* Edit, Print, and Live Event button styles */
 a.primary-button[href*="build_route"],
-button.print-button {
+button.print-button,
+a.primary-button.live-event-button {
     background-color: transparent;
     color: var(--accent-color);
     padding: 0.75rem 1.5rem;
@@ -374,7 +375,8 @@ button.print-button {
 }
 
 a.primary-button[href*="build_route"]:hover,
-button.print-button:hover {
+button.print-button:hover,
+a.primary-button.live-event-button:hover {
     background-color: transparent;
     color: var(--accent-color);
     opacity: 0.8;
@@ -914,8 +916,7 @@ button.print-button:hover {
     }
 
     /* Hide Print Route button in responsive */
-    .print-button,
-    button.print-button {
+    .print-button {
         display: none !important;
     }
 
@@ -1366,7 +1367,8 @@ button.print-button:hover {
     text-align: center;
 }
 
-.route-buttons .print-button {
+.route-buttons .print-button,
+.route-buttons .live-event-button {
     width: auto !important;
     min-width: 120px;
     display: inline-block;
@@ -1877,13 +1879,13 @@ button.print-button:hover {
     cursor: move;
     z-index: 2000;
     user-select: none;
-    width: 200px;
+    width: 300px;
 }
 
 .timer-header {
     background-color: var(--danger-color);
     color: white;
-    padding: 10px 15px;
+    padding: 15px 20px;
     border-radius: 8px 8px 0 0;
     display: flex;
     justify-content: space-between;
@@ -1894,31 +1896,41 @@ button.print-button:hover {
     background: none;
     border: none;
     color: white;
-    font-size: 1.5rem;
+    font-size: 1.8rem;
     cursor: move;
     padding: 0;
 }
 
 #countdown {
-    padding: 15px;
+    padding: 20px;
     text-align: center;
     border-bottom: 1px solid var(--border-color);
+    font-size: 1.3rem;
+}
+
+#countdown #timer {
+    font-size: 5rem;
+    font-weight: 700;
+    color: var(--text-color);
+    display: block;
+    margin-top: 5px;
 }
 
 .timer-controls {
-    padding: 10px;
+    padding: 15px;
     display: flex;
     justify-content: space-around;
-    gap: 5px;
+    gap: 8px;
 }
 
 .timer-btn {
-    padding: 5px 10px;
+    padding: 8px 15px;
     border: 1px solid var(--border-color);
     border-radius: 4px;
     background-color: white;
     cursor: pointer;
     transition: all 0.3s ease;
+    font-size: 1rem;
 }
 
 .timer-btn:hover {
@@ -1947,7 +1959,7 @@ button.print-button:hover {
     .countdown-timer {
         top: 80px;
         right: 10px;
-        width: 180px;
+        width: 270px;
     }
 }
 
@@ -2001,14 +2013,7 @@ button.print-button:hover {
     box-shadow: 0 2px 4px var(--shadow-color);
 }
 
-.print-button {
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
-    min-width: 120px;
-    text-align: center;
-    width: auto;
-    display: inline-block;
-}
+
 
 /* Toast Notification */
 .toast-notification {
@@ -2310,4 +2315,499 @@ button.print-button:hover {
 /* Hide category checkboxes in suggest trick page */
 .suggest-trick .category-checkbox {
     display: none;
+}
+
+/* Live Event Page Styles */
+.live-event-page {
+    padding: 1rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.podium-section {
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    border-radius: 15px;
+    padding: 3rem;
+    margin-top: 2rem;
+    text-align: center;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.podium-section h2 {
+    color: #8B4513;
+    margin-bottom: 2rem;
+    font-size: 3.5rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.podium-container {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    align-items: flex-end;
+}
+
+.podium-place {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    min-width: 200px;
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
+    border: 4px solid #FFD700;
+}
+
+.podium-place:nth-child(1) {
+    order: 2;
+    transform: scale(1.1);
+    border-color: #FFD700;
+}
+
+.podium-place:nth-child(2) {
+    order: 1;
+    transform: scale(0.9);
+    border-color: #C0C0C0;
+}
+
+.podium-place:nth-child(3) {
+    order: 3;
+    transform: scale(0.8);
+    border-color: #CD7F32;
+}
+
+.place-number {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #8B4513;
+    margin-bottom: 0.75rem;
+}
+
+.competitor-name {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.75rem;
+    min-height: 1.8rem;
+}
+
+.competitor-result {
+    font-size: 1.1rem;
+    color: #666;
+    font-weight: 500;
+    min-height: 1.4rem;
+}
+
+.live-timer-section {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 0;
+}
+
+.live-timer-section .countdown-timer {
+    transform: none;
+    margin: 0;
+    position: fixed;
+    top: 90px;
+    right: 20px;
+    z-index: 2000;
+}
+
+.live-event-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    min-height: 600px;
+    position: relative;
+}
+
+.competitor-section {
+    background: white;
+    border-radius: 0;
+    padding: 1.5rem 0 1.5rem 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.competitor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.competitor-header h3 {
+    margin: 0;
+    color: var(--text-color);
+    font-size: 1.5rem;
+}
+
+.add-competitor {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.add-competitor input {
+    padding: 0.5rem;
+    border: 2px solid var(--border-color);
+    border-radius: 5px;
+    font-size: 1rem;
+    min-width: 200px;
+}
+
+.add-competitor input:focus {
+    outline: none;
+    border-color: var(--secondary-color);
+}
+
+.add-btn {
+    background: var(--secondary-color);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+}
+
+.add-btn:hover {
+    background: #07a00d;
+}
+
+.competitor-table-container {
+    overflow-x: auto;
+    padding-right: 1.5rem;
+    padding-left: 0;
+}
+
+.competitor-list-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.competitor-row {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 0 0.5rem 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+    min-height: 40px;
+    width: 100%;
+    transition: min-height 0.3s ease;
+    position: relative;
+}
+
+.competitor-row:has(.competitor-list:empty) {
+    min-height: 20px;
+    padding: 0.25rem 0 0.25rem 1.5rem;
+}
+
+.competitor-row:last-child {
+    border-bottom: none;
+}
+
+/* Extend border lines from competitor section to route section */
+.competitor-row::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: -100vw;
+    width: 100vw;
+    height: 1px;
+    background-color: var(--border-color);
+    pointer-events: none;
+}
+
+.competitor-row .trick-number {
+    font-weight: 600;
+    color: var(--light-text);
+    text-align: left;
+    min-width: 2.5rem;
+    padding-right: 1rem;
+    font-size: 1.1rem;
+}
+
+.competitor-row .competitor-cell {
+    flex: 1;
+    min-width: 140px;
+}
+
+.competitor-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.competitor-item {
+    background: var(--section-bg);
+    padding: 0.5rem;
+    border-radius: 5px;
+    border: 1px solid var(--border-color);
+    min-width: fit-content;
+    max-width: fit-content;
+    cursor: grab;
+    transition: all 0.2s ease;
+}
+
+.competitor-item:active {
+    cursor: grabbing;
+}
+
+.competitor-item.dragging {
+    opacity: 0.5;
+    transform: scale(0.95);
+}
+
+.competitor-row.drag-over {
+    background-color: var(--section-bg);
+    border: 2px dashed var(--secondary-color);
+    border-radius: 5px;
+    position: relative;
+}
+
+.competitor-row.drag-over::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(8, 177, 15, 0.1);
+    pointer-events: none;
+    border-radius: 5px;
+}
+
+.competitor-name-editable {
+    cursor: text;
+    padding: 2px 4px;
+    border-radius: 3px;
+    transition: background-color 0.2s ease;
+}
+
+.competitor-name-editable:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.competitor-name-editable:focus {
+    background-color: white;
+    outline: 2px solid var(--secondary-color);
+    outline-offset: 1px;
+}
+
+.competitor-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.competitor-name-line {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.competitor-buttons {
+    display: flex;
+    gap: 0.25rem;
+    align-items: center;
+}
+
+.competitor-display-name {
+    font-weight: 500;
+    color: var(--text-color);
+    text-align: center;
+    white-space: nowrap;
+}
+
+.advance-btn {
+    background: var(--secondary-color);
+    color: white;
+    border: none;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+    min-width: 30px;
+}
+
+.advance-btn:hover:not(:disabled) {
+    background: #07a00d;
+}
+
+.advance-btn:disabled {
+    background: var(--light-text);
+    cursor: not-allowed;
+}
+
+.route-section {
+    background: white;
+    border-radius: 0 10px 10px 0;
+    padding: 1.5rem 1.5rem 1.5rem 0;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.route-section h3 {
+    margin: 0 0 1.5rem 0;
+    color: var(--text-color);
+    font-size: 1.5rem;
+}
+
+.route-content {
+    max-height: 500px;
+    padding: 0 0 0 1.5rem;
+}
+
+/* Live Event Route Display Styling */
+.live-event-page .route-content .trick-content {
+    border-bottom: 1px solid var(--border-color);
+    padding: 0.5rem 0;
+    transition: opacity 0.3s ease;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+/* Grey out tricks with no competitors */
+.live-event-page .route-content .trick-content.no-competitors {
+    opacity: 0.4;
+}
+
+.live-event-page .route-content .trick-content.no-competitors .trick-number,
+.live-event-page .route-content .trick-content.no-competitors .trick-name,
+.live-event-page .route-content .trick-content.no-competitors .trick-comment {
+    color: #999;
+}
+
+.live-event-page .route-content .trick-number {
+    min-width: 2.5rem;
+    text-align: left;
+    font-weight: 600;
+    color: var(--light-text);
+    font-size: 1.1rem;
+}
+
+.live-event-page .route-content .trick-main {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+}
+
+.live-event-page .route-content .prop-details-frame {
+    border: none;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+}
+
+/* Remove extra spacing from prop sections in live event */
+.live-event-page .route-content .prop-section {
+    margin: 0;
+    padding: 0;
+}
+
+.live-event-page .route-content .trick-container {
+    margin: 0;
+    padding: 0;
+}
+
+.live-event-page .route-content .prop-color-bar {
+    display: none;
+}
+
+/* Responsive design for live event */
+@media (max-width: 1200px) {
+    .live-event-layout {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+    
+    .podium-container {
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .podium-place:nth-child(1),
+    .podium-place:nth-child(2),
+    .podium-place:nth-child(3) {
+        order: unset;
+        transform: none;
+    }
+    
+
+}
+
+@media (max-width: 768px) {
+    .live-event-page {
+        padding: 0.5rem;
+    }
+    
+    .podium-section {
+        padding: 1.5rem;
+        border-radius: 15px;
+        margin-top: 1rem;
+    }
+    
+    .podium-section h2 {
+        font-size: 2.5rem;
+    }
+    
+    .competitor-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .add-competitor {
+        flex-direction: column;
+    }
+    
+    .add-competitor input {
+        min-width: auto;
+        width: 100%;
+    }
+    
+    .live-timer-section .countdown-timer {
+        transform: scale(1);
+    }
+    
+    .podium-place {
+        padding: 1.5rem;
+        min-width: 150px;
+    }
+    
+    .competitor-section {
+        border-radius: 10px 10px 0 0;
+        padding: 1rem 0 1rem 1rem;
+    }
+    
+    .route-section {
+        border-radius: 0 0 10px 10px;
+        padding: 1rem 1rem 1rem 0;
+    }
+    
+    .competitor-table-container {
+        padding-right: 1rem;
+        padding-left: 0;
+    }
+    
+    .route-content {
+        padding: 0 0 0 1rem;
+    }
+    
+    .competitor-row {
+        padding: 0.5rem 0 0.5rem 1rem;
+    }
+    
+    .competitor-row:has(.competitor-list:empty) {
+        padding: 0.25rem 0 0.25rem 1rem;
+    }
 }
