@@ -1,6 +1,5 @@
 from urllib.parse import unquote
 from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, Blueprint
-from database.memory_url_shortener import get_long_url_and_refresh, get_or_create_short_url, init_db, start_cleanup_thread
 from hardcoded_database.events.past_events import ALL_PAST_EVENTS, FRONT_PAGE_PAST_EVENTS
 from hardcoded_database.events.upcoming_events import UPCOMING_EVENTS
 from hardcoded_database.organization.team import TEAM
@@ -19,11 +18,6 @@ from pylib.utils.filter_tricks import filter_tricks
 load_dotenv()
 
 app = Flask(__name__)
-
-# Call init_db and start cleanup thread on app startup
-with app.app_context():
-    init_db()
-    start_cleanup_thread()
 
 # Create API blueprint
 api = Blueprint('api', __name__, url_prefix='/api')
