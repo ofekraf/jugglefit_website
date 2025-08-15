@@ -1,10 +1,11 @@
-function filterTricks(tricks, minProps, maxProps, minDifficulty, maxDifficulty, excludedTags) {
+function filterTricks(tricks, minProps, maxProps, minDifficulty, maxDifficulty, excludedTags, maxThrow = null) {
     // Filter tricks based on criteria
     const filteredTricks = tricks.filter(trick => {
         const propsInRange = trick.props_count >= minProps && trick.props_count <= maxProps;
         const difficultyInRange = trick.difficulty >= minDifficulty && trick.difficulty <= maxDifficulty;
         const hasExcludedTag = excludedTags.length > 0 && trick.tags.some(tag => excludedTags.includes(tag));
-        return propsInRange && difficultyInRange && !hasExcludedTag;
+        const withinThrow = (maxThrow === null || maxThrow === undefined) || ((trick.max_throw !== null || trick.max_throw !== undefined) && (trick.max_throw <= maxThrow));
+        return propsInRange && difficultyInRange && !hasExcludedTag && withinThrow;
     });
 
     return filteredTricks;
@@ -27,7 +28,8 @@ async function fetchTricks({
     maxProps = null,
     minDifficulty = null,
     maxDifficulty = null,
-    excludedTags = null
+    excludedTags = null,
+    maxThrow = null
 } = {}) {
     try {
         // Create request body with only non-null values
@@ -38,6 +40,7 @@ async function fetchTricks({
         if (minDifficulty !== null) requestBody.min_difficulty = minDifficulty;
         if (maxDifficulty !== null) requestBody.max_difficulty = maxDifficulty;
         if (excludedTags !== null) requestBody.exclude_tags = excludedTags;
+        if (maxThrow !== null) requestBody.max_throw = maxThrow;
 
         const response = await fetch('/api/fetch_tricks', {
             method: 'POST',
@@ -63,9 +66,9 @@ function fetchRandomTrickForDifficulty(difficulty) {
     return tricks[Math.floor(Math.random() * tricks.length)];
 }
 
-function getRandomTrickForDifficulty(tricks, difficulty, minProps, maxProps, excludedTags) {
-    const filteredTricks = filterTricks(tricks, minProps, maxProps, difficulty, difficulty, excludedTags);
-    return filteredTricks[Math.floor(Math.random() * filteredTricks.length)];
+function getRandomTrickForDifficulty(tricks, difficulty, minProps, maxProps, excludedTags, maxThrow = null) {
+	const filteredTricks = filterTricks(tricks, minProps, maxProps, difficulty, difficulty, excludedTags, maxThrow);
+	return filteredTricks[Math.floor(Math.random() * filteredTricks.length)];
 }
 
 function filterTricksIncludeTags(tricks, includeTags) {

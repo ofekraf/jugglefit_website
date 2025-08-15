@@ -15,6 +15,7 @@ class Trick:
     difficulty: int = -1
     tags: Optional[Set[Tag]] = None
     comment: Optional[str] = None
+    max_throw: Optional[int] = None
 
     def __post_init__(self):
         if len(self.name) > MAX_TRICK_NAME_LENGTH:
@@ -37,7 +38,8 @@ class Trick:
             'props_count': self.props_count,
             'difficulty': self.difficulty,
             'tags': [str(tag) for tag in self.tags] if self.tags else [],
-            'comment': self.comment
+            'comment': self.comment,
+            'max_throw': self.max_throw
         }
 
     @classmethod
@@ -49,5 +51,6 @@ class Trick:
             props_count=data['props_count'],
             difficulty=data.get('difficulty', -1),
             tags=tags,
-            comment=data.get('comment')
+            comment=data.get('comment'),
+            max_throw=data.get('max_throw')
         ) 

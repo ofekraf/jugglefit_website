@@ -17,9 +17,6 @@ pip install -r requirements.txt
 
 2. Create a `.env` file with:
 ```
-# Google Sheets API Configuration
-JUGGLEFIT_BOT_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYour private key here\n-----END PRIVATE KEY-----"
-TRICK_SUGGESTIONS_SPREADSHEET_ID=your_spreadsheet_id
 ```
 
 3. Run the development server:

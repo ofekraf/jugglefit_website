@@ -75,6 +75,25 @@
         </div>
 
         <div class="form-section">
+            <label class="form-label">Max Throw (Optional)</label>
+            <div class="max-throw-container">
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" id="max-throw-enabled" class="form-checkbox">
+                    <label for="max-throw-enabled" class="checkbox-label">Limit maximum throw height</label>
+                </div>
+                <div id="max-throw-input-container" class="max-throw-input-container" style="display: none;">
+                    <div class="slider-container">
+                        <div class="slider-wrapper">
+                            <input type="range" id="max-throw-slider" min="5" max="15" value="10" class="custom-range">
+                            <span id="max-throw-value" class="slider-value">10</span>
+                        </div>
+                        <input type="hidden" id="max-throw-input" name="max_throw" value="">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
             <label class="form-label">Exclude Tags</label>
             <div class="tricks-container">
                 <div class="tricks-column">
@@ -110,7 +129,7 @@
     </form>
 
     <div class="tricks-database">
-        <p>Juggler and Open-Source contributor? You can expand the database <a target="_blank" href="https://github.com/ofekraf/jugglefit_website/tree/main/database/tricks">here</a></p>
+        <p>Juggler and Open-Source contributor? You can expand the database <a target="_blank" href="https://github.com/ofekraf/jugglefit_website/tree/main/hardcoded_database/tricks">here</a></p>
     </div>
 </div>
 
@@ -250,6 +269,59 @@
         routeDurationInput.value = minutes;
     });
 
+    // Handle max throw checkbox and slider
+    const maxThrowEnabled = document.getElementById('max-throw-enabled');
+    const maxThrowContainer = document.getElementById('max-throw-input-container');
+    const maxThrowSlider = document.getElementById('max-throw-slider');
+    const maxThrowValue = document.getElementById('max-throw-value');
+    const maxThrowInput = document.getElementById('max-throw-input');
+
+    // Toggle max throw input visibility
+    maxThrowEnabled.addEventListener('change', () => {
+        if (maxThrowEnabled.checked) {
+            maxThrowContainer.style.display = 'block';
+            const maxThrow = parseInt(maxThrowSlider.value);
+            maxThrowInput.value = maxThrow;
+        } else {
+            maxThrowContainer.style.display = 'none';
+            maxThrowInput.value = '';
+        }
+        
+        // Refetch tricks with new max throw filter
+        const currentProp = document.querySelector('.prop-option-input:checked');
+        if (currentProp) {
+            const maxThrowParam = maxThrowEnabled.checked ? parseInt(maxThrowSlider.value) : null;
+            fetchTricks({ propType: currentProp.value, maxThrow: maxThrowParam })
+                .then(tricks => {
+                    allTricks = tricks;
+                })
+                .catch(error => {
+                    console.error('Error fetching tricks:', error);
+                });
+        }
+    });
+
+    // Update the value displayed next to the "Max Throw" slider
+    maxThrowSlider.addEventListener('input', () => {
+        const maxThrow = parseInt(maxThrowSlider.value);
+        maxThrowValue.textContent = maxThrow;
+        if (maxThrowEnabled.checked) {
+            maxThrowInput.value = maxThrow;
+            
+            // Refetch tricks with new max throw filter
+            const currentProp = document.querySelector('.prop-option-input:checked');
+            if (currentProp) {
+                fetchTricks({ propType: currentProp.value, maxThrow: maxThrow })
+                    .then(tricks => {
+                        allTricks = tricks;
+                    })
+                    .catch(error => {
+                        console.error('Error fetching tricks:', error);
+                    });
+            }
+        }
+    });
+
     // Prop selection handling
     const propOptions = document.querySelectorAll('.prop-option');
     const propInputs = document.querySelectorAll('.prop-option-input');
@@ -261,7 +333,9 @@
             if (input.checked) {
                 option.classList.add('selected');
                 // Fetch tricks when prop type changes
-                fetchTricks({ propType: input.value })
+                const maxThrowEnabled = document.getElementById('max-throw-enabled');
+                const maxThrow = maxThrowEnabled.checked ? parseInt(document.getElementById('max-throw-input').value) : null;
+                fetchTricks({ propType: input.value, maxThrow: maxThrow })
                     .then(tricks => {
                         allTricks = tricks;
                     })
@@ -278,7 +352,9 @@
     updateSelectedState();
     const initialProp = document.querySelector('.prop-option-input:checked');
     if (initialProp) {
-        fetchTricks({ propType: initialProp.value })
+        const maxThrowEnabled = document.getElementById('max-throw-enabled');
+        const maxThrow = maxThrowEnabled.checked ? parseInt(document.getElementById('max-throw-input').value) : null;
+        fetchTricks({ propType: initialProp.value, maxThrow: maxThrow })
             .then(tricks => {
                 allTricks = tricks;
             })
