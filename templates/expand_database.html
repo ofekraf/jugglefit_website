@@ -11,19 +11,6 @@
 
     <div class="route-form">
         <div class="form-section">
-            <label class="form-label">Select Prop Type</label>
-            <div class="prop-group">
-                {% for prop in prop_options %}
-                    <label class="prop-option {% if loop.first %}selected{% endif %}" data-prop-type="{{ prop }}">
-                        <input type="radio" name="prop" class="prop-option-input" value="{{ prop.value }}" {% if loop.first %}checked{% endif %}> 
-                        <span class="prop-option-name">{{ prop.value }}</span>
-                        <div class="prop-icon"></div>
-                    </label>
-                {% endfor %}
-            </div>
-        </div>
-
-        <div class="form-section">
             <div class="contribution-section">
                 <h3>How to Contribute</h3>
                 <div class="contribution-methods">
@@ -50,6 +37,19 @@
                         <p>Create a PR <a href="https://github.com/ofekraf/jugglefit_website/tree/main/hardcoded_database/tricks" target="_blank" class="github-link">here</a>.</p>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <label class="form-label">Select Prop Type</label>
+            <div class="prop-group">
+                {% for prop in prop_options %}
+                    <label class="prop-option {% if loop.first %}selected{% endif %}" data-prop-type="{{ prop }}">
+                        <input type="radio" name="prop" class="prop-option-input" value="{{ prop.value }}" {% if loop.first %}checked{% endif %}> 
+                        <span class="prop-option-name">{{ prop.value }}</span>
+                        <div class="prop-icon"></div>
+                    </label>
+                {% endfor %}
             </div>
         </div>
 
