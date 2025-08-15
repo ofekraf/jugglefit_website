@@ -2,28 +2,6 @@
 {% block title %}Live Event - {{ route.name }}{% endblock %}
 {% block content %}
 <div class="live-event-page">
-    <!-- Podium Section -->
-    <div class="podium-section">
-        <h2>🏆</h2>
-        <div class="podium-container">
-            <div class="podium-place" id="podium-1">
-                <div class="place-number">1st</div>
-                <div class="competitor-name" id="podium-name-1">-</div>
-                <div class="competitor-result" id="podium-result-1">-</div>
-            </div>
-            <div class="podium-place" id="podium-2">
-                <div class="place-number">2nd</div>
-                <div class="competitor-name" id="podium-name-2">-</div>
-                <div class="competitor-result" id="podium-result-2">-</div>
-            </div>
-            <div class="podium-place" id="podium-3">
-                <div class="place-number">3rd</div>
-                <div class="competitor-name" id="podium-name-3">-</div>
-                <div class="competitor-result" id="podium-result-3">-</div>
-            </div>
-        </div>
-    </div>
-
     <!-- Timer Section -->
     <div class="live-timer-section">
         <div class="countdown-timer" id="timer-container">
@@ -66,6 +44,28 @@
             </div>
         </div>
     </div>
+
+    <!-- Podium Section -->
+    <div class="podium-section">
+        <h2>🏆</h2>
+        <div class="podium-container">
+            <div class="podium-place" id="podium-1">
+                <div class="place-number">1st</div>
+                <div class="competitor-name" id="podium-name-1">-</div>
+                <div class="competitor-result" id="podium-result-1">-</div>
+            </div>
+            <div class="podium-place" id="podium-2">
+                <div class="place-number">2nd</div>
+                <div class="competitor-name" id="podium-name-2">-</div>
+                <div class="competitor-result" id="podium-result-2">-</div>
+            </div>
+            <div class="podium-place" id="podium-3">
+                <div class="place-number">3rd</div>
+                <div class="competitor-name" id="podium-name-3">-</div>
+                <div class="competitor-result" id="podium-result-3">-</div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -81,6 +81,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         initializeCompetitorTable();
         resetTimer();
+        updateTrickVisibility();
     });
 
     function initializeCompetitorTable() {
@@ -165,8 +166,27 @@
             }
         });
         
+        // Update trick visibility based on competitor presence
+        updateTrickVisibility();
+        
         // Add drag and drop event listeners to all rows
         setupDragAndDrop();
+    }
+
+    function updateTrickVisibility() {
+        // Get all trick content elements in the route display
+        const trickElements = document.querySelectorAll('.live-event-page .route-content .trick-content');
+        
+        trickElements.forEach((trickElement, index) => {
+            const trickNumber = index + 1;
+            const hasCompetitors = competitors.some(competitor => competitor.currentTrick === trickNumber);
+            
+            if (hasCompetitors) {
+                trickElement.classList.remove('no-competitors');
+            } else {
+                trickElement.classList.add('no-competitors');
+            }
+        });
     }
 
     function advanceCompetitor(competitorName) {

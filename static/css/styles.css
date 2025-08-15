@@ -2326,17 +2326,17 @@ a.primary-button.live-event-button:hover {
 
 .podium-section {
     background: linear-gradient(135deg, #FFD700, #FFA500);
-    border-radius: 15px 15px 0 0;
-    padding: 2rem;
-    margin-bottom: 0;
+    border-radius: 15px;
+    padding: 3rem;
+    margin-top: 2rem;
     text-align: center;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
 .podium-section h2 {
     color: #8B4513;
-    margin-bottom: 1.5rem;
-    font-size: 2.5rem;
+    margin-bottom: 2rem;
+    font-size: 3.5rem;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
 }
 
@@ -2349,11 +2349,11 @@ a.primary-button.live-event-button:hover {
 
 .podium-place {
     background: white;
-    border-radius: 10px;
-    padding: 1.5rem;
-    min-width: 150px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-    border: 3px solid #FFD700;
+    border-radius: 15px;
+    padding: 2rem;
+    min-width: 200px;
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
+    border: 4px solid #FFD700;
 }
 
 .podium-place:nth-child(1) {
@@ -2375,25 +2375,25 @@ a.primary-button.live-event-button:hover {
 }
 
 .place-number {
-    font-size: 1.2rem;
+    font-size: 1.5rem;
     font-weight: bold;
     color: #8B4513;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
 }
 
 .competitor-name {
-    font-size: 1.1rem;
+    font-size: 1.3rem;
     font-weight: 600;
     color: #333;
-    margin-bottom: 0.5rem;
-    min-height: 1.5rem;
+    margin-bottom: 0.75rem;
+    min-height: 1.8rem;
 }
 
 .competitor-result {
-    font-size: 0.9rem;
+    font-size: 1.1rem;
     color: #666;
     font-weight: 500;
-    min-height: 1.2rem;
+    min-height: 1.4rem;
 }
 
 .live-timer-section {
@@ -2416,12 +2416,13 @@ a.primary-button.live-event-button:hover {
     grid-template-columns: 1fr 1fr;
     gap: 0;
     min-height: 600px;
+    position: relative;
 }
 
 .competitor-section {
     background: white;
     border-radius: 0;
-    padding: 1.5rem;
+    padding: 1.5rem 0 1.5rem 1.5rem;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
@@ -2476,6 +2477,8 @@ a.primary-button.live-event-button:hover {
 
 .competitor-table-container {
     overflow-x: auto;
+    padding-right: 1.5rem;
+    padding-left: 0;
 }
 
 .competitor-list-container {
@@ -2487,28 +2490,40 @@ a.primary-button.live-event-button:hover {
 .competitor-row {
     display: flex;
     align-items: center;
-    padding: 0.75rem;
+    padding: 0.5rem 0 0.5rem 1.5rem;
     border-bottom: 1px solid var(--border-color);
     min-height: 40px;
-    width: fit-content;
-    min-width: 200px;
+    width: 100%;
     transition: min-height 0.3s ease;
+    position: relative;
 }
 
 .competitor-row:has(.competitor-list:empty) {
     min-height: 20px;
-    padding: 0.25rem 0.75rem;
+    padding: 0.25rem 0 0.25rem 1.5rem;
 }
 
 .competitor-row:last-child {
     border-bottom: none;
 }
 
+/* Extend border lines from competitor section to route section */
+.competitor-row::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: -100vw;
+    width: 100vw;
+    height: 1px;
+    background-color: var(--border-color);
+    pointer-events: none;
+}
+
 .competitor-row .trick-number {
     font-weight: 600;
     color: var(--light-text);
-    text-align: center;
-    min-width: 60px;
+    text-align: left;
+    min-width: 2.5rem;
     padding-right: 1rem;
     font-size: 1.1rem;
 }
@@ -2633,7 +2648,7 @@ a.primary-button.live-event-button:hover {
 .route-section {
     background: white;
     border-radius: 0 10px 10px 0;
-    padding: 1.5rem;
+    padding: 1.5rem 1.5rem 1.5rem 0;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
@@ -2645,12 +2660,29 @@ a.primary-button.live-event-button:hover {
 
 .route-content {
     max-height: 500px;
+    padding: 0 0 0 1.5rem;
 }
 
 /* Live Event Route Display Styling */
 .live-event-page .route-content .trick-content {
     border-bottom: 1px solid var(--border-color);
     padding: 0.5rem 0;
+    transition: opacity 0.3s ease;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+/* Grey out tricks with no competitors */
+.live-event-page .route-content .trick-content.no-competitors {
+    opacity: 0.4;
+}
+
+.live-event-page .route-content .trick-content.no-competitors .trick-number,
+.live-event-page .route-content .trick-content.no-competitors .trick-name,
+.live-event-page .route-content .trick-content.no-competitors .trick-comment {
+    color: #999;
 }
 
 .live-event-page .route-content .trick-number {
@@ -2658,6 +2690,7 @@ a.primary-button.live-event-button:hover {
     text-align: left;
     font-weight: 600;
     color: var(--light-text);
+    font-size: 1.1rem;
 }
 
 .live-event-page .route-content .trick-main {
@@ -2673,6 +2706,21 @@ a.primary-button.live-event-button:hover {
     padding: 0;
     margin: 0;
     width: 100%;
+}
+
+/* Remove extra spacing from prop sections in live event */
+.live-event-page .route-content .prop-section {
+    margin: 0;
+    padding: 0;
+}
+
+.live-event-page .route-content .trick-container {
+    margin: 0;
+    padding: 0;
+}
+
+.live-event-page .route-content .prop-color-bar {
+    display: none;
 }
 
 /* Responsive design for live event */
@@ -2704,12 +2752,13 @@ a.primary-button.live-event-button:hover {
     }
     
     .podium-section {
-        padding: 1rem;
-        border-radius: 15px 15px 0 0;
+        padding: 1.5rem;
+        border-radius: 15px;
+        margin-top: 1rem;
     }
     
     .podium-section h2 {
-        font-size: 2rem;
+        font-size: 2.5rem;
     }
     
     .competitor-header {
@@ -2730,13 +2779,35 @@ a.primary-button.live-event-button:hover {
         transform: scale(1);
     }
     
+    .podium-place {
+        padding: 1.5rem;
+        min-width: 150px;
+    }
+    
     .competitor-section {
         border-radius: 10px 10px 0 0;
-        padding: 1rem;
+        padding: 1rem 0 1rem 1rem;
     }
     
     .route-section {
         border-radius: 0 0 10px 10px;
-        padding: 1rem;
+        padding: 1rem 1rem 1rem 0;
+    }
+    
+    .competitor-table-container {
+        padding-right: 1rem;
+        padding-left: 0;
+    }
+    
+    .route-content {
+        padding: 0 0 0 1rem;
+    }
+    
+    .competitor-row {
+        padding: 0.5rem 0 0.5rem 1rem;
+    }
+    
+    .competitor-row:has(.competitor-list:empty) {
+        padding: 0.25rem 0 0.25rem 1rem;
     }
 }
