@@ -1,11 +1,6 @@
-from hardcoded_database.tricks.balls import BALLS_TRICKS
-from hardcoded_database.tricks.clubs import CLUBS_TRICKS
-from hardcoded_database.tricks.rings import RINGS_TRICKS
+from hardcoded_database.consts import get_trick_csv_path
 from pylib.classes.prop import Prop
+from pylib.utils.trick_loader import load_tricks_from_csv
 
 
-PROP_TO_TRICKS = {
-    Prop.Balls: BALLS_TRICKS, 
-    Prop.Clubs: CLUBS_TRICKS,
-    Prop.Rings: RINGS_TRICKS,
-}
+PROP_TO_TRICKS = {prop: load_tricks_from_csv(get_trick_csv_path(prop)) for prop in Prop}

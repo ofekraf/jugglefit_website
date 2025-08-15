@@ -1,5 +1,6 @@
 from urllib.parse import unquote
-from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, Blueprint
+from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, Blueprint, send_file
+from hardcoded_database.consts import get_trick_csv_path
 from hardcoded_database.events.past_events import ALL_PAST_EVENTS, FRONT_PAGE_PAST_EVENTS
 from hardcoded_database.events.upcoming_events import UPCOMING_EVENTS
 from hardcoded_database.organization.team import TEAM
@@ -212,6 +213,29 @@ def donate():
 @app.route('/contribute/software')
 def software_contribution():
 	return render_template('software_contribution.html')
+
+@app.route('/contribute/expand_database')
+def expand_database():
+	return render_template('expand_database.html', 
+						 prop_options=list(Prop))
+
+@app.route('/contribute/download_tricks_csv/<prop_type>')
+def download_tricks_csv(prop_type):
+	try:
+		csv_path = get_trick_csv_path(Prop.get_key_by_value(prop_type))
+		
+		if not csv_path.exists():
+			return f"CSV file for {prop_type} not found", 404
+		
+		return send_file(
+			csv_path,
+			mimetype='text/csv',
+			as_attachment=True,
+			download_name=f'{prop_type}_tricks.csv'
+		)
+		
+	except Exception as e:
+		return f"Error serving CSV: {str(e)}", 500
 
 if __name__ == '__main__':
 	app.run(host='0.0.0.0', port=5001, debug=True)

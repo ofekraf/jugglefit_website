@@ -1,0 +1,104 @@
+{% extends "utils/base.html" %}
+{% block title %}Expand Trick Database{% endblock %}
+{% block content %}
+<div class="route-page">
+    <div class="route-header">
+        <h1 class="route-title">Expand Trick Database</h1>
+        <div class="route-description">
+            <p>Help us grow the JuggleFit trick database! Download the current tricks for a specific prop type, add your own tricks, and contribute them back to the community.</p>
+        </div>
+    </div>
+
+    <div class="route-form">
+        <div class="form-section">
+            <label class="form-label">Select Prop Type</label>
+            <div class="prop-group">
+                {% for prop in prop_options %}
+                    <label class="prop-option {% if loop.first %}selected{% endif %}" data-prop-type="{{ prop }}">
+                        <input type="radio" name="prop" class="prop-option-input" value="{{ prop.value }}" {% if loop.first %}checked{% endif %}> 
+                        <span class="prop-option-name">{{ prop.value }}</span>
+                        <div class="prop-icon"></div>
+                    </label>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="form-section">
+            <div class="contribution-section">
+                <h3>How to Contribute</h3>
+                <div class="contribution-methods">
+                    <div class="contribution-method">
+                        <h4>Option 1: Email Contribution</h4>
+                        <ol class="contribution-steps">
+                            <li>Download CSV (see below)</li>
+                            <li>Add your own tricks to the file</li>
+                            <li>Send the updated file to <a href="mailto:jugglefit.competition@gmail.com" class="email-link">jugglefit.competition@gmail.com</a></li>
+                        </ol>
+                        <p class="email-instructions">
+                            Please make sure to:
+                        </p>
+                        <ul class="email-instructions-list">
+                            <li>Follow the CSV format</li>
+                            <li>Set tags, but only existing ones</li>
+                            <li>Assign difficulty</li>
+                            <li>Add comment when necessary</li>
+                        </ul>
+                    </div>
+
+                    <div class="contribution-method">
+                        <h4>Option 2: GitHub Pull Request</h4>
+                        <p>Create a PR <a href="https://github.com/ofekraf/jugglefit_website/tree/main/hardcoded_database/tricks" target="_blank" class="github-link">here</a>.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <div class="download-section">
+                <h3>Download Current Tricks</h3>
+                <p>Download the current tricks for the selected prop type as a CSV file. You can then add your own tricks to this file.</p>
+                <button type="button" id="download_csv" class="primary-button">Download CSV</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Prop selection handling
+        const propOptions = document.querySelectorAll('.prop-option');
+        const propInputs = document.querySelectorAll('.prop-option-input');
+
+        function updateSelectedState() {
+            propOptions.forEach(option => {
+                const input = option.querySelector('.prop-option-input');
+                if (input.checked) {
+                    option.classList.add('selected');
+                } else {
+                    option.classList.remove('selected');
+                }
+            });
+        }
+
+        updateSelectedState();
+
+        propOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                propInputs.forEach(input => input.checked = false);
+                const input = this.querySelector('.prop-option-input');
+                input.checked = true;
+                updateSelectedState();
+            });
+        });
+
+        // Download CSV functionality
+        document.getElementById('download_csv').addEventListener('click', function() {
+            const selectedProp = document.querySelector('.prop-option-input:checked').value;
+            
+            // Direct download link to the CSV file
+            const downloadUrl = `{{ url_for("download_tricks_csv", prop_type="PLACEHOLDER") }}`.replace('PLACEHOLDER', selectedProp);
+            window.location.href = downloadUrl;
+        });
+    });
+</script>
+{% endblock %}

@@ -26,9 +26,6 @@ flask run
 
 ## Environment Variables
 
-- `JUGGLEFIT_BOT_PRIVATE_KEY`: Service account private key for Google Sheets API
-- `TRICK_SUGGESTIONS_SPREADSHEET_ID`: ID of the Google Sheet for trick suggestions 
-
 ## Contribution
 We manage the development in a ClickUp.
 If you are up to join the development, reach us by Email at jugglefit.competition@gmail.com
