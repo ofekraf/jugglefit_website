@@ -26,24 +26,7 @@
             </div>
         </div>
 
-        <div class="form-section">
-            <label class="form-label">Max Throw (Optional)</label>
-            <div class="max-throw-container">
-                <div class="checkbox-wrapper">
-                    <input type="checkbox" id="max-throw-enabled" class="form-checkbox">
-                    <label for="max-throw-enabled" class="checkbox-label">Limit maximum throw height</label>
-                </div>
-                <div id="max-throw-input-container" class="max-throw-input-container" style="display: none;">
-                    <div class="slider-container">
-                        <div class="slider-wrapper">
-                            <input type="range" id="max-throw-slider" min="5" max="15" value="10" class="custom-range">
-                            <span id="max-throw-value" class="slider-value">10</span>
-                        </div>
-                        <input type="hidden" id="max-throw-input" name="max_throw" value="">
-                    </div>
-                </div>
-            </div>
-        </div>
+
 
         <div class="form-section">
             <label class="form-label">Select Prop</label>
@@ -233,7 +216,7 @@
             prop: '',
             tricks: [],
             duration_seconds: 600,
-            max_throw: 10
+            max_throw: null
         };
 
         // Store all tricks for the current prop type
@@ -246,10 +229,9 @@
             const minDifficulty = parseInt(document.getElementById('min-difficulty-input').value);
             const maxDifficulty = parseInt(document.getElementById('max-difficulty-input').value);
             const excludedTags = Array.from(document.querySelectorAll('input[name="exclude_tags"]:checked')).map(cb => cb.value);
-            const maxThrow = parseInt(document.getElementById('max-throw-input').value);
 
             // Filter tricks based on criteria
-            const filteredTricks = filterTricks(allTricks, minProps, maxProps, minDifficulty, maxDifficulty, excludedTags, maxThrow);
+            const filteredTricks = filterTricks(allTricks, minProps, maxProps, minDifficulty, maxDifficulty, excludedTags);
 
             // Group filtered tricks by props count
             const groupedTricks = groupTricksByPropsCount(filteredTricks);
@@ -349,18 +331,7 @@
             document.getElementById('route-duration-value').textContent = durationMinutes;
             currentRoute.duration_seconds = initialRoute.duration_seconds;
             
-            // Set max throw
-            if (initialRoute.max_throw) {
-                const maxThrow = initialRoute.max_throw;
-                document.getElementById('max-throw-enabled').checked = true;
-                document.getElementById('max-throw-input-container').style.display = 'block';
-                document.getElementById('max-throw-slider').value = maxThrow;
-                document.getElementById('max-throw-value').textContent = maxThrow;
-                document.getElementById('max-throw-input').value = maxThrow;
-                currentRoute.max_throw = maxThrow;
-            } else {
-                currentRoute.max_throw = null;
-            }
+
             
             // Set prop type
             currentRoute.prop = initialRoute.prop;
@@ -372,7 +343,7 @@
                     propOption.classList.add('selected');
                 }
                 // Fetch tricks for the initial prop type
-                fetchTricks({ propType: initialRoute.prop, maxThrow: currentRoute.max_throw || null })
+                fetchTricks({ propType: initialRoute.prop })
                     .then(tricks => {
                         allTricks = tricks;
                         updateSearchTricks();
@@ -403,7 +374,7 @@
                             currentRoute.tricks = [];
                             currentRoute.prop = input.value;
                             // Fetch tricks only when prop type changes
-                            fetchTricks({ propType: input.value, maxThrow: currentRoute.max_throw || null })
+                            fetchTricks({ propType: input.value })
                                 .then(tricks => {
                                     allTricks = tricks;
                                     updateSearchTricks();
@@ -458,59 +429,7 @@
                 currentRoute.duration_seconds = minutes * 60; // Convert minutes to seconds
             });
 
-            // Handle max throw checkbox and slider
-            const maxThrowEnabled = document.getElementById('max-throw-enabled');
-            const maxThrowContainer = document.getElementById('max-throw-input-container');
-            const maxThrowSlider = document.getElementById('max-throw-slider');
-            const maxThrowValue = document.getElementById('max-throw-value');
-            const maxThrowInput = document.getElementById('max-throw-input');
 
-            // Toggle max throw input visibility
-            maxThrowEnabled.addEventListener('change', () => {
-                if (maxThrowEnabled.checked) {
-                    maxThrowContainer.style.display = 'block';
-                    const maxThrow = parseInt(maxThrowSlider.value);
-                    maxThrowInput.value = maxThrow;
-                    currentRoute.max_throw = maxThrow;
-                } else {
-                    maxThrowContainer.style.display = 'none';
-                    maxThrowInput.value = '';
-                    currentRoute.max_throw = null;
-                }
-                
-                // Refetch tricks with new max throw filter
-                const maxThrowParam = maxThrowEnabled.checked ? parseInt(maxThrowSlider.value) : null;
-                fetchTricks({ propType: currentRoute.prop, maxThrow: maxThrowParam })
-                    .then(tricks => {
-                        allTricks = tricks;
-                        updateSearchTricks();
-                    })
-                    .catch(error => {
-                        console.error('Error fetching tricks:', error);
-                        showToast('Error loading tricks. Please try again.');
-                    });
-            });
-
-            // Update max throw when slider changes
-            maxThrowSlider.addEventListener('input', () => {
-                const maxThrow = parseInt(maxThrowSlider.value);
-                maxThrowValue.textContent = maxThrow;
-                if (maxThrowEnabled.checked) {
-                    maxThrowInput.value = maxThrow;
-                    currentRoute.max_throw = maxThrow;
-                    
-                    // Refetch tricks with new max throw filter
-                    fetchTricks({ propType: currentRoute.prop, maxThrow: maxThrow })
-                        .then(tricks => {
-                            allTricks = tricks;
-                            updateSearchTricks();
-                        })
-                        .catch(error => {
-                            console.error('Error fetching tricks:', error);
-                            showToast('Error loading tricks. Please try again.');
-                        });
-                }
-            });
         }
 
         // Function to update route display
