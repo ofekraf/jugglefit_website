@@ -4,7 +4,7 @@ function filterTricks(tricks, minProps, maxProps, minDifficulty, maxDifficulty, 
         const propsInRange = trick.props_count >= minProps && trick.props_count <= maxProps;
         const difficultyInRange = trick.difficulty >= minDifficulty && trick.difficulty <= maxDifficulty;
         const hasExcludedTag = excludedTags.length > 0 && trick.tags.some(tag => excludedTags.includes(tag));
-        const withinThrow = (maxThrow === null || maxThrow === undefined) || ((trick.max_throw !== null || trick.max_throw !== undefined) && (trick.max_throw <= maxThrow));
+        const withinThrow = (maxThrow === null || maxThrow === undefined) || ((trick.max_throw !== null && trick.max_throw !== undefined) && (trick.max_throw <= maxThrow));
         return propsInRange && difficultyInRange && !hasExcludedTag && withinThrow;
     });
 

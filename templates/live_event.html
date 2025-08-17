@@ -46,7 +46,7 @@
     </div>
 
     <!-- Podium Section -->
-    <div class="podium-section">
+    <div class="podium-section" id="podium-section" style="display: none;">
         <h2>🏆</h2>
         <div class="podium-container">
             <div class="podium-place" id="podium-1">
@@ -118,15 +118,15 @@
         const competitor = {
             name: name,
             currentTrick: 1,
-            startTime: null,
+            startTime: new Date().getTime(), // Set start time immediately when competitor is added
             finishTime: null,
-            tricksCompleted: 0
+            tricksCompleted: 0,
+            lastTrickCompletedTime: new Date().getTime() // Track when they completed their current trick
         };
         
         competitors.push(competitor);
         updateCompetitorDisplay();
         nameInput.value = '';
-        showToast(`Added competitor: ${name}`);
     }
 
     function updateCompetitorDisplay() {
@@ -205,16 +205,66 @@
                 competitor.finishTime = new Date().getTime();
                 competitors = competitors.filter(c => c.name !== competitor.name);
                 updateCompetitorDisplay();
-                showToast(`${competitor.name} finished but didn't make the podium`);
             }
         } else {
             competitor.currentTrick++;
             competitor.tricksCompleted++;
+            competitor.lastTrickCompletedTime = new Date().getTime(); // Record when this trick was completed
             updateCompetitorDisplay();
         }
     }
 
-    function moveToPodium(competitor) {
+    function showPodium() {
+        const podiumSection = document.getElementById('podium-section');
+        podiumSection.style.display = 'block';
+        podiumSection.style.position = 'fixed';
+        podiumSection.style.top = '50%';
+        podiumSection.style.left = '50%';
+        podiumSection.style.transform = 'translate(-50%, -50%)';
+        podiumSection.style.zIndex = '9999';
+        podiumSection.style.backgroundColor = 'rgba(255, 255, 255, 0.95)';
+        podiumSection.style.borderRadius = '15px';
+        podiumSection.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.3)';
+        podiumSection.style.padding = '2rem';
+        podiumSection.style.maxWidth = '90vw';
+        podiumSection.style.maxHeight = '90vh';
+        podiumSection.style.overflow = 'auto';
+    }
+
+    function hidePodium() {
+        const podiumSection = document.getElementById('podium-section');
+        podiumSection.style.display = 'none';
+        podiumSection.style.position = '';
+        podiumSection.style.top = '';
+        podiumSection.style.left = '';
+        podiumSection.style.transform = '';
+        podiumSection.style.zIndex = '';
+        podiumSection.style.backgroundColor = '';
+        podiumSection.style.borderRadius = '';
+        podiumSection.style.boxShadow = '';
+        podiumSection.style.padding = '';
+        podiumSection.style.maxWidth = '';
+        podiumSection.style.maxHeight = '';
+        podiumSection.style.overflow = '';
+    }
+
+    let podiumTimeout = null;
+    
+    function showPodiumTemporarily(duration) {
+        // Clear any existing timeout
+        if (podiumTimeout) {
+            clearTimeout(podiumTimeout);
+            podiumTimeout = null;
+        }
+        
+        showPodium();
+        podiumTimeout = setTimeout(() => {
+            hidePodium();
+            podiumTimeout = null;
+        }, duration);
+    }
+
+    function moveToPodium(competitor, showTemporary = true) {
         // Find next available podium position
         let podiumPosition = 1;
         while (podiumPosition <= 3 && document.getElementById(`podium-name-${podiumPosition}`).textContent !== '-') {
@@ -225,9 +275,9 @@
             const nameElement = document.getElementById(`podium-name-${podiumPosition}`);
             const resultElement = document.getElementById(`podium-result-${podiumPosition}`);
             
-            if (competitor.finishTime) {
+            if (competitor.finishTime && competitor.startTime && competitor.finishTime >= competitor.startTime) {
                 // Completed the route - show time taken
-                const timeTaken = Math.floor((competitor.finishTime - competitor.startTime) / 1000);
+                const timeTaken = Math.max(0, Math.floor((competitor.finishTime - competitor.startTime) / 1000));
                 const timeMinutes = Math.floor(timeTaken / 60);
                 const timeSeconds = timeTaken % 60;
                 const timeText = `${timeMinutes}:${timeSeconds.toString().padStart(2, '0')}`;
@@ -235,15 +285,19 @@
                 nameElement.textContent = `${competitor.name} (${timeText})`;
                 resultElement.textContent = `Completed`;
             } else {
-                // Didn't finish, show tricks completed
+                // Didn't finish or missing/invalid timing data, show tricks completed
                 nameElement.textContent = competitor.name;
-                resultElement.textContent = `${competitor.tricksCompleted} tricks`;
+                resultElement.textContent = `${competitor.tricksCompleted}/${routeLength}`;
             }
             
             // Remove from competitors list
             competitors = competitors.filter(c => c.name !== competitor.name);
             updateCompetitorDisplay();
-            showToast(`${competitor.name} finished in ${podiumPosition}${getOrdinalSuffix(podiumPosition)} place!`);
+            
+            // Show podium for 5 seconds when competitor finishes (only if showTemporary is true)
+            if (showTemporary) {
+                showPodiumTemporarily(5000);
+            }
         }
     }
 
@@ -273,23 +327,38 @@
     }
 
     function handleTimeUp() {
+        // Clear any existing podium timeout
+        if (podiumTimeout) {
+            clearTimeout(podiumTimeout);
+            podiumTimeout = null;
+        }
+        
         // Move most advanced competitors to podium
         const sortedCompetitors = [...competitors].sort((a, b) => {
+            // First priority: current trick (higher is better)
             if (a.currentTrick !== b.currentTrick) {
                 return b.currentTrick - a.currentTrick;
             }
-            return b.tricksCompleted - a.tricksCompleted;
+            // Second priority: tricks completed (higher is better)
+            if (a.tricksCompleted !== b.tricksCompleted) {
+                return b.tricksCompleted - a.tricksCompleted;
+            }
+            // Third priority: who completed their current trick first (earlier time is better)
+            return a.lastTrickCompletedTime - b.lastTrickCompletedTime;
         });
         
         // Move top competitors to podium
         for (let i = 0; i < Math.min(3, sortedCompetitors.length); i++) {
             const competitor = sortedCompetitors[i];
             if (document.getElementById(`podium-name-${i + 1}`).textContent === '-') {
-                moveToPodium(competitor);
+                moveToPodium(competitor, false); // Don't show temporary podium when time is up
             }
         }
         
-        showToast("Time's up! Final results calculated.");
+        // Always show podium when timer runs out, regardless of competitors
+        setTimeout(() => {
+            showPodium();
+        }, 500);
     }
 
     function startTimer() {
@@ -299,7 +368,7 @@
                 finalTime = new Date().getTime() + (originalDuration * 1000);
             }
             
-            // Set start time for all competitors
+            // Set start time for all competitors (only if not already set)
             competitors.forEach(competitor => {
                 if (!competitor.startTime) {
                     competitor.startTime = new Date().getTime();
@@ -337,8 +406,18 @@
             competitor.startTime = null;
             competitor.finishTime = null;
             competitor.tricksCompleted = 0;
+            competitor.lastTrickCompletedTime = new Date().getTime();
         });
         updateCompetitorDisplay();
+        
+        // Reset podium
+        hidePodium();
+        document.getElementById('podium-name-1').textContent = '-';
+        document.getElementById('podium-result-1').textContent = '-';
+        document.getElementById('podium-name-2').textContent = '-';
+        document.getElementById('podium-result-2').textContent = '-';
+        document.getElementById('podium-name-3').textContent = '-';
+        document.getElementById('podium-result-3').textContent = '-';
     }
 
     // Add event listeners for timer buttons
@@ -561,8 +640,10 @@
             competitor.tricksCompleted = Math.max(0, targetTrick - 1);
         }
         
+        // Update the completion time for the new position
+        competitor.lastTrickCompletedTime = new Date().getTime();
+        
         updateCompetitorDisplay();
-        showToast(`Moved ${competitorName} to trick ${targetTrick}`);
     }
 </script>
 {% endblock %}
