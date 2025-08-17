@@ -118,9 +118,10 @@
         const competitor = {
             name: name,
             currentTrick: 1,
-            startTime: null,
+            startTime: new Date().getTime(), // Set start time immediately when competitor is added
             finishTime: null,
-            tricksCompleted: 0
+            tricksCompleted: 0,
+            lastTrickCompletedTime: new Date().getTime() // Track when they completed their current trick
         };
         
         competitors.push(competitor);
@@ -208,6 +209,7 @@
         } else {
             competitor.currentTrick++;
             competitor.tricksCompleted++;
+            competitor.lastTrickCompletedTime = new Date().getTime(); // Record when this trick was completed
             updateCompetitorDisplay();
         }
     }
@@ -246,14 +248,23 @@
         podiumSection.style.overflow = '';
     }
 
+    let podiumTimeout = null;
+    
     function showPodiumTemporarily(duration) {
+        // Clear any existing timeout
+        if (podiumTimeout) {
+            clearTimeout(podiumTimeout);
+            podiumTimeout = null;
+        }
+        
         showPodium();
-        setTimeout(() => {
+        podiumTimeout = setTimeout(() => {
             hidePodium();
+            podiumTimeout = null;
         }, duration);
     }
 
-    function moveToPodium(competitor) {
+    function moveToPodium(competitor, showTemporary = true) {
         // Find next available podium position
         let podiumPosition = 1;
         while (podiumPosition <= 3 && document.getElementById(`podium-name-${podiumPosition}`).textContent !== '-') {
@@ -264,9 +275,9 @@
             const nameElement = document.getElementById(`podium-name-${podiumPosition}`);
             const resultElement = document.getElementById(`podium-result-${podiumPosition}`);
             
-            if (competitor.finishTime) {
+            if (competitor.finishTime && competitor.startTime && competitor.finishTime >= competitor.startTime) {
                 // Completed the route - show time taken
-                const timeTaken = Math.floor((competitor.finishTime - competitor.startTime) / 1000);
+                const timeTaken = Math.max(0, Math.floor((competitor.finishTime - competitor.startTime) / 1000));
                 const timeMinutes = Math.floor(timeTaken / 60);
                 const timeSeconds = timeTaken % 60;
                 const timeText = `${timeMinutes}:${timeSeconds.toString().padStart(2, '0')}`;
@@ -274,18 +285,19 @@
                 nameElement.textContent = `${competitor.name} (${timeText})`;
                 resultElement.textContent = `Completed`;
             } else {
-                // Didn't finish, show tricks completed
+                // Didn't finish or missing/invalid timing data, show tricks completed
                 nameElement.textContent = competitor.name;
-                resultElement.textContent = `${competitor.tricksCompleted} tricks`;
+                resultElement.textContent = `${competitor.tricksCompleted}/${routeLength}`;
             }
             
             // Remove from competitors list
             competitors = competitors.filter(c => c.name !== competitor.name);
             updateCompetitorDisplay();
             
-            // Show podium for 5 seconds when competitor finishes
-            showPodiumTemporarily(5000);
-
+            // Show podium for 5 seconds when competitor finishes (only if showTemporary is true)
+            if (showTemporary) {
+                showPodiumTemporarily(5000);
+            }
         }
     }
 
@@ -315,24 +327,38 @@
     }
 
     function handleTimeUp() {
+        // Clear any existing podium timeout
+        if (podiumTimeout) {
+            clearTimeout(podiumTimeout);
+            podiumTimeout = null;
+        }
+        
         // Move most advanced competitors to podium
         const sortedCompetitors = [...competitors].sort((a, b) => {
+            // First priority: current trick (higher is better)
             if (a.currentTrick !== b.currentTrick) {
                 return b.currentTrick - a.currentTrick;
             }
-            return b.tricksCompleted - a.tricksCompleted;
+            // Second priority: tricks completed (higher is better)
+            if (a.tricksCompleted !== b.tricksCompleted) {
+                return b.tricksCompleted - a.tricksCompleted;
+            }
+            // Third priority: who completed their current trick first (earlier time is better)
+            return a.lastTrickCompletedTime - b.lastTrickCompletedTime;
         });
         
         // Move top competitors to podium
         for (let i = 0; i < Math.min(3, sortedCompetitors.length); i++) {
             const competitor = sortedCompetitors[i];
             if (document.getElementById(`podium-name-${i + 1}`).textContent === '-') {
-                moveToPodium(competitor);
+                moveToPodium(competitor, false); // Don't show temporary podium when time is up
             }
         }
         
-        // Show podium when timer runs out
-        showPodium();
+        // Always show podium when timer runs out, regardless of competitors
+        setTimeout(() => {
+            showPodium();
+        }, 500);
     }
 
     function startTimer() {
@@ -342,7 +368,7 @@
                 finalTime = new Date().getTime() + (originalDuration * 1000);
             }
             
-            // Set start time for all competitors
+            // Set start time for all competitors (only if not already set)
             competitors.forEach(competitor => {
                 if (!competitor.startTime) {
                     competitor.startTime = new Date().getTime();
@@ -380,6 +406,7 @@
             competitor.startTime = null;
             competitor.finishTime = null;
             competitor.tricksCompleted = 0;
+            competitor.lastTrickCompletedTime = new Date().getTime();
         });
         updateCompetitorDisplay();
         
@@ -612,6 +639,9 @@
         } else if (targetTrick < oldTrick) {
             competitor.tricksCompleted = Math.max(0, targetTrick - 1);
         }
+        
+        // Update the completion time for the new position
+        competitor.lastTrickCompletedTime = new Date().getTime();
         
         updateCompetitorDisplay();
     }
