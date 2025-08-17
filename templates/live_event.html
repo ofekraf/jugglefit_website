@@ -46,7 +46,7 @@
     </div>
 
     <!-- Podium Section -->
-    <div class="podium-section">
+    <div class="podium-section" id="podium-section" style="display: none;">
         <h2>🏆</h2>
         <div class="podium-container">
             <div class="podium-place" id="podium-1">
@@ -126,7 +126,6 @@
         competitors.push(competitor);
         updateCompetitorDisplay();
         nameInput.value = '';
-        showToast(`Added competitor: ${name}`);
     }
 
     function updateCompetitorDisplay() {
@@ -205,13 +204,53 @@
                 competitor.finishTime = new Date().getTime();
                 competitors = competitors.filter(c => c.name !== competitor.name);
                 updateCompetitorDisplay();
-                showToast(`${competitor.name} finished but didn't make the podium`);
             }
         } else {
             competitor.currentTrick++;
             competitor.tricksCompleted++;
             updateCompetitorDisplay();
         }
+    }
+
+    function showPodium() {
+        const podiumSection = document.getElementById('podium-section');
+        podiumSection.style.display = 'block';
+        podiumSection.style.position = 'fixed';
+        podiumSection.style.top = '50%';
+        podiumSection.style.left = '50%';
+        podiumSection.style.transform = 'translate(-50%, -50%)';
+        podiumSection.style.zIndex = '9999';
+        podiumSection.style.backgroundColor = 'rgba(255, 255, 255, 0.95)';
+        podiumSection.style.borderRadius = '15px';
+        podiumSection.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.3)';
+        podiumSection.style.padding = '2rem';
+        podiumSection.style.maxWidth = '90vw';
+        podiumSection.style.maxHeight = '90vh';
+        podiumSection.style.overflow = 'auto';
+    }
+
+    function hidePodium() {
+        const podiumSection = document.getElementById('podium-section');
+        podiumSection.style.display = 'none';
+        podiumSection.style.position = '';
+        podiumSection.style.top = '';
+        podiumSection.style.left = '';
+        podiumSection.style.transform = '';
+        podiumSection.style.zIndex = '';
+        podiumSection.style.backgroundColor = '';
+        podiumSection.style.borderRadius = '';
+        podiumSection.style.boxShadow = '';
+        podiumSection.style.padding = '';
+        podiumSection.style.maxWidth = '';
+        podiumSection.style.maxHeight = '';
+        podiumSection.style.overflow = '';
+    }
+
+    function showPodiumTemporarily(duration) {
+        showPodium();
+        setTimeout(() => {
+            hidePodium();
+        }, duration);
     }
 
     function moveToPodium(competitor) {
@@ -243,7 +282,10 @@
             // Remove from competitors list
             competitors = competitors.filter(c => c.name !== competitor.name);
             updateCompetitorDisplay();
-            showToast(`${competitor.name} finished in ${podiumPosition}${getOrdinalSuffix(podiumPosition)} place!`);
+            
+            // Show podium for 5 seconds when competitor finishes
+            showPodiumTemporarily(5000);
+
         }
     }
 
@@ -289,7 +331,8 @@
             }
         }
         
-        showToast("Time's up! Final results calculated.");
+        // Show podium when timer runs out
+        showPodium();
     }
 
     function startTimer() {
@@ -339,6 +382,15 @@
             competitor.tricksCompleted = 0;
         });
         updateCompetitorDisplay();
+        
+        // Reset podium
+        hidePodium();
+        document.getElementById('podium-name-1').textContent = '-';
+        document.getElementById('podium-result-1').textContent = '-';
+        document.getElementById('podium-name-2').textContent = '-';
+        document.getElementById('podium-result-2').textContent = '-';
+        document.getElementById('podium-name-3').textContent = '-';
+        document.getElementById('podium-result-3').textContent = '-';
     }
 
     // Add event listeners for timer buttons
@@ -562,7 +614,6 @@
         }
         
         updateCompetitorDisplay();
-        showToast(`Moved ${competitorName} to trick ${targetTrick}`);
     }
 </script>
 {% endblock %}
