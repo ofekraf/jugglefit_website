@@ -121,7 +121,7 @@
             startTime: new Date().getTime(), // Set start time immediately when competitor is added
             finishTime: null,
             tricksCompleted: 0,
-            lastTrickCompletedTime: new Date().getTime() // Track when they completed their current trick
+            reachedCurrentTrickTime: new Date().getTime() // Track when they reached their current trick
         };
         
         competitors.push(competitor);
@@ -201,15 +201,15 @@
                 competitor.finishTime = new Date().getTime();
                 moveToPodium(competitor);
             } else {
-                // Not first - record finish time but remove from map (no podium)
+                // Not first - record finish time but keep in array for final sorting
                 competitor.finishTime = new Date().getTime();
-                competitors = competitors.filter(c => c.name !== competitor.name);
+                competitor.reachedCurrentTrickTime = new Date().getTime(); // Update time for final sorting
                 updateCompetitorDisplay();
             }
         } else {
             competitor.currentTrick++;
             competitor.tricksCompleted++;
-            competitor.lastTrickCompletedTime = new Date().getTime(); // Record when this trick was completed
+            competitor.reachedCurrentTrickTime = new Date().getTime(); // Record when they reached this trick
             updateCompetitorDisplay();
         }
     }
@@ -290,9 +290,11 @@
                 resultElement.textContent = `${competitor.tricksCompleted}/${routeLength}`;
             }
             
-            // Remove from competitors list
-            competitors = competitors.filter(c => c.name !== competitor.name);
-            updateCompetitorDisplay();
+            // Remove from competitors list (only if not called from handleTimeUp)
+            if (showTemporary) {
+                competitors = competitors.filter(c => c.name !== competitor.name);
+                updateCompetitorDisplay();
+            }
             
             // Show podium for 5 seconds when competitor finishes (only if showTemporary is true)
             if (showTemporary) {
@@ -332,29 +334,37 @@
             clearTimeout(podiumTimeout);
             podiumTimeout = null;
         }
-        
-        // Move most advanced competitors to podium
-        const sortedCompetitors = [...competitors].sort((a, b) => {
-            // First priority: current trick (higher is better)
-            if (a.currentTrick !== b.currentTrick) {
-                return b.currentTrick - a.currentTrick;
-            }
-            // Second priority: tricks completed (higher is better)
-            if (a.tricksCompleted !== b.tricksCompleted) {
-                return b.tricksCompleted - a.tricksCompleted;
-            }
-            // Third priority: who completed their current trick first (earlier time is better)
-            return a.lastTrickCompletedTime - b.lastTrickCompletedTime;
-        });
-        
-        // Move top competitors to podium
-        for (let i = 0; i < Math.min(3, sortedCompetitors.length); i++) {
-            const competitor = sortedCompetitors[i];
-            if (document.getElementById(`podium-name-${i + 1}`).textContent === '-') {
-                moveToPodium(competitor, false); // Don't show temporary podium when time is up
-            }
+
+        // 1. Get finishers (those with finishTime)
+        const finishers = competitors.filter(c => c.finishTime !== null)
+            .sort((a, b) => a.finishTime - b.finishTime);
+
+        // 2. Get non-finishers, sorted by progress
+        const nonFinishers = competitors.filter(c => c.finishTime === null)
+            .sort((a, b) => {
+                // First: current trick (higher is better)
+                if (a.currentTrick !== b.currentTrick) {
+                    return b.currentTrick - a.currentTrick;
+                }
+                // Second: tricks completed (higher is better)
+                if (a.tricksCompleted !== b.tricksCompleted) {
+                    return b.tricksCompleted - a.tricksCompleted;
+                }
+                // Third: who reached their current trick first (earlier is better)
+                return a.reachedCurrentTrickTime - b.reachedCurrentTrickTime;
+            });
+
+        // 3. Fill podium: finishers first, then non-finishers
+        const podiumOrder = [...finishers, ...nonFinishers];
+
+        for (let i = 0; i < Math.min(3, podiumOrder.length); i++) {
+            moveToPodium(podiumOrder[i], false); // Don't show temporary podium when time is up
         }
-        
+
+        // Remove all competitors from the array after final sorting
+        competitors = [];
+        updateCompetitorDisplay();
+
         // Always show podium when timer runs out, regardless of competitors
         setTimeout(() => {
             showPodium();
@@ -406,7 +416,7 @@
             competitor.startTime = null;
             competitor.finishTime = null;
             competitor.tricksCompleted = 0;
-            competitor.lastTrickCompletedTime = new Date().getTime();
+            competitor.reachedCurrentTrickTime = new Date().getTime();
         });
         updateCompetitorDisplay();
         
@@ -640,8 +650,8 @@
             competitor.tricksCompleted = Math.max(0, targetTrick - 1);
         }
         
-        // Update the completion time for the new position
-        competitor.lastTrickCompletedTime = new Date().getTime();
+        // Update the time when they reached this position
+        competitor.reachedCurrentTrickTime = new Date().getTime();
         
         updateCompetitorDisplay();
     }
