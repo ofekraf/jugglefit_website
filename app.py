@@ -1,3 +1,4 @@
+import os
 from urllib.parse import unquote
 from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, Blueprint, send_file
 from hardcoded_database.consts import get_trick_csv_path
@@ -238,4 +239,5 @@ def download_tricks_csv(prop_type):
 		return f"Error serving CSV: {str(e)}", 500
 
 if __name__ == '__main__':
-	app.run(host='0.0.0.0', port=5001, debug=True)
+	port = int(os.environ.get("PORT", 5001))
+	app.run(host='0.0.0.0', port=port, debug=True)
