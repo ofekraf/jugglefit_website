@@ -24,7 +24,8 @@
         <button class="primary-button" onclick="shareRoute()">Share</button>
         <a href="/live_event?route={{ route.serialize() | urlencode }}" class="primary-button live-event-button">Live Event</a>
         <a href="/build_route?route={{ route.serialize() | urlencode }}" class="primary-button">Edit</a>
-        <button class="primary-button print-button" onclick="printRoute()">Print</button>
+        <button class="primary-button print-button" onclick="printRoute()">Print with QR</button>
+        <button class="primary-button print-button" onclick="printRouteWithoutQR()">Print without QR</button>
     </div>
 </div>
 
@@ -281,6 +282,26 @@
         window.addEventListener('afterprint', cleanup);
 
         // Wait for QR code to be generated before printing
+        setTimeout(() => {
+            window.print();
+        }, 100);
+    }
+
+    function printRouteWithoutQR() {
+        // Remove any existing QR code
+        const existingQRCodes = document.querySelectorAll('.qr-code');
+        existingQRCodes.forEach(qr => {
+            qr.innerHTML = '';
+            qr.remove();
+        });
+
+        // Add event listener for afterprint
+        const cleanup = () => {
+            window.removeEventListener('afterprint', cleanup);
+        };
+        window.addEventListener('afterprint', cleanup);
+
+        // Wait a moment for cleanup, then print
         setTimeout(() => {
             window.print();
         }, 100);
