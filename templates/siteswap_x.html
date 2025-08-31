@@ -15,8 +15,8 @@
 					{{ sx.siteswap_x_viewer(parse_siteswap_x('3{B/P}'), '1.5em') }}
 				</span>
 		<ul>
-				<li><strong>Throw modifier</strong>: Above the siteswap digit. A single letter (or letter+spin) describing the throw, e.g. <code>B</code> (Backcross), <code>U2</code> (Under-the-leg, 2 spins).</li>
-				<li><strong>Catch modifier</strong>: Below the siteswap digit. A single letter describing the catch style, e.g. <code>P</code> (Penguin), <code>L</code> (Lazy).</li>
+				<li><strong>Throw modifier</strong>: Above the siteswap digit.</li>
+				<li><strong>Catch modifier</strong>: Below the siteswap digit.</li>
 		</ul>
 	<div class="row">
 		<div class="col-md-6">
@@ -25,11 +25,13 @@
 				<thead><tr><th>Code</th><th>Meaning</th></tr></thead>
 				<tbody>
 					<tr><td>B</td><td>Backcross</td></tr>
-					<tr><td>U</td><td>Under-the-leg</td></tr>
+					<tr><td>Ul</td><td>Under-the-leg</td></tr>
 					<tr><td>S</td><td>Shoulder</td></tr>
 					<tr><td>N</td><td>Neck</td></tr>
-					<tr><td>O</td><td>Overhead</td></tr>
+					<tr><td>Oh</td><td>Overhead</td></tr>
+					<tr><td>Ou</td><td>Outside</td></tr>
 					<tr><td>RB</td><td>Reverse backcross</td></tr>
+					<tr><td>F</td><td>Flastfront</td></tr>
 				</tbody>
 			</table>
 			<p class="mb-2"><strong>Spin</strong> is written after the throw modifier, e.g. <code>B2</code> for a backcross with 2 spins.</p>
@@ -41,6 +43,7 @@
 				<tbody>
 					<tr><td>P</td><td>Penguin</td></tr>
 					<tr><td>L</td><td>Lazy</td></tr>
+					<tr><td>Ul</td><td>Under the leg</td></tr>
 				</tbody>
 			</table>
 		</div>
@@ -62,7 +65,7 @@
 			</li>
 			<li>
 				<div class="siteswap-x-row">
-					{{ sx.siteswap_x_viewer(parse_siteswap_x('53{U}'), '1em') }}
+					{{ sx.siteswap_x_viewer(parse_siteswap_x('53{Ul}'), '1em') }}
 					<span class="text-muted">(53, under the leg 3)</span>
 				</div>
 			</li>
@@ -92,7 +95,7 @@
 			</li>
 			<li>
 				<div class="siteswap-x-row">
-					{{ sx.siteswap_x_viewer(parse_siteswap_x('3{RB}3{B}3{U}'), '1em') }}
+					{{ sx.siteswap_x_viewer(parse_siteswap_x('3{RB}3{B}3{Ul}'), '1em') }}
 					<span class="text-muted">
 						<a href="https://www.instagram.com/reel/C7rKqWyMc_j/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==" target="_blank">Video example</a>
 					</span>
