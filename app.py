@@ -1,3 +1,5 @@
+from pylib.utils.siteswap import render_siteswap_x, parse_siteswap_x
+from pylib.utils.siteswap import render_siteswap_x
 import os
 from urllib.parse import unquote
 from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, Blueprint, send_file
@@ -20,6 +22,8 @@ from pylib.utils.filter_tricks import filter_tricks
 load_dotenv()
 
 app = Flask(__name__)
+app.jinja_env.globals['render_siteswap_x'] = render_siteswap_x
+app.jinja_env.globals['parse_siteswap_x'] = parse_siteswap_x
 
 # Create API blueprint
 api = Blueprint('api', __name__, url_prefix='/api')
@@ -205,6 +209,11 @@ def live_event():
 	except Exception as e:
 		flash(f'Error loading route: {str(e)}')
 		return redirect(url_for('build_route'))
+
+
+@app.route('/Siteswap_x')
+def Siteswap_x():
+    return render_template('siteswap_x.html')
 
 @app.route('/donate')
 def donate():

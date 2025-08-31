@@ -28,8 +28,8 @@ name,props_count,difficulty,tags,comment,max_throw
 "9440022 3up 2-stage -> cascade",3,29,"multi stage",,9
 "441 -> 66300 3up 360 -> 441",3,21,"360 spin|async siteswap",,6
 "cascade -> 3up 360 -> overheads",3,18,"360 spin|overheads",,5
-"3up 360 -> backrosses",3,21,"360 spin|backcrosses",,5
-"backrosses -> 3up 360 in backrosses -> backrosses",3,40,"360 spin|backcrosses",,5
+"3up 360 -> backcrosses",3,21,"360 spin|backcrosses",,5
+"backcrosses -> 3up 360 in backcrosses -> backcrosses",3,40,"360 spin|backcrosses",,5
 "overheads -> 3up 360 in overheads -> 531",3,27,"360 spin|overheads|async siteswap",,5
 "4up 360 -> async fountain",4,22,"360 spin",,6
 "777300 4up 360 -> async fountain",4,29,"360 spin|async siteswap",,7
@@ -121,7 +121,7 @@ name,props_count,difficulty,tags,comment,max_throw
 "20c 94444",5,32,"async siteswap",,9
 "744 -> 5c 97531 -> 645",5,30,"async siteswap",,9
 "6c 753 -> 5c 97531 -> cascade",5,30,"async siteswap",,9
-"5c cascade -> 7c b444444 -> backrosses",5,45,"async siteswap|backcrosses",,11
+"5c cascade -> 7c b444444 -> backcrosses",5,45,"async siteswap|backcrosses",,11
 "32c (6x,4x)(6,4x)*",5,29,"sync siteswap",,6
 "24c (6,4)(6x,4)*",5,28,"sync siteswap",,6
 "36c (6,4)(6x,4)(6x,4x)*",5,33,"sync siteswap",,6
@@ -146,14 +146,14 @@ name,props_count,difficulty,tags,comment,max_throw
 "978",8,72,"async siteswap",,9
 "996",8,74,"async siteswap",,9
 "97996",8,79,"async siteswap",,9
-"backrosses",3,15,"backcrosses",,3
+"backcrosses",3,15,"backcrosses",,3
 "10c neck throws",3,24,"necks",,3
-"24c 423, backross 3",3,19,"backcrosses|async siteswap",,4
+"24c 423, backcross 3",3,19,"backcrosses|async siteswap",,4
 "24c 423, shoulder 4",3,23,"shoulders|async siteswap",,4
-"overheads -> 3c overhead reverse shoulder -> 3c backrosses -> overheads",3,33,"overheads|reverse shoulders|backcrosses","The impossible trick",3
+"overheads -> 3c overhead reverse shoulder -> 3c backcrosses -> overheads",3,33,"overheads|reverse shoulders|backcrosses","The impossible trick",3
 "6c under the leg throws",3,19,"under legs",,6
 "cc111111111, around the body 1's",3,70,"special body throws",,11
-"10c 44133, backrosses 3's",3,18,"backcrosses|async siteswap",,4
+"10c 44133, backcrosses 3's",3,18,"backcrosses|async siteswap",,4
 "reverse shoulders async fountain",4,42,"reverse shoulders|async siteswap",,6
 "4c ANY -> 1c ass catch -> ANY",4,41,"special body throws",,6
 "fountain -> 2c reverse shoulders -> 2c shoulders -> fountain",4,28,"reverse shoulders|shoulders",,6
@@ -167,7 +167,7 @@ name,props_count,difficulty,tags,comment,max_throw
 "10c laying on the back",5,32,"on the back|overheads",,5
 "half shower -> overheads -> other side half shower",5,40,"overheads",,5
 "cascade -> 8c 7733, neck throws 3's",5,82,"necks|async siteswap",,8
-"756 -> 6c 756, backross 5 -> 756",6,66,"backcrosses|async siteswap",,7
+"756 -> 6c 756, backcross 5 -> 756",6,66,"backcrosses|async siteswap",,7
 "6c fountain -> 6c overheads -> 6c fountain",6,45,"overheads",,6
 "12c 774 -> 12c 774, shoulder 4",6,62,"shoulders|async siteswap",,7
-"cascade -> 7c backrosses",7,74,"backcrosses",,7 
+"cascade -> 7c backcrosses",7,74,"backcrosses",,7 

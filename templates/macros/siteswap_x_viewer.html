@@ -1,0 +1,21 @@
+{#
+  Macro: siteswap_x_viewer(parsed, number_size='1.5em')
+  - parsed: list of dicts with keys: number, mod, catch_mod
+  - number_size: font-size for the number (default 1.5em)
+#}
+{% macro siteswap_x_viewer(parsed, number_size='1.5em') %}
+<div class="siteswap-x-visual">
+  <span class="siteswap-x-visual" style="font-size:{{ number_size }}; vertical-align:middle;">
+    {%- for part in parsed %}
+      <span class="siteswap-x-throw">
+        <span class="siteswap-x-throw-mod" style="font-size:calc({{ number_size }} * 0.8);">{{ part.mod if part.mod else '\u00A0' }}</span>
+        <span class="siteswap-x-number" style="font-size:{{ number_size }};">{{ part.number }}</span>
+        {%- if part.catch_mod %}
+          <span class="siteswap-x-catch-mod" style="font-size:calc({{ number_size }} * 0.8);">{{ part.catch_mod }}</span>
+        {%- endif %}
+      </span>
+    {%- endfor %}
+  </span>
+</div>
+{% endmacro %}
+
