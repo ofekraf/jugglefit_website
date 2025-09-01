@@ -1,104 +1,104 @@
 name,props_count,difficulty,tags,comment,max_throw
-"20c sync fountain -> 20c async fountain",4,10,"sync base pattern|async base pattern","Transition: (5x,4)",5
-"20c cascade",5,13,"async base pattern",,5
-"50c isolated cascade",5,29,"async base pattern|isolated",,5
-"30c reverse cascade",5,37,"async base pattern",,5
-"ANY",6,24,"any base pattern",,6
-"async fountain",6,29,"async base pattern",,6
-"20c async fountain",6,30,"async base pattern",,6
-"isolated sync fountain",6,32,"sync base pattern|isolated",,6
-"sync fountain -> async fountain",6,34,"sync base pattern|async base pattern","transition: (7x,6)(7x,6)",7
-"async fountain -> sync fountain",6,34,"async base pattern|sync base pattern","transition: 7x67x6",7
-"ANY on the knees",6,28,"any base pattern|on the knees",,6
-"7c cascade",7,26,"async base pattern",,7
-"cascade",7,34,"async base pattern",,7
-"7c cascade on the knees",7,32,"async base pattern|on the knees",,7
-"isolated cascade",7,35,"async base pattern|isolated",,7
-"8c sync fountain",8,43,"sync base pattern",,8
-"8c async fountain",8,45,"async base pattern",,8
-"16c async ANY",8,68,"async base pattern",,8
-"9c cascade",9,61,"async base pattern",,9
-"cascade",9,80,"async base pattern",,9
-"3up 360 -> cascade",3,10,"360 spin",,5
-"5 X (1up 360) in a run",3,20,"360 spin",,5
-"5 X (3up 360) in a run",3,32,"360 spin",,5
-"75300 3up 360 -> cascade",3,13,"360 spin|async siteswap",,7
-"cascade -> 74400 3up 360 -> cascade",3,20,"360 spin|async siteswap",,7
-"3up 720 -> cascade",3,32,"720 spin",,7
-"9440022 3up 2-stage -> cascade",3,29,"multi stage",,9
-"441 -> 66300 3up 360 -> 441",3,21,"360 spin|async siteswap",,6
-"cascade -> 3up 360 -> overheads",3,18,"360 spin|overheads",,5
-"3up 360 -> backrosses",3,21,"360 spin|backcrosses",,5
-"backrosses -> 3up 360 in backrosses -> backrosses",3,40,"360 spin|backcrosses",,5
-"overheads -> 3up 360 in overheads -> 531",3,27,"360 spin|overheads|async siteswap",,5
-"4up 360 -> async fountain",4,22,"360 spin",,6
-"777300 4up 360 -> async fountain",4,29,"360 spin|async siteswap",,7
-"sync fountain -> (8,8)(4,4)(0,0) 4up 360 -> sync fountain",4,25,"360 spin|sync siteswap",,8
-"async fountain -> 2up 720 -> 534",4,37,"720 spin",,8
-"async fountain -> 4up 720 -> 53534",4,44,"720 spin|async siteswap",,8
-"(6,6)(8,8)(0,0)(2,2) 4up 2-stage -> sync fountain",4,33,"multi stage|sync siteswap",,8
-"4up 360 -> 12c 534 in overheads",4,39,"360 spin|overheads|async siteswap",,6
-"3 consecutive 4up 360 -> fountain",4,43,"360 spin",,6
-"sync fountain -> 2up 360 -> 4up 360 -> sync fountain ",4,30,"360 spin",,6
-"async fountain -> 666700 4up 360 -> 561 ",4,32,"360 spin|async siteswap",,7
-"async fountain -> 667700 4up 360 -> 714 ",4,38,"360 spin|async siteswap",,7
-"async fountain -> 4up 360 -> 2up 360 -> sync fountain",4,30,"360 spin",,6
-"4c sync fountain -> (8x,6)(2,2) 2up 360 -> shower",4,30,"360 spin|sync siteswap",,8
-"3up 360 -> cascade",5,26,"360 spin",,7
-"5up 360 -> cascade",5,33,"360 spin",,7
-"744 -> 96622 3up 360 -> 744",5,35,"360 spin|async siteswap",,9
-"6c 753 -> 97522 3up 360 -> cascade",5,36,"360 spin|async siteswap",,9
-"cascade -> 97522 3up 360 -> cascade",5,29,"360 spin|async siteswap",,9
-"cascade -> aa55500 5up 360 -> cascade",5,47,"360 spin|async siteswap","2 high 3 low 360",10
-"cascade -> b666600 5up 360 -> cascade",5,38,"360 spin|async siteswap","1 high 4 low 360",11
-"cascade -> 5up 360 -> (6x,4)*",5,36,"360 spin|sync siteswap","spin notation: 8x78x78x",8
-"3up 720 -> cascade",5,45,"720 spin",,9
-"cascade -> 77779007722 5up 2-stage -> cascade",5,51,"multi stage|async siteswap",,9
-"744 -> d6688 5up 2-stage -> cascade",5,72,"multi stage|async siteswap",,13
-"(6x,4)* -> (8x,4)(6,ax)(2,2)(8x,6)(2,2) 3up 2-stage -> (6x,4)*",5,42,"360 spin|sync siteswap",,10
-"97531 -> b975300 5up 360 -> 97531",5,49,"360 spin|async siteswap",,11
-"cascade -> 5up 360 -> 3up 360 -> 744",5,40,"360 spin",,7
-"cascade -> 3 connected 3up 360 -> cascade",5,48,"360 spin",,7
-"5up 360 -> overheads",5,48,"360 spin|overheads",,7
-"async fountain -> aa6622 4up 360 -> async fountain",6,66,"360 spin|async siteswap",,10
-"6c async fountain -> bbb555 6up 360 -> async fountain",6,75,"360 spin|async siteswap",,11
-"async fountain -> cc882222 4up 720 -> 864",6,73,"720 spin|async siteswap",,12
-"(8,4)* -> (c,4)(4,c)(c,8)(2,2)(2,2) 4up 720 -> (8,4)*",6,75,"720 spin|sync siteswap",,12
-"sync fountain -> (8,8)(a,a)(2,2)(8,8)(2,2) 4up 2-stage -> sync fountain",6,65,"multi stage|sync siteswap",,10
-"10c 95556 -> b77722 4up 360 -> 756",6,69,"360 spin|async siteswap",,11
-"5up 360 -> cascade",7,68,"360 spin",,9
-"cascade -> aaaa522 5up 360 -> cascade",7,80,"360 spin|async siteswap",,10
-"cascade -> 5up 720 -> cascade",7,90,"720 spin",,11
-"cascade -> 9999b22999922 5up 2-stage -> cascade",7,81,"multi stage|async siteswap",,11
-"12c 966 -> d888822 5up 360 -> cascade",7,73,"360 spin|async siteswap",,13
-"867 -> 1 high 4 low 360 -> (8,6x)*",7,85,"360 spin|sync siteswap","spin notation: ex9x89x822",14
-"24c 531",3,7,"async siteswap",,5
-"24c 531 on the knees",3,10,"async siteswap|on the knees",,5
-"36c 801",3,23,"async siteswap","Entrance: 46",8
-"20c 45123",3,9,"async siteswap",,5
-"30c 44133",3,8,"async siteswap",,4
-"6c 60 -> exactly 5c 50505 -> 6c 60",3,21,"async siteswap","start: 3 in one hand",6
-"box -> 8c inverted box -> box",3,15,"async siteswap",,8
-"24c 534",4,12,"async siteswap",,5
-"18c 633",4,17,"async siteswap",,6
-"24c 714",4,22,"async siteswap","Entrance: 55",7
-"60c 741",4,22,"async siteswap","Entrance: 5",7
-"60c 561",4,20,"async siteswap","Entrance: 5",6
-"42c 831",4,23,"async siteswap","Entrance: 6",8
-"8c 7531, under the leg 1",4,24,"async siteswap|under legs",,7
-"24c 53534",4,19,"async siteswap",,5
-"30c 63551",4,22,"async siteswap",,6
-"20c 55613",4,24,"async siteswap",,6
-"50c 66161",4,22,"async siteswap","Entrance: 5",6
-"50c 73334",4,19,"async siteswap",,7
-"40c 74414",4,17,"async siteswap",,7
-"30c 75314",4,18,"async siteswap",,7
-"20c 66314",4,18,"async siteswap",,6
-"10c 83531",4,17,"async siteswap",,8
-"32c (6x,4)(4,2x)*",4,15,"sync siteswap",,6
-"32c (4x,6)(4,2x)*",4,16,"sync siteswap",,6
-"async fountain -> sync fountain -> async fountain",4,12,"async siteswap","transitions: 5x4, (5x,4)",5
-"18c 534 -> 20c 53444",4,15,"async siteswap",,5
+"20c sync fountain -> 20c async fountain",4,12,"sync base pattern|async base pattern","Transition: (5x,4)",5
+"20c cascade",5,16,"async base pattern",,5
+"50c isolated cascade",5,27,"async base pattern|isolated",,5
+"30c reverse cascade",5,38,"async base pattern",,5
+"ANY",6,27,"any base pattern",,6
+"async fountain",6,30,"async base pattern",,6
+"20c async fountain",6,33,"async base pattern",,6
+"isolated sync fountain",6,39,"sync base pattern|isolated",,6
+"sync fountain -> async fountain",6,37,"sync base pattern|async base pattern","transition: (7x,6)(7x,6)",7
+"async fountain -> sync fountain",6,38,"async base pattern|sync base pattern","transition: 7x67x6",7
+"ANY on the knees",6,33,"any base pattern|on the knees",,6
+"7c cascade",7,30,"async base pattern",,7
+"cascade",7,39,"async base pattern",,7
+"7c cascade on the knees",7,37,"async base pattern|on the knees",,7
+"isolated cascade",7,43,"async base pattern|isolated",,7
+"8c sync fountain",8,52,"sync base pattern",,8
+"8c async fountain",8,48,"async base pattern",,8
+"16c async ANY",8,74,"async base pattern",,8
+"9c cascade",9,67,"async base pattern",,9
+"cascade",9,88,"async base pattern",,9
+"3up 360 -> cascade",3,12,"360 spin",,5
+"5 X (1up 360) in a run",3,18,"360 spin",,5
+"5 X (3up 360) in a run",3,26,"360 spin",,5
+"75300 3up 360 -> cascade",3,16,"360 spin|async siteswap",,7
+"cascade -> 74400 3up 360 -> cascade",3,24,"360 spin|async siteswap",,7
+"3up 720 -> cascade",3,39,"720 spin",,7
+"9440022 3up 2-stage -> cascade",3,34,"multi stage",,9
+"441 -> 66300 3up 360 -> 441",3,25,"360 spin|async siteswap",,6
+"cascade -> 3up 360 -> overheads",3,21,"360 spin|overheads",,5
+"3up 360 -> backrosses",3,25,"360 spin|backcrosses",,5
+"backrosses -> 3up 360 in backrosses -> backrosses",3,48,"360 spin|backcrosses",,5
+"overheads -> 3up 360 in overheads -> 531",3,32,"360 spin|overheads|async siteswap",,5
+"4up 360 -> async fountain",4,25,"360 spin",,6
+"777300 4up 360 -> async fountain",4,34,"360 spin|async siteswap",,7
+"sync fountain -> (8,8)(4,4)(0,0) 4up 360 -> sync fountain",4,31,"360 spin|sync siteswap",,8
+"async fountain -> 2up 720 -> 534",4,44,"720 spin",,8
+"async fountain -> 4up 720 -> 53534",4,53,"720 spin|async siteswap",,8
+"(6,6)(8,8)(0,0)(2,2) 4up 2-stage -> sync fountain",4,40,"multi stage|sync siteswap",,8
+"4up 360 -> 12c 534 in overheads",4,47,"360 spin|overheads|async siteswap",,6
+"3 consecutive 4up 360 -> fountain",4,53,"360 spin",,6
+"sync fountain -> 2up 360 -> 4up 360 -> sync fountain ",4,36,"360 spin",,6
+"async fountain -> 666700 4up 360 -> 561 ",4,39,"360 spin|async siteswap",,7
+"async fountain -> 667700 4up 360 -> 714 ",4,46,"360 spin|async siteswap",,7
+"async fountain -> 4up 360 -> 2up 360 -> sync fountain",4,36,"360 spin",,6
+"4c sync fountain -> (8x,6)(2,2) 2up 360 -> shower",4,36,"360 spin|sync siteswap",,8
+"3up 360 -> cascade",5,30,"360 spin",,7
+"5up 360 -> cascade",5,38,"360 spin",,7
+"744 -> 96622 3up 360 -> 744",5,43,"360 spin|async siteswap",,9
+"6c 753 -> 97522 3up 360 -> cascade",5,45,"360 spin|async siteswap",,9
+"cascade -> 97522 3up 360 -> cascade",5,34,"360 spin|async siteswap",,9
+"cascade -> aa55500 5up 360 -> cascade",5,56,"360 spin|async siteswap","2 high 3 low 360",10
+"cascade -> b666600 5up 360 -> cascade",5,46,"360 spin|async siteswap","1 high 4 low 360",11
+"cascade -> 5up 360 -> (6x,4)*",5,45,"360 spin|sync siteswap","spin notation: 8x78x78x",8
+"3up 720 -> cascade",5,56,"720 spin",,9
+"cascade -> 77779007722 5up 2-stage -> cascade",5,63,"multi stage|async siteswap",,9
+"744 -> d66880022 5up 2-stage -> cascade",5,89,"multi stage|async siteswap",,13
+"(6x,4)* -> (8x,4)(6,ax)(2,2)(8x,6)(2,2) 3up 2-stage -> (6x,4)*",5,52,"360 spin|sync siteswap","(6x,4)* 3up 2-stage",10
+"97531 -> b975300 5up 360 -> 97531",5,61,"360 spin|async siteswap",,11
+"cascade -> 5up 360 -> 3up 360 -> 744",5,50,"360 spin",,7
+"cascade -> 3 connected 3up 360 -> cascade",5,60,"360 spin",,7
+"5up 360 -> overheads",5,60,"360 spin|overheads",,7
+"async fountain -> aa6622 4up 360 -> async fountain",6,68,"360 spin|async siteswap",,10
+"6c async fountain -> bbb55500 6up 360 -> async fountain",6,93,"360 spin|async siteswap",,11
+"async fountain -> cc882222 4up 720 -> 864",6,91,"720 spin|async siteswap",,12
+"(8,4)* -> (c,4)(4,c)(c,8)(2,2)(2,2) 4up 720 -> (8,4)*",6,93,"720 spin|sync siteswap","(8,4)* 4up 720",12
+"sync fountain -> (8,8)(a,a)(2,2)(8,8)(2,2) 4up 2-stage -> sync fountain",6,80,"multi stage|sync siteswap",,10
+"10c 95556 -> b77722 4up 360 -> 756",6,80,"360 spin|async siteswap",,11
+"5up 360 -> cascade",7,74,"360 spin",,9
+"cascade -> aaaa522 5up 360 -> cascade",7,89,"360 spin|async siteswap",,10
+"cascade -> 5up 720 -> cascade",7,92,"720 spin",,11
+"cascade -> 9999b22999922 5up 2-stage -> cascade",7,94,"multi stage|async siteswap",,11
+"12c 966 -> d888822 5up 360 -> cascade",7,91,"360 spin|async siteswap","1 high 4 low 360",13
+"867 -> 1 high 4 low 360 -> (8,6x)*",7,97,"360 spin|sync siteswap","spin notation: ex9x89x822",14
+"24c 531",3,10,"async siteswap",,5
+"24c 531 on the knees",3,12,"async siteswap|on the knees",,5
+"36c 801",3,26,"async siteswap","Entrance: 46",8
+"20c 45123",3,12,"async siteswap",,5
+"30c 44133",3,11,"async siteswap",,4
+"6c 60 -> exactly 5c 50505 -> 6c 60",3,25,"async siteswap","start: 3 in one hand",6
+"box -> 8c inverted box -> box",3,21,"async siteswap",,8
+"24c 534",4,14,"async siteswap",,5
+"18c 633",4,20,"async siteswap",,6
+"24c 714",4,27,"async siteswap","Entrance: 55",7
+"60c 741",4,27,"async siteswap","Entrance: 5",7
+"60c 561",4,24,"async siteswap","Entrance: 5",6
+"42c 831",4,28,"async siteswap","Entrance: 6",8
+"8c 7531, under the leg 1",4,29,"async siteswap|under legs",,7
+"24c 53534",4,22,"async siteswap",,5
+"30c 63551",4,27,"async siteswap",,6
+"20c 55613",4,29,"async siteswap",,6
+"50c 66161",4,27,"async siteswap","Entrance: 5",6
+"50c 73334",4,22,"async siteswap",,7
+"40c 74414",4,20,"async siteswap",,7
+"30c 75314",4,21,"async siteswap",,7
+"20c 66314",4,21,"async siteswap",,6
+"10c 83531",4,22,"async siteswap",,8
+"32c (6x,4)(4,2x)*",4,18,"sync siteswap",,6
+"32c (4x,6)(4,2x)*",4,19,"sync siteswap",,6
+"async fountain -> sync fountain -> async fountain",4,13,"async siteswap","transitions: 5x4, (5x,4)",5
+"18c 534 -> 20c 53444",4,22,"async siteswap",,5
 "30c 744",5,25,"async siteswap",,7
 "18c 645",5,24,"async siteswap",,6
 "cascade -> 6c 663 -> cascade",5,26,"async siteswap",,6
@@ -120,8 +120,8 @@ name,props_count,difficulty,tags,comment,max_throw
 "20c 84463",5,36,"async siteswap",,8
 "20c 94444",5,32,"async siteswap",,9
 "744 -> 5c 97531 -> 645",5,30,"async siteswap",,9
-"6c 753 -> 5c 97531 -> cascade",5,30,"async siteswap",,9
-"5c cascade -> 7c b444444 -> backrosses",5,45,"async siteswap|backcrosses",,11
+"6c 753 -> 5c 97531 -> cascade",5,36,"async siteswap",,9
+"5c cascade -> 7c b444444 -> backrosses",5,48,"async siteswap|backcrosses",,11
 "32c (6x,4x)(6,4x)*",5,29,"sync siteswap",,6
 "24c (6,4)(6x,4)*",5,28,"sync siteswap",,6
 "36c (6,4)(6x,4)(6x,4x)*",5,33,"sync siteswap",,6
@@ -130,12 +130,12 @@ name,props_count,difficulty,tags,comment,max_throw
 "30c 891",6,67,"async siteswap","entrance: 778",9
 "30c 96636",6,61,"async siteswap",,9
 "30c 77736",6,58,"async siteswap",,7
-"30c 78456",6,59,"async siteswap",,8
-"50c 85845",6,59,"async siteswap",,8
+"30c 78456",6,67,"async siteswap",,8
+"50c 85845",6,65,"async siteswap",,8
 "30c 88446",6,54,"async siteswap",,8
-"20c 79455",6,54,"async siteswap",,9
+"20c 79455",6,63,"async siteswap",,9
 "20c 95556",6,47,"async siteswap",,9
-"30c 79635",6,58,"async siteswap",,9
+"30c 79635",6,70,"async siteswap",,9
 "20c 99444",6,51,"async siteswap",,9
 "20c a5753",6,65,"async siteswap",,10
 "cascade -> 966",7,55,"async siteswap",,9
@@ -145,14 +145,14 @@ name,props_count,difficulty,tags,comment,max_throw
 "cascade -> 5c b9753 -> cascade",7,57,"async siteswap",,11
 "978",8,72,"async siteswap",,9
 "996",8,74,"async siteswap",,9
-"97996",8,79,"async siteswap",,9
+"20c 97996",8,90,"async siteswap",,9
 "backrosses",3,15,"backcrosses",,3
 "10c neck throws",3,24,"necks",,3
 "24c 423, backross 3",3,19,"backcrosses|async siteswap",,4
-"24c 423, shoulder 4",3,23,"shoulders|async siteswap",,4
+"24c 423, shoulder 4",3,19,"shoulders|async siteswap",,4
 "overheads -> 3c overhead reverse shoulder -> 3c backrosses -> overheads",3,33,"overheads|reverse shoulders|backcrosses","The impossible trick",3
 "6c under the leg throws",3,19,"under legs",,6
-"cc111111111, around the body 1's",3,70,"special body throws",,11
+"cc111111111, around the body 1's",3,88,"special body throws",,11
 "10c 44133, backrosses 3's",3,18,"backcrosses|async siteswap",,4
 "reverse shoulders async fountain",4,42,"reverse shoulders|async siteswap",,6
 "4c ANY -> 1c ass catch -> ANY",4,41,"special body throws",,6
@@ -160,7 +160,7 @@ name,props_count,difficulty,tags,comment,max_throw
 "8c penguins",4,26,"special body throws",,8
 "20c laying on the back",4,25,"on the back|overheads",,4
 "overheads -> 4c overhead reverse shoulders -> 4c overhead shoulders -> overheads",4,49,"overheads|reverse shoulders|shoulders","The impossible trick",4
-"5c 94444, shoulders 4's",5,43,"shoulders|async siteswap",,9
+"5c 94444, shoulders 4's",5,52,"shoulders|async siteswap",,9
 "18c 645, shoulder 4",5,45,"shoulders|async siteswap",,6
 "30c overheads",5,36,"overheads",,5
 "overheads -> 6c 744 overheads -> overheads",5,40,"overheads|async siteswap",,7
