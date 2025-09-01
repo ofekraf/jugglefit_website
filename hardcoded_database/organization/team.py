@@ -8,4 +8,5 @@ TEAM = [
     TeamMember(name="Ofek Rafaeli", residence="Israel", image_url="/static/images/Ofek_Rafaeli.jpg"),
     TeamMember(name="Spencer Androli", residence="United States", image_url="/static/images/Spencer_Androli.jpg"),
     TeamMember(name="Jan Poolen", residence="Netherlands", image_url="/static/images/Jan_Poolen.jpg"),
+    TeamMember(name="Eivind Dragsjo", residence="Norway", image_url="/static/images/Eivind_Dragsjo.jpg"),
 ]
