@@ -97,6 +97,16 @@ def redirect_to_long_url(code):
 # Register the API blueprint
 app.register_blueprint(api)
 
+@app.route('/health')
+def health_check():
+	"""Health check endpoint for container health checks."""
+	return {'status': 'healthy', 'message': 'Application is running'}, 200
+
+@app.route('/ready')
+def readiness_check():
+	"""Readiness check endpoint for load balancers."""
+	return {'status': 'ready', 'message': 'Application is ready to serve requests'}, 200
+
 @app.route('/')
 def home():
 	return render_template('index.html', upcoming_events=UPCOMING_EVENTS, last_events=FRONT_PAGE_PAST_EVENTS)
@@ -237,6 +247,10 @@ def download_tricks_csv(prop_type):
 		
 	except Exception as e:
 		return f"Error serving CSV: {str(e)}", 500
+
+@app.route('/siteswap_visualizer')
+def siteswap_visualizer():
+	return render_template('siteswap_visualizer.html')
 
 if __name__ == '__main__':
 	port = int(os.environ.get("PORT", 5001))

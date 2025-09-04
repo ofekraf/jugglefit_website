@@ -4,9 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="552baee5-abe5-4f75-a5c0-d7b189be8b2c" name="Changes" comment="removing &quot;api_suggest_trick&quot; from logic to get the site running">
+    <list default="true" id="552baee5-abe5-4f75-a5c0-d7b189be8b2c" name="Changes" comment="removed render postgres db">
+      <change afterPath="$PROJECT_DIR$/img.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/utils/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/utils/base.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/utils/route_display.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/utils/route_display.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -62,13 +65,14 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "DefaultHtmlFileTemplate": "HTML File",
+    "Flask server.Flask (siteswap_flask_app.py).executor": "Run",
     "Flask server.jugglefit_website.executor": "Debug",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "WebServerToolWindowFactoryState": "false",
-    "git-widget-placeholder": "main",
+    "git-widget-placeholder": "integrate-simulator",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -158,6 +162,22 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="Flask (siteswap_flask_app.py)" type="Python.FlaskServer" temporary="true" nameIsGenerated="true">
+      <module name="jugglefit_website" />
+      <option name="target" value="$PROJECT_DIR$/siteswap_flask_app.py" />
+      <option name="targetType" value="PATH" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="launchJavascriptDebuger" value="false" />
+      <method v="2" />
+    </configuration>
     <configuration name="jugglefit_website" type="Python.FlaskServer">
       <module name="jugglefit_website" />
       <option name="target" value="$PROJECT_DIR$/app.py" />
@@ -176,12 +196,14 @@
     </configuration>
     <list>
       <item itemvalue="Flask server.jugglefit_website" />
+      <item itemvalue="Flask server.Flask (siteswap_flask_app.py)" />
       <item itemvalue="Python.jugglefit_website" />
       <item itemvalue="Python.scratch_17" />
       <item itemvalue="Python.scratch_18" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Flask server.Flask (siteswap_flask_app.py)" />
         <item itemvalue="Python.scratch_18" />
         <item itemvalue="Python.scratch_17" />
       </list>
@@ -217,6 +239,9 @@
       <workItem from="1753277976618" duration="35000" />
       <workItem from="1753642838633" duration="1292000" />
       <workItem from="1754663995900" duration="5251000" />
+      <workItem from="1755426811622" duration="16506000" />
+      <workItem from="1755505894146" duration="6000" />
+      <workItem from="1755831056200" duration="4936000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit of existing project">
       <option name="closed" value="true" />
@@ -417,6 +442,7 @@
     <option name="LAST_COMMIT_MESSAGE" value="removing &quot;api_suggest_trick&quot; from logic to get the site running" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/jugglefit_website$Flask__siteswap_flask_app_py_.coverage" NAME="Flask (siteswap_flask_app.py) Coverage Results" MODIFIED="1755431501687" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/jugglefit_website$scratch_17.coverage" NAME="scratch_17 Coverage Results" MODIFIED="1740824278447" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$APPLICATION_CONFIG_DIR$/scratches" />
     <SUITE FILE_PATH="coverage/jugglefit_website$jugglefit_website.coverage" NAME="jugglefit_website Coverage Results" MODIFIED="1754665805142" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
     <SUITE FILE_PATH="coverage/jugglefit_website$scratch_18.coverage" NAME="scratch_18 Coverage Results" MODIFIED="1740827201761" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$APPLICATION_CONFIG_DIR$/scratches" />
