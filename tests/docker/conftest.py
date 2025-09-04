@@ -12,10 +12,11 @@ from pathlib import Path
 def docker_client():
     """Docker client fixture for running tests."""
     try:
-        return docker.DockerClient.from_env()
-    except AttributeError:
-        # Fallback for older docker library versions
         return docker.from_env()
+    except (docker.errors.DockerException, Exception) as e:
+        # Return None when Docker is not available - tests should check this
+        pytest.skip(f"Docker not available: {e}")
+        return None
 
 
 @pytest.fixture(scope="session")
