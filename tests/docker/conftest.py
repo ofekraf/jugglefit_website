@@ -13,7 +13,7 @@ def docker_client():
     """Docker client fixture for running tests."""
     try:
         return docker.from_env()
-    except (docker.errors.DockerException, Exception) as e:
+    except Exception as e:
         # Return None when Docker is not available - tests should check this
         pytest.skip(f"Docker not available: {e}")
         return None
