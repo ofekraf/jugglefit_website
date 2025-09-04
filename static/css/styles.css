@@ -1,3 +1,20 @@
+/* Center the siteswap-x toggle and style the checkbox/label */
+.siteswap-x-toggle {
+    margin: 10px 0;
+    text-align: center;
+}
+.siteswap-x-toggle label {
+    font-weight: 500;
+    font-size: 1.1em;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+#siteswap-x-toggle-checkbox {
+    margin-left: 0;
+    margin-right: 8px;
+    vertical-align: middle;
+}
 /* --- Moved from base.html for maintainability --- */
 .orientation-alert {
     display: none;

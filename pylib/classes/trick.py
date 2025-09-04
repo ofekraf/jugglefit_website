@@ -16,6 +16,7 @@ class Trick:
     tags: Optional[Set[Tag]] = None
     comment: Optional[str] = None
     max_throw: Optional[int] = None
+    siteswap_x: Optional[str] = None
 
     def __post_init__(self):
         if len(self.name) > MAX_TRICK_NAME_LENGTH:
@@ -39,7 +40,8 @@ class Trick:
             'difficulty': self.difficulty,
             'tags': [str(tag) for tag in self.tags] if self.tags else [],
             'comment': self.comment,
-            'max_throw': self.max_throw
+            'max_throw': self.max_throw,
+            'siteswap_x': self.siteswap_x
         }
 
     @classmethod
@@ -52,5 +54,6 @@ class Trick:
             difficulty=data.get('difficulty', -1),
             tags=tags,
             comment=data.get('comment'),
-            max_throw=data.get('max_throw')
-        ) 
+            max_throw=data.get('max_throw'),
+            siteswap_x=data.get('siteswap_x')
+        )

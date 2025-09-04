@@ -89,7 +89,7 @@
         </div>
 
         <div class="form-section">
-            <h4 class="subsection-title">Add Tricks</h4>
+            <h4 class="subsection-title">Available Tricks</h4>
             <label class="form-label">Number of Props</label>
             <div class="slider-container">
                 <div id="props-slider" class="custom-slider"></div>
@@ -140,6 +140,14 @@
                         {% endfor %}
                     </div>
                 </div>
+            </div>
+        </div>
+        <div class="form-section">
+            <div class="siteswap-x-toggle">
+                <label>
+                    <input type="checkbox" id="siteswap-x-toggle-tricklist">
+                    Siteswap-X notation
+                </label>
             </div>
         </div>
 
@@ -278,6 +286,54 @@
                         }
                     });
                     trickMain.appendChild(name);
+
+                    // Show siteswap-x notation if available
+                    const siteswapSpan = document.createElement('span');
+                    siteswapSpan.className = 'trick-siteswap-x';
+                    siteswapSpan.textContent = trick.siteswap_x ? ` [${trick.siteswap_x}]` : '';
+                    siteswapSpan.style.display = 'none';
+                    trickMain.appendChild(siteswapSpan);
+    // Siteswap-X toggle for trick options
+    function updateSiteswapXToggle() {
+        const toggleCheckbox = document.getElementById('siteswap-x-toggle-tricklist');
+        if (toggleCheckbox) {
+            const trickNames = document.querySelectorAll('.tricks-list .trick-name');
+            const trickSiteswaps = document.querySelectorAll('.tricks-list .trick-siteswap-x');
+            if (toggleCheckbox.checked) {
+                trickNames.forEach((el, i) => {
+                    if (trickSiteswaps[i] && trickSiteswaps[i].textContent.trim() && trickSiteswaps[i].textContent.replace(/\[|\]/g, '').trim() !== '') {
+                        el.style.display = 'none';
+                        trickSiteswaps[i].style.display = '';
+                    } else {
+                        el.style.display = '';
+                        if (trickSiteswaps[i]) trickSiteswaps[i].style.display = 'none';
+                    }
+                });
+            } else {
+                trickNames.forEach((el, i) => {
+                    el.style.display = '';
+                    if (trickSiteswaps[i]) trickSiteswaps[i].style.display = 'none';
+                });
+            }
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggleCheckbox = document.getElementById('siteswap-x-toggle-tricklist');
+        if (toggleCheckbox) {
+            toggleCheckbox.addEventListener('change', updateSiteswapXToggle);
+        }
+    });
+
+    // Call updateSiteswapXToggle after updating tricks
+    function updateSearchTricks() {
+        // ...existing code...
+        // Display tricks grouped by props count
+        Object.keys(groupedTricks).sort((a, b) => parseInt(a) - parseInt(b)).forEach(count => {
+            // ...existing code for rendering tricks...
+        });
+        updateSiteswapXToggle();
+    }
                     
                     if (trick.comment) {
                         const comment = document.createElement('span');

@@ -1,24 +1,24 @@
-name,props_count,difficulty,tags,comment,max_throw
-"20c sync fountain -> 20c async fountain",4,12,"sync base pattern|async base pattern","Transition: (5x,4)",5
-"20c cascade",5,16,"async base pattern",,5
-"50c isolated cascade",5,27,"async base pattern|isolated",,5
-"30c reverse cascade",5,38,"async base pattern",,5
-"ANY",6,27,"any base pattern",,6
-"async fountain",6,30,"async base pattern",,6
-"20c async fountain",6,33,"async base pattern",,6
-"isolated sync fountain",6,39,"sync base pattern|isolated",,6
-"sync fountain -> async fountain",6,37,"sync base pattern|async base pattern","transition: (7x,6)(7x,6)",7
-"async fountain -> sync fountain",6,38,"async base pattern|sync base pattern","transition: 7x67x6",7
-"ANY on the knees",6,33,"any base pattern|on the knees",,6
-"7c cascade",7,30,"async base pattern",,7
-"cascade",7,39,"async base pattern",,7
-"7c cascade on the knees",7,37,"async base pattern|on the knees",,7
-"isolated cascade",7,43,"async base pattern|isolated",,7
-"8c sync fountain",8,52,"sync base pattern",,8
-"8c async fountain",8,48,"async base pattern",,8
-"16c async ANY",8,74,"async base pattern",,8
-"9c cascade",9,67,"async base pattern",,9
-"cascade",9,88,"async base pattern",,9
+name,props_count,difficulty,tags,comment,max_throw,siteswap_x
+"20c sync fountain -> 20c async fountain",4,12,"sync base pattern|async base pattern","Transition: (5x,4)",5,
+"20c cascade",5,16,"async base pattern",,5,5
+"50c isolated cascade",5,27,"async base pattern|isolated",,5,5
+"30c reverse cascade",5,38,"async base pattern",,5,reverse cascade
+"ANY",6,27,"any base pattern",,6,
+"async fountain",6,30,"async base pattern",,6,async fountain
+"20c async fountain",6,33,"async base pattern",,6,async fountain
+"isolated sync fountain",6,39,"sync base pattern|isolated",,6,sync fountain
+"sync fountain -> async fountain",6,37,"sync base pattern|async base pattern","transition: (7x,6)(7x,6)",7,
+"async fountain -> sync fountain",6,38,"async base pattern|sync base pattern","transition: 7x67x6",7,
+"ANY on the knees",6,33,"any base pattern|on the knees",,6,
+"7c cascade",7,30,"async base pattern",,7,7
+"cascade",7,39,"async base pattern",,7,7
+"7c cascade on the knees",7,37,"async base pattern|on the knees",,7,7
+"isolated cascade",7,43,"async base pattern|isolated",,7,7
+"8c sync fountain",8,52,"sync base pattern",,8,sync fountain
+"8c async fountain",8,48,"async base pattern",,8,async fountain
+"16c async ANY",8,74,"async base pattern",,8,
+"9c cascade",9,67,"async base pattern",,9,9
+"cascade",9,88,"async base pattern",,9,9
 "3up 360 -> cascade",3,12,"360 spin",,5
 "5 X (1up 360) in a run",3,18,"360 spin",,5
 "5 X (3up 360) in a run",3,26,"360 spin",,5
@@ -147,7 +147,7 @@ name,props_count,difficulty,tags,comment,max_throw
 "996",8,74,"async siteswap",,9
 "20c 97996",8,90,"async siteswap",,9
 "backcrosses",3,15,"backcrosses",,3
-"10c neck throws",3,24,"necks",,3
+"10c neck throws",3,24,"necks",,3,"10c 3{N}"
 "24c 423, backcross 3",3,19,"backcrosses|async siteswap",,4
 "24c 423, shoulder 4",3,19,"shoulders|async siteswap",,4
 "overheads -> 3c overhead reverse shoulder -> 3c backcrosses -> overheads",3,33,"overheads|reverse shoulders|backcrosses","The impossible trick",3

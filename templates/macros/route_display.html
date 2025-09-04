@@ -29,7 +29,8 @@
                         <div class="trick-content">
                             <div class="trick-main">
                                 <span class="trick-number">{{ trick_counter.count }}.</span>
-                                <span class="trick-name">{{ trick.name }}</span>
+                                <span class="trick-name" data-name="{{ trick.text or trick.name }}" data-siteswap-x="{{ trick.siteswap_x }}">{{ trick.text or trick.name }}</span>
+                                <span class="trick-siteswap-x" style="display:none">{{ trick.siteswap_x if trick.siteswap_x else (trick.text or trick.name) }}</span>
                                 {% if trick.comment %}
                                     <span class="trick-comment">[{{ trick.comment }}]</span>
                                 {% endif %}
@@ -44,5 +45,40 @@
             </div>
         </div>
     </div>
+
+    <div class="siteswap-x-toggle no-print">
+        <label>
+            <input type="checkbox" id="siteswap-x-toggle-checkbox">
+            Siteswap-X notation
+        </label>
+    </div>
+
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggleCheckbox = document.getElementById('siteswap-x-toggle-checkbox');
+        if (toggleCheckbox) {
+            toggleCheckbox.addEventListener('change', function() {
+                const trickNames = document.querySelectorAll('.trick-name');
+                const trickSiteswaps = document.querySelectorAll('.trick-siteswap-x');
+                if (this.checked) {
+                    trickNames.forEach((el, i) => {
+                        if (trickSiteswaps[i] && trickSiteswaps[i].textContent.trim()) {
+                            el.style.display = 'none';
+                            trickSiteswaps[i].style.display = '';
+                        } else {
+                            el.style.display = '';
+                            if (trickSiteswaps[i]) trickSiteswaps[i].style.display = 'none';
+                        }
+                    });
+                } else {
+                    trickNames.forEach((el, i) => {
+                        el.style.display = '';
+                        if (trickSiteswaps[i]) trickSiteswaps[i].style.display = 'none';
+                    });
+                }
+            });
+        }
+    });
+</script>
 {% endblock %}
