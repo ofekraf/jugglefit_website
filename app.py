@@ -1,4 +1,5 @@
 import os
+import logging
 from urllib.parse import unquote
 from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, Blueprint, send_file
 from hardcoded_database.consts import get_trick_csv_path

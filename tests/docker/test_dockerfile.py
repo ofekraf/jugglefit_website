@@ -2,7 +2,18 @@ import pytest
 import docker
 import os
 import re
+import subprocess
+import shutil
 from pathlib import Path
+
+
+def docker_available():
+    """Check if Docker is available and accessible."""
+    try:
+        result = subprocess.run(['docker', 'info'], capture_output=True, text=True, timeout=10)
+        return result.returncode == 0
+    except (subprocess.TimeoutExpired, FileNotFoundError):
+        return False
 
 
 class TestDockerfileStructure:
@@ -75,6 +86,7 @@ class TestDockerfileStructure:
 class TestDockerBuild:
     """Test Docker image building."""
     
+    @pytest.mark.skipif(not docker_available(), reason="Docker not available")
     def test_docker_image_builds_successfully(self, docker_client, project_root):
         """Test that Docker image builds without errors."""
         try:
@@ -88,6 +100,7 @@ class TestDockerBuild:
         except docker.errors.BuildError as e:
             pytest.fail(f"Docker build failed: {e}")
     
+    @pytest.mark.skipif(not docker_available(), reason="Docker not available")
     def test_docker_image_size_optimized(self, docker_client, project_root):
         """Test that Docker image size is reasonable (under 500MB)."""
         image, _ = docker_client.images.build(
@@ -100,6 +113,7 @@ class TestDockerBuild:
         size_mb = image.attrs['Size'] / (1024 * 1024)
         assert size_mb < 500, f"Image size {size_mb:.1f}MB should be under 500MB"
     
+    @pytest.mark.skipif(not docker_available(), reason="Docker not available")
     def test_docker_container_starts_successfully(self, docker_client, project_root):
         """Test that Docker container starts without errors."""
         # Build image first
@@ -136,6 +150,7 @@ class TestDockerBuild:
             container.stop()
             container.remove()
     
+    @pytest.mark.skipif(not docker_available(), reason="Docker not available")
     def test_docker_container_health_check_passes(self, docker_client, project_root):
         """Test that Docker container passes health checks."""
         # This test will fail until we implement proper health checks
@@ -162,6 +177,7 @@ class TestDockerBuild:
             container.stop()
             container.remove()
     
+    @pytest.mark.skipif(not docker_available(), reason="Docker not available")
     def test_docker_container_runs_as_non_root(self, docker_client, project_root):
         """Test that Docker container runs as non-root user."""
         image, _ = docker_client.images.build(

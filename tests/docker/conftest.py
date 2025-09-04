@@ -11,7 +11,11 @@ from pathlib import Path
 @pytest.fixture(scope="session")
 def docker_client():
     """Docker client fixture for running tests."""
-    return docker.from_env()
+    try:
+        return docker.DockerClient.from_env()
+    except AttributeError:
+        # Fallback for older docker library versions
+        return docker.from_env()
 
 
 @pytest.fixture(scope="session")

@@ -19,8 +19,17 @@ pip install -r requirements.txt
 ```
 
 ### Environment Configuration
+**IMPORTANT**: Always check the `.env` file for the `PORT` setting, as it overrides the default Flask port.
+
 Create a `.env` file with:
 ```bash
+# Port Configuration (CRITICAL - Flask reads this!)
+PORT=5001  # Default Flask port - change carefully if needed
+
+# Flask Configuration
+FLASK_ENV=development  # Set to 'production' for production
+FLASK_DEBUG=1         # Set to 0 for production
+
 # Google Sheets API Configuration
 JUGGLEFIT_BOT_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYour private key here\n-----END PRIVATE KEY-----"
 TRICK_SUGGESTIONS_SPREADSHEET_ID=your_spreadsheet_id
@@ -46,13 +55,29 @@ gunicorn -w 4 -b 0.0.0.0:5001 wsgi:app
 ```
 
 ### Docker Deployment
+**IMPORTANT Docker Port Mapping**: The Flask app reads the `PORT` environment variable from `.env`. 
+- If `.env` has `PORT=5001`, use: `docker run -p 5001:5001`
+- If `.env` has `PORT=3333`, use: `docker run -p 5001:3333` (maps host 5001 to container 3333)
+- Always check `.env` file first to avoid port mapping confusion!
+
 ```bash
-# Build and run with Docker Compose
+# Check what port Flask will use
+grep PORT .env
+
+# Development with Docker Compose
 docker-compose up --build
 
-# Build individual container
+# Production with Docker Compose  
+docker-compose -f docker-compose.prod.yml up -d
+
+# Manual Docker build and run
 docker build -t jugglefit-website .
 docker run -p 5001:5001 --env-file .env jugglefit-website
+
+# Common Docker troubleshooting
+docker ps                           # List running containers
+docker logs <container-name>        # Check container logs
+docker rm -f <container-name>       # Force remove container
 ```
 
 ## Architecture Overview
@@ -94,8 +119,12 @@ docker run -p 5001:5001 --env-file .env jugglefit-website
 **Core API** (`/api/` blueprint):
 - `POST /api/serialize_route`: Convert route data to compressed string
 - `POST /api/fetch_tricks`: Filter tricks by criteria, return JSON
-- `POST /api/shorten_url`: Generate short URLs with automatic expiry
-- `GET /shortener/<code>`: Redirect to original URL and refresh expiry
+- `POST /api/shorten_url`: Generate short URLs (currently disabled)
+- `GET /shortener/<code>`: Redirect to original URL (currently disabled)
+
+**Health and Monitoring**:
+- `GET /health`: Container health check endpoint (returns JSON status)
+- `GET /ready`: Readiness probe for load balancers
 
 ### Configuration System
 
@@ -127,11 +156,40 @@ docker run -p 5001:5001 --env-file .env jugglefit-website
 
 ## Testing and Validation
 
-Currently no formal test suite exists. Manual testing involves:
+### Test Suite
+The project includes a comprehensive test suite using pytest:
+
+```bash
+# Install test dependencies (included in requirements.txt)
+pip install pytest pytest-docker docker pyyaml
+
+# Run all tests
+pytest
+
+# Run specific test categories
+pytest tests/docker/                        # Docker-related tests
+pytest tests/docker/test_dockerfile.py      # Dockerfile tests only  
+pytest tests/docker/test_production.py      # Production deployment tests
+
+# Run with verbose output
+pytest -v
+
+# Run with coverage (if coverage tools installed)
+pytest --cov=.
+```
+
+### Test Categories
+- **Docker Tests** (`tests/docker/`): Container functionality, builds, health checks
+- **Application Tests**: Flask application functionality (TODO)
+- **Integration Tests**: End-to-end workflow testing (TODO)
+
+### Manual Testing
+For manual verification:
 - Route generation with various filter criteria
-- URL shortening and redirection functionality
+- Health endpoints: `curl http://localhost:5001/health`
 - Trick filtering and serialization
 - Template rendering with different data sets
+- Docker container startup and port mapping
 
 ## Deployment Considerations
 
@@ -144,3 +202,47 @@ Currently no formal test suite exists. Manual testing involves:
 - PostgreSQL table creation is handled automatically via `init_db()`
 - Background cleanup thread starts automatically on app initialization
 - No migration system - schema changes require manual intervention
+
+## GitHub Actions and CI/CD
+
+### Authentication Setup
+To work with GitHub Actions, ensure proper authentication:
+
+```bash
+# Check current authentication
+gh auth status
+
+# If not authenticated to github.com, login:
+gh auth login --hostname github.com
+
+# Select HTTPS protocol and authenticate via web browser
+```
+
+### Checking CI/CD Status
+```bash
+# List recent workflow runs
+gh run list --limit 5
+
+# View details of a specific run
+gh run view <run-id>
+
+# View logs of a failed run
+gh run view <run-id> --log-failed
+
+# Check workflow status
+gh workflow list
+gh workflow view deploy.yml
+```
+
+### Common CI/CD Issues
+- **Authentication failures**: Re-run `gh auth login --hostname github.com`
+- **Test failures**: Run tests locally first with `pytest`
+- **Docker build failures**: Ensure Dockerfile and requirements.txt are correct
+- **Environment variables**: GitHub secrets must match `.env.example` structure
+
+### Troubleshooting GitHub Actions
+If you encounter issues:
+1. Check the Actions tab on github.com
+2. Review workflow logs for specific error messages
+3. Test Docker builds locally before pushing
+4. Ensure all required secrets are configured in repository settings

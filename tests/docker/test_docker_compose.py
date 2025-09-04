@@ -1,6 +1,23 @@
 import pytest
 import yaml
+import os
+import subprocess
+import shutil
 from pathlib import Path
+
+
+def docker_available():
+    """Check if Docker is available and accessible."""
+    try:
+        result = subprocess.run(['docker', 'info'], capture_output=True, text=True, timeout=10)
+        return result.returncode == 0
+    except (subprocess.TimeoutExpired, FileNotFoundError):
+        return False
+
+
+def docker_compose_available():
+    """Check if docker-compose is available."""
+    return shutil.which('docker-compose') is not None
 
 
 class TestDockerComposeDevConfiguration:
@@ -133,6 +150,8 @@ class TestDockerComposeProdConfiguration:
 class TestDockerComposeIntegration:
     """Test docker-compose integration and functionality."""
     
+    @pytest.mark.skipif(not docker_available() or not docker_compose_available(), 
+                       reason="Docker or docker-compose not available")
     def test_docker_compose_dev_builds_and_runs(self, project_root, docker_compose_dev_path):
         """Test that development docker-compose builds and runs successfully."""
         import subprocess
@@ -174,6 +193,8 @@ class TestDockerComposeIntegration:
             subprocess.run(['docker-compose', 'down'], capture_output=True)
             os.chdir(original_cwd)
     
+    @pytest.mark.skipif(not docker_available() or not docker_compose_available(), 
+                       reason="Docker or docker-compose not available")
     def test_docker_compose_prod_builds_and_runs(self, project_root, docker_compose_prod_path):
         """Test that production docker-compose builds and runs successfully."""
         import subprocess
