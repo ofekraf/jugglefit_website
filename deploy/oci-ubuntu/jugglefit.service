@@ -1,0 +1,38 @@
+[Unit]
+Description=JuggleFit Website
+After=docker.service
+Requires=docker.service
+StartLimitIntervalSec=0
+
+[Service]
+Type=notify
+Restart=always
+RestartSec=5
+User=jugglefit
+Group=jugglefit
+WorkingDirectory=/opt/jugglefit
+ExecStart=/usr/bin/docker-compose -f docker-compose.prod.yml up
+ExecStop=/usr/bin/docker-compose -f docker-compose.prod.yml down
+TimeoutStartSec=300
+TimeoutStopSec=30
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/opt/jugglefit
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+
+# Environment
+Environment=DOCKER_BUILDKIT=1
+Environment=COMPOSE_DOCKER_CLI_BUILD=1
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=jugglefit
+
+[Install]
+WantedBy=multi-user.target

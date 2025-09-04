@@ -1,4 +1,5 @@
 import os
+import logging
 from urllib.parse import unquote
 from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, Blueprint, send_file
 from hardcoded_database.consts import get_trick_csv_path
@@ -96,6 +97,16 @@ def redirect_to_long_url(code):
 
 # Register the API blueprint
 app.register_blueprint(api)
+
+@app.route('/health')
+def health_check():
+	"""Health check endpoint for container health checks."""
+	return {'status': 'healthy', 'message': 'Application is running'}, 200
+
+@app.route('/ready')
+def readiness_check():
+	"""Readiness check endpoint for load balancers."""
+	return {'status': 'ready', 'message': 'Application is ready to serve requests'}, 200
 
 @app.route('/')
 def home():
@@ -237,6 +248,7 @@ def download_tricks_csv(prop_type):
 		
 	except Exception as e:
 		return f"Error serving CSV: {str(e)}", 500
+
 
 if __name__ == '__main__':
 	port = int(os.environ.get("PORT", 5001))
