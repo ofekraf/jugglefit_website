@@ -5,15 +5,15 @@
     display: inline-flex;
     flex-direction: row;
     align-items: flex-end;
-    gap: 0.45em;
+    gap: 0.22em;
     margin: 0.2em 0 0.5em 0;
     position: relative;
     z-index: 1;
 }
 .siteswap-x-space {
     display: inline-block;
-    width: 0.45em;
-    min-width: 0.45em;
+    width: 0.22em;
+    min-width: 0.22em;
     height: 1em;
 }
 }
@@ -35,8 +35,10 @@
     display: inline-flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     margin: 0 0.32em;
     gap: 0.08em;
+    min-height: 2.1em;
 }
 .siteswap-x-throw-mod {
     font-size: 1em;
@@ -52,6 +54,7 @@
     color: #222;
     letter-spacing: -0.04em;
     padding: 0 0.07em;
+    align-self: center;
 }
 .siteswap-x-catch-mod {
     font-size: 1em;

@@ -9,10 +9,15 @@ function siteswapXViewer(pattern, numberSize = '1.5em') {
     let html = '<span class="siteswap-x-visual" style="font-size:' + numberSize + '; vertical-align:middle;">';
     let lastIndex = 0;
     let wordMatch;
+    let prevPlain = false;
     while ((wordMatch = wordRe.exec(pattern)) !== null) {
         // Add any whitespace before this word
         if (wordMatch.index > lastIndex) {
-            html += '<span class="siteswap-x-space">&nbsp;</span>';
+            if (prevPlain) {
+                html += ' ';
+            } else {
+                html += '<span class="siteswap-x-space">&nbsp;</span>';
+            }
         }
         const word = wordMatch[0];
         // Check if word contains any modifiers
@@ -29,6 +34,7 @@ function siteswapXViewer(pattern, numberSize = '1.5em') {
         if (!hasModifier) {
             // No modifiers in this word: render as plain text
             html += word;
+            prevPlain = true;
         } else {
             // Render each token in the word
             tokens.forEach(tokenMatch => {
@@ -43,6 +49,7 @@ function siteswapXViewer(pattern, numberSize = '1.5em') {
                 }
                 html += '</span>';
             });
+            prevPlain = false;
         }
         lastIndex = wordRe.lastIndex;
     }
