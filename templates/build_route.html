@@ -261,78 +261,30 @@
                 const tricksList = document.createElement('div');
                 tricksList.className = 'tricks-list';
                 
-                // Sort tricks by name within each group
-                groupedTricks[count].sort((a, b) => a.name.localeCompare(b.name)).forEach(trick => {
+                // Sort tricks by name/siteswap-x within each group
+                const siteswapXToggle = document.getElementById('siteswap-x-toggle-tricklist');
+                const showSiteswapX = siteswapXToggle && siteswapXToggle.checked;
+                groupedTricks[count].sort((a, b) => {
+                    return a.name.localeCompare(b.name);
+                }).forEach(trick => {
                     const trickItem = document.createElement('div');
                     trickItem.className = 'trick-item';
-                    
+
                     const trickContent = document.createElement('div');
                     trickContent.className = 'trick-content';
-                    
+
                     const trickMain = document.createElement('div');
                     trickMain.className = 'trick-main';
-                    
+
                     const name = document.createElement('span');
                     name.className = 'trick-name';
-                    name.textContent = trick.name || 'Unnamed Trick'; // Add fallback for empty names
-                    name.contentEditable = true;
-                    name.addEventListener('blur', function() {
-                        const newName = this.textContent.trim();
-                        if (newName) {
-                            trick.name = newName;
-                            frame.setAttribute('data-trick-name', newName);
-                        } else {
-                            this.textContent = trick.name || 'Unnamed Trick';
-                        }
-                    });
+                    name.textContent = showSiteswapX && trick.siteswap_x ? trick.siteswap_x : (trick.name || 'Unnamed Trick');
+                    name.contentEditable = false;
                     trickMain.appendChild(name);
-
-                    // Show siteswap-x notation if available
-                    const siteswapSpan = document.createElement('span');
-                    siteswapSpan.className = 'trick-siteswap-x';
-                    siteswapSpan.textContent = trick.siteswap_x ? ` [${trick.siteswap_x}]` : '';
-                    siteswapSpan.style.display = 'none';
-                    trickMain.appendChild(siteswapSpan);
-    // Siteswap-X toggle for trick options
-    function updateSiteswapXToggle() {
-        const toggleCheckbox = document.getElementById('siteswap-x-toggle-tricklist');
-        if (toggleCheckbox) {
-            const trickNames = document.querySelectorAll('.tricks-list .trick-name');
-            const trickSiteswaps = document.querySelectorAll('.tricks-list .trick-siteswap-x');
-            if (toggleCheckbox.checked) {
-                trickNames.forEach((el, i) => {
-                    if (trickSiteswaps[i] && trickSiteswaps[i].textContent.trim() && trickSiteswaps[i].textContent.replace(/\[|\]/g, '').trim() !== '') {
-                        el.style.display = 'none';
-                        trickSiteswaps[i].style.display = '';
-                    } else {
-                        el.style.display = '';
-                        if (trickSiteswaps[i]) trickSiteswaps[i].style.display = 'none';
-                    }
-                });
-            } else {
-                trickNames.forEach((el, i) => {
-                    el.style.display = '';
-                    if (trickSiteswaps[i]) trickSiteswaps[i].style.display = 'none';
-                });
-            }
-        }
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        const toggleCheckbox = document.getElementById('siteswap-x-toggle-tricklist');
-        if (toggleCheckbox) {
-            toggleCheckbox.addEventListener('change', updateSiteswapXToggle);
-        }
-    });
-
-    // Call updateSiteswapXToggle after updating tricks
-    function updateSearchTricks() {
-        // ...existing code...
-        // Display tricks grouped by props count
-        Object.keys(groupedTricks).sort((a, b) => parseInt(a) - parseInt(b)).forEach(count => {
-            // ...existing code for rendering tricks...
-        });
-        updateSiteswapXToggle();
+    // Siteswap-X toggle: just call updateSearchTricks on checkbox change
+    const toggleCheckbox = document.getElementById('siteswap-x-toggle-tricklist');
+    if (toggleCheckbox) {
+        toggleCheckbox.addEventListener('change', updateSearchTricks);
     }
                     
                     if (trick.comment) {
