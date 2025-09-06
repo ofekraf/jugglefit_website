@@ -1,4 +1,5 @@
 {% extends "utils/base.html" %}
+
 {% block title %}Create Your Own Route{% endblock %}
 {% block content %}
 <div class="route-page">
@@ -179,6 +180,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="{{ url_for('static', filename='js/siteswap_x_viewer.js') }}"></script>
 <script src="{{ url_for('static', filename='js/tricks_utils.js') }}"></script>
 <script src="{{ url_for('static', filename='js/general.js') }}"></script>
 
@@ -278,7 +280,12 @@
 
                     const name = document.createElement('span');
                     name.className = 'trick-name';
-                    name.textContent = showSiteswapX && trick.siteswap_x ? trick.siteswap_x : (trick.name || 'Unnamed Trick');
+                    if (showSiteswapX && trick.siteswap_x) {
+                        // Render formatted siteswap-x using JS function
+                        name.innerHTML = siteswapXViewer(trick.siteswap_x, '1em');
+                    } else {
+                        name.textContent = trick.name || 'Unnamed Trick';
+                    }
                     name.contentEditable = false;
                     trickMain.appendChild(name);
     // Siteswap-X toggle: just call updateSearchTricks on checkbox change

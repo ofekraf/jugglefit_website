@@ -1,3 +1,64 @@
+/* Global Siteswap-X viewer styles for all pages */
+
+
+.siteswap-x-visual {
+    display: inline-flex;
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 0.45em;
+    margin: 0.2em 0 0.5em 0;
+    position: relative;
+    z-index: 1;
+}
+.siteswap-x-space {
+    display: inline-block;
+    width: 0.45em;
+    min-width: 0.45em;
+    height: 1em;
+}
+}
+.siteswap-x-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 1.3em;
+    margin-bottom: 0.2em;
+    font-size: 1.18em;
+    line-height: 1.08;
+}
+.siteswap-x-row-multiline {
+    flex-wrap: wrap;
+    align-items: flex-end;
+}
+.siteswap-x-throw {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0 0.32em;
+    gap: 0.08em;
+}
+.siteswap-x-throw-mod {
+    font-size: 1em;
+    margin-bottom: -0.22em;
+    color: #8e24aa;
+    font-weight: 600;
+    min-height: 1.1em;
+    letter-spacing: 0.01em;
+}
+.siteswap-x-number {
+    font-size: 1.18em;
+    font-weight: 700;
+    color: #222;
+    letter-spacing: -0.04em;
+    padding: 0 0.07em;
+}
+.siteswap-x-catch-mod {
+    font-size: 1em;
+    margin-top: -0.22em;
+    color: #388e3c;
+    font-weight: 600;
+    min-height: 1.1em;
+    letter-spacing: 0.01em;
+}
 /* Center the siteswap-x toggle and style the checkbox/label */
 .siteswap-x-toggle {
     margin: 10px 0;

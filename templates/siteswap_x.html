@@ -1,5 +1,5 @@
 {% extends "utils/base.html" %}
-{% import 'macros/siteswap_x_viewer.html' as sx %}
+
 {% block title %}Siteswap X: Official Syntax Reference{% endblock %}
 {% block content %}
 <div class="container mt-4 mb-4 siteswap-x-article">
@@ -12,7 +12,7 @@
 		<h2>2. Throw and Catch Modifiers</h2>
 	<p>Modifiers are written <strong>above</strong> and <strong>below</strong> each <strong>siteswap digit</strong>. The <strong>throw modifier</strong> (and optional spin) appears <strong>above</strong> the digit, and the <strong>catch modifier</strong> appears <strong>below</strong> the digit. The format is:</p>
 				<span style="vertical-align:middle;">
-					{{ sx.siteswap_x_viewer(parse_siteswap_x('3{B/P}'), '1.5em') }}
+					<span id="js-sx-demo-1"></span>
 				</span>
 		<ul>
 				<li><strong>Throw modifier</strong>: Above the siteswap digit.</li>
@@ -51,55 +51,32 @@
 
 	<h2>3. Pattern Examples</h2>
 		<ul class="list-unstyled">
-			<li>
-				<div class="siteswap-x-row">
-					{{ sx.siteswap_x_viewer(parse_siteswap_x('3'), '1em') }}
-					<span class="text-muted">(3 props cascade)</span>
-				</div>
-			</li>
-			<li>
-				<div class="siteswap-x-row">
-					{{ sx.siteswap_x_viewer(parse_siteswap_x('5{B}'), '1em') }}
-					<span class="text-muted">(5 props backcrosses)</span>
-				</div>
-			</li>
-			<li>
-				<div class="siteswap-x-row">
-					{{ sx.siteswap_x_viewer(parse_siteswap_x('53{Ul}'), '1em') }}
-					<span class="text-muted">(53, under the leg 3)</span>
-				</div>
-			</li>
-			<li>
-				<div class="siteswap-x-row">
-					{{ sx.siteswap_x_viewer(parse_siteswap_x('4{S}'), '1em') }}
-					<span class="text-muted">(4 props shoulder throws)</span>
-				</div>
-			</li>
-			<li>
-				<div class="siteswap-x-row">
-					{{ sx.siteswap_x_viewer(parse_siteswap_x('53{B}4{/L}'), '1em') }}
-					<span class="text-muted">(534, backcross 3, lazy 4)</span>
-				</div>
-			</li>
-			<li>
-				<div class="siteswap-x-row">
-					{{ sx.siteswap_x_viewer(parse_siteswap_x('3{-1/L}'), '1em') }}
-					<span class="text-muted">(reverse spin singles caught as lazies)</span>
-				</div>
-			</li>
-			<li>
-				<div class="siteswap-x-row">
-					{{ sx.siteswap_x_viewer(parse_siteswap_x('4{S1/L}23{0}'), '1em') }}
-					<span class="text-muted">(423, shoulder caught as lazy 4 with single spin, flat 3)</span>
-				</div>
-			</li>
-			<li>
-				<div class="siteswap-x-row">
-					{{ sx.siteswap_x_viewer(parse_siteswap_x('3{RB}3{B}3{Ul}'), '1em') }}
-					<span class="text-muted">
-						<a href="https://www.instagram.com/reel/C7rKqWyMc_j/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==" target="_blank">Video example</a>
-					</span>
-				</div>
-			</li>
+			<li><div id="js-sx-demo-2"></div></li>
+			<li><div id="js-sx-demo-3"></div></li>
+			<li><div id="js-sx-demo-4"></div></li>
+			<li><div id="js-sx-demo-5"></div></li>
+			<li><div id="js-sx-demo-6"></div></li>
+			<li><div id="js-sx-demo-7"></div></li>
+			<li><div id="js-sx-demo-8"></div></li>
+			<li><div id="js-sx-demo-9"></div></li>
+<script src="/static/js/siteswap_x_viewer.js"></script>
+<script>
+document.getElementById('js-sx-demo-1').innerHTML = siteswapXViewer('3{B/P}', '1.5em');
+const sxExamples = [
+	{ id: 'js-sx-demo-2', pattern: '3', label: '3 props cascade' },
+	{ id: 'js-sx-demo-3', pattern: '5{B}', label: '5 props backcrosses' },
+	{ id: 'js-sx-demo-4', pattern: '53{Ul}', label: '53, under the leg 3' },
+	{ id: 'js-sx-demo-5', pattern: '4{S}', label: '4 props shoulder throws' },
+	{ id: 'js-sx-demo-6', pattern: '53{B}4{/L}', label: '534, backcross 3, lazy 4' },
+	{ id: 'js-sx-demo-7', pattern: '3{-1/L}', label: 'reverse spin singles caught as lazies' },
+	{ id: 'js-sx-demo-8', pattern: '4{S1/L}23{0}', label: '423, shoulder caught as lazy 4 with single spin, flat 3' },
+	{ id: 'js-sx-demo-9', pattern: '3{RB}3{B}3{Ul}', label: '<a href="https://www.instagram.com/reel/C7rKqWyMc_j/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==" target="_blank">Video example</a>' }
+];
+sxExamples.forEach(({ id, pattern, label }) => {
+	const el = document.getElementById(id);
+	el.className = 'siteswap-x-row';
+	el.innerHTML = `<span>${siteswapXViewer(pattern, '1em')}</span> <span class="text-muted">(${label})</span>`;
+});
+</script>
 		</ul>
 {% endblock %}
