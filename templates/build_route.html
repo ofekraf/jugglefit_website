@@ -44,6 +44,11 @@
         <!-- Route Display -->
         <div class="form-section">
             <label class="form-label">Your Route</label>
+        <div class="siteswap-x-toggle-row center-row">
+            <label class="siteswap-x-toggle-label">
+                <input type="checkbox" id="toggle-route-siteswap-x-checkbox" onchange="toggleRouteSiteswapX()" class="siteswap-x-toggle-checkbox"> Siteswap-X
+            </label>
+        </div>
             <div class="route-container">
                 <div class="route-content">
                     <div class="route-sections" id="route-sections">
@@ -145,6 +150,11 @@
 
         <div class="form-section">
             <label class="form-label">Available Tricks</label>
+            <div class="siteswap-x-toggle-row center-row">
+                <label class="siteswap-x-toggle-label">
+                    <input type="checkbox" id="toggle-available-siteswap-x-checkbox" onchange="toggleAvailableSiteswapX()" class="siteswap-x-toggle-checkbox"> Siteswap-X
+                </label>
+            </div>
             <div class="tricks-container">
                 <div class="tricks-column">
                     <div id="all_tricks" class="tricks-grid">
@@ -176,6 +186,56 @@
 
 <!-- Pass Flask data to JavaScript -->
 <script>
+    // Ensure Siteswap-X toggle works after route display updates
+    document.addEventListener('DOMContentLoaded', function() {
+        const routeSections = document.getElementById('route-sections');
+        if (routeSections) {
+            const observer = new MutationObserver(toggleRouteSiteswapX);
+            observer.observe(routeSections, { childList: true, subtree: true });
+        }
+    });
+    // Siteswap-X toggle for Your Route (route display)
+    function toggleRouteSiteswapX() {
+        var checked = document.getElementById('toggle-route-siteswap-x-checkbox').checked;
+        var trickNames = document.querySelectorAll('#route-sections .trick-name');
+        var siteswapXs = document.querySelectorAll('#route-sections .trick-siteswap-x');
+        for (var i = 0; i < trickNames.length; i++) {
+            var siteswapText = siteswapXs[i] ? siteswapXs[i].textContent.trim() : '';
+            var hasSiteswap = siteswapText !== '' && siteswapText.toLowerCase() !== 'none';
+            if (checked && hasSiteswap) {
+                trickNames[i].style.display = 'none';
+                siteswapXs[i].style.display = '';
+            } else {
+                trickNames[i].style.display = '';
+                if (siteswapXs[i]) siteswapXs[i].style.display = 'none';
+            }
+        }
+    }
+    // Siteswap-X toggle for Available Tricks
+    function toggleAvailableSiteswapX() {
+        var checked = document.getElementById('toggle-available-siteswap-x-checkbox').checked;
+        var trickNames = document.querySelectorAll('#all_tricks .trick-name');
+        var siteswapXs = document.querySelectorAll('#all_tricks .trick-siteswap-x');
+        for (var i = 0; i < trickNames.length; i++) {
+            var siteswapText = siteswapXs[i] ? siteswapXs[i].textContent.trim() : '';
+            var hasSiteswap = siteswapText !== '' && siteswapText.toLowerCase() !== 'none';
+            if (checked && hasSiteswap) {
+                trickNames[i].style.display = 'none';
+                siteswapXs[i].style.display = '';
+            } else {
+                trickNames[i].style.display = '';
+                if (siteswapXs[i]) siteswapXs[i].style.display = 'none';
+            }
+        }
+    }
+    // Re-apply toggle after tricks are rendered
+    document.addEventListener('DOMContentLoaded', function() {
+        const observer = new MutationObserver(toggleAvailableSiteswapX);
+        const tricksGrid = document.getElementById('all_tricks');
+        if (tricksGrid) {
+            observer.observe(tricksGrid, { childList: true, subtree: true });
+        }
+    });
     // Constants from trick.py
     const MIN_TRICK_PROPS_COUNT = parseInt('{{ MIN_TRICK_PROPS_COUNT }}');
     const MAX_TRICK_PROPS_COUNT = parseInt('{{ MAX_TRICK_PROPS_COUNT }}');
@@ -257,52 +317,56 @@
                 groupedTricks[count].sort((a, b) => a.name.localeCompare(b.name)).forEach(trick => {
                     const trickItem = document.createElement('div');
                     trickItem.className = 'trick-item';
-                    
-                    const trickContent = document.createElement('div');
-                    trickContent.className = 'trick-content';
-                    
-                    const trickMain = document.createElement('div');
-                    trickMain.className = 'trick-main';
-                    
+
+                    // Trick container (matches macros/trick_container.html)
+                    const trickContainer = document.createElement('div');
+                    trickContainer.className = 'trick-container';
+
+                    // Trick name
                     const name = document.createElement('span');
                     name.className = 'trick-name';
-                    name.textContent = trick.name || 'Unnamed Trick'; // Add fallback for empty names
+                    name.textContent = trick.name || 'Unnamed Trick';
                     name.contentEditable = true;
                     name.addEventListener('blur', function() {
                         const newName = this.textContent.trim();
                         if (newName) {
                             trick.name = newName;
-                            frame.setAttribute('data-trick-name', newName);
                         } else {
                             this.textContent = trick.name || 'Unnamed Trick';
                         }
                     });
-                    trickMain.appendChild(name);
-                    
+                    trickContainer.appendChild(name);
+
+                    // Siteswap-x
+                    const siteswap = document.createElement('span');
+                    siteswap.className = 'trick-siteswap-x';
+                    siteswap.style.display = 'none';
+                    siteswap.textContent = trick.siteswap_x || '';
+                    trickContainer.appendChild(siteswap);
+
+                    // Comment
                     if (trick.comment) {
                         const comment = document.createElement('span');
                         comment.className = 'trick-comment';
                         comment.textContent = ` [${trick.comment}]`;
                         comment.contentEditable = true;
                         comment.addEventListener('blur', function() {
-                            const newComment = this.textContent.replace(/[\[\]]/g, '').trim();
+                            const newComment = this.textContent.replace(/\[|\]/g, '').trim();
                             trick.comment = newComment;
                             this.textContent = newComment ? ` [${newComment}]` : '';
                         });
-                        trickMain.appendChild(comment);
+                        trickContainer.appendChild(comment);
                     }
-                    
-                    trickContent.appendChild(trickMain);
-                    
+
+                    // Add button
                     const addButton = document.createElement('button');
                     addButton.className = 'add-trick';
                     addButton.textContent = 'Add';
                     addButton.onclick = () => addTrickToRoute(trick);
-                    
-                    // Append both the trick content and add button to the trick item
-                    trickItem.appendChild(trickContent);
+
+                    // Append trick container and add button to trick item
+                    trickItem.appendChild(trickContainer);
                     trickItem.appendChild(addButton);
-                    
                     tricksList.appendChild(trickItem);
                 });
                 
@@ -506,7 +570,8 @@
                 number.className = 'trick-number';
                 number.textContent = `${trickCounter}.`;
                 trickMain.appendChild(number);
-                
+
+                // Trick name
                 const name = document.createElement('span');
                 name.className = 'trick-name';
                 name.textContent = trick.name;
@@ -521,7 +586,14 @@
                     }
                 });
                 trickMain.appendChild(name);
-                
+
+                // Siteswap-x (hidden by default)
+                const siteswap = document.createElement('span');
+                siteswap.className = 'trick-siteswap-x';
+                siteswap.style.display = 'none';
+                siteswap.textContent = trick.siteswap_x || '';
+                trickMain.appendChild(siteswap);
+
                 if (trick.comment) {
                     const comment = document.createElement('span');
                     comment.className = 'trick-comment';
@@ -534,7 +606,7 @@
                     });
                     trickMain.appendChild(comment);
                 }
-                
+
                 trickContent.appendChild(trickMain);
                 
                 const removeButton = document.createElement('button');

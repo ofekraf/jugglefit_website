@@ -2,9 +2,11 @@
 <div class="route-page">
     <div class="route-header">
         <h1 class="route-title">{{ route.name }}</h1>
-        <label style="margin-left: 1em; font-weight: normal;">
-            <input type="checkbox" id="toggle-siteswap-x-checkbox" onchange="toggleAllSiteswapX()"> Show Siteswap-X for all
-        </label>
+        <div class="siteswap-x-toggle-row center-row">
+            <label class="siteswap-x-toggle-label">
+                <input type="checkbox" id="toggle-siteswap-x-checkbox" onchange="toggleAllSiteswapX()" class="siteswap-x-toggle-checkbox"> Siteswap-X
+            </label>
+        </div>
     </div>
 
     <div class="route-container">
@@ -31,12 +33,10 @@
                     <div class="prop-details-frame">
                         <div class="trick-content">
                             <div class="trick-main">
-                                <span class="trick-number">{{ trick_counter.count }}.</span>
-                                    <span class="trick-name" id="trick-name-{{ trick_counter.count }}">{{ trick.name }}</span>
-                                    <span class="trick-siteswap-x" id="trick-siteswap-x-{{ trick_counter.count }}" style="display:none;">{{ trick.siteswap_x }}</span>
-                                    {% if trick.comment %}
-                                        <span class="trick-comment">[{{ trick.comment }}]</span>
-                                    {% endif %}
+                                <span class="trick-number-and-name">
+                                    <span class="trick-number">{{ trick_counter.count }}.</span>
+                                    {% include 'macros/trick_container.html' %}
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -47,6 +47,22 @@
                 {% endfor %}
             </div>
             <script>
+function toggleAllSiteswapX() {
+    var checked = document.getElementById('toggle-siteswap-x-checkbox').checked;
+    var trickNames = document.querySelectorAll('.trick-name');
+    var siteswapXs = document.querySelectorAll('.trick-siteswap-x');
+    for (var i = 0; i < trickNames.length; i++) {
+        var siteswapText = siteswapXs[i] ? siteswapXs[i].textContent.trim() : '';
+        var hasSiteswap = siteswapText !== '' && siteswapText.toLowerCase() !== 'none';
+        if (checked && hasSiteswap) {
+            trickNames[i].style.display = 'none';
+            siteswapXs[i].style.display = '';
+        } else {
+            trickNames[i].style.display = '';
+            if (siteswapXs[i]) siteswapXs[i].style.display = 'none';
+        }
+    }
+}
             function toggleAllSiteswapX() {
                 var checked = document.getElementById('toggle-siteswap-x-checkbox').checked;
                 var trickNames = document.querySelectorAll('.trick-name');
@@ -65,6 +81,7 @@
                 }
             }
             </script>
+</script>
         </div>
     </div>
 </div>

@@ -1,0 +1,8 @@
+{# templates/macros/trick_container.html #}
+<div class="trick-container">
+    <span class="trick-name">{{ trick.name }}</span>
+    <span class="trick-siteswap-x" style="display:none;">{{ trick.siteswap_x }}</span>
+    {% if trick.comment %}
+        <span class="trick-comment">[{{ trick.comment }}]</span>
+    {% endif %}
+</div>

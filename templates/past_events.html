@@ -11,7 +11,7 @@
     <div class="past-event-button-container">
         <button class="past-event-button primary-button" onclick="toggle_object('{{event.name}}')">{{ event.name }}</button>
     </div>
-    <div class="past-event-container" id="{{ event.name }}"  style="display: none">
+    <div class="past-event-container hidden" id="{{ event.name }}">
         <ul>
             <li><strong>Date: </strong>{{ event.date.strftime('%d/%m/%Y') }}</li>
             <li><strong>Location: </strong>{{ event.location }}</li>
@@ -34,7 +34,7 @@
                             <button class="primary-button" onclick="toggle_object('{{ event.name }}+{{ result.route.name }}')">Show Route</button>
                         </div>
                         {% set route_container_id = event.name ~ "+" ~ result.route.name %}
-                        <div class="route-container" id="{{ route_container_id }}" style="display: none">
+                        <div class="route-container hidden" id="{{ route_container_id }}">
                             {% with route=result.route %}
                                 {% include "macros/route_display.html" %}
                                 <a href="/created_route?route={{ result.route.serialize() | urlencode }}" class="primary-button outline">Try it Yourself</a>

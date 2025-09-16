@@ -1,3 +1,60 @@
+/* Center the siteswap-x toggle row */
+.center-row {
+    justify-content: center;
+}
+.trick-number-and-name {
+    display: flex;
+    align-items: center;
+    gap: 0.4em;
+}
+/* Utility class for hiding elements (replaces inline style="display:none;") */
+.hidden {
+    display: none !important;
+}
+/* Route Display: Siteswap-X Toggle Checkbox and Alignment (shared for build_route, etc.) */
+.siteswap-x-toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 1em;
+    margin-top: 0.5em;
+}
+.siteswap-x-toggle-label {
+    display: flex;
+    align-items: center;
+    font-weight: normal;
+    gap: 0.4em;
+    font-size: 1em;
+}
+.siteswap-x-toggle-checkbox,
+.trick-checkbox {
+    width: 1.1em;
+    height: 1.1em;
+    vertical-align: middle;
+    accent-color: #0078d4;
+    margin-right: 0.3em;
+}
+/* Route Display: Siteswap-X Toggle Checkbox and Alignment */
+.siteswap-x-toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 1em;
+    margin-top: 0.5em;
+}
+.siteswap-x-toggle-label {
+    display: flex;
+    align-items: center;
+    font-weight: normal;
+    gap: 0.4em;
+    font-size: 1em;
+}
+.siteswap-x-toggle-checkbox,
+.trick-checkbox {
+    width: 1.1em;
+    height: 1.1em;
+    vertical-align: middle;
+    accent-color: #0078d4;
+    margin-right: 0.3em;
+}
 /* Import Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
