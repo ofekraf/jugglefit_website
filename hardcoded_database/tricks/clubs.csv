@@ -12,7 +12,7 @@ name,props_count,difficulty,tags,comment,max_throw
 "441 -> 66300 3up 360 -> 441",3,39,"360 spin|async siteswap",,6
 "cascade -> 1up 720 -> flats",3,38,"720 spin",,1
 "9440022 3up 2-stage -> cascade",3,44,"multi stage",,9
-"backrosses -> 3up 360 in backrosses -> backrosses",3,52,"360 spin|backcrosses",,5
+"backcrosses -> 3up 360 in backcrosses -> backcrosses",3,52,"360 spin|backcrosses",,5
 "3up 360 -> 1up 360 -> 3up 360",3,44,"360 spin",,5
 "sync fountain -> (8,8)(4,4)(0,0) 4up 360 -> sync fountain",4,46,"360 spin|sync siteswap",,8
 "async fountain -> 955500 4up 360 -> async fountain",4,48,"360 spin|async siteswap",,9
@@ -47,20 +47,20 @@ name,props_count,difficulty,tags,comment,max_throw
 "6c fountain -> 6c 864 -> 6c fountain",6,74,"async siteswap",,8
 "10c 77781",6,81,"async siteswap","entrance: 7",7
 "cascade -> 3c 966",7,78,"async siteswap",,9
-"20c backrosses",3,33,"backcrosses",,3
+"20c backcrosses",3,33,"backcrosses",,3
 "under the leg throws",3,26,"under legs",,3
 "lazies",3,24,"lazies",,3
 "24c 423, shoulder throw 4",3,33,"shoulders|async siteswap",,4
 "12c 423, shoulder throw lazy 4",3,35,"shoulders|lazies|async siteswap",,4
-"lazies -> backrosses",3,34,"lazies|backcrosses",,3
-"4c backcrosses singles -> 4c backrosses doubles -> 4c backrosses triples ",3,32,"backcrosses|spin control",,4
+"lazies -> backcrosses",3,34,"lazies|backcrosses",,3
+"4c backcrosses singles -> 4c backcrosses doubles -> 4c backcrosses triples ",3,32,"backcrosses|spin control",,4
 "overheads",4,42,"overheads",,4
-"534, backross 5",4,45,"backcrosses|async siteswap",,5
-"552 -> 6c 552, backrosses 5's -> 552",4,47,"backcrosses|async siteswap",,5
-"5c cascade -> 4c 7733, backrosses 3's -> cascade",5,65,"backcrosses|async siteswap",,7
-"20c triples backrosses",5,58,"backcrosses",,5
+"534, backcross 5",4,45,"backcrosses|async siteswap",,5
+"552 -> 6c 552, backcrosses 5's -> 552",4,47,"backcrosses|async siteswap",,5
+"5c cascade -> 4c 7733, backcrosses 3's -> cascade",5,65,"backcrosses|async siteswap",,7
+"20c triples backcrosses",5,58,"backcrosses",,5
 "cascade -> 5c 94444, lazies 4's -> cascade",5,68,"lazies|async siteswap",,9
-"6c ANY -> 4c 9555, backrosses 5's -> 6c ANY",6,83,"backcrosses|async siteswap",,9
+"6c ANY -> 4c 9555, backcrosses 5's -> 6c ANY",6,83,"backcrosses|async siteswap",,9
 "20c reverse spin singles",3,24,"spin control",,3
 "10c helicopters",3,30,"spin control",,3
 "30c flats",3,25,"spin control|flats",,3

@@ -30,7 +30,9 @@ class Route:
                 'props_count': trick.props_count,
                 'difficulty': trick.difficulty,
                 'tags': [str(tag) for tag in trick.tags] if trick.tags else [],
-                'comment': trick.comment
+                'comment': trick.comment,
+                'max_throw': trick.max_throw,
+                'siteswap_x': trick.siteswap_x
             } for trick in self.tricks]
         }
 

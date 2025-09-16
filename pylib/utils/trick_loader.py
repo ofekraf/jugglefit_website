@@ -24,5 +24,7 @@ def load_tricks_from_csv(csv_path: str) -> List[Trick]:
 							raise Exception(f"Invalid tag value {tag_str} for trick {name} in {csv_path}")
 			comment = row.get('comment', '')
 			max_throw = int(row['max_throw']) if 'max_throw' in row and row['max_throw'] else None
-			tricks.append(Trick(name=name, props_count=props_count, difficulty=difficulty, tags=tags, comment=comment, max_throw=max_throw))
+			siteswap_x = row.get('siteswap_x') if 'siteswap_x' in row else None
+			tricks.append(Trick(name=name, props_count=props_count, difficulty=difficulty, tags=tags, comment=comment, max_throw=max_throw, siteswap_x=siteswap_x))
+
 	return tricks 

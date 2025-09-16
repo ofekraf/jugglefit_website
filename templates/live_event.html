@@ -1,4 +1,4 @@
-{% extends "utils/base.html" %}
+{% extends "macros/base.html" %}
 {% block title %}Live Event - {{ route.name }}{% endblock %}
 {% block content %}
 <div class="live-event-page">
@@ -40,7 +40,7 @@
         <!-- Right Side - Route Map -->
         <div class="route-section">
             <div class="route-content">
-                {% include "utils/route_display.html" %}
+                {% include "macros/route_display.html" %}
             </div>
         </div>
     </div>
