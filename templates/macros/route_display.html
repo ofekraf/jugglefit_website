@@ -46,7 +46,7 @@
                     {% endif %}
                 {% endfor %}
             </div>
-            <script>
+<script>
 function toggleAllSiteswapX() {
     var checked = document.getElementById('toggle-siteswap-x-checkbox').checked;
     var trickNames = document.querySelectorAll('.trick-name');
@@ -63,24 +63,6 @@ function toggleAllSiteswapX() {
         }
     }
 }
-            function toggleAllSiteswapX() {
-                var checked = document.getElementById('toggle-siteswap-x-checkbox').checked;
-                var trickNames = document.querySelectorAll('.trick-name');
-                var siteswapXs = document.querySelectorAll('.trick-siteswap-x');
-                for (var i = 0; i < trickNames.length; i++) {
-                    var hasName = trickNames[i].textContent.trim() !== '';
-                    var siteswapText = siteswapXs[i].textContent.trim();
-                    var hasSiteswap = siteswapText !== '' && siteswapText.toLowerCase() !== 'none';
-                    if (checked && hasSiteswap) {
-                        trickNames[i].style.display = 'none';
-                        siteswapXs[i].style.display = '';
-                    } else {
-                        trickNames[i].style.display = '';
-                        siteswapXs[i].style.display = 'none';
-                    }
-                }
-            }
-            </script>
 </script>
         </div>
     </div>
