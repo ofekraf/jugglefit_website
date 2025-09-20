@@ -1,3 +1,61 @@
+/* Ensure trick-container is tall enough for siteswap-x with modifiers */
+.trick-container, .trick-main {
+    min-height: 3.6em;
+    display: flex;
+    align-items: center;
+    padding-top: 0.7em;
+    padding-bottom: 0.7em;
+}
+.trick-siteswap-x {
+    min-height: 2.8em;
+    display: inline-flex;
+    align-items: center;
+    padding-top: 0.3em;
+    padding-bottom: 0.3em;
+}
+/* Siteswap-X Modifiers Styling */
+.siteswap-x-digit-container {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    margin: 0 0.18em;
+    min-width: 1.2em;
+    font-size: 1.15em;
+    font-family: inherit;
+    font-weight: bold;
+}
+.siteswap-x-throw-mod {
+    color: #d32f2f;
+    font-size: 1em;
+    position: absolute;
+    top: -1.2em;
+    left: 50%;
+    transform: translateX(-50%);
+    font-weight: bold;
+    pointer-events: none;
+    white-space: nowrap;
+    font-family: inherit;
+}
+.siteswap-x-digit {
+    font-size: 1em;
+    font-weight: bold;
+    line-height: 1.1em;
+    white-space: pre;
+    font-family: inherit;
+}
+.siteswap-x-catch-mod {
+    color: #1976d2;
+    font-size: 1em;
+    position: absolute;
+    bottom: -1.2em;
+    left: 50%;
+    transform: translateX(-50%);
+    font-weight: bold;
+    pointer-events: none;
+    white-space: nowrap;
+    font-family: inherit;
+}
 /* Unify tag filtering styles for build_route and generate_route */
 .tag-category-title-available,
 .tag-category-title {

@@ -344,11 +344,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
                     trickContainer.appendChild(name);
 
-                    // Siteswap-x
+                    // Siteswap-x (formatted)
                     const siteswap = document.createElement('span');
                     siteswap.className = 'trick-siteswap-x';
                     siteswap.style.display = 'none';
-                    siteswap.textContent = trick.siteswap_x || '';
+                    siteswap.innerHTML = window.formatSiteswapX ? window.formatSiteswapX(trick.siteswap_x) : (trick.siteswap_x || '');
                     trickContainer.appendChild(siteswap);
 
                     // Comment
@@ -691,11 +691,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
                 trickMain.appendChild(name);
 
-                // Siteswap-x (hidden by default)
+                // Siteswap-x (formatted, hidden by default)
                 const siteswap = document.createElement('span');
                 siteswap.className = 'trick-siteswap-x';
                 siteswap.style.display = 'none';
-                siteswap.textContent = trick.siteswap_x || '';
+                siteswap.innerHTML = window.formatSiteswapX ? window.formatSiteswapX(trick.siteswap_x) : (trick.siteswap_x || '');
                 trickMain.appendChild(siteswap);
 
                 if (trick.comment) {

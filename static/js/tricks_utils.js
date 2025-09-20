@@ -1,3 +1,44 @@
+// Format a siteswap-x string with throw/catch modifiers as HTML
+// Example: 5{a/b} -> 5 with 'a' above in red, 'b' below in blue
+function formatSiteswapX(siteswap) {
+    if (!siteswap) return '';
+    // Match throw (multi-char), optional {mod} or {mod1/mod2}
+    // e.g. 10c{N}, 3{a/b}, 975{foo/bar}
+    // Also preserve non-matching text (arrows, spaces, etc.)
+    const regex = /(\w+)(\{([^{}\/]*)?(?:\/([^{}]*)?)?\})?/g;
+    let result = '';
+    let lastIndex = 0;
+    let match;
+    while ((match = regex.exec(siteswap)) !== null) {
+        // Add any text between matches (arrows, spaces, etc.)
+        if (match.index > lastIndex) {
+            result += siteswap.slice(lastIndex, match.index);
+        }
+        const throwVal = match[1];
+        const hasMod = !!match[2];
+        let throwMod = '', catchMod = '';
+        if (hasMod) {
+            if (match[4]) {
+                throwMod = match[3] || '';
+                catchMod = match[4] || '';
+            } else {
+                throwMod = match[3] || '';
+            }
+        }
+        result += `<span class="siteswap-x-digit-container">`;
+        if (throwMod) result += `<span class="siteswap-x-throw-mod">${throwMod}</span>`;
+        result += `<span class="siteswap-x-digit">${throwVal}</span>`;
+        if (catchMod) result += `<span class="siteswap-x-catch-mod">${catchMod}</span>`;
+        result += `</span>`;
+        lastIndex = regex.lastIndex;
+    }
+    // Add any trailing text
+    if (lastIndex < siteswap.length) {
+        result += siteswap.slice(lastIndex);
+    }
+    return result;
+}
+window.formatSiteswapX = formatSiteswapX;
 // Generalized function to toggle all trick names/siteswap-x in a given container
 // containerSelector: CSS selector for the container holding the tricks (e.g., '#all_tricks')
 // checkboxId: ID of the controlling checkbox (e.g., 'toggle-alltricks-siteswap-x-checkbox')

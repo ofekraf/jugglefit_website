@@ -63,6 +63,16 @@ function toggleAllSiteswapX() {
         }
     }
 }
+// Format all siteswap-x spans using the JS formatter (if available)
+document.addEventListener('DOMContentLoaded', function() {
+    if (window.formatSiteswapX) {
+        document.querySelectorAll('.trick-siteswap-x').forEach(function(el) {
+            if (el.textContent && el.textContent.trim() !== '') {
+                el.innerHTML = window.formatSiteswapX(el.textContent);
+            }
+        });
+    }
+});
 </script>
         </div>
     </div>
