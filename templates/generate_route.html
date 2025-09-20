@@ -81,7 +81,7 @@
                     <input type="checkbox" id="max-throw-enabled" class="form-checkbox">
                     <label for="max-throw-enabled" class="checkbox-label">Limit maximum throw height</label>
                 </div>
-                <div id="max-throw-input-container" class="max-throw-input-container hidden">
+                <div id="max-throw-input-container" class="max-throw-input-container" style="display: none;">
                     <div class="slider-container">
                         <div class="slider-wrapper">
                             <input type="range" id="max-throw-slider" min="5" max="15" value="10" class="custom-range">
@@ -270,56 +270,33 @@
         routeDurationInput.value = minutes;
     });
 
-    // Handle max throw checkbox and slider
-    const maxThrowEnabled = document.getElementById('max-throw-enabled');
-    const maxThrowContainer = document.getElementById('max-throw-input-container');
-    const maxThrowSlider = document.getElementById('max-throw-slider');
-    const maxThrowValue = document.getElementById('max-throw-value');
-    const maxThrowInput = document.getElementById('max-throw-input');
+    // Max Throw UI logic (match build_route.html)
+    document.addEventListener('DOMContentLoaded', function() {
+        const maxThrowEnabled = document.getElementById('max-throw-enabled');
+        const maxThrowContainer = document.getElementById('max-throw-input-container');
+        const maxThrowSlider = document.getElementById('max-throw-slider');
+        const maxThrowValue = document.getElementById('max-throw-value');
+        const maxThrowInput = document.getElementById('max-throw-input');
 
-    // Toggle max throw input visibility
-    maxThrowEnabled.addEventListener('change', () => {
-        if (maxThrowEnabled.checked) {
-            maxThrowContainer.style.display = 'block';
-            const maxThrow = parseInt(maxThrowSlider.value);
-            maxThrowInput.value = maxThrow;
-        } else {
-            maxThrowContainer.style.display = 'none';
-            maxThrowInput.value = '';
-        }
-        
-        // Refetch tricks with new max throw filter
-        const currentProp = document.querySelector('.prop-option-input:checked');
-        if (currentProp) {
-            const maxThrowParam = maxThrowEnabled.checked ? parseInt(maxThrowSlider.value) : null;
-            fetchTricks({ propType: currentProp.value, maxThrow: maxThrowParam })
-                .then(tricks => {
-                    allTricks = tricks;
-                })
-                .catch(error => {
-                    console.error('Error fetching tricks:', error);
-                });
-        }
-    });
-
-    // Update the value displayed next to the "Max Throw" slider
-    maxThrowSlider.addEventListener('input', () => {
-        const maxThrow = parseInt(maxThrowSlider.value);
-        maxThrowValue.textContent = maxThrow;
-        if (maxThrowEnabled.checked) {
-            maxThrowInput.value = maxThrow;
-            
-            // Refetch tricks with new max throw filter
-            const currentProp = document.querySelector('.prop-option-input:checked');
-            if (currentProp) {
-                fetchTricks({ propType: currentProp.value, maxThrow: maxThrow })
-                    .then(tricks => {
-                        allTricks = tricks;
-                    })
-                    .catch(error => {
-                        console.error('Error fetching tricks:', error);
-                    });
+        function updateMaxThrowUI() {
+            if (maxThrowEnabled.checked) {
+                maxThrowContainer.style.display = 'block';
+                maxThrowInput.value = maxThrowSlider.value;
+            } else {
+                maxThrowContainer.style.display = 'none';
+                maxThrowInput.value = '';
             }
+        }
+        if (maxThrowEnabled && maxThrowContainer) {
+            maxThrowEnabled.addEventListener('change', updateMaxThrowUI);
+            maxThrowSlider.addEventListener('input', function() {
+                maxThrowValue.textContent = maxThrowSlider.value;
+                if (maxThrowEnabled.checked) {
+                    maxThrowInput.value = maxThrowSlider.value;
+                }
+            });
+            // Set initial state
+            updateMaxThrowUI();
         }
     });
 

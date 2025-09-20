@@ -1,3 +1,86 @@
+/* Unify tag filtering styles for build_route and generate_route */
+.tag-category-title-available,
+.tag-category-title {
+    margin: 0;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    flex-grow: 1;
+    color: var(--text-color);
+    font-size: 1rem;
+}
+
+.tag-checkbox-available,
+.tag-checkbox {
+    cursor: pointer;
+    font-size: 1.2rem;
+    font-family: inherit;
+    color: var(--text-color);
+}
+
+.category-checkbox-available,
+.category-checkbox {
+    margin-right: 8px;
+    cursor: pointer;
+}
+
+.tags-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.tag-category-available,
+.tag-category {
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    position: relative;
+    background-color: var(--section-bg);
+    width: 100%;
+}
+
+.tag-category-header-available,
+.tag-category-header {
+    padding: 10px;
+    background-color: var(--section-bg);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.tag-category-content-available,
+.tag-category-content {
+    padding: 10px;
+    background-color: var(--background-color);
+    max-height: 0;
+    overflow: hidden;
+    transition: all 0.3s ease-out;
+    position: absolute;
+    width: 100%;
+    z-index: 1;
+    box-shadow: 0 4px 8px var(--shadow-color);
+    border-radius: 0 0 4px 4px;
+    opacity: 0;
+    visibility: hidden;
+}
+
+.tag-category-available:hover .tag-category-content-available,
+.tag-category:hover .tag-category-content {
+    max-height: 1000px;
+    opacity: 1;
+    visibility: visible;
+}
+
+.checkbox-container {
+    margin: 5px 0;
+    padding-left: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
 /* Center the siteswap-x toggle row */
 .center-row {
     justify-content: center;
