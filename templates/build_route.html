@@ -12,10 +12,8 @@ if (typeof currentRoute === 'undefined') {
 }
 </script>
 <script>
-// Ensure initialRoute is defined to avoid ReferenceError
-if (typeof initialRoute === 'undefined') {
-    var initialRoute = null;
-}
+// Expose initial_route from Flask as window.initialRoute for JS
+window.initialRoute = {{ initial_route|tojson|safe }};
 </script>
 <script>
 // Initialize props and difficulty sliders after DOM and allTricks are ready
@@ -120,11 +118,6 @@ document.addEventListener('DOMContentLoaded', function() {
         <!-- Route display container (for JS to render route tricks) -->
         <div class="form-section">
             <label class="form-label">Your Route</label>
-            <div class="siteswap-x-toggle-row center-row">
-                <label class="siteswap-x-toggle-label">
-                    <input type="checkbox" id="toggle-route-siteswap-x-checkbox" onchange="toggleRouteSiteswapX()" class="siteswap-x-toggle-checkbox"> Siteswap-X
-                </label>
-            </div>
             <div class="route-container">
                 <div class="route-content">
                     <div class="route-sections" id="route-sections">
@@ -137,6 +130,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     <button type="button" id="view_route" class="primary-button">View Route</button>
                 </div>
             </div>
+        </div>
+
+        <div class="siteswap-x-toggle-row center-row">
+            <label class="siteswap-x-toggle-label">
+                <input type="checkbox" id="toggle-route-siteswap-x-checkbox" onchange="toggleSiteswapXEverywhere()" class="siteswap-x-toggle-checkbox"> Siteswap-X
+            </label>
         </div>
 
         <!-- Add Custom Trick Section -->
@@ -171,6 +170,7 @@ document.addEventListener('DOMContentLoaded', function() {
       <div class="route-form">
         <h4 class="subsection-title">Add Tricks</h4>
         <label class="form-label">Available Tricks</label>
+
         <div class="form-section">
             <label class="form-label">Number of Props</label>
             <div class="slider-container">
@@ -266,13 +266,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <!-- Pass Flask data to JavaScript -->
 <script>
-    // Ensure Siteswap-X toggle works after route display updates
+    // Siteswap-X toggle is unified for both route and available tricks
     document.addEventListener('DOMContentLoaded', function() {
-        const routeSections = document.getElementById('route-sections');
-        if (routeSections) {
-            const observer = new MutationObserver(toggleRouteSiteswapX);
-            observer.observe(routeSections, { childList: true, subtree: true });
-        }
         function updateSearchTricks() {
             // Get values from sliders and inputs
             const propsSlider = document.getElementById('props-slider');
@@ -338,6 +333,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     name.className = 'trick-name';
                     name.textContent = trick.name || 'Unnamed Trick';
                     name.contentEditable = true;
+                    name.style.display = 'inline';
                     name.addEventListener('blur', function() {
                         const newName = this.textContent.trim();
                         if (newName) {

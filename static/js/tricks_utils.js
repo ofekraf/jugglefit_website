@@ -1,3 +1,26 @@
+// Generalized function to toggle all trick names/siteswap-x in a given container
+// containerSelector: CSS selector for the container holding the tricks (e.g., '#all_tricks')
+// checkboxId: ID of the controlling checkbox (e.g., 'toggle-alltricks-siteswap-x-checkbox')
+function toggleAllTricksSiteswapX(containerSelector = '#all_tricks', checkboxId = 'toggle-alltricks-siteswap-x-checkbox') {
+    var checked = document.getElementById(checkboxId)?.checked;
+    var tricksGrid = document.querySelector(containerSelector);
+    if (!tricksGrid) return;
+    var trickNames = tricksGrid.querySelectorAll('.trick-name');
+    var siteswapXs = tricksGrid.querySelectorAll('.trick-siteswap-x');
+    for (var i = 0; i < trickNames.length; i++) {
+        var siteswapText = siteswapXs[i] ? siteswapXs[i].textContent.trim() : '';
+        var hasSiteswap = siteswapText !== '' && siteswapText.toLowerCase() !== 'none';
+        if (checked && hasSiteswap) {
+            trickNames[i].style.display = 'none';
+            siteswapXs[i].style.display = '';
+        } else {
+            trickNames[i].style.display = '';
+            if (siteswapXs[i]) siteswapXs[i].style.display = 'none';
+        }
+    }
+}
+// Make available globally
+window.toggleAllTricksSiteswapX = toggleAllTricksSiteswapX;
 function filterTricks(tricks, minProps, maxProps, minDifficulty, maxDifficulty, excludedTags, maxThrow = null) {
     // Filter tricks based on criteria
     const filteredTricks = tricks.filter(trick => {
