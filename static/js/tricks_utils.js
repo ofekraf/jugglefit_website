@@ -2,39 +2,26 @@
 // Example: 5{a/b} -> 5 with 'a' above in red, 'b' below in blue
 function formatSiteswapX(siteswap) {
     if (!siteswap) return '';
-    // Match throw (multi-char), optional {mod} or {mod1/mod2}
-    // e.g. 10c{N}, 3{a/b}, 975{foo/bar}
-    // Also preserve non-matching text (arrows, spaces, etc.)
-    const regex = /(\w+)(\{([^{}\/]*)?(?:\/([^{}]*)?)?\})?/g;
+    // Only apply modifier to the last digit/throw
+    // Split into main part and trailing modifier (e.g. 7531{Ul})
+    const mainMatch = siteswap.match(/^(.*?)(\{([^{}\/]*)?(?:\/([^{}]*)?)?\})?$/);
+    if (!mainMatch) return siteswap;
+    const mainPart = mainMatch[1];
+    const throwMod = mainMatch[3] || '';
+    const catchMod = mainMatch[4] || '';
     let result = '';
-    let lastIndex = 0;
-    let match;
-    while ((match = regex.exec(siteswap)) !== null) {
-        // Add any text between matches (arrows, spaces, etc.)
-        if (match.index > lastIndex) {
-            result += siteswap.slice(lastIndex, match.index);
+    // Render all but last char as normal digits
+    for (let i = 0; i < mainPart.length; i++) {
+        // Only wrap the last digit/throw if there's a modifier
+        if (i === mainPart.length - 1 && (throwMod || catchMod)) {
+            result += `<span class="siteswap-x-digit-container">`;
+            if (throwMod) result += `<span class="siteswap-x-throw-mod">${throwMod}</span>`;
+            result += `<span class="siteswap-x-digit">${mainPart[i]}</span>`;
+            if (catchMod) result += `<span class="siteswap-x-catch-mod">${catchMod}</span>`;
+            result += `</span>`;
+        } else {
+            result += `<span class="siteswap-x-digit">${mainPart[i]}</span>`;
         }
-        const throwVal = match[1];
-        const hasMod = !!match[2];
-        let throwMod = '', catchMod = '';
-        if (hasMod) {
-            if (match[4]) {
-                throwMod = match[3] || '';
-                catchMod = match[4] || '';
-            } else {
-                throwMod = match[3] || '';
-            }
-        }
-        result += `<span class="siteswap-x-digit-container">`;
-        if (throwMod) result += `<span class="siteswap-x-throw-mod">${throwMod}</span>`;
-        result += `<span class="siteswap-x-digit">${throwVal}</span>`;
-        if (catchMod) result += `<span class="siteswap-x-catch-mod">${catchMod}</span>`;
-        result += `</span>`;
-        lastIndex = regex.lastIndex;
-    }
-    // Add any trailing text
-    if (lastIndex < siteswap.length) {
-        result += siteswap.slice(lastIndex);
     }
     return result;
 }
@@ -115,9 +102,14 @@ async function fetchTricks({
         });
         
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            // Try to parse error message from JSON
+            let errorMsg = `HTTP error! status: ${response.status}`;
+            try {
+                const errJson = await response.json();
+                if (errJson && errJson.error) errorMsg = errJson.error;
+            } catch (e) {}
+            throw new Error(errorMsg);
         }
-        
         return await response.json();
     } catch (error) {
         console.error('Error fetching tricks:', error);

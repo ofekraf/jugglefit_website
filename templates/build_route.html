@@ -63,8 +63,10 @@ document.addEventListener('DOMContentLoaded', function() {
             if (typeof updateSearchTricks === 'function') updateSearchTricks();
         });
     }
-    // Initial population of tricks
-    if (typeof updateSearchTricks === 'function') updateSearchTricks();
+    // Only initialize prop selection and event listeners; let initializePropSelection handle initial tricks loading
+    initializePropSelection();
+    initializeEventListeners();
+    // No need to fetch tricks here; initializePropSelection will do it for the selected prop
 });
 </script>
 {% extends "macros/base.html" %}
@@ -117,12 +119,6 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
         </div>
 
-        <div class="siteswap-x-toggle-row center-row">
-            <label class="siteswap-x-toggle-label">
-                <input type="checkbox" id="toggle-route-siteswap-x-checkbox" onchange="toggleSiteswapXEverywhere()" class="siteswap-x-toggle-checkbox"> Siteswap-X
-            </label>
-        </div>
-
         <!-- Add Custom Trick Section -->
         <div class="form-section custom-trick-section">
             <h4 class="subsection-title">Add Custom Trick</h4>
@@ -151,10 +147,20 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
     </div>
 
-    <div class="form-section">
-      <div class="route-form">
-        <h4 class="subsection-title">Add Tricks</h4>
-        <label class="form-label">Available Tricks</label>
+
+        <div class="form-section">
+            <div class="route-form">
+                <h4 class="subsection-title">Add Tricks</h4>
+                <label class="form-label">Select Prop Type</label>
+                <div class="prop-options-row" style="margin-bottom: 1em; display: flex; gap: 1em;">
+                    {% for prop in prop_options %}
+                    <label class="prop-option" style="display: flex; align-items: center; gap: 0.3em; cursor: pointer;">
+                        <input type="radio" name="prop_type" value="{{ prop.value }}" class="prop-option-input" {% if loop.first %}checked{% endif %}>
+                        <span class="prop-label">{{ prop.value|capitalize }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+                <label class="form-label">Available Tricks</label>
 
         <div class="form-section">
             <label class="form-label">Number of Props</label>
@@ -313,6 +319,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     const trickContainer = document.createElement('div');
                     trickContainer.className = 'trick-container';
 
+                    // .trick-main for left-aligned flex row
+                    const trickMain = document.createElement('div');
+                    trickMain.className = 'trick-main';
+                    trickMain.style.display = 'inline-flex';
+                    trickMain.style.alignItems = 'center';
+                    trickMain.style.gap = '0.5em';
+
                     // Trick name
                     const name = document.createElement('span');
                     name.className = 'trick-name';
@@ -327,14 +340,14 @@ document.addEventListener('DOMContentLoaded', function() {
                             this.textContent = trick.name || 'Unnamed Trick';
                         }
                     });
-                    trickContainer.appendChild(name);
+                    trickMain.appendChild(name);
 
                     // Siteswap-x (formatted)
                     const siteswap = document.createElement('span');
                     siteswap.className = 'trick-siteswap-x';
                     siteswap.style.display = 'none';
                     siteswap.innerHTML = window.formatSiteswapX ? window.formatSiteswapX(trick.siteswap_x) : (trick.siteswap_x || '');
-                    trickContainer.appendChild(siteswap);
+                    trickMain.appendChild(siteswap);
 
                     // Comment
                     if (trick.comment) {
@@ -347,8 +360,10 @@ document.addEventListener('DOMContentLoaded', function() {
                             trick.comment = newComment;
                             this.textContent = newComment ? ` [${newComment}]` : '';
                         });
-                        trickContainer.appendChild(comment);
+                        trickMain.appendChild(comment);
                     }
+
+                    trickContainer.appendChild(trickMain);
 
                     // Add button
                     const addButton = document.createElement('button');
@@ -505,7 +520,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     })
                     .catch(error => {
                         console.error('Error fetching tricks:', error);
-                        showToast('Error loading tricks. Please try again.');
+                        if (!allTricks || allTricks.length === 0) {
+                            showToast('Error loading tricks. Please try again.');
+                        }
                     });
             } else {
                 // Set tricks if no prop input found
@@ -527,16 +544,20 @@ document.addEventListener('DOMContentLoaded', function() {
                         if (currentRoute.prop !== input.value) {
                             currentRoute.tricks = [];
                             currentRoute.prop = input.value;
-                            // Fetch tricks only when prop type changes
+                            // Fetch tricks and update available tricks on prop change
                             fetchTricks({ propType: input.value })
                                 .then(tricks => {
                                     allTricks = tricks;
-                                    updateSearchTricks();
+                                    if (typeof updateSearchTricks === 'function') updateSearchTricks();
                                 })
                                 .catch(error => {
                                     console.error('Error fetching tricks:', error);
-                                    showToast('Error loading tricks. Please try again.');
+                                    if (!allTricks || allTricks.length === 0) {
+                                        showToast('Error loading tricks. Please try again.');
+                                    }
                                 });
+                        } else {
+                            if (typeof updateSearchTricks === 'function') updateSearchTricks();
                         }
                         updateRouteDisplay();
                     } else {
@@ -858,20 +879,7 @@ document.addEventListener('DOMContentLoaded', function() {
         initializePropSelection();
         initializeEventListeners();
         // Load tricks for initial prop and show available tricks on page load
-        const initialPropInput = document.querySelector('.prop-option-input:checked');
-        if (initialPropInput) {
-            fetchTricks({ propType: initialPropInput.value })
-                .then(tricks => {
-                    allTricks = tricks;
-                    updateSearchTricks();
-                })
-                .catch(error => {
-                    console.error('Error fetching tricks:', error);
-                });
-        } else {
-            // If no prop is selected, still try to update tricks
-            updateSearchTricks();
-        }
+        // (Removed: duplicate initial tricks loading. Now handled by initializePropSelection.)
 
         // Add event listeners for available tricks filters
         // Props slider and difficulty slider are initialized in initializeSliders()

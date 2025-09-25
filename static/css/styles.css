@@ -1,12 +1,15 @@
 .trick-main {
-    display: inline-flex;
+    display: inline-flex !important;
     align-items: center;
     gap: 0.5em;
     justify-content: flex-start;
+    width: auto;
+    white-space: normal;
+    word-break: break-word;
 }
 .trick-name, .trick-siteswap-x {
     font-family: inherit;
-    font-size: 1rem;
+    font-size: 1.22rem; /* Match .trick-siteswap-x size */
     font-weight: 500;
     color: var(--text-color);
     margin: 0;
@@ -29,11 +32,11 @@
     min-height: 2.8em;
     display: inline-flex;
     align-items: center;
-    padding-top: 0.3em;
-    padding-bottom: 0.3em;
-    font-family: inherit;
-    font-size: 1rem;
-    font-weight: 500;
+    padding-top: 0.1em;
+    padding-bottom: 0.1em;
+    font-family: 'Inter', Arial, sans-serif;
+    font-size: 1.22rem;
+    font-weight: 600;
     color: var(--text-color);
 }
 /* Siteswap-X Modifiers Styling */
@@ -43,16 +46,17 @@
     align-items: center;
     position: relative;
     margin: 0 0.18em;
-    min-width: 1.2em;
-    font-size: 1rem;
+    min-width: 1.3em;
+    width: 1.3em;
+    font-size: 1.15rem;
     font-family: inherit;
-    font-weight: 500;
+    font-weight: 600;
 }
 .siteswap-x-throw-mod {
     color: #d32f2f;
-    font-size: 1em;
+    font-size: 0.75em; /* Smaller so it doesn't split the siteswap */
     position: absolute;
-    top: -1.2em;
+    top: -1.3em;
     left: 50%;
     transform: translateX(-50%);
     font-weight: bold;
@@ -61,17 +65,17 @@
     font-family: inherit;
 }
 .siteswap-x-digit {
-    font-size: 1rem;
-    font-weight: 500;
+    font-size: 1.15rem;
+    font-weight: 600;
     line-height: 1.1em;
     white-space: pre;
     font-family: inherit;
 }
 .siteswap-x-catch-mod {
     color: #1976d2;
-    font-size: 1em;
+    font-size: 0.75em; /* Smaller so it doesn't split the siteswap */
     position: absolute;
-    bottom: -1.2em;
+    bottom: -1.3em;
     left: 50%;
     transform: translateX(-50%);
     font-weight: bold;

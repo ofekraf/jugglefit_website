@@ -42,7 +42,14 @@ def serialize_route():
 def fetch_tricks():
 	try:
 		data = request.get_json()
-		prop_type = Prop.get_key_by_value(data.get('prop_type'))
+		prop_type_value = data.get('prop_type')
+		try:
+			prop_type = Prop.get_key_by_value(prop_type_value)
+		except Exception as e:
+			allowed = [v.value for v in Prop]
+			msg = f"Invalid prop_type '{prop_type_value}'. Allowed values: {allowed}"
+			print(msg)
+			return jsonify({'error': msg}), 400
 		min_props = int(data.get('min_props', MIN_TRICK_PROPS_COUNT))
 		max_props = int(data.get('max_props', MAX_TRICK_PROPS_COUNT))
 		min_difficulty = int(data.get('min_difficulty', MIN_TRICK_DIFFICULTY))
@@ -67,7 +74,10 @@ def fetch_tricks():
 		tricks_dict = [trick.to_dict() for trick in filtered_tricks]
 		return jsonify(tricks_dict)
 	except Exception as e:
-		return str(e), 400
+		import traceback
+		print('Error in /api/fetch_tricks:', e)
+		traceback.print_exc()
+		return jsonify({'error': str(e)}), 400
 	
 
 @api.route('/shorten_url', methods=['POST'])
