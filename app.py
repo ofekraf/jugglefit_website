@@ -1,6 +1,7 @@
 import os
 from urllib.parse import unquote
 from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, Blueprint, send_file
+from pylib.utils.siteswap import format_siteswap_x_markup
 from hardcoded_database.consts import get_trick_csv_path
 from hardcoded_database.events.past_events import ALL_PAST_EVENTS, FRONT_PAGE_PAST_EVENTS
 from hardcoded_database.events.upcoming_events import UPCOMING_EVENTS
@@ -19,7 +20,10 @@ from pylib.utils.filter_tricks import filter_tricks
 # Load environment variables
 load_dotenv()
 
+
 app = Flask(__name__)
+# Register Jinja filter for Siteswap-X formatting
+app.jinja_env.filters['format_siteswap_x'] = format_siteswap_x_markup
 
 # Create API blueprint
 api = Blueprint('api', __name__, url_prefix='/api')

@@ -85,11 +85,11 @@ document.addEventListener('DOMContentLoaded', function() {
     <input type="hidden" id="max-difficulty-input" name="max_difficulty" value="30">
 
     <div class="route-form">
+        <!-- Only keep the route name and duration input for building, not for display -->
         <div class="form-section">
             <label for="route_name" class="form-label">Route Name</label>
             <input type="text" id="route_name" name="route_name" placeholder="My awesome route" class="form-input" required>
         </div>
-
         <div class="form-section">
             <label for="route_duration" class="form-label">Route Duration (minutes)</label>
             <div class="slider-container">
@@ -100,36 +100,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 <input type="hidden" id="route-duration-input" name="route_duration" value="10">
             </div>
         </div>
-
-
-
-        <div class="form-section">
-            <label class="form-label">Select Prop</label>
-            <div class="prop-group">
-                {% for prop in prop_options %}
-                    <label class="prop-option {% if loop.first %}selected{% endif %}" data-prop-type="{{ prop }}">
-                        <input type="radio" name="prop" class="prop-option-input" value="{{ prop.value }}" {% if loop.first %}checked{% endif %}>
-                        <span class="prop-option-name">{{ prop.value }}</span>
-                        <div class="prop-icon"></div>
-                    </label>
-                {% endfor %}
-        </div>
-        
-        <!-- Route display container (for JS to render route tricks) -->
+        <!-- Route display using Jinja macro -->
         <div class="form-section">
             <label class="form-label">Your Route</label>
-            <div class="route-container">
-                <div class="route-content">
-                    <div class="route-sections" id="route-sections">
-                        <!-- Route sections will be populated by JavaScript -->
-                    </div>
-                </div>
-            </div>
+            {% if initial_route %}
+                {% set route = initial_route %}
+                {% include "macros/route_display.html" %}
+            {% else %}
+                <div class="route-container"><div class="route-content"><div class="route-sections"></div></div></div>
+            {% endif %}
             <div class="route-actions">
                 <div class="route-buttons">
                     <button type="button" id="view_route" class="primary-button">View Route</button>
                 </div>
             </div>
+        </div>
         </div>
 
         <div class="siteswap-x-toggle-row center-row">
@@ -439,11 +424,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
                     trickContainer.appendChild(name);
 
-                    // Siteswap-x
+                    // Siteswap-x (formatted, hidden by default)
                     const siteswap = document.createElement('span');
                     siteswap.className = 'trick-siteswap-x';
                     siteswap.style.display = 'none';
-                    siteswap.textContent = trick.siteswap_x || '';
+                    // Use JS formatter to output HTML, not raw text
+                    siteswap.innerHTML = window.formatSiteswapX ? window.formatSiteswapX(trick.siteswap_x) : (trick.siteswap_x || '');
                     trickContainer.appendChild(siteswap);
 
                     // Comment

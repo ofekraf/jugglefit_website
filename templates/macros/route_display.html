@@ -32,11 +32,10 @@
                     {% set trick_counter.count = trick_counter.count + 1 %}
                     <div class="prop-details-frame">
                         <div class="trick-content">
-                            <div class="trick-main">
-                                <span class="trick-number-and-name">
-                                    <span class="trick-number">{{ trick_counter.count }}.</span>
-                                    {% include 'macros/trick_container.html' %}
-                                </span>
+                            <div class="trick-main" style="display: inline-flex; align-items: center; gap: 0.5em;">
+                                <input type="checkbox" class="trick-checkbox" style="margin-right: 0.5em;" onclick="toggleLinethrough(this)">
+                                <span class="trick-number">{{ trick_counter.count }}.</span>
+                                {% include 'macros/trick_container.html' %}
                             </div>
                         </div>
                     </div>
@@ -65,14 +64,28 @@ function toggleAllSiteswapX() {
 }
 // Format all siteswap-x spans using the JS formatter (if available)
 document.addEventListener('DOMContentLoaded', function() {
-    if (window.formatSiteswapX) {
-        document.querySelectorAll('.trick-siteswap-x').forEach(function(el) {
-            if (el.textContent && el.textContent.trim() !== '') {
-                el.innerHTML = window.formatSiteswapX(el.textContent);
-            }
-        });
-    }
+    // Do NOT re-format trick-siteswap-x spans here; already formatted by Jinja/Python
 });
+function toggleLinethrough(checkbox) {
+    const trickMain = checkbox.closest('.trick-main');
+    if (!trickMain) return;
+    const trickName = trickMain.querySelector('.trick-name');
+    const siteswapX = trickMain.querySelector('.trick-siteswap-x');
+    if (trickName) {
+        if (checkbox.checked) {
+            trickName.classList.add('linethrough');
+        } else {
+            trickName.classList.remove('linethrough');
+        }
+    }
+    if (siteswapX && siteswapX.style.display !== 'none') {
+        if (checkbox.checked) {
+            siteswapX.classList.add('linethrough');
+        } else {
+            siteswapX.classList.remove('linethrough');
+        }
+    }
+}
 </script>
         </div>
     </div>

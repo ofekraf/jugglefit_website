@@ -30,6 +30,7 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</script>
 <script>
     // Initialize countdown timer
     let finalTime = null;
@@ -67,35 +68,6 @@
             }, 300);
         }, 3000);
     }
-
-    // Add checkboxes to all tricks
-    document.addEventListener('DOMContentLoaded', function() {
-        const trickContents = document.querySelectorAll('.trick-content');
-        trickContents.forEach(content => {
-            const checkbox = document.createElement('input');
-            checkbox.type = 'checkbox';
-            checkbox.className = 'trick-checkbox no-print';
-            
-            checkbox.addEventListener('change', function() {
-                const trickNumber = content.querySelector('.trick-number');
-                const trickName = content.querySelector('.trick-name');
-                const trickComment = content.querySelector('.trick-comment');
-                
-                if (this.checked) {
-                    if (trickNumber) trickNumber.style.textDecoration = 'line-through';
-                    if (trickName) trickName.style.textDecoration = 'line-through';
-                    if (trickComment) trickComment.style.textDecoration = 'line-through';
-                } else {
-                    if (trickNumber) trickNumber.style.textDecoration = 'none';
-                    if (trickName) trickName.style.textDecoration = 'none';
-                    if (trickComment) trickComment.style.textDecoration = 'none';
-                }
-            });
-            
-            // Insert checkbox at the beginning of the trick content
-            content.insertBefore(checkbox, content.firstChild);
-        });
-    });
 
     function updateTimer() {
         if (!finalTime) return;

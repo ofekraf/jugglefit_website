@@ -1,3 +1,22 @@
+.trick-main {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    justify-content: flex-start;
+}
+.trick-name, .trick-siteswap-x {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-color);
+    margin: 0;
+    white-space: normal;
+    word-break: break-word;
+}
+.trick-name.linethrough, .trick-siteswap-x.linethrough {
+    text-decoration: line-through !important;
+    border-bottom: none !important;
+}
 /* Ensure trick-container is tall enough for siteswap-x with modifiers */
 .trick-container, .trick-main {
     min-height: 3.6em;
@@ -12,6 +31,10 @@
     align-items: center;
     padding-top: 0.3em;
     padding-bottom: 0.3em;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-color);
 }
 /* Siteswap-X Modifiers Styling */
 .siteswap-x-digit-container {
@@ -21,9 +44,9 @@
     position: relative;
     margin: 0 0.18em;
     min-width: 1.2em;
-    font-size: 1.15em;
+    font-size: 1rem;
     font-family: inherit;
-    font-weight: bold;
+    font-weight: 500;
 }
 .siteswap-x-throw-mod {
     color: #d32f2f;
@@ -38,8 +61,8 @@
     font-family: inherit;
 }
 .siteswap-x-digit {
-    font-size: 1em;
-    font-weight: bold;
+    font-size: 1rem;
+    font-weight: 500;
     line-height: 1.1em;
     white-space: pre;
     font-family: inherit;
@@ -244,7 +267,7 @@ body {
 
 .trick-main {
     display: inline;
-    width: 100%;
+    width: auto;
     white-space: normal;
     word-break: break-word;
 }
@@ -259,10 +282,11 @@ body {
 }
 
 .trick-number {
-    flex: 0 0 auto;
-    font-weight: 600;
-    color: var(--light-text);
-    font-size: 0.9rem;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-color);
+    font-family: inherit;
+    min-width: 1.25rem;
     padding-top: 0.25rem;
 }
 
@@ -272,6 +296,7 @@ body {
     font-weight: 500;
     color: var(--text-color);
     font-size: 1rem;
+    font-family: inherit;
     display: inline;
     margin: 0;
     white-space: normal;
@@ -283,9 +308,12 @@ body {
     font-style: italic;
     font-size: 0.9rem;
     display: inline;
-    margin: 0;
+    margin: 0 !important;
     white-space: normal;
     word-break: break-word;
+    float: none !important;
+    text-align: left;
+    vertical-align: baseline;
 }
 
 .remove-trick {
@@ -1481,12 +1509,13 @@ a.primary-button.live-event-button:hover {
     line-height: 120%;
     font-weight: 700;
     position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: flex-start;
-    white-space: nowrap;
+    display: inline;
+    vertical-align: baseline;
+    white-space: normal;
     opacity: 0.8;
-    margin-left: 8px;
+    margin-left: 0.5em;
+    margin-right: 0;
+    float: none;
 }
 
 .trick-comment-container {
@@ -1706,6 +1735,16 @@ a.primary-button.live-event-button:hover {
     overflow: hidden;
     width: 100%;
     margin-bottom: 0.5rem;
+}
+.prop-section .trick-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1em;
+    width: 100%;
+}
+.prop-details-frame {
+    width: 100%;
+    display: block;
 }
 
 .prop-color-bar {
@@ -1946,7 +1985,7 @@ a.primary-button.live-event-button:hover {
     position: absolute;
     width: 100%;
     z-index: 1;
-    box-shadow: 0 4px 8px var(--shadow-color);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     border-radius: 0 0 4px 4px;
     opacity: 0;
     visibility: hidden;
@@ -1961,9 +2000,6 @@ a.primary-button.live-event-button:hover {
 .checkbox-container {
     margin: 5px 0;
     padding-left: 20px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
 }
 
 .category-checkbox {
