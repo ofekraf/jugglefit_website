@@ -1,5 +1,3 @@
-
-
 from pylib.utils.reverse_lookup_enum import ReverseLookupEnum
 
 
@@ -14,7 +12,7 @@ class TagCategory(ReverseLookupEnum):
     def __lt__(self, other):
         """Make TagCategory sortable by comparing their values."""
         return self.value < other.value
-
+    
     def __str__(self) -> str:
         """Make the TagCategory JSON serializable by returning its value."""
         return self.value
@@ -66,44 +64,51 @@ class Tag(ReverseLookupEnum):
     def __str__(self) -> str:
         """Make the tag JSON serializable by returning its value."""
         return self.value
-    
 
 TAG_CATEGORY_MAP = {
-    # Spin
-    Tag.Spin180: TagCategory.Spin,
-    Tag.Spin360: TagCategory.Spin,
-    Tag.Spin720: TagCategory.Spin,
-    Tag.Spin1080: TagCategory.Spin,
-    Tag.Spin1440: TagCategory.Spin,
-    Tag.MultiStage: TagCategory.Spin,
+    TagCategory.Spin: {
+        Tag.Spin180,
+        Tag.Spin360,
+        Tag.Spin720,
+        Tag.Spin1080,
+        Tag.Spin1440,
+        Tag.MultiStage,
+    },
     
-    # Base Pattern
-    Tag.AnyBasePattern: TagCategory.BasePattern,
-    Tag.SyncBasePattern: TagCategory.BasePattern,
-    Tag.AsyncBasePattern: TagCategory.BasePattern,
+    TagCategory.BasePattern: {
+        Tag.AnyBasePattern,
+        Tag.SyncBasePattern,
+        Tag.AsyncBasePattern,
+    },
     
-    # Body Throws
-    Tag.Backcrosses: TagCategory.BodyThrows,
-    Tag.Shoulders: TagCategory.BodyThrows,
-    Tag.Overheads: TagCategory.BodyThrows,
-    Tag.Necks: TagCategory.BodyThrows,
-    Tag.UnderLegs: TagCategory.BodyThrows,
-    Tag.SpecialBodyThrows: TagCategory.BodyThrows,
-    Tag.Lazies: TagCategory.BodyThrows,
-    Tag.ReverseShoulders: TagCategory.BodyThrows,
+    TagCategory.BodyThrows: {
+        Tag.Backcrosses,
+        Tag.Shoulders,
+        Tag.Overheads,
+        Tag.Necks,
+        Tag.UnderLegs,
+        Tag.SpecialBodyThrows,
+        Tag.Lazies,
+        Tag.ReverseShoulders,
+    },
 
-    # Spin Control
-    Tag.Flats: TagCategory.SpinControl,
-    Tag.SpinControl: TagCategory.SpinControl,
-    Tag.FlatFront: TagCategory.SpinControl,
-
-    # Siteswap
-    Tag.SyncSiteswap: TagCategory.Siteswap,
-    Tag.AsyncSiteswap: TagCategory.Siteswap,
+    TagCategory.SpinControl: {
+        Tag.Flats,
+        Tag.SpinControl,
+        Tag.FlatFront,
+    },
     
-    # Isolation
-    Tag.Isolated: TagCategory.Isolation,
-    Tag.OnTheKnees: TagCategory.Isolation,
-    Tag.Sitting: TagCategory.Isolation,
-    Tag.OnTheBack: TagCategory.Isolation,   
+    TagCategory.Siteswap: {
+        Tag.SyncSiteswap,
+        Tag.AsyncSiteswap,
+    },
+    
+    TagCategory.Isolation: {
+        Tag.Isolated,
+        Tag.OnTheKnees,
+        Tag.Sitting,
+        Tag.OnTheBack,
+    },
 }
+
+TAG_CATEGORY_MAP_JSON = {tag_category.value: tags for tag_category, tags in TAG_CATEGORY_MAP.items()}

@@ -10,8 +10,8 @@ from dotenv import load_dotenv
 
 from pylib.classes.prop import Prop
 from pylib.classes.route import Route
-from pylib.classes.tag import TAG_CATEGORY_MAP, Tag, TagCategory
-from pylib.configuration.consts import DEFAULT_MAX_TRICK_DIFFICULTY, DEFAULT_MAX_TRICK_PROPS_COUNT, DEFAULT_MIN_TRICK_DIFFICULTY, DEFAULT_MIN_TRICK_PROPS_COUNT, MAX_TRICK_DIFFICULTY, MAX_TRICK_PROPS_COUNT, MIN_TRICK_DIFFICULTY, MIN_TRICK_PROPS_COUNT
+from pylib.classes.tag import TAG_CATEGORY_MAP_JSON, Tag, TagCategory
+from hardcoded_database.tricks import ALL_PROPS_SETTINGS_JSON
 from pylib.route_generator.exceptions import NotEnoughTricksFoundException
 from pylib.route_generator.route_generator import RouteGenerator
 from pylib.utils.filter_tricks import filter_tricks
@@ -39,11 +39,11 @@ def fetch_tricks():
 	try:
 		data = request.get_json()
 		prop_type = Prop.get_key_by_value(data.get('prop_type'))
-		min_props = int(data.get('min_props', MIN_TRICK_PROPS_COUNT))
-		max_props = int(data.get('max_props', MAX_TRICK_PROPS_COUNT))
-		min_difficulty = int(data.get('min_difficulty', MIN_TRICK_DIFFICULTY))
-		max_difficulty = int(data.get('max_difficulty', MAX_TRICK_DIFFICULTY))
-		exclude_tags = data.get('exclude_tags', [])
+		min_props = int(data.get('min_props', None))
+		max_props = int(data.get('max_props', None))
+		min_difficulty = int(data.get('min_difficulty', None))
+		max_difficulty = int(data.get('max_difficulty', None))
+		exclude_tags = data.get('exclude_tags', set())
 		limit = int(data.get('limit', 0))
 		max_throw = int(data.get('max_throw')) if data.get('max_throw') is not None else None
 
@@ -119,11 +119,10 @@ def past_events():
 def generate_route():
 	if request.method == 'GET':
 		return render_template('generate_route.html', 
-						 current_page='generate_route', 
-						 tag_options=list(Tag),
-						 tag_categories=list(TagCategory),
-						 tag_category_map=TAG_CATEGORY_MAP,
-						 prop_options=list(Prop))
+					 current_page='generate_route', 
+					 tag_category_map=TAG_CATEGORY_MAP_JSON,
+					 tag_categories=list(TagCategory),
+					 props_settings=ALL_PROPS_SETTINGS_JSON)
 	
 	route_name = request.form['route_name']
 	prop = request.form['prop']
@@ -175,20 +174,11 @@ def build_route():
 			flash(f'Error loading route: {str(e)}', 'error')
 			return redirect(url_for('build_route'))
 	
-	return render_template('build_route.html', 
-						 prop_options=list(Prop),
-						 tag_options=list(Tag),
-						 tag_categories=list(TagCategory),
-						 tag_category_map=TAG_CATEGORY_MAP,
-						 initial_route=initial_route,
-						 MIN_TRICK_PROPS_COUNT=MIN_TRICK_PROPS_COUNT,
-						 MAX_TRICK_PROPS_COUNT=MAX_TRICK_PROPS_COUNT,
-						 MIN_TRICK_DIFFICULTY=MIN_TRICK_DIFFICULTY,
-						 MAX_TRICK_DIFFICULTY=MAX_TRICK_DIFFICULTY,
-						 DEFAULT_MIN_TRICK_PROPS_COUNT=DEFAULT_MIN_TRICK_PROPS_COUNT,
-						 DEFAULT_MAX_TRICK_PROPS_COUNT=DEFAULT_MAX_TRICK_PROPS_COUNT,
-						 DEFAULT_MIN_TRICK_DIFFICULTY=DEFAULT_MIN_TRICK_DIFFICULTY,
-						 DEFAULT_MAX_TRICK_DIFFICULTY=DEFAULT_MAX_TRICK_DIFFICULTY)
+	return render_template('build_route.html',
+			 tag_category_map=TAG_CATEGORY_MAP_JSON,
+			 tag_categories=list(TagCategory),
+			 props_settings=ALL_PROPS_SETTINGS_JSON,
+			 initial_route=initial_route)
 
 @app.route('/created_route', methods=['GET'])
 def created_route():
