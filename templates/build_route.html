@@ -234,7 +234,23 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="tricks-container">
             <div class="tricks-column">
                 <div id="all_tricks" class="tricks-grid">
-                    <!-- Tricks will be populated by filterTricks function -->
+                    {% for props_count, tricks in available_tricks_by_props.items() %}
+                        <div class="props-group" data-props-count="{{ props_count }}">
+                            <h3 class="props-count-header">{{ props_count }} Props</h3>
+                            <div class="tricks-list">
+                                {% for trick in tricks %}
+                                    <div class="trick-item" data-trick-name="{{ trick.name }}" data-difficulty="{{ trick.difficulty }}" data-tags="{{ trick.tags|join(',') }}" data-max-throw="{{ trick.max_throw }}">
+                                        <div class="trick-container">
+                                            <div class="trick-main" style="display: inline-flex; align-items: center; gap: 0.5em;">
+                                                {% include 'macros/trick_container.html' %}
+                                            </div>
+                                        </div>
+                                        <button class="add-trick" onclick="addTrickToRoute({{ trick|tojson|safe }})">Add</button>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>

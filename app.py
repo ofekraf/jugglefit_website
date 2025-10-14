@@ -189,20 +189,31 @@ def build_route():
 			flash(f'Error loading route: {str(e)}', 'error')
 			return redirect(url_for('build_route'))
 	
-	return render_template('build_route.html', 
-						 prop_options=list(Prop),
-						 tag_options=list(Tag),
-						 tag_categories=list(TagCategory),
-						 tag_category_map=TAG_CATEGORY_MAP,
-						 initial_route=initial_route,
-						 MIN_TRICK_PROPS_COUNT=MIN_TRICK_PROPS_COUNT,
-						 MAX_TRICK_PROPS_COUNT=MAX_TRICK_PROPS_COUNT,
-						 MIN_TRICK_DIFFICULTY=MIN_TRICK_DIFFICULTY,
-						 MAX_TRICK_DIFFICULTY=MAX_TRICK_DIFFICULTY,
-						 DEFAULT_MIN_TRICK_PROPS_COUNT=DEFAULT_MIN_TRICK_PROPS_COUNT,
-						 DEFAULT_MAX_TRICK_PROPS_COUNT=DEFAULT_MAX_TRICK_PROPS_COUNT,
-						 DEFAULT_MIN_TRICK_DIFFICULTY=DEFAULT_MIN_TRICK_DIFFICULTY,
-						 DEFAULT_MAX_TRICK_DIFFICULTY=DEFAULT_MAX_TRICK_DIFFICULTY)
+		# Build available_tricks_by_props for the default prop (first in prop_options)
+		from hardcoded_database.tricks import PROP_TO_TRICKS
+		default_prop = list(Prop)[0]
+		all_tricks = PROP_TO_TRICKS[default_prop]
+		available_tricks_by_props = {}
+		for trick in all_tricks:
+			available_tricks_by_props.setdefault(trick.props_count, []).append(trick)
+		# Sort tricks in each group by name
+		for tricks in available_tricks_by_props.values():
+			tricks.sort(key=lambda t: t.name or "")
+		return render_template('build_route.html', 
+							 prop_options=list(Prop),
+							 tag_options=list(Tag),
+							 tag_categories=list(TagCategory),
+							 tag_category_map=TAG_CATEGORY_MAP,
+							 initial_route=initial_route,
+							 available_tricks_by_props=available_tricks_by_props,
+							 MIN_TRICK_PROPS_COUNT=MIN_TRICK_PROPS_COUNT,
+							 MAX_TRICK_PROPS_COUNT=MAX_TRICK_PROPS_COUNT,
+							 MIN_TRICK_DIFFICULTY=MIN_TRICK_DIFFICULTY,
+							 MAX_TRICK_DIFFICULTY=MAX_TRICK_DIFFICULTY,
+							 DEFAULT_MIN_TRICK_PROPS_COUNT=DEFAULT_MIN_TRICK_PROPS_COUNT,
+							 DEFAULT_MAX_TRICK_PROPS_COUNT=DEFAULT_MAX_TRICK_PROPS_COUNT,
+							 DEFAULT_MIN_TRICK_DIFFICULTY=DEFAULT_MIN_TRICK_DIFFICULTY,
+							 DEFAULT_MAX_TRICK_DIFFICULTY=DEFAULT_MAX_TRICK_DIFFICULTY)
 
 @app.route('/created_route', methods=['GET'])
 def created_route():

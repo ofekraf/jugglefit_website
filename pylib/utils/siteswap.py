@@ -20,17 +20,20 @@ def format_siteswap_x(siteswap_x: str) -> str:
 	# 3. Optional trailing modifier: single uppercase letter or digit
 	token_re = re.compile(r'([0-9a-z→]+)(?:\{([^{}\/]*)?(?:/([^{}]*))?\})?([A-Z0-9])?')
 	html = ''
-	for match in token_re.finditer(siteswap_x):
+	tokens = list(token_re.finditer(siteswap_x))
+	for i, match in enumerate(tokens):
 		main = escape(match.group(1))
 		throw_mod = match.group(2) if match.group(2) is not None else ''
 		catch_mod = match.group(3) if match.group(3) is not None else ''
 		trailing_mod = match.group(4)
+		# If this is the last token and has a trailing modifier, append it to the main digit
+		if i == len(tokens) - 1 and trailing_mod:
+			main = f"{main}{escape(trailing_mod)}"
+			trailing_mod = ''
 		html += '<span class="siteswap-x-digit-container">'
 		# Throw modifier (above)
-		if throw_mod or trailing_mod:
-			above = escape(throw_mod) if throw_mod else escape(trailing_mod) if trailing_mod else ''
-			if above:
-				html += f'<span class="siteswap-x-throw-mod">{above}</span>'
+		if throw_mod:
+			html += f'<span class="siteswap-x-throw-mod">{escape(throw_mod)}</span>'
 		# Main digit
 		html += f'<span class="siteswap-x-digit">{main}</span>'
 		# Catch modifier (below)
