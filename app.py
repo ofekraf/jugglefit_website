@@ -15,6 +15,10 @@ from hardcoded_database.tricks import ALL_PROPS_SETTINGS_JSON
 from pylib.route_generator.exceptions import NotEnoughTricksFoundException
 from pylib.route_generator.route_generator import RouteGenerator
 from pylib.utils.filter_tricks import filter_tricks
+from pylib.configuration.consts import (
+	MIN_TRICK_DIFFICULTY,
+	MAX_TRICK_DIFFICULTY,
+)
 
 # Load environment variables
 load_dotenv()

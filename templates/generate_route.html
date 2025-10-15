@@ -207,7 +207,7 @@
 
     // Load all tricks for this prop (no client-side filters yet). Filtering is applied later when generating routes/tooltips.
     fetchTricks({ propType: prop })
-        .then(tricks => { allTricks = tricks; })
+        .then(tricks => { window.allTricks = tricks; })
         .catch(error => { console.error('Error fetching tricks:', error); });
     }
 
@@ -305,7 +305,7 @@
     });
 
     // Store all tricks for the current prop type
-    let allTricks = [];
+    window.allTricks = [];
 
     // Function to show trick tooltip
     function showTrickTooltip(event, difficulty) {

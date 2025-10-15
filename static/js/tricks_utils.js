@@ -87,3 +87,121 @@ function trickExists(tricks, name, propsCount) {
         trick.props_count === propsCount
     );
 }
+
+// Render tricks into the #all_tricks container grouped by props_count
+function renderTricks(tricks) {
+    const container = document.getElementById('all_tricks');
+    if (!container) return;
+    container.innerHTML = '';
+
+    if (!Array.isArray(tricks) || tricks.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'no-tricks';
+        empty.textContent = 'No tricks available for the selected filters.';
+        container.appendChild(empty);
+        return;
+    }
+
+    const grouped = groupTricksByPropsCount(tricks);
+    // Sort prop counts ascending
+    const counts = Object.keys(grouped).map(k => Number(k)).sort((a,b) => a-b);
+    counts.forEach(count => {
+        const groupEl = document.createElement('div');
+        groupEl.className = 'trick-group';
+        const header = document.createElement('div');
+        header.className = 'trick-group-header';
+        header.textContent = `${count} ${count === 1 ? 'prop' : 'props'}`;
+        groupEl.appendChild(header);
+
+        const list = document.createElement('div');
+        list.className = 'trick-group-list';
+        grouped[count].forEach(trick => {
+            // Use same structure as route display's trick frame so comments and styling match
+            const frame = document.createElement('div');
+            frame.className = 'prop-details-frame trick-item';
+            frame.setAttribute('data-trick-name', trick.name);
+            frame.setAttribute('data-props-count', trick.props_count);
+
+            const trickContent = document.createElement('div');
+            trickContent.className = 'trick-content';
+
+            const trickMain = document.createElement('div');
+            trickMain.className = 'trick-main';
+
+            const nameSpan = document.createElement('span');
+            nameSpan.className = 'trick-name';
+            nameSpan.textContent = trick.name;
+            trickMain.appendChild(nameSpan);
+
+            if (trick.comment) {
+                const commentSpan = document.createElement('span');
+                commentSpan.className = 'trick-comment';
+                commentSpan.textContent = ` [${trick.comment}]`;
+                trickMain.appendChild(commentSpan);
+            }
+
+            trickContent.appendChild(trickMain);
+
+            // Add button (placed where remove button is in route display)
+            const addBtn = document.createElement('button');
+            addBtn.type = 'button';
+            addBtn.className = 'add-trick';
+            addBtn.textContent = 'Add';
+            addBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (window && typeof window.addTrickToRoute === 'function') {
+                    window.addTrickToRoute(trick);
+                } else if (typeof addTrickToRoute === 'function') {
+                    addTrickToRoute(trick);
+                } else {
+                    console.warn('addTrickToRoute is not available');
+                }
+            });
+
+            trickContent.appendChild(addBtn);
+
+            frame.appendChild(trickContent);
+            list.appendChild(frame);
+        });
+
+        groupEl.appendChild(list);
+        container.appendChild(groupEl);
+    });
+}
+
+// Apply current UI filters to allTricks and render
+function updateSearchTricks() {
+    try {
+        const minProps = parseInt(document.getElementById('min-props-input').value) || 0;
+        const maxProps = parseInt(document.getElementById('max-props-input').value) || 999;
+        const minDifficulty = parseInt(document.getElementById('min-difficulty-input').value) || 0;
+        const maxDifficulty = parseInt(document.getElementById('max-difficulty-input').value) || 100;
+        const excludedTags = Array.from(document.querySelectorAll('input[name="exclude_tags"]:checked')).map(cb => cb.value);
+        const maxThrowElem = document.getElementById('max-throw-enabled');
+        const maxThrow = maxThrowElem && maxThrowElem.checked ? parseInt(document.getElementById('max-throw-input').value) : null;
+
+        // If allTricks is empty, attempt to fetch for currently selected prop
+        if (!Array.isArray(window.allTricks) || window.allTricks.length === 0) {
+            const selectedPropInput = document.querySelector('.prop-option-input:checked');
+            const prop = selectedPropInput ? selectedPropInput.value : null;
+            if (prop) {
+                fetchTricks({ propType: prop })
+                    .then(tricks => {
+                        window.allTricks = tricks;
+                        const filtered = filterTricks(window.allTricks, minProps, maxProps, minDifficulty, maxDifficulty, excludedTags, maxThrow);
+                        renderTricks(filtered);
+                    })
+                    .catch(err => {
+                        console.error('Error fetching tricks in updateSearchTricks:', err);
+                        renderTricks([]);
+                    });
+                return;
+            }
+        }
+
+        const filtered = filterTricks(window.allTricks || [], minProps, maxProps, minDifficulty, maxDifficulty, excludedTags, maxThrow);
+        renderTricks(filtered);
+    } catch (e) {
+        console.error('updateSearchTricks error:', e);
+    }
+}

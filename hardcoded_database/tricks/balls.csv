@@ -1,4 +1,5 @@
 name,props_count,difficulty,tags,comment,max_throw
+"1c under the leg",1,5,"under legs",,1
 "20c sync fountain -> 20c async fountain",4,12,"sync base pattern|async base pattern","Transition: (5x,4)",5
 "20c cascade",5,16,"async base pattern",,5
 "50c isolated cascade",5,27,"async base pattern|isolated",,5

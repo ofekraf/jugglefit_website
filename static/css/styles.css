@@ -1209,6 +1209,48 @@ a.primary-button.live-event-button:hover {
     box-sizing: border-box;
 }
 
+/* Available tricks styling */
+.trick-group {
+    margin-bottom: 1rem;
+    border: 1px solid #eee;
+    padding: 0.5rem;
+    border-radius: 4px;
+}
+.trick-group-header {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+.trick-group-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+.trick-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0.75rem;
+    background: #fff;
+    border: 1px solid #f0f0f0;
+    border-radius: 4px;
+}
+.prop-details-frame.trick-item {
+    padding: 0.5rem 0.75rem;
+}
+.prop-details-frame.trick-item .trick-content {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 0.5rem;
+}
+.prop-details-frame.trick-item .add-trick {
+    margin-left: auto;
+}
+.trick-item-title { font-weight: 600; margin-bottom: 0.25rem; }
+.trick-item-meta { display: none; }
+.trick-item-actions { margin-left: 1rem; }
+.add-trick.small { padding: 6px 10px; font-size: 0.95rem; }
+
 .route-details {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
