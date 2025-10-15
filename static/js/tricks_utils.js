@@ -51,6 +51,10 @@ async function fetchTricks({
         });
         
         if (!response.ok) {
+            // Try to read response text for better debugging
+            let respText = '';
+            try { respText = await response.text(); } catch (e) { respText = '<unable to read response text>'; }
+            console.error('fetchTricks response not ok:', response.status, respText);
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         
@@ -59,11 +63,6 @@ async function fetchTricks({
         console.error('Error fetching tricks:', error);
         throw error;
     }
-}
-
-function fetchRandomTrickForDifficulty(difficulty) {
-    const tricks = fetchTricks({ minDifficulty: difficulty, maxDifficulty: difficulty });
-    return tricks[Math.floor(Math.random() * tricks.length)];
 }
 
 function getRandomTrickForDifficulty(tricks, difficulty, minProps, maxProps, excludedTags, maxThrow = null) {

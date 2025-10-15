@@ -38,14 +38,23 @@ def serialize_route():
 def fetch_tricks():
 	try:
 		data = request.get_json()
+		# Utility to safely parse ints from request data. Returns default when value is None or invalid.
+		def safe_int(val, default=None):
+			if val is None:
+				return default
+			try:
+				return int(val)
+			except (ValueError, TypeError):
+				return default
+
 		prop_type = Prop.get_key_by_value(data.get('prop_type'))
-		min_props = int(data.get('min_props', None))
-		max_props = int(data.get('max_props', None))
-		min_difficulty = int(data.get('min_difficulty', None))
-		max_difficulty = int(data.get('max_difficulty', None))
+		min_props = safe_int(data.get('min_props'), None)
+		max_props = safe_int(data.get('max_props'), None)
+		min_difficulty = safe_int(data.get('min_difficulty'), None)
+		max_difficulty = safe_int(data.get('max_difficulty'), None)
 		exclude_tags = data.get('exclude_tags', set())
-		limit = int(data.get('limit', 0))
-		max_throw = int(data.get('max_throw')) if data.get('max_throw') is not None else None
+		limit = safe_int(data.get('limit'), 0)
+		max_throw = safe_int(data.get('max_throw'), None)
 
 		exclude_tags_set = {Tag.get_key_by_value(tag) for tag in exclude_tags}
 

@@ -193,12 +193,22 @@
         propsMaxInput.value = maxProps;
         // Show only relevant tags
         updateRelevantTags(propSettings.relevant_tags);
-        // Fetch tricks for selected prop and current max throw
-        const maxThrowEnabled = document.getElementById('max-throw-enabled');
-        const maxThrow = maxThrowEnabled.checked ? parseInt(document.getElementById('max-throw-input').value) : null;
-        fetchTricks({ propType: prop, maxThrow: maxThrow })
-            .then(tricks => { allTricks = tricks; })
-            .catch(error => { console.error('Error fetching tricks:', error); });
+    // Fetch tricks for selected prop and current max throw
+    const maxThrowElem = document.getElementById('max-throw-enabled');
+    const maxThrow = maxThrowElem && maxThrowElem.checked ? parseInt(document.getElementById('max-throw-input').value) : null;
+    // Build request payload with numeric values where available. Use propSettings' min/max props by default.
+    const minPropsValue = Number.isFinite(Number(propSettings.min_props)) ? Number(propSettings.min_props) : null;
+    const maxPropsValue = Number.isFinite(Number(propSettings.max_props)) ? Number(propSettings.max_props) : null;
+    const _minDifficulty = parseInt(document.getElementById('min-difficulty-input').value);
+    const _maxDifficulty = parseInt(document.getElementById('max-difficulty-input').value);
+    const minDifficultyValue = Number.isFinite(_minDifficulty) ? _minDifficulty : null;
+    const maxDifficultyValue = Number.isFinite(_maxDifficulty) ? _maxDifficulty : null;
+    const excludedTags = Array.from(document.querySelectorAll('input[name="exclude_tags"]:checked')).map(cb => cb.value);
+
+    // Load all tricks for this prop (no client-side filters yet). Filtering is applied later when generating routes/tooltips.
+    fetchTricks({ propType: prop })
+        .then(tricks => { allTricks = tricks; })
+        .catch(error => { console.error('Error fetching tricks:', error); });
     }
 
     // Handler for max throw checkbox: only toggles slider visibility and updates hidden input
@@ -266,9 +276,13 @@
     document.addEventListener('DOMContentLoaded', function() {
         const firstPropInput = document.querySelector('.prop-option-input');
         if (firstPropInput) {
-            // Simulate pointerdown and click to ensure browser updates radio visually
-            firstPropInput.dispatchEvent(new PointerEvent('pointerdown', {bubbles: true}));
-            firstPropInput.dispatchEvent(new MouseEvent('click', {bubbles: true}));
+            // Ensure the radio is checked and UI initialized
+            firstPropInput.checked = true;
+            const label = firstPropInput.closest('.prop-option');
+            if (label) label.classList.add('selected');
+            if (typeof handlePropChange === 'function') {
+                handlePropChange();
+            }
         }
     });
 
@@ -301,8 +315,11 @@
         const excludedTags = Array.from(document.querySelectorAll('input[name="exclude_tags"]:checked')).map(cb => cb.value);
         const currentProp = document.querySelector('.prop-option-input:checked').value;
 
-        // Get a random trick for the current difficulty
-        const trick = getRandomTrickForDifficulty(allTricks, difficulty, minProps, maxProps, excludedTags);
+    // Determine maxThrow from checkbox/slider and get a random trick respecting it
+    const maxThrowElem = document.getElementById('max-throw-enabled');
+    const tooltipMaxThrow = maxThrowElem && maxThrowElem.checked ? parseInt(document.getElementById('max-throw-input').value) : null;
+    // Get a random trick for the current difficulty
+    const trick = getRandomTrickForDifficulty(allTricks, difficulty, minProps, maxProps, excludedTags, tooltipMaxThrow);
         if (!trick) return;
 
         // Remove any existing tooltip
@@ -379,33 +396,7 @@
         routeDurationInput.value = minutes;
     });
 
-    // Handle max throw checkbox and slider
-    const maxThrowEnabled = document.getElementById('max-throw-enabled');
-    const maxThrowContainer = document.getElementById('max-throw-input-container');
-    const maxThrowSlider = document.getElementById('max-throw-slider');
-    const maxThrowValue = document.getElementById('max-throw-value');
-    const maxThrowInput = document.getElementById('max-throw-input');
-
-    // Toggle max throw input visibility
-    maxThrowEnabled.addEventListener('change', () => {
-        if (maxThrowEnabled.checked) {
-            maxThrowContainer.style.display = 'block';
-            const maxThrow = parseInt(maxThrowSlider.value);
-            maxThrowInput.value = maxThrow;
-        } else {
-            maxThrowContainer.style.display = 'none';
-            maxThrowInput.value = '';
-        }
-    });
-
-    // Update the value displayed next to the "Max Throw" slider
-    maxThrowSlider.addEventListener('input', () => {
-        const maxThrow = parseInt(maxThrowSlider.value);
-        maxThrowValue.textContent = maxThrow;
-        if (maxThrowEnabled.checked) {
-            maxThrowInput.value = maxThrow;
-        }
-    });
+    // (max throw handlers are declared earlier to avoid duplicate declarations)
 
     // (Removed updateSelectedState and its call; will use central handler instead)
 
