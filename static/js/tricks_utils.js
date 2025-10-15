@@ -180,23 +180,12 @@ function updateSearchTricks() {
         const maxThrowElem = document.getElementById('max-throw-enabled');
         const maxThrow = maxThrowElem && maxThrowElem.checked ? parseInt(document.getElementById('max-throw-input').value) : null;
 
-        // If allTricks is empty, attempt to fetch for currently selected prop
+        // Do NOT auto-fetch here. Fetching should only happen explicitly on prop selection
+        // (prop change handler calls fetchTricks and populates window.allTricks).
         if (!Array.isArray(window.allTricks) || window.allTricks.length === 0) {
-            const selectedPropInput = document.querySelector('.prop-option-input:checked');
-            const prop = selectedPropInput ? selectedPropInput.value : null;
-            if (prop) {
-                fetchTricks({ propType: prop })
-                    .then(tricks => {
-                        window.allTricks = tricks;
-                        const filtered = filterTricks(window.allTricks, minProps, maxProps, minDifficulty, maxDifficulty, excludedTags, maxThrow);
-                        renderTricks(filtered);
-                    })
-                    .catch(err => {
-                        console.error('Error fetching tricks in updateSearchTricks:', err);
-                        renderTricks([]);
-                    });
-                return;
-            }
+            // No tricks cached for the selected prop yet — render empty state and return.
+            renderTricks([]);
+            return;
         }
 
         const filtered = filterTricks(window.allTricks || [], minProps, maxProps, minDifficulty, maxDifficulty, excludedTags, maxThrow);

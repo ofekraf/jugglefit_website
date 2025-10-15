@@ -181,6 +181,8 @@
     // Current route state used by the builder
     let currentRoute = initialRoute ? initialRoute : { name: '', prop: null, tricks: [] };
     if (typeof window !== 'undefined') window.currentRoute = currentRoute;
+    // Cache tricks per prop to avoid repeated network calls
+    if (typeof window !== 'undefined') window.tricksCache = window.tricksCache || {};
     // Elements used across functions: keep them top-level so handlers can reference reliably
     const propsSlider = document.getElementById('props-slider');
     const propsRange = document.getElementById('props-range');
@@ -554,10 +556,23 @@
                     }
                     // Show only relevant tags
                     updateRelevantTags(propSettings.relevant_tags);
-                    // Load all tricks for this prop (no client-side filters yet). Filtering is applied later when generating routes/tooltips.
-                    fetchTricks({ propType: prop })
-                        .then(tricks => { window.allTricks = tricks; updateSearchTricks(); })
-                        .catch(error => { console.error('Error fetching tricks:', error); updateSearchTricks(); });
+                    // Load all tricks for this prop (use cache when available)
+                    if (window.tricksCache && window.tricksCache[prop]) {
+                        window.allTricks = window.tricksCache[prop];
+                        updateSearchTricks();
+                    } else {
+                        fetchTricks({ propType: prop })
+                            .then(tricks => {
+                                window.allTricks = tricks;
+                                window.tricksCache = window.tricksCache || {};
+                                window.tricksCache[prop] = tricks;
+                                updateSearchTricks();
+                            })
+                            .catch(error => {
+                                console.error('Error fetching tricks:', error);
+                                updateSearchTricks();
+                            });
+                    }
                 });
             });
         }
@@ -628,6 +643,74 @@
         initializePropSelection();
         initializeEventListeners();
 
+        // If the server provided an initial route via the `route` URL parameter, load it into the UI
+        function loadInitialRoute() {
+            if (!initialRoute) return;
+            try {
+                // Populate route name (set even if empty string is provided)
+                if (initialRoute && Object.prototype.hasOwnProperty.call(initialRoute, 'name')) {
+                    const rn = document.getElementById('route_name');
+                    if (rn) {
+                        rn.value = initialRoute.name;
+                    }
+                    // Ensure currentRoute.name is set from initialRoute
+                    currentRoute.name = initialRoute.name || '';
+                    if (typeof window !== 'undefined') window.currentRoute = currentRoute;
+                }
+
+                // Populate duration
+                if (initialRoute.duration_seconds) {
+                    const minutes = Math.round(initialRoute.duration_seconds / 60);
+                    const durationInput = document.getElementById('route-duration-input');
+                    const durationSlider = document.getElementById('route-duration-slider');
+                    const durationValue = document.getElementById('route-duration-value');
+                    if (durationInput) durationInput.value = minutes;
+                    if (durationSlider) durationSlider.value = minutes;
+                    if (durationValue) durationValue.textContent = minutes;
+                }
+
+                // Select prop if provided and ensure slider / tags update
+                if (initialRoute.prop) {
+                    const propToSelect = initialRoute.prop;
+                    const propRadio = document.querySelector(`.prop-option-input[value="${propToSelect}"]`);
+                    if (propRadio) {
+                        propRadio.checked = true;
+                        const label = propRadio.closest('.prop-option');
+                        if (label) {
+                            document.querySelectorAll('.prop-option').forEach(l => l.classList.remove('selected'));
+                            label.classList.add('selected');
+                        }
+                        // Trigger change handler to update sliders, tags, and fetch tricks
+                        propRadio.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                }
+
+                // Populate tricks into currentRoute
+                if (Array.isArray(initialRoute.tricks) && initialRoute.tricks.length > 0) {
+                    // Map incoming trick objects to the expected internal shape
+                    currentRoute.tricks = initialRoute.tricks.map(t => ({
+                        name: t.name,
+                        props_count: t.props_count,
+                        difficulty: t.difficulty || 30,
+                        tags: t.tags || [],
+                        comment: t.comment || null
+                    }));
+                    // Ensure currentRoute.prop is set if not already
+                    if (!currentRoute.prop && initialRoute.prop) currentRoute.prop = initialRoute.prop;
+                    if (typeof window !== 'undefined') window.currentRoute = currentRoute;
+                    // Update the visible route
+                    updateRouteDisplay();
+                }
+                // Refresh search results to reflect any tags/filters
+                updateSearchTricks();
+            } catch (e) {
+                console.error('Error loading initial route into builder:', e);
+            }
+        }
+
+        // Call loadInitialRoute after initial selection and listeners are set
+        loadInitialRoute();
+
         // Add Custom Trick functionality
         document.getElementById('add_custom_trick').addEventListener('click', function() {
             const name = document.getElementById('custom_trick_name').value.trim();
@@ -668,10 +751,15 @@
 
         // View route functionality
         document.getElementById('view_route').addEventListener('click', async function() {
+            // Pull the typed route name into currentRoute before validating
+            const typedName = document.getElementById('route_name') ? document.getElementById('route_name').value.trim() : '';
+            if (typedName) {
+                currentRoute.name = typedName;
+                if (typeof window !== 'undefined') window.currentRoute = currentRoute;
+            }
+            // If no name was entered, show a non-blocking toast but allow viewing the route
             if (!currentRoute.name) {
-                showToast('Please enter a route name before viewing.', 'route_name');
-                document.getElementById('route_name').focus();
-                return;
+                showToast('No route name provided. Proceeding to view without a name.');
             }
             if (!currentRoute.prop) {
                 showToast('Please select a prop type before viewing.', 'prop-slider');
@@ -679,13 +767,28 @@
             }
 
             try {
+                // Build a complete payload for serialization (ensure required fields)
+                const durationMinutes = document.getElementById('route-duration-input') ? parseInt(document.getElementById('route-duration-input').value) : 10;
+                const payload = {
+                    name: currentRoute.name,
+                    prop: currentRoute.prop,
+                    duration_seconds: Number.isFinite(durationMinutes) ? durationMinutes * 60 : 600,
+                    tricks: Array.isArray(currentRoute.tricks) ? currentRoute.tricks.map(t => ({
+                        name: t.name,
+                        props_count: t.props_count,
+                        difficulty: t.difficulty,
+                        tags: t.tags || [],
+                        comment: t.comment || null
+                    })) : []
+                };
+
                 // Serialize the route
                 const response = await fetch('/api/serialize_route', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(currentRoute)
+                    body: JSON.stringify(payload)
                 });
                 const serialized = await response.text();
                 

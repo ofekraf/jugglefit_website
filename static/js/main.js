@@ -2,7 +2,12 @@ function initMainJS() {
     // Route name placeholder handling
     const routeInput = document.getElementById('route_name');
     if (routeInput) {
-        routeInput.value = routeInput.placeholder;
+        // Only set the placeholder text if the input is currently empty; do not override
+        // values that may have been populated from the URL or server.
+        if (!routeInput.value) {
+            routeInput.value = routeInput.placeholder;
+            routeInput.style.color = 'grey';
+        }
 
         routeInput.addEventListener('focus', function() {
             if (this.value === this.placeholder) {
