@@ -8,7 +8,7 @@ from hardcoded_database.organization.team import TEAM
 
 from dotenv import load_dotenv
 
-from pylib.classes.prop import Prop
+from pylib.classes.prop import MAIN_PROPS, Prop
 from pylib.classes.route import Route
 from pylib.classes.tag import TAG_CATEGORY_MAP_JSON, Tag, TagCategory
 from hardcoded_database.tricks import ALL_PROPS_SETTINGS_JSON
@@ -135,7 +135,8 @@ def generate_route():
 					 current_page='generate_route', 
 					 tag_category_map=TAG_CATEGORY_MAP_JSON,
 					 tag_categories=list(TagCategory),
-					 props_settings=ALL_PROPS_SETTINGS_JSON)
+						props_settings=ALL_PROPS_SETTINGS_JSON,
+						main_props=[Prop.Balls.value, Prop.Clubs.value, Prop.Rings.value])
 	
 	route_name = request.form['route_name']
 	prop = request.form['prop']
@@ -165,7 +166,7 @@ def generate_route():
 		serialized = route.serialize()
 		return redirect(url_for('created_route', route=serialized))
 	except NotEnoughTricksFoundException:
-		return '<p class="no-tricks">No tricks were generated. Try adjusting your criteria.</p>'
+		return '<p class="no-tricks">Not enough tricks in database. Try adjusting your criteria.</p>'
 
 @app.route('/host_event', methods=['GET'])
 def host_event():
@@ -190,8 +191,9 @@ def build_route():
 	return render_template('build_route.html',
 			 tag_category_map=TAG_CATEGORY_MAP_JSON,
 			 tag_categories=list(TagCategory),
-			 props_settings=ALL_PROPS_SETTINGS_JSON,
-			 initial_route=initial_route)
+				props_settings=ALL_PROPS_SETTINGS_JSON,
+				initial_route=initial_route,
+				main_props=[Prop.Balls.value, Prop.Clubs.value, Prop.Rings.value])
 
 @app.route('/created_route', methods=['GET'])
 def created_route():

@@ -1204,6 +1204,44 @@ a.primary-button.live-event-button:hover {
     transform: scale(1);
 }
 
+/* Additional props dropdown */
+.prop-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.prop-dropdown-label {
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    margin-left: 0.5rem;
+}
+
+.prop-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.5rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    z-index: 1000;
+    min-width: 200px;
+}
+
+.prop-dropdown:hover .prop-dropdown-menu {
+    display: block;
+}
+
+.prop-dropdown .prop-option {
+    display: block;
+    margin: 0 0 0.25rem 0;
+}
+
 /* Slider styles */
 .slider-container {
     margin-top: 0.5rem;
@@ -1685,6 +1723,10 @@ a.primary-button.live-event-button:hover {
     background-image: url('/static/images/juggling_rings.png');
 }
 
+.prop-color-bar[data-prop-type="club_passing"]::before {
+    background-image: url('/static/images/juggling_club.svg');
+}
+
 /* Ensure white text for all prop counts */
 .prop-count-text {
     color: #ffffff;
@@ -1723,7 +1765,11 @@ a.primary-button.live-event-button:hover {
 .prop-color-bar[data-props="3"]::before,
 .prop-color-bar[data-props="5"]::before,
 .prop-color-bar[data-props="7"]::before,
-.prop-color-bar[data-props="9"]::before {
+.prop-color-bar[data-props="9"]::before,
+.prop-color-bar[data-props="11"]::before,
+.prop-color-bar[data-props="12"]::before,
+.prop-color-bar[data-props="13"]::before {
+    /* Invert icons for darker backgrounds so white icons remain visible */
     filter: brightness(0) invert(1);
 }
 
@@ -1755,17 +1801,37 @@ a.primary-button.live-event-button:hover {
     background: #8a2be2;
 }
 
+.prop-color-bar[data-props="10"] {
+    background: #ffd700; /* gold */
+}
+
+.prop-color-bar[data-props="11"] {
+    background: #006400; /* dark green */
+}
+
+.prop-color-bar[data-props="12"] {
+    background: #ff1493; /* deep pink */
+}
+
+.prop-color-bar[data-props="13"] {
+    background: #1e90ff; /* dodger blue */
+}
+
 /* Ensure white text for 3,5,7,9 and black for 4,6,8 */
 .prop-color-bar[data-props="3"] .prop-count-text,
 .prop-color-bar[data-props="5"] .prop-count-text,
 .prop-color-bar[data-props="7"] .prop-count-text,
-.prop-color-bar[data-props="9"] .prop-count-text {
+.prop-color-bar[data-props="9"] .prop-count-text,
+.prop-color-bar[data-props="11"] .prop-count-text,
+.prop-color-bar[data-props="12"] .prop-count-text,
+.prop-color-bar[data-props="13"] .prop-count-text {
     color: white;
 }
 
 .prop-color-bar[data-props="4"] .prop-count-text,
 .prop-color-bar[data-props="6"] .prop-count-text,
-.prop-color-bar[data-props="8"] .prop-count-text {
+.prop-color-bar[data-props="8"] .prop-count-text,
+.prop-color-bar[data-props="10"] .prop-count-text {
     color: black;
 }
 

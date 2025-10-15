@@ -31,13 +31,32 @@
         <div class="form-section">
             <label class="form-label">Select Prop</label>
             <div class="prop-group">
+                {# Render main props according to server-provided main_props (keeps single source of truth) #}
                 {% for prop in props_settings.keys() %}
-                    <label class="prop-option" data-prop-type="{{ prop }}">
-                        <input type="radio" name="prop" class="prop-option-input" value="{{ prop }}" {% if loop.first %}checked{% endif %}> 
-                        <span class="prop-option-name">{{ prop|capitalize }}</span>
-                        <div class="prop-icon"></div>
-                    </label>
+                    {% if prop in main_props %}
+                        <label class="prop-option" data-prop-type="{{ prop }}">
+                            <input type="radio" name="prop" class="prop-option-input" value="{{ prop }}"> 
+                            <span class="prop-option-name">{{ prop|replace('_',' ')|capitalize }}</span>
+                            <div class="prop-icon"></div>
+                        </label>
+                    {% endif %}
                 {% endfor %}
+
+                {# Additional props dropdown placed to the right #}
+                <div class="prop-dropdown">
+                    <div class="prop-dropdown-label">Additional Props ▾</div>
+                    <div class="prop-dropdown-menu">
+                        {% for prop in props_settings.keys() %}
+                            {% if prop not in main_props %}
+                                <label class="prop-option" data-prop-type="{{ prop }}">
+                                    <input type="radio" name="prop" class="prop-option-input" value="{{ prop }}"> 
+                                    <span class="prop-option-name">{{ prop|replace('_',' ')|capitalize }}</span>
+                                    <div class="prop-icon"></div>
+                                </label>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -481,31 +500,40 @@
             // Props slider initialization
             if (propsSlider && !propsSlider.noUiSlider) {  // Check if slider exists and not already initialized
 
-                // Get initial prop (first selected)
-                let selectedProp = document.querySelector('.prop-option-input:checked').value;
-                let propSettings = propsSettings[selectedProp];
-                let minProps = propSettings.min_props;
-                let maxProps = propSettings.max_props;
+                // Try to get the initially selected prop (may be null if initialRoute will select later)
+                const firstSelectedInput = document.querySelector('.prop-option-input:checked');
+                if (firstSelectedInput) {
+                    const selectedProp = firstSelectedInput.value;
+                    const propSettings = propsSettings[selectedProp];
+                    const minProps = propSettings.min_props;
+                    const maxProps = propSettings.max_props;
 
-                noUiSlider.create(propsSlider, {
-                    start: [minProps, maxProps],
-                    connect: true,
-                    range: {
-                        'min': minProps,
-                        'max': maxProps
-                    },
-                    format: {
-                        to: (value) => Math.round(value),
-                        from: (value) => parseFloat(value)
-                    }
-                });
+                    noUiSlider.create(propsSlider, {
+                        start: [minProps, maxProps],
+                        connect: true,
+                        range: {
+                            'min': minProps,
+                            'max': maxProps
+                        },
+                        format: {
+                            to: (value) => Math.round(value),
+                            from: (value) => parseFloat(value)
+                        }
+                    });
 
-                propsSlider.noUiSlider.on('update', function(values) {
-                    if (propsRange) propsRange.textContent = `Min: ${values[0]}, Max: ${values[1]}`;
-                    if (propsMinInput) propsMinInput.value = Math.round(values[0]);
-                    if (propsMaxInput) propsMaxInput.value = Math.round(values[1]);
-                    updateSearchTricks();
-                });
+                    propsSlider.noUiSlider.on('update', function(values) {
+                        if (propsRange) propsRange.textContent = `Min: ${values[0]}, Max: ${values[1]}`;
+                        if (propsMinInput) propsMinInput.value = Math.round(values[0]);
+                        if (propsMaxInput) propsMaxInput.value = Math.round(values[1]);
+                        updateSearchTricks();
+                    });
+                } else {
+                    // No selected prop yet (likely initialRoute will set it). Leave slider uninitialized;
+                    // the prop-change handler will lazy-initialize the slider when a prop is selected.
+                    if (propsRange) propsRange.textContent = '';
+                    if (propsMinInput) propsMinInput.value = '';
+                    if (propsMaxInput) propsMaxInput.value = '';
+                }
             }
 
             // When prop changes, update slider limits and tags
@@ -525,16 +553,40 @@
                     // Keep currentRoute.prop in sync with selected prop
                     if (!currentRoute) currentRoute = { name: '', prop: prop, tricks: [] };
                     else currentRoute.prop = prop;
+                    // Reset the route's tricks when the prop changes (user starts a new route)
+                    currentRoute.tricks = [];
                     if (typeof window !== 'undefined') window.currentRoute = currentRoute;
+                    // Refresh the visible route to show the empty state
+                    try { updateRouteDisplay(); } catch (e) { /* ignore if not initialized yet */ }
                     let propSettings = propsSettings[prop];
                     let minProps = propSettings.min_props;
                     let maxProps = propSettings.max_props;
-                    // Update slider range
-                    if (propsSlider && propsSlider.noUiSlider) {
-                        propsSlider.noUiSlider.updateOptions({
-                            range: { min: minProps, max: maxProps },
-                            start: [minProps, maxProps]
-                        });
+                    // Update or (lazy) initialize slider range
+                    if (propsSlider) {
+                        if (propsSlider.noUiSlider) {
+                            propsSlider.noUiSlider.updateOptions({
+                                range: { min: minProps, max: maxProps },
+                                start: [minProps, maxProps]
+                            });
+                        } else {
+                            // lazy-create slider if it wasn't initialized (e.g., when initialRoute selects a prop)
+                            try {
+                                noUiSlider.create(propsSlider, {
+                                    start: [minProps, maxProps],
+                                    connect: true,
+                                    range: { 'min': minProps, 'max': maxProps },
+                                    format: { to: (value) => Math.round(value), from: (value) => parseFloat(value) }
+                                });
+                                propsSlider.noUiSlider.on('update', function(values) {
+                                    if (propsRange) propsRange.textContent = `Min: ${values[0]}, Max: ${values[1]}`;
+                                    if (propsMinInput) propsMinInput.value = Math.round(values[0]);
+                                    if (propsMaxInput) propsMaxInput.value = Math.round(values[1]);
+                                    updateSearchTricks();
+                                });
+                            } catch (e) {
+                                console.warn('Failed to create props slider dynamically:', e);
+                            }
+                        }
                     }
                     if (propsRange) propsRange.textContent = `Min: ${minProps}, Max: ${maxProps}`;
                     if (propsMinInput) propsMinInput.value = minProps;
@@ -624,6 +676,12 @@
 
         // Ensure a function exists to activate the first prop after listeners are attached
         function initializePropSelection() {
+            // If the server provided an initialRoute, avoid auto-selecting the first prop here
+            // so the initialRoute selection logic can run and select the correct prop.
+            if (initialRoute) {
+                return;
+            }
+
             const firstPropInput = document.querySelector('.prop-option-input');
             if (firstPropInput) {
                 firstPropInput.checked = true;
@@ -669,40 +727,156 @@
                     if (durationValue) durationValue.textContent = minutes;
                 }
 
-                // Select prop if provided and ensure slider / tags update
-                if (initialRoute.prop) {
-                    const propToSelect = initialRoute.prop;
-                    const propRadio = document.querySelector(`.prop-option-input[value="${propToSelect}"]`);
-                    if (propRadio) {
-                        propRadio.checked = true;
-                        const label = propRadio.closest('.prop-option');
-                        if (label) {
-                            document.querySelectorAll('.prop-option').forEach(l => l.classList.remove('selected'));
-                            label.classList.add('selected');
+                // If a prop is provided, try to select it robustly. Some props live in the "Additional Props"
+                // dropdown and the selector may not match exactly in some edge cases, so attempt both
+                // value-based selection and data attribute selection. After selecting, explicitly fetch
+                // tricks for that prop and only then populate the route's tricks so the UI is consistent.
+                async function selectPropAndLoadTricks(propToSelect) {
+                    if (!propToSelect) return;
+                    // Retry to find the radio input/label a few times to handle timing races
+                    const maxAttempts = 6;
+                    const delayMs = 100;
+                    let attempt = 0;
+
+                    async function tryFind() {
+                        attempt++;
+                        // Try to find the radio input by value first
+                        let propRadio = document.querySelector(`.prop-option-input[value="${propToSelect}"]`);
+                        // If not found, try to find label with data-prop-type attribute
+                        if (!propRadio) {
+                            const label = document.querySelector(`.prop-option[data-prop-type="${propToSelect}"]`);
+                            if (label) propRadio = label.querySelector('.prop-option-input');
                         }
-                        // Trigger change handler to update sliders, tags, and fetch tricks
-                        propRadio.dispatchEvent(new Event('change', { bubbles: true }));
+
+                        if (propRadio) {
+                        
+                            // Mark the radio and visible selected state
+                            try { propRadio.checked = true; } catch (e) {}
+                            const label = propRadio.closest('.prop-option');
+                            if (label) {
+                                document.querySelectorAll('.prop-option').forEach(l => l.classList.remove('selected'));
+                                label.classList.add('selected');
+                            }
+
+                            // Ensure currentRoute.prop is set immediately
+                            currentRoute.prop = propToSelect;
+                            if (typeof window !== 'undefined') window.currentRoute = currentRoute;
+
+                            // Instead of dispatching a change (which would duplicate fetches),
+                            // update the UI pieces that the change handler would handle here:
+                            try {
+                                // Update selected class on labels
+                                document.querySelectorAll('.prop-option').forEach(l => l.classList.remove('selected'));
+                                if (label) label.classList.add('selected');
+                                // Update slider range or initialize it
+                                if (propsSlider) {
+                                    try {
+                                        const propSettingsInner = propsSettings[propToSelect] || {};
+                                        const minPropsInner = propSettingsInner.min_props || 1;
+                                        const maxPropsInner = propSettingsInner.max_props || 10;
+                                        if (propsSlider.noUiSlider) {
+                                            propsSlider.noUiSlider.updateOptions({ range: { min: minPropsInner, max: maxPropsInner }, start: [minPropsInner, maxPropsInner] });
+                                        } else {
+                                            noUiSlider.create(propsSlider, {
+                                                start: [minPropsInner, maxPropsInner],
+                                                connect: true,
+                                                range: { 'min': minPropsInner, 'max': maxPropsInner },
+                                                format: { to: (v)=>Math.round(v), from: (v)=>parseFloat(v) }
+                                            });
+                                            propsSlider.noUiSlider.on('update', function(values) {
+                                                if (propsRange) propsRange.textContent = `Min: ${values[0]}, Max: ${values[1]}`;
+                                                if (propsMinInput) propsMinInput.value = Math.round(values[0]);
+                                                if (propsMaxInput) propsMaxInput.value = Math.round(values[1]);
+                                                updateSearchTricks();
+                                            });
+                                        }
+                                    } catch (uiErr) {
+                                        console.warn('Error updating/creating props slider during initial select:', uiErr);
+                                    }
+                                }
+                                // Update relevant tags
+                                const ps = propsSettings[propToSelect] || {};
+                                updateRelevantTags(ps.relevant_tags || []);
+                            } catch (e) {
+                                console.warn('Error applying UI updates during initial prop selection:', e);
+                            }
+
+                            // Explicitly fetch tricks once
+                            try {
+                                const propSettings = propsSettings[propToSelect] || {};
+                                const minProps = propSettings.min_props || 1;
+                                const maxProps = propSettings.max_props || 10;
+                                const tricks = await fetchTricks({ propType: propToSelect, minProps, maxProps });
+                                window.allTricks = tricks;
+                                window.tricksCache = window.tricksCache || {};
+                                window.tricksCache[propToSelect] = tricks;
+
+                                // If the fetch returned nothing, try a one-off retry to work around server timing races
+                                if ((!Array.isArray(tricks) || tricks.length === 0) && propToSelect) {
+                                    console.warn('Initial fetch returned zero tricks for', propToSelect, '- attempting fallback fetch');
+                                    try {
+                                        const fallback = await fetchTricks({ propType: propToSelect, minProps, maxProps });
+                                        window.allTricks = fallback;
+                                        window.tricksCache[propToSelect] = fallback;
+                                    } catch (fbErr) {
+                                        console.warn('Fallback fetch failed for initial prop:', fbErr);
+                                    }
+                                }
+                            } catch (err) {
+                                console.warn('Could not fetch tricks for initial prop:', err);
+                            }
+
+                            return true;
+                        }
+
+                        if (attempt < maxAttempts) {
+                            return new Promise(resolve => setTimeout(() => resolve(tryFind()), delayMs));
+                        }
+
+                        console.warn('Could not locate prop input for initial prop:', propToSelect);
+                        return false;
                     }
+
+                    return tryFind();
                 }
 
-                // Populate tricks into currentRoute
-                if (Array.isArray(initialRoute.tricks) && initialRoute.tricks.length > 0) {
-                    // Map incoming trick objects to the expected internal shape
-                    currentRoute.tricks = initialRoute.tricks.map(t => ({
-                        name: t.name,
-                        props_count: t.props_count,
-                        difficulty: t.difficulty || 30,
-                        tags: t.tags || [],
-                        comment: t.comment || null
-                    }));
-                    // Ensure currentRoute.prop is set if not already
-                    if (!currentRoute.prop && initialRoute.prop) currentRoute.prop = initialRoute.prop;
-                    if (typeof window !== 'undefined') window.currentRoute = currentRoute;
-                    // Update the visible route
-                    updateRouteDisplay();
+                        // If the initial route included a prop, select it and ensure tricks are fetched first
+                if (initialRoute.prop) {
+                    selectPropAndLoadTricks(initialRoute.prop).then(() => {
+                        // Populate tricks into currentRoute once the prop selection and fetch (if any) completed
+                        if (Array.isArray(initialRoute.tricks) && initialRoute.tricks.length > 0) {
+                            
+                            currentRoute.tricks = initialRoute.tricks.map(t => ({
+                                name: t.name,
+                                props_count: t.props_count,
+                                difficulty: t.difficulty || 30,
+                                tags: t.tags || [],
+                                comment: t.comment || null
+                            }));
+                            // Ensure currentRoute.prop is set
+                            currentRoute.prop = initialRoute.prop;
+                            if (typeof window !== 'undefined') window.currentRoute = currentRoute;
+                            // Update the visible route now that tricks are present
+                            updateRouteDisplay();
+                        }
+                        // Refresh search results to reflect any tags/filters and the fetched tricks
+                        updateSearchTricks();
+                    }).catch(e => console.error('Error selecting initial prop:', e));
+                } else {
+                    // No prop in initial route — still populate tricks if present and refresh UI
+                    if (Array.isArray(initialRoute.tricks) && initialRoute.tricks.length > 0) {
+                        currentRoute.tricks = initialRoute.tricks.map(t => ({
+                            name: t.name,
+                            props_count: t.props_count,
+                            difficulty: t.difficulty || 30,
+                            tags: t.tags || [],
+                            comment: t.comment || null
+                        }));
+                        if (typeof window !== 'undefined') window.currentRoute = currentRoute;
+                        updateRouteDisplay();
+                        updateSearchTricks();
+                    }
                 }
-                // Refresh search results to reflect any tags/filters
-                updateSearchTricks();
             } catch (e) {
                 console.error('Error loading initial route into builder:', e);
             }

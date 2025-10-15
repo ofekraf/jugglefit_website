@@ -42,7 +42,7 @@ async function fetchTricks({
         if (excludedTags !== null) requestBody.exclude_tags = excludedTags;
         if (maxThrow !== null) requestBody.max_throw = maxThrow;
 
-        const response = await fetch('/api/fetch_tricks', {
+    const response = await fetch('/api/fetch_tricks', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -58,7 +58,23 @@ async function fetchTricks({
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         
-        return await response.json();
+    const json = await response.json();
+
+        // If we unexpectedly got an empty array, try one quick retry (network/server race fallback)
+        if (Array.isArray(json) && json.length === 0 && requestBody.prop_type) {
+            console.warn('fetchTricks returned empty for', requestBody.prop_type, '- retrying once');
+            const retryResp = await fetch('/api/fetch_tricks', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(requestBody)
+            });
+            if (retryResp.ok) {
+                const retryJson = await retryResp.json();
+                return retryJson;
+            }
+        }
+
+        return json;
     } catch (error) {
         console.error('Error fetching tricks:', error);
         throw error;

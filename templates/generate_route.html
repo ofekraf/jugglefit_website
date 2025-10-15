@@ -18,13 +18,32 @@
         <div class="form-section">
             <label class="form-label">Select Prop</label>
             <div class="prop-group">
+                {# Render main props according to server-provided main_props (single source of truth) #}
                 {% for prop in props_settings.keys() %}
-                    <label class="prop-option" data-prop-type="{{ prop }}">
-                        <input type="radio" name="prop" class="prop-option-input" value="{{ prop }}" {% if loop.first %}checked{% endif %}> 
-                        <span class="prop-option-name">{{ prop|capitalize }}</span>
-                        <div class="prop-icon"></div>
-                    </label>
+                    {% if prop in main_props %}
+                        <label class="prop-option" data-prop-type="{{ prop }}">
+                            <input type="radio" name="prop" class="prop-option-input" value="{{ prop }}" {% if loop.first %}checked{% endif %}> 
+                            <span class="prop-option-name">{{ prop|replace('_',' ')|capitalize }}</span>
+                            <div class="prop-icon"></div>
+                        </label>
+                    {% endif %}
                 {% endfor %}
+
+                {# Additional props dropdown (opens on hover) placed to the right of main props #}
+                <div class="prop-dropdown">
+                    <div class="prop-dropdown-label">Additional Props ▾</div>
+                    <div class="prop-dropdown-menu">
+                        {% for prop in props_settings.keys() %}
+                            {% if prop not in main_props %}
+                                <label class="prop-option" data-prop-type="{{ prop }}">
+                                    <input type="radio" name="prop" class="prop-option-input" value="{{ prop }}"> 
+                                    <span class="prop-option-name">{{ prop|replace('_',' ')|capitalize }}</span>
+                                    <div class="prop-icon"></div>
+                                </label>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -150,8 +169,9 @@
     const maxThrowValue = document.getElementById('max-throw-value');
     const maxThrowInput = document.getElementById('max-throw-input');
 
-    // Get initial prop (first selected)
-    let selectedProp = document.querySelector('.prop-option-input:checked') ? document.querySelector('.prop-option-input:checked').value : Object.keys(propsSettings)[0];
+    // Get initial prop (first selected). If none selected yet, fall back to the first key in propsSettings.
+    const checkedPropInput = document.querySelector('.prop-option-input:checked');
+    let selectedProp = checkedPropInput ? checkedPropInput.value : Object.keys(propsSettings)[0];
     let propSettings = propsSettings[selectedProp];
     let minProps = propSettings.min_props;
     let maxProps = propSettings.max_props;
@@ -313,7 +333,8 @@
         const minProps = parseInt(document.getElementById('min-props-input').value);
         const maxProps = parseInt(document.getElementById('max-props-input').value);
         const excludedTags = Array.from(document.querySelectorAll('input[name="exclude_tags"]:checked')).map(cb => cb.value);
-        const currentProp = document.querySelector('.prop-option-input:checked').value;
+    const currentPropInput = document.querySelector('.prop-option-input:checked');
+    const currentProp = currentPropInput ? currentPropInput.value : null;
 
     // Determine maxThrow from checkbox/slider and get a random trick respecting it
     const maxThrowElem = document.getElementById('max-throw-enabled');

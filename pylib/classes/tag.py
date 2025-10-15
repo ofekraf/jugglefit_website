@@ -8,6 +8,8 @@ class TagCategory(ReverseLookupEnum):
     SpinControl = "spin control"
     Siteswap = "siteswap"
     Isolation = "isolation"
+    OneSidedPassing = "one-sided-passing"
+    TwoSidedPassing = "two-sided-passing"
 
     def __lt__(self, other):
         """Make TagCategory sortable by comparing their values."""
@@ -56,6 +58,13 @@ class Tag(ReverseLookupEnum):
     OnTheKnees = "on the knees"
     Sitting = "sitting"
     OnTheBack = "on the back"
+    
+    # Passing
+    TwoCount = "2-count"
+    FourCount = "4-count"
+    OneCount = "1-count"
+    ThreeCount = "3-count"
+    FourHandedSiteswaps = "4-handed siteswaps"
 
     def __lt__(self, other):
         """Make Tag sortable by comparing their values."""
@@ -109,6 +118,17 @@ TAG_CATEGORY_MAP = {
         Tag.Sitting,
         Tag.OnTheBack,
     },
+    
+    TagCategory.OneSidedPassing: {
+        Tag.TwoCount,
+        Tag.FourCount
+    },
+    
+    TagCategory.TwoSidedPassing: {
+        Tag.OneCount,
+        Tag.ThreeCount,
+        Tag.FourHandedSiteswaps
+    }
 }
 
 TAG_CATEGORY_MAP_JSON = {tag_category.value: tags for tag_category, tags in TAG_CATEGORY_MAP.items()}
