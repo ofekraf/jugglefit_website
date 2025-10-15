@@ -35,6 +35,94 @@ body {
     z-index: 1;
 }
 
+/* Orientation alert (moved from templates/utils/base.html) */
+.orientation-alert {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fff;
+    padding: 20px 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    z-index: 1000;
+    align-items: center;
+    gap: 15px;
+    animation: fadeIn 0.3s ease-out;
+    max-width: 90%;
+    text-align: center;
+}
+
+.orientation-alert.show {
+    display: flex;
+}
+
+.orientation-alert .close-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    margin-left: 10px;
+    color: #666;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+.orientation-alert .rotate-icon {
+    animation: rotate 2s infinite linear;
+    color: #666;
+    font-size: 24px;
+}
+
+.orientation-alert span {
+    font-size: 16px;
+    color: #333;
+}
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -40%);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+/* Donation page styles (moved from templates/utils/base.html) */
+.text-center {
+    text-align: center;
+}
+
+.accounting-info {
+    margin-top: 2rem;
+    text-align: center;
+    padding: 1rem;
+    border-top: 1px solid #eee;
+}
+
+.accounting-info p {
+    margin: 0;
+    color: #666;
+}
+
+.accounting-info a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.accounting-info a:hover {
+    text-decoration: underline;
+}
+
 /* Trick Content Styles */
 .trick-content {
     display: flex;
