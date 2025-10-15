@@ -31,13 +31,32 @@
         <div class="form-section">
             <label class="form-label">Select Prop</label>
             <div class="prop-group">
-                {% for prop in prop_options %}
-                    <label class="prop-option {% if loop.first %}selected{% endif %}" data-prop-type="{{ prop }}">
-                        <input type="radio" name="prop" class="prop-option-input" value="{{ prop.value }}" {% if loop.first %}checked{% endif %}> 
-                        <span class="prop-option-name">{{ prop.value }}</span>
-                        <div class="prop-icon"></div>
-                    </label>
+                {# Render main props according to server-provided main_props (keeps single source of truth) #}
+                {% for prop in props_settings.keys() %}
+                    {% if prop in main_props %}
+                        <label class="prop-option" data-prop-type="{{ prop }}">
+                            <input type="radio" name="prop" class="prop-option-input" value="{{ prop }}"> 
+                            <span class="prop-option-name">{{ prop|replace('_',' ')|capitalize }}</span>
+                            <div class="prop-icon"></div>
+                        </label>
+                    {% endif %}
                 {% endfor %}
+
+                {# Additional props dropdown placed to the right #}
+                <div class="prop-dropdown">
+                    <div class="prop-dropdown-label">Additional Props ▾</div>
+                    <div class="prop-dropdown-menu">
+                        {% for prop in props_settings.keys() %}
+                            {% if prop not in main_props %}
+                                <label class="prop-option" data-prop-type="{{ prop }}">
+                                    <input type="radio" name="prop" class="prop-option-input" value="{{ prop }}"> 
+                                    <span class="prop-option-name">{{ prop|replace('_',' ')|capitalize }}</span>
+                                    <div class="prop-icon"></div>
+                                </label>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -72,10 +91,10 @@
                         <div class="slider-container">
                             <div class="slider-wrapper">
                                 <input type="range" id="custom_trick_props" class="custom-range" 
-                                    min="{{ MIN_TRICK_PROPS_COUNT }}" 
-                                    max="{{ MAX_TRICK_PROPS_COUNT }}" 
-                                    value="{{ DEFAULT_MIN_TRICK_PROPS_COUNT }}">
-                                <span id="custom_trick_props_value" class="slider-value">{{ DEFAULT_MIN_TRICK_PROPS_COUNT }}</span>
+                                    min="1" 
+                                    max="10" 
+                                    value="1">
+                                <span id="custom_trick_props_value" class="slider-value">1</span>
                             </div>
                         </div>
                     </div>
@@ -94,10 +113,10 @@
             <div class="slider-container">
                 <div id="props-slider" class="custom-slider"></div>
                 <div class="slider-values">
-                    <span id="props-range">Min: 3, Max: 9</span>
+                    <span id="props-range"></span>
                 </div>
-                <input type="hidden" id="min-props-input" name="min_props" value="3">
-                <input type="hidden" id="max-props-input" name="max_props" value="9">
+                <input type="hidden" id="min-props-input" name="min_props">
+                <input type="hidden" id="max-props-input" name="max_props">
             </div>
         </div>
 
@@ -118,22 +137,20 @@
             <div class="tricks-container">
                 <div class="tricks-column">
                     <div id="exclude_tags" class="tags-grid">
-                        {% for category in tag_categories %}
-                            <div class="tag-category">
+                        {% for category, tags in tag_category_map.items() %}
+                            <div class="tag-category" data-category="{{ category }}">
                                 <div class="tag-category-header">
-                                    <input type="checkbox" id="category-{{ category.value }}" class="category-checkbox">
-                                    <label for="category-{{ category.value }}" class="tag-category-title">
-                                        {{ category.value }}
+                                    <input type="checkbox" id="category-{{ category }}" class="category-checkbox">
+                                    <label for="category-{{ category }}" class="tag-category-title">
+                                        {{ category|capitalize }}
                                     </label>
                                 </div>
                                 <div class="tag-category-content">
-                        {% for tag in tag_options %}
-                                        {% if tag_category_map[tag] == category %}
-                            <div class="checkbox-container">
-                                                <input type="checkbox" id="tag-{{ tag.value }}" name="exclude_tags" value="{{ tag.value }}" class="tag-checkbox" data-category="{{ category.value }}">
-                                                <label for="tag-{{ tag.value }}">{{ tag.value }}</label>
-                                            </div>
-                                        {% endif %}
+                                    {% for tag in tags %}
+                                        <div class="checkbox-container">
+                                            <input type="checkbox" id="tag-{{ tag }}" name="exclude_tags" value="{{ tag }}" class="tag-checkbox" data-category="{{ category }}">
+                                            <label for="tag-{{ tag }}">{{ tag|capitalize }}</label>
+                                        </div>
                                     {% endfor %}
                                 </div>
                             </div>
@@ -176,15 +193,20 @@
 
 <!-- Pass Flask data to JavaScript -->
 <script>
-    // Constants from trick.py
-    const MIN_TRICK_PROPS_COUNT = parseInt('{{ MIN_TRICK_PROPS_COUNT }}');
-    const MAX_TRICK_PROPS_COUNT = parseInt('{{ MAX_TRICK_PROPS_COUNT }}');
-    const MIN_TRICK_DIFFICULTY = parseInt('{{ MIN_TRICK_DIFFICULTY }}');
-    const MAX_TRICK_DIFFICULTY = parseInt('{{ MAX_TRICK_DIFFICULTY }}');
-    const DEFAULT_MIN_TRICK_PROPS_COUNT = parseInt('{{ DEFAULT_MIN_TRICK_PROPS_COUNT }}');
-    const DEFAULT_MAX_TRICK_PROPS_COUNT = parseInt('{{ DEFAULT_MAX_TRICK_PROPS_COUNT }}');
-    const DEFAULT_MIN_TRICK_DIFFICULTY = parseInt('{{ DEFAULT_MIN_TRICK_DIFFICULTY }}');
-    const DEFAULT_MAX_TRICK_DIFFICULTY = parseInt('{{ DEFAULT_MAX_TRICK_DIFFICULTY }}');
+    // Props settings from Flask
+    const propsSettings = {{ props_settings|tojson|safe }};
+    // Initial route data passed from server (may be null)
+    const initialRoute = {{ initial_route|tojson|default('null') }};
+    // Current route state used by the builder
+    let currentRoute = initialRoute ? initialRoute : { name: '', prop: null, tricks: [] };
+    if (typeof window !== 'undefined') window.currentRoute = currentRoute;
+    // Cache tricks per prop to avoid repeated network calls
+    if (typeof window !== 'undefined') window.tricksCache = window.tricksCache || {};
+    // Elements used across functions: keep them top-level so handlers can reference reliably
+    const propsSlider = document.getElementById('props-slider');
+    const propsRange = document.getElementById('props-range');
+    const propsMinInput = document.getElementById('min-props-input');
+    const propsMaxInput = document.getElementById('max-props-input');
 
     // Toast notification function
     function showToast(message, focusElementId = null) {
@@ -206,231 +228,11 @@
         }, 3000);
     }
 
-    document.addEventListener('DOMContentLoaded', function() {
-        // Convert Flask template data to JavaScript objects
-        const initialRouteData = '{{ initial_route|tojson|default("null")|safe }}';
-        const initialRoute = JSON.parse(initialRouteData);
-        
-        let currentRoute = {
-            name: '',
-            prop: '',
-            tricks: [],
-            duration_seconds: 600,
-            max_throw: null
-        };
+    // Note: initialization of the first selected prop is handled after sliders/listeners
+    // are set up by calling initializePropSelection() once the page scripts run.
 
-        // Store all tricks for the current prop type
-        let allTricks = [];
-
-        // Function to update search tricks
-        function updateSearchTricks() {
-            const minProps = parseInt(document.getElementById('min-props-input').value);
-            const maxProps = parseInt(document.getElementById('max-props-input').value);
-            const minDifficulty = parseInt(document.getElementById('min-difficulty-input').value);
-            const maxDifficulty = parseInt(document.getElementById('max-difficulty-input').value);
-            const excludedTags = Array.from(document.querySelectorAll('input[name="exclude_tags"]:checked')).map(cb => cb.value);
-
-            // Filter tricks based on criteria
-            const filteredTricks = filterTricks(allTricks, minProps, maxProps, minDifficulty, maxDifficulty, excludedTags);
-
-            // Group filtered tricks by props count
-            const groupedTricks = groupTricksByPropsCount(filteredTricks);
-
-            // Update the tricks display
-            const tricksGrid = document.getElementById('all_tricks');
-            tricksGrid.innerHTML = '';
-
-            // Display tricks grouped by props count
-            Object.keys(groupedTricks).sort((a, b) => parseInt(a) - parseInt(b)).forEach(count => {
-                const group = document.createElement('div');
-                group.className = 'props-group';
-                
-                const header = document.createElement('h3');
-                header.className = 'props-count-header';
-                header.textContent = `${count} Props`;
-                group.appendChild(header);
-                
-                const tricksList = document.createElement('div');
-                tricksList.className = 'tricks-list';
-                
-                // Sort tricks by name within each group
-                groupedTricks[count].sort((a, b) => a.name.localeCompare(b.name)).forEach(trick => {
-                    const trickItem = document.createElement('div');
-                    trickItem.className = 'trick-item';
-                    
-                    const trickContent = document.createElement('div');
-                    trickContent.className = 'trick-content';
-                    
-                    const trickMain = document.createElement('div');
-                    trickMain.className = 'trick-main';
-                    
-                    const name = document.createElement('span');
-                    name.className = 'trick-name';
-                    name.textContent = trick.name || 'Unnamed Trick'; // Add fallback for empty names
-                    name.contentEditable = true;
-                    name.addEventListener('blur', function() {
-                        const newName = this.textContent.trim();
-                        if (newName) {
-                            trick.name = newName;
-                            frame.setAttribute('data-trick-name', newName);
-                        } else {
-                            this.textContent = trick.name || 'Unnamed Trick';
-                        }
-                    });
-                    trickMain.appendChild(name);
-                    
-                    if (trick.comment) {
-                        const comment = document.createElement('span');
-                        comment.className = 'trick-comment';
-                        comment.textContent = ` [${trick.comment}]`;
-                        comment.contentEditable = true;
-                        comment.addEventListener('blur', function() {
-                            const newComment = this.textContent.replace(/[\[\]]/g, '').trim();
-                            trick.comment = newComment;
-                            this.textContent = newComment ? ` [${newComment}]` : '';
-                        });
-                        trickMain.appendChild(comment);
-                    }
-                    
-                    trickContent.appendChild(trickMain);
-                    
-                    const addButton = document.createElement('button');
-                    addButton.className = 'add-trick';
-                    addButton.textContent = 'Add';
-                    addButton.onclick = () => addTrickToRoute(trick);
-                    
-                    // Append both the trick content and add button to the trick item
-                    trickItem.appendChild(trickContent);
-                    trickItem.appendChild(addButton);
-                    
-                    tricksList.appendChild(trickItem);
-                });
-                
-                group.appendChild(tricksList);
-                tricksGrid.appendChild(group);
-            });
-        }
-
-        // Initialize route from query parameter if it exists
-        if (initialRoute) {
-            // Set route name with a small delay to ensure DOM is ready
-            setTimeout(() => {
-                const routeNameInput = document.getElementById('route_name');
-                if (routeNameInput) {
-                    routeNameInput.value = initialRoute.name || '';
-                    // Trigger input event to ensure any listeners are notified
-                    routeNameInput.dispatchEvent(new Event('input', { bubbles: true }));
-                }
-            }, 0);
-
-            currentRoute.name = initialRoute.name || '';
-
-            // Set duration
-            const durationMinutes = Math.floor(initialRoute.duration_seconds / 60);
-            document.getElementById('route-duration-slider').value = durationMinutes;
-            document.getElementById('route-duration-value').textContent = durationMinutes;
-            currentRoute.duration_seconds = initialRoute.duration_seconds;
-            
-
-            
-            // Set prop type
-            currentRoute.prop = initialRoute.prop;
-            const propInput = document.querySelector(`input[value="${initialRoute.prop}"]`);
-            if (propInput) {
-                propInput.checked = true;
-                const propOption = propInput.closest('.prop-option');
-                if (propOption) {
-                    propOption.classList.add('selected');
-                }
-                // Fetch tricks for the initial prop type
-                fetchTricks({ propType: initialRoute.prop })
-                    .then(tricks => {
-                        allTricks = tricks;
-                        updateSearchTricks();
-                    })
-                    .catch(error => {
-                        console.error('Error fetching tricks:', error);
-                        showToast('Error loading tricks. Please try again.');
-                    });
-            }
-            
-            // Set tricks
-            currentRoute.tricks = initialRoute.tricks || [];
-            
-            updateRouteDisplay();
-        }
-
-        // Function to initialize prop selection
-        function initializePropSelection() {
-            const propOptions = document.querySelectorAll('.prop-option');
-            const propInputs = document.querySelectorAll('.prop-option-input');
-
-            function updateSelectedState() {
-                propOptions.forEach(option => {
-                    const input = option.querySelector('.prop-option-input');
-                    if (input.checked) {
-                        option.classList.add('selected');
-                        if (currentRoute.prop !== input.value) {
-                            currentRoute.tricks = [];
-                            currentRoute.prop = input.value;
-                            // Fetch tricks only when prop type changes
-                            fetchTricks({ propType: input.value })
-                                .then(tricks => {
-                                    allTricks = tricks;
-                                    updateSearchTricks();
-                                })
-                                .catch(error => {
-                                    console.error('Error fetching tricks:', error);
-                                    showToast('Error loading tricks. Please try again.');
-                                });
-                        }
-                        updateRouteDisplay();
-                    } else {
-                        option.classList.remove('selected');
-                    }
-                });
-            }
-
-            updateSelectedState();
-
-            propOptions.forEach(option => {
-                option.addEventListener('click', function() {
-                    propInputs.forEach(input => input.checked = false);
-                    const input = this.querySelector('.prop-option-input');
-                    input.checked = true;
-                    updateSelectedState();
-                });
-            });
-
-            propInputs.forEach(input => {
-                input.addEventListener('change', updateSelectedState);
-            });
-        }
-
-        // Function to initialize other event listeners
-        function initializeEventListeners() {
-            document.querySelectorAll('input[name="exclude_tags"]').forEach(checkbox => {
-                checkbox.addEventListener('change', updateSearchTricks);
-            });
-
-            document.getElementById('route_name').addEventListener('input', function(e) {
-                currentRoute.name = e.target.value;
-                updateRouteDisplay();
-            });
-
-            // Update route duration when slider changes
-            const routeDurationSlider = document.getElementById('route-duration-slider');
-            const routeDurationValue = document.getElementById('route-duration-value');
-            const routeDurationInput = document.getElementById('route-duration-input');
-            routeDurationSlider.addEventListener('input', () => {
-                const minutes = parseInt(routeDurationSlider.value);
-                routeDurationValue.textContent = minutes;
-                routeDurationInput.value = minutes;
-                currentRoute.duration_seconds = minutes * 60; // Convert minutes to seconds
-            });
-
-
-        }
+    // Store all tricks for the current prop type (populated on prop change)
+    window.allTricks = [];
 
         // Function to update route display
         function updateRouteDisplay() {
@@ -683,6 +485,9 @@
             // Update the display to show the new trick at the end
             updateRouteDisplay();
         }
+    // Expose to window so renderTricks can call it
+    if (typeof window !== 'undefined') window.addTrickToRoute = addTrickToRoute;
+
 
         // Function to remove trick from route
         function removeTrick(trick) {
@@ -693,66 +498,392 @@
         // Function to initialize sliders
         function initializeSliders() {
             // Props slider initialization
-            const propsSlider = document.getElementById('props-slider');
             if (propsSlider && !propsSlider.noUiSlider) {  // Check if slider exists and not already initialized
-                const propsRange = document.getElementById('props-range');
-                const propsMinInput = document.getElementById('min-props-input');
-                const propsMaxInput = document.getElementById('max-props-input');
-                
-                noUiSlider.create(propsSlider, {
-                    start: [DEFAULT_MIN_TRICK_PROPS_COUNT, DEFAULT_MAX_TRICK_PROPS_COUNT],
-                    connect: true,
-                    range: {
-                        'min': MIN_TRICK_PROPS_COUNT,
-                        'max': MAX_TRICK_PROPS_COUNT
-                    },
-                    format: {
-                        to: (value) => Math.round(value),
-                        from: (value) => parseFloat(value)
-                    }
-                });
 
-                propsSlider.noUiSlider.on('update', function(values) {
-                    propsRange.textContent = `Min: ${values[0]}, Max: ${values[1]}`;
-                    propsMinInput.value = Math.round(values[0]);
-                    propsMaxInput.value = Math.round(values[1]);
-                    updateSearchTricks();
-                });
+                // Try to get the initially selected prop (may be null if initialRoute will select later)
+                const firstSelectedInput = document.querySelector('.prop-option-input:checked');
+                if (firstSelectedInput) {
+                    const selectedProp = firstSelectedInput.value;
+                    const propSettings = propsSettings[selectedProp];
+                    const minProps = propSettings.min_props;
+                    const maxProps = propSettings.max_props;
+
+                    noUiSlider.create(propsSlider, {
+                        start: [minProps, maxProps],
+                        connect: true,
+                        range: {
+                            'min': minProps,
+                            'max': maxProps
+                        },
+                        format: {
+                            to: (value) => Math.round(value),
+                            from: (value) => parseFloat(value)
+                        }
+                    });
+
+                    propsSlider.noUiSlider.on('update', function(values) {
+                        if (propsRange) propsRange.textContent = `Min: ${values[0]}, Max: ${values[1]}`;
+                        if (propsMinInput) propsMinInput.value = Math.round(values[0]);
+                        if (propsMaxInput) propsMaxInput.value = Math.round(values[1]);
+                        updateSearchTricks();
+                    });
+                } else {
+                    // No selected prop yet (likely initialRoute will set it). Leave slider uninitialized;
+                    // the prop-change handler will lazy-initialize the slider when a prop is selected.
+                    if (propsRange) propsRange.textContent = '';
+                    if (propsMinInput) propsMinInput.value = '';
+                    if (propsMaxInput) propsMaxInput.value = '';
+                }
             }
 
-            // Difficulty slider initialization
-            const difficultySlider = document.getElementById('difficulty-slider');
-            if (difficultySlider && !difficultySlider.noUiSlider) {  // Check if slider exists and not already initialized
-                const difficultyRange = document.getElementById('difficulty-range');  
-                const difficultyMinInput = document.getElementById('min-difficulty-input');
-                const difficultyMaxInput = document.getElementById('max-difficulty-input');
+            // When prop changes, update slider limits and tags
+            document.querySelectorAll('.prop-option-input').forEach(input => {
+                input.addEventListener('change', function() {
+                    // Update .selected class on prop labels
+                    document.querySelectorAll('.prop-option').forEach(label => {
+                        const radio = label.querySelector('.prop-option-input');
+                        if (radio && radio.checked) {
+                            label.classList.add('selected');
+                        } else {
+                            label.classList.remove('selected');
+                        }
+                    });
 
-                noUiSlider.create(difficultySlider, {
-                    start: [DEFAULT_MIN_TRICK_DIFFICULTY, DEFAULT_MAX_TRICK_DIFFICULTY],
-                    connect: true,
-                    range: {
-                        'min': MIN_TRICK_DIFFICULTY,
-                        'max': MAX_TRICK_DIFFICULTY
-                    },
-                    format: {
-                        to: (value) => Math.round(value),
-                        from: (value) => parseFloat(value)
+                    let prop = this.value;
+                    // Keep currentRoute.prop in sync with selected prop
+                    if (!currentRoute) currentRoute = { name: '', prop: prop, tricks: [] };
+                    else currentRoute.prop = prop;
+                    // Reset the route's tricks when the prop changes (user starts a new route)
+                    currentRoute.tricks = [];
+                    if (typeof window !== 'undefined') window.currentRoute = currentRoute;
+                    // Refresh the visible route to show the empty state
+                    try { updateRouteDisplay(); } catch (e) { /* ignore if not initialized yet */ }
+                    let propSettings = propsSettings[prop];
+                    let minProps = propSettings.min_props;
+                    let maxProps = propSettings.max_props;
+                    // Update or (lazy) initialize slider range
+                    if (propsSlider) {
+                        if (propsSlider.noUiSlider) {
+                            propsSlider.noUiSlider.updateOptions({
+                                range: { min: minProps, max: maxProps },
+                                start: [minProps, maxProps]
+                            });
+                        } else {
+                            // lazy-create slider if it wasn't initialized (e.g., when initialRoute selects a prop)
+                            try {
+                                noUiSlider.create(propsSlider, {
+                                    start: [minProps, maxProps],
+                                    connect: true,
+                                    range: { 'min': minProps, 'max': maxProps },
+                                    format: { to: (value) => Math.round(value), from: (value) => parseFloat(value) }
+                                });
+                                propsSlider.noUiSlider.on('update', function(values) {
+                                    if (propsRange) propsRange.textContent = `Min: ${values[0]}, Max: ${values[1]}`;
+                                    if (propsMinInput) propsMinInput.value = Math.round(values[0]);
+                                    if (propsMaxInput) propsMaxInput.value = Math.round(values[1]);
+                                    updateSearchTricks();
+                                });
+                            } catch (e) {
+                                console.warn('Failed to create props slider dynamically:', e);
+                            }
+                        }
+                    }
+                    if (propsRange) propsRange.textContent = `Min: ${minProps}, Max: ${maxProps}`;
+                    if (propsMinInput) propsMinInput.value = minProps;
+                    if (propsMaxInput) propsMaxInput.value = maxProps;
+                    // Update custom trick props slider to match prop limits and set to 3 (clamped)
+                    const customPropsEl = document.getElementById('custom_trick_props');
+                    const customPropsValueEl = document.getElementById('custom_trick_props_value');
+                    if (customPropsEl) {
+                        customPropsEl.min = minProps;
+                        customPropsEl.max = maxProps;
+                        // Desired default for custom trick props is 3; clamp to available range
+                        let desired = 3;
+                        if (desired < minProps) desired = minProps;
+                        if (desired > maxProps) desired = maxProps;
+                        customPropsEl.value = desired;
+                    }
+                    if (customPropsValueEl) {
+                        customPropsValueEl.textContent = customPropsEl ? customPropsEl.value : minProps;
+                    }
+                    // Show only relevant tags
+                    updateRelevantTags(propSettings.relevant_tags);
+                    // Load all tricks for this prop (use cache when available)
+                    if (window.tricksCache && window.tricksCache[prop]) {
+                        window.allTricks = window.tricksCache[prop];
+                        updateSearchTricks();
+                    } else {
+                        fetchTricks({ propType: prop })
+                            .then(tricks => {
+                                window.allTricks = tricks;
+                                window.tricksCache = window.tricksCache || {};
+                                window.tricksCache[prop] = tricks;
+                                updateSearchTricks();
+                            })
+                            .catch(error => {
+                                console.error('Error fetching tricks:', error);
+                                updateSearchTricks();
+                            });
                     }
                 });
-
-                difficultySlider.noUiSlider.on('update', function(values) {
-                    difficultyRange.textContent = `Min: ${values[0]}, Max: ${values[1]}`;
-                    difficultyMinInput.value = Math.round(values[0]);
-                    difficultyMaxInput.value = Math.round(values[1]);
-                    updateSearchTricks();
-                });
-            }
+            });
         }
+
+        // Show only relevant tags for selected prop (copied from generate_route behavior)
+        function updateRelevantTags(relevantTags) {
+            // Hide all tag categories by default
+            document.querySelectorAll('.tag-category').forEach(cat => cat.style.display = 'none');
+            // Show only categories with at least one relevant tag
+            document.querySelectorAll('.tag-category').forEach(cat => {
+                let showCategory = false;
+                cat.querySelectorAll('.tag-checkbox').forEach(cb => {
+                    if (relevantTags.includes(cb.value)) {
+                        cb.parentElement.style.display = '';
+                        showCategory = true;
+                    } else {
+                        cb.parentElement.style.display = 'none';
+                        cb.checked = false;
+                    }
+                });
+                if (showCategory) cat.style.display = '';
+            });
+        }
+
+    // Initialize difficulty slider (range 0 to 100) - same defaults as generate_route
+    const difficultySlider = document.getElementById('difficulty-slider');
+    const difficultyRange = document.getElementById('difficulty-range');
+    const difficultyMinInput = document.getElementById('min-difficulty-input');
+    const difficultyMaxInput = document.getElementById('max-difficulty-input');
+    if (difficultySlider && !difficultySlider.noUiSlider) {
+        noUiSlider.create(difficultySlider, {
+            // Use client-side defaults: full range 0-100, default window 20-30
+            start: [20, 30],
+            connect: true,
+            range: { 'min': 0, 'max': 100 },
+            format: { to: (v)=>Math.round(v), from: (v)=>parseFloat(v) }
+        });
+
+        difficultySlider.noUiSlider.on('update', function(values) {
+            difficultyRange.textContent = `Min: ${values[0]}, Max: ${values[1]}`;
+            difficultyMinInput.value = Math.round(values[0]);
+            difficultyMaxInput.value = Math.round(values[1]);
+            updateSearchTricks();
+        });
+    }
 
         // Initialize sliders and event listeners
         initializeSliders();
+
+        // Ensure a function exists to activate the first prop after listeners are attached
+        function initializePropSelection() {
+            // If the server provided an initialRoute, avoid auto-selecting the first prop here
+            // so the initialRoute selection logic can run and select the correct prop.
+            if (initialRoute) {
+                return;
+            }
+
+            const firstPropInput = document.querySelector('.prop-option-input');
+            if (firstPropInput) {
+                firstPropInput.checked = true;
+                const label = firstPropInput.closest('.prop-option');
+                if (label) label.classList.add('selected');
+                // Dispatch change so the prop change handler updates sliders/tags and fetches tricks
+                firstPropInput.dispatchEvent(new Event('change', { bubbles: true }));
+                if (typeof updateSearchTricks === 'function') updateSearchTricks();
+            }
+        }
+
+        // Stub for backward compatibility; most event listeners are attached inline below.
+        function initializeEventListeners() {
+            // intentionally empty
+        }
+
         initializePropSelection();
         initializeEventListeners();
+
+        // If the server provided an initial route via the `route` URL parameter, load it into the UI
+        function loadInitialRoute() {
+            if (!initialRoute) return;
+            try {
+                // Populate route name (set even if empty string is provided)
+                if (initialRoute && Object.prototype.hasOwnProperty.call(initialRoute, 'name')) {
+                    const rn = document.getElementById('route_name');
+                    if (rn) {
+                        rn.value = initialRoute.name;
+                    }
+                    // Ensure currentRoute.name is set from initialRoute
+                    currentRoute.name = initialRoute.name || '';
+                    if (typeof window !== 'undefined') window.currentRoute = currentRoute;
+                }
+
+                // Populate duration
+                if (initialRoute.duration_seconds) {
+                    const minutes = Math.round(initialRoute.duration_seconds / 60);
+                    const durationInput = document.getElementById('route-duration-input');
+                    const durationSlider = document.getElementById('route-duration-slider');
+                    const durationValue = document.getElementById('route-duration-value');
+                    if (durationInput) durationInput.value = minutes;
+                    if (durationSlider) durationSlider.value = minutes;
+                    if (durationValue) durationValue.textContent = minutes;
+                }
+
+                // If a prop is provided, try to select it robustly. Some props live in the "Additional Props"
+                // dropdown and the selector may not match exactly in some edge cases, so attempt both
+                // value-based selection and data attribute selection. After selecting, explicitly fetch
+                // tricks for that prop and only then populate the route's tricks so the UI is consistent.
+                async function selectPropAndLoadTricks(propToSelect) {
+                    if (!propToSelect) return;
+                    // Retry to find the radio input/label a few times to handle timing races
+                    const maxAttempts = 6;
+                    const delayMs = 100;
+                    let attempt = 0;
+
+                    async function tryFind() {
+                        attempt++;
+                        // Try to find the radio input by value first
+                        let propRadio = document.querySelector(`.prop-option-input[value="${propToSelect}"]`);
+                        // If not found, try to find label with data-prop-type attribute
+                        if (!propRadio) {
+                            const label = document.querySelector(`.prop-option[data-prop-type="${propToSelect}"]`);
+                            if (label) propRadio = label.querySelector('.prop-option-input');
+                        }
+
+                        if (propRadio) {
+                        
+                            // Mark the radio and visible selected state
+                            try { propRadio.checked = true; } catch (e) {}
+                            const label = propRadio.closest('.prop-option');
+                            if (label) {
+                                document.querySelectorAll('.prop-option').forEach(l => l.classList.remove('selected'));
+                                label.classList.add('selected');
+                            }
+
+                            // Ensure currentRoute.prop is set immediately
+                            currentRoute.prop = propToSelect;
+                            if (typeof window !== 'undefined') window.currentRoute = currentRoute;
+
+                            // Instead of dispatching a change (which would duplicate fetches),
+                            // update the UI pieces that the change handler would handle here:
+                            try {
+                                // Update selected class on labels
+                                document.querySelectorAll('.prop-option').forEach(l => l.classList.remove('selected'));
+                                if (label) label.classList.add('selected');
+                                // Update slider range or initialize it
+                                if (propsSlider) {
+                                    try {
+                                        const propSettingsInner = propsSettings[propToSelect] || {};
+                                        const minPropsInner = propSettingsInner.min_props || 1;
+                                        const maxPropsInner = propSettingsInner.max_props || 10;
+                                        if (propsSlider.noUiSlider) {
+                                            propsSlider.noUiSlider.updateOptions({ range: { min: minPropsInner, max: maxPropsInner }, start: [minPropsInner, maxPropsInner] });
+                                        } else {
+                                            noUiSlider.create(propsSlider, {
+                                                start: [minPropsInner, maxPropsInner],
+                                                connect: true,
+                                                range: { 'min': minPropsInner, 'max': maxPropsInner },
+                                                format: { to: (v)=>Math.round(v), from: (v)=>parseFloat(v) }
+                                            });
+                                            propsSlider.noUiSlider.on('update', function(values) {
+                                                if (propsRange) propsRange.textContent = `Min: ${values[0]}, Max: ${values[1]}`;
+                                                if (propsMinInput) propsMinInput.value = Math.round(values[0]);
+                                                if (propsMaxInput) propsMaxInput.value = Math.round(values[1]);
+                                                updateSearchTricks();
+                                            });
+                                        }
+                                    } catch (uiErr) {
+                                        console.warn('Error updating/creating props slider during initial select:', uiErr);
+                                    }
+                                }
+                                // Update relevant tags
+                                const ps = propsSettings[propToSelect] || {};
+                                updateRelevantTags(ps.relevant_tags || []);
+                            } catch (e) {
+                                console.warn('Error applying UI updates during initial prop selection:', e);
+                            }
+
+                            // Explicitly fetch tricks once
+                            try {
+                                const propSettings = propsSettings[propToSelect] || {};
+                                const minProps = propSettings.min_props || 1;
+                                const maxProps = propSettings.max_props || 10;
+                                const tricks = await fetchTricks({ propType: propToSelect, minProps, maxProps });
+                                window.allTricks = tricks;
+                                window.tricksCache = window.tricksCache || {};
+                                window.tricksCache[propToSelect] = tricks;
+
+                                // If the fetch returned nothing, try a one-off retry to work around server timing races
+                                if ((!Array.isArray(tricks) || tricks.length === 0) && propToSelect) {
+                                    console.warn('Initial fetch returned zero tricks for', propToSelect, '- attempting fallback fetch');
+                                    try {
+                                        const fallback = await fetchTricks({ propType: propToSelect, minProps, maxProps });
+                                        window.allTricks = fallback;
+                                        window.tricksCache[propToSelect] = fallback;
+                                    } catch (fbErr) {
+                                        console.warn('Fallback fetch failed for initial prop:', fbErr);
+                                    }
+                                }
+                            } catch (err) {
+                                console.warn('Could not fetch tricks for initial prop:', err);
+                            }
+
+                            return true;
+                        }
+
+                        if (attempt < maxAttempts) {
+                            return new Promise(resolve => setTimeout(() => resolve(tryFind()), delayMs));
+                        }
+
+                        console.warn('Could not locate prop input for initial prop:', propToSelect);
+                        return false;
+                    }
+
+                    return tryFind();
+                }
+
+                        // If the initial route included a prop, select it and ensure tricks are fetched first
+                if (initialRoute.prop) {
+                    selectPropAndLoadTricks(initialRoute.prop).then(() => {
+                        // Populate tricks into currentRoute once the prop selection and fetch (if any) completed
+                        if (Array.isArray(initialRoute.tricks) && initialRoute.tricks.length > 0) {
+                            
+                            currentRoute.tricks = initialRoute.tricks.map(t => ({
+                                name: t.name,
+                                props_count: t.props_count,
+                                difficulty: t.difficulty || 30,
+                                tags: t.tags || [],
+                                comment: t.comment || null
+                            }));
+                            // Ensure currentRoute.prop is set
+                            currentRoute.prop = initialRoute.prop;
+                            if (typeof window !== 'undefined') window.currentRoute = currentRoute;
+                            // Update the visible route now that tricks are present
+                            updateRouteDisplay();
+                        }
+                        // Refresh search results to reflect any tags/filters and the fetched tricks
+                        updateSearchTricks();
+                    }).catch(e => console.error('Error selecting initial prop:', e));
+                } else {
+                    // No prop in initial route — still populate tricks if present and refresh UI
+                    if (Array.isArray(initialRoute.tricks) && initialRoute.tricks.length > 0) {
+                        currentRoute.tricks = initialRoute.tricks.map(t => ({
+                            name: t.name,
+                            props_count: t.props_count,
+                            difficulty: t.difficulty || 30,
+                            tags: t.tags || [],
+                            comment: t.comment || null
+                        }));
+                        if (typeof window !== 'undefined') window.currentRoute = currentRoute;
+                        updateRouteDisplay();
+                        updateSearchTricks();
+                    }
+                }
+            } catch (e) {
+                console.error('Error loading initial route into builder:', e);
+            }
+        }
+
+        // Call loadInitialRoute after initial selection and listeners are set
+        loadInitialRoute();
 
         // Add Custom Trick functionality
         document.getElementById('add_custom_trick').addEventListener('click', function() {
@@ -783,17 +914,26 @@
         // Add event listener for custom trick props slider
         const customTrickPropsSlider = document.getElementById('custom_trick_props');
         const customTrickPropsValue = document.getElementById('custom_trick_props_value');
-        customTrickPropsSlider.addEventListener('input', () => {
-            const value = parseInt(customTrickPropsSlider.value);
-            customTrickPropsValue.textContent = value;
-        });
+        if (customTrickPropsSlider && customTrickPropsValue) {
+            // Initialize displayed value
+            customTrickPropsValue.textContent = parseInt(customTrickPropsSlider.value);
+            customTrickPropsSlider.addEventListener('input', () => {
+                const value = parseInt(customTrickPropsSlider.value);
+                customTrickPropsValue.textContent = value;
+            });
+        }
 
         // View route functionality
         document.getElementById('view_route').addEventListener('click', async function() {
+            // Pull the typed route name into currentRoute before validating
+            const typedName = document.getElementById('route_name') ? document.getElementById('route_name').value.trim() : '';
+            if (typedName) {
+                currentRoute.name = typedName;
+                if (typeof window !== 'undefined') window.currentRoute = currentRoute;
+            }
+            // If no name was entered, show a non-blocking toast but allow viewing the route
             if (!currentRoute.name) {
-                showToast('Please enter a route name before viewing.', 'route_name');
-                document.getElementById('route_name').focus();
-                return;
+                showToast('No route name provided. Proceeding to view without a name.');
             }
             if (!currentRoute.prop) {
                 showToast('Please select a prop type before viewing.', 'prop-slider');
@@ -801,13 +941,28 @@
             }
 
             try {
+                // Build a complete payload for serialization (ensure required fields)
+                const durationMinutes = document.getElementById('route-duration-input') ? parseInt(document.getElementById('route-duration-input').value) : 10;
+                const payload = {
+                    name: currentRoute.name,
+                    prop: currentRoute.prop,
+                    duration_seconds: Number.isFinite(durationMinutes) ? durationMinutes * 60 : 600,
+                    tricks: Array.isArray(currentRoute.tricks) ? currentRoute.tricks.map(t => ({
+                        name: t.name,
+                        props_count: t.props_count,
+                        difficulty: t.difficulty,
+                        tags: t.tags || [],
+                        comment: t.comment || null
+                    })) : []
+                };
+
                 // Serialize the route
                 const response = await fetch('/api/serialize_route', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(currentRoute)
+                    body: JSON.stringify(payload)
                 });
                 const serialized = await response.text();
                 
@@ -863,6 +1018,5 @@
                 updateSearchTricks();
             });
         });
-    });
 </script>
 {% endblock %}

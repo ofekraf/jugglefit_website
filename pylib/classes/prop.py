@@ -4,7 +4,7 @@ class Prop(ReverseLookupEnum):
     Balls = "balls"
     Clubs = "clubs"
     Rings = "rings"
-    # ClubPassing = "club_passing" # Hopefully one day :)
+    ClubPassing = "club passing"
 
     def __lt__(self, other):
         """Make Prop sortable by comparing their values."""
@@ -13,3 +13,5 @@ class Prop(ReverseLookupEnum):
     def __str__(self) -> str:
         """Make the prop JSON serializable by returning its value."""
         return self.value
+
+MAIN_PROPS = {Prop.Balls, Prop.Clubs, Prop.Rings}

@@ -1,8 +1,13 @@
-document.addEventListener('DOMContentLoaded', function() {
+function initMainJS() {
     // Route name placeholder handling
     const routeInput = document.getElementById('route_name');
     if (routeInput) {
-        routeInput.value = routeInput.placeholder;
+        // Only set the placeholder text if the input is currently empty; do not override
+        // values that may have been populated from the URL or server.
+        if (!routeInput.value) {
+            routeInput.value = routeInput.placeholder;
+            routeInput.style.color = 'grey';
+        }
 
         routeInput.addEventListener('focus', function() {
             if (this.value === this.placeholder) {
@@ -44,9 +49,6 @@ document.addEventListener('DOMContentLoaded', function() {
             propsRange.textContent = `Min: ${values[0]}, Max: ${values[1]}`;
             propsMinInput.value = Math.round(values[0]);
             propsMaxInput.value = Math.round(values[1]);
-            if (typeof filterTricks === 'function') {
-                filterTricks();
-            }
         });
     }
 
@@ -75,9 +77,6 @@ document.addEventListener('DOMContentLoaded', function() {
             difficultyRange.textContent = `Min: ${values[0]}, Max: ${values[1]}`;
             difficultyMinInput.value = Math.round(values[0]);
             difficultyMaxInput.value = Math.round(values[1]);
-            if (typeof filterTricks === 'function') {
-                filterTricks();
-            }
         });
     }
 
@@ -161,9 +160,15 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add click event listeners to all prop options
     propOptions.forEach(option => {
         option.addEventListener('click', function(e) {
-            e.preventDefault();
+            // Allow default behavior for label-like elements and set the radio programmatically
             const input = this.querySelector('.prop-option-input');
-            input.checked = true;
+            if (!input) return;
+            // If input is already checked, do nothing
+            if (!input.checked) {
+                input.checked = true;
+                // Dispatch a change event so other listeners react
+                input.dispatchEvent(new Event('change', { bubbles: true }));
+            }
             updateSelectedState();
         });
     });
@@ -172,4 +177,11 @@ document.addEventListener('DOMContentLoaded', function() {
     propInputs.forEach(input => {
         input.addEventListener('change', updateSelectedState);
     });
-});
+}
+
+// Initialize now if document already loaded, otherwise wait for DOMContentLoaded
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initMainJS);
+} else {
+    initMainJS();
+}

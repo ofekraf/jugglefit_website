@@ -1,0 +1,8 @@
+name,props_count,difficulty,tags,comment,max_throw
+"1 pass",1,1,,,1
+"10 passes 2-count",6,15,"2-count",,6
+"4 passes 4-count",6,11,"4-count",,6
+"8 passes 2-count",8,27,"2-count",,8
+"9 passes 1-count isolated",9,44,"1-count|isolated",,8
+"6 sides 867",7,30,"3-count|4-handed siteswaps","french 3-count",6
+"12 passes 2-count",12,74,"2-count",,12
