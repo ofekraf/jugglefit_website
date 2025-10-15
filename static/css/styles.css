@@ -2546,7 +2546,8 @@ a.primary-button.live-event-button:hover {
 
 .live-event-layout {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    /* enforce exact 50/50 split */
+    grid-template-columns: 50% 50%;
     gap: 0;
     min-height: 600px;
     position: relative;
@@ -2859,21 +2860,17 @@ a.primary-button.live-event-button:hover {
 /* Responsive design for live event */
 @media (max-width: 1200px) {
     .live-event-layout {
-        grid-template-columns: 1fr;
+        /* keep exact 50/50 even on narrower screens */
+        grid-template-columns: 50% 50%;
         gap: 0;
     }
-    
+
+    /* Keep podium horizontal on narrower screens; allow horizontal scroll if needed */
     .podium-container {
-        flex-direction: column;
-        align-items: center;
+        flex-direction: row;
+        align-items: flex-end;
         gap: 1rem;
-    }
-    
-    .podium-place:nth-child(1),
-    .podium-place:nth-child(2),
-    .podium-place:nth-child(3) {
-        order: unset;
-        transform: none;
+        flex-wrap: nowrap;
     }
     
 
