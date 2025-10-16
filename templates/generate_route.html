@@ -103,8 +103,8 @@
                 <div id="max-throw-input-container" class="max-throw-input-container" style="display: none;">
                     <div class="slider-container">
                         <div class="slider-wrapper">
-                            <input type="range" id="max-throw-slider" min="5" max="15" value="10" class="custom-range">
-                            <span id="max-throw-value" class="slider-value">10</span>
+                            <input type="range" id="max-throw-slider" min="1" max="{{ props_settings.max_throw }}" value="10" class="custom-range">
+                            <span id="max-throw-value" class="slider-value">{{ props_settings.max_throw }}</span>
                         </div>
                         <input type="hidden" id="max-throw-input" name="max_throw" value="">
                     </div>
@@ -213,6 +213,22 @@
         propsMaxInput.value = maxProps;
         // Show only relevant tags
         updateRelevantTags(propSettings.relevant_tags);
+        // Update max-throw slider limits for the newly selected prop (if available)
+        try {
+            const propMaxThrow = propSettings.max_throw;
+            if (Number.isFinite(propMaxThrow)) {
+                maxThrowSlider.min = 1;
+                maxThrowSlider.max = propMaxThrow;
+                maxThrowSlider.value = propMaxThrow; // default to top max
+                maxThrowValue.textContent = propMaxThrow;
+                if (maxThrowEnabled.checked) maxThrowInput.value = propMaxThrow;
+            } else {
+                // leave existing slider configuration in place
+                maxThrowValue.textContent = maxThrowSlider.value;
+            }
+        } catch (e) {
+            console.warn('Error setting max-throw for prop:', e);
+        }
     // Fetch tricks for selected prop and current max throw
     const maxThrowElem = document.getElementById('max-throw-enabled');
     const maxThrow = maxThrowElem && maxThrowElem.checked ? parseInt(document.getElementById('max-throw-input').value) : null;
