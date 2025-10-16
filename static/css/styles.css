@@ -1,7 +1,7 @@
 .trick-main {
     display: inline-flex !important;
     align-items: center;
-    gap: 0.5em;
+    gap: 0.35em; /* slightly reduced gap */
     justify-content: flex-start;
     width: auto;
     white-space: normal;
@@ -9,7 +9,8 @@
 }
 .trick-name, .trick-siteswap-x {
     font-family: inherit;
-    font-size: 1.22rem; /* Match .trick-siteswap-x size */
+    /* Use the same base text sizing/weight as regular trick names */
+    font-size: 1rem;
     font-weight: 500;
     color: var(--text-color);
     margin: 0;
@@ -22,11 +23,11 @@
 }
 /* Ensure trick-container is tall enough for siteswap-x with modifiers */
 .trick-container, .trick-main {
-    min-height: 3.6em;
+    min-height: 2.6em; /* reduced vertical footprint */
     display: flex;
     align-items: center;
-    padding-top: 0.7em;
-    padding-bottom: 0.7em;
+    padding-top: 0.35em; /* reduced padding */
+    padding-bottom: 0.35em;
 }
 .trick-siteswap-x {
     min-height: 2.8em;
@@ -34,9 +35,10 @@
     align-items: center;
     padding-top: 0.1em;
     padding-bottom: 0.1em;
-    font-family: 'Inter', Arial, sans-serif;
-    font-size: 1.22rem;
-    font-weight: 600;
+    /* base siteswap-x should match normal trick text; modifiers keep special styling */
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 500;
     color: var(--text-color);
 }
 /* Siteswap-X Modifiers Styling */
@@ -45,12 +47,13 @@
     flex-direction: column;
     align-items: center;
     position: relative;
-    margin: 0 0.18em;
-    min-width: 1.3em;
-    width: 1.3em;
-    font-size: 1.15rem;
+    margin: 0 0.12em; /* narrower spacing between digits */
+    min-width: 1.0em;
+    width: 1.0em;
+    /* ensure layout but use base text styling */
+    font-size: 1rem;
     font-family: inherit;
-    font-weight: 600;
+    font-weight: 500;
 }
 .siteswap-x-throw-mod {
     color: #d32f2f;
@@ -65,11 +68,13 @@
     font-family: inherit;
 }
 .siteswap-x-digit {
-    font-size: 1.15rem;
-    font-weight: 600;
+    /* Base digit styling should match normal trick text */
+    font-size: 1rem;
+    font-weight: 500;
     line-height: 1.1em;
     white-space: pre;
     font-family: inherit;
+    color: var(--text-color);
 }
 .siteswap-x-catch-mod {
     color: #1976d2;

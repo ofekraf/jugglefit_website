@@ -245,7 +245,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                                 {% include 'macros/trick_container.html' %}
                                             </div>
                                         </div>
-                                        <button class="add-trick" onclick="addTrickToRoute({{ trick|tojson|safe }})">Add</button>
+                                        <button class="add-trick" onclick="addTrickToRoute({{ trick.to_dict()|tojson|safe }})">Add</button>
                                     </div>
                                 {% endfor %}
                             </div>
