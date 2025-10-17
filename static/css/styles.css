@@ -35,6 +35,94 @@ body {
     z-index: 1;
 }
 
+/* Orientation alert (moved from templates/utils/base.html) */
+.orientation-alert {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fff;
+    padding: 20px 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    z-index: 1000;
+    align-items: center;
+    gap: 15px;
+    animation: fadeIn 0.3s ease-out;
+    max-width: 90%;
+    text-align: center;
+}
+
+.orientation-alert.show {
+    display: flex;
+}
+
+.orientation-alert .close-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    margin-left: 10px;
+    color: #666;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+.orientation-alert .rotate-icon {
+    animation: rotate 2s infinite linear;
+    color: #666;
+    font-size: 24px;
+}
+
+.orientation-alert span {
+    font-size: 16px;
+    color: #333;
+}
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -40%);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+/* Donation page styles (moved from templates/utils/base.html) */
+.text-center {
+    text-align: center;
+}
+
+.accounting-info {
+    margin-top: 2rem;
+    text-align: center;
+    padding: 1rem;
+    border-top: 1px solid #eee;
+}
+
+.accounting-info p {
+    margin: 0;
+    color: #666;
+}
+
+.accounting-info a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.accounting-info a:hover {
+    text-decoration: underline;
+}
+
 /* Trick Content Styles */
 .trick-content {
     display: flex;
@@ -1122,6 +1210,44 @@ a.primary-button.live-event-button:hover {
     transform: scale(1);
 }
 
+/* Additional props dropdown */
+.prop-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.prop-dropdown-label {
+    padding: 0.75rem 1rem;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    background: white;
+    cursor: pointer;
+    margin-left: 0.5rem;
+}
+
+.prop-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.5rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    z-index: 1000;
+    min-width: 200px;
+}
+
+.prop-dropdown:hover .prop-dropdown-menu {
+    display: block;
+}
+
+.prop-dropdown .prop-option {
+    display: block;
+    margin: 0 0 0.25rem 0;
+}
+
 /* Slider styles */
 .slider-container {
     margin-top: 0.5rem;
@@ -1214,6 +1340,48 @@ a.primary-button.live-event-button:hover {
     margin: 0 auto;
     box-sizing: border-box;
 }
+
+/* Available tricks styling */
+.trick-group {
+    margin-bottom: 1rem;
+    border: 1px solid #eee;
+    padding: 0.5rem;
+    border-radius: 4px;
+}
+.trick-group-header {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+.trick-group-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+.trick-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 0.75rem;
+    background: #fff;
+    border: 1px solid #f0f0f0;
+    border-radius: 4px;
+}
+.prop-details-frame.trick-item {
+    padding: 0.5rem 0.75rem;
+}
+.prop-details-frame.trick-item .trick-content {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 0.5rem;
+}
+.prop-details-frame.trick-item .add-trick {
+    margin-left: auto;
+}
+.trick-item-title { font-weight: 600; margin-bottom: 0.25rem; }
+.trick-item-meta { display: none; }
+.trick-item-actions { margin-left: 1rem; }
+.add-trick.small { padding: 6px 10px; font-size: 0.95rem; }
 
 .route-details {
     display: grid;
@@ -1561,6 +1729,10 @@ a.primary-button.live-event-button:hover {
     background-image: url('/static/images/juggling_rings.png');
 }
 
+.prop-color-bar[data-prop-type="club_passing"]::before {
+    background-image: url('/static/images/juggling_club.svg');
+}
+
 /* Ensure white text for all prop counts */
 .prop-count-text {
     color: #ffffff;
@@ -1599,7 +1771,11 @@ a.primary-button.live-event-button:hover {
 .prop-color-bar[data-props="3"]::before,
 .prop-color-bar[data-props="5"]::before,
 .prop-color-bar[data-props="7"]::before,
-.prop-color-bar[data-props="9"]::before {
+.prop-color-bar[data-props="9"]::before,
+.prop-color-bar[data-props="11"]::before,
+.prop-color-bar[data-props="12"]::before,
+.prop-color-bar[data-props="13"]::before {
+    /* Invert icons for darker backgrounds so white icons remain visible */
     filter: brightness(0) invert(1);
 }
 
@@ -1631,17 +1807,37 @@ a.primary-button.live-event-button:hover {
     background: #8a2be2;
 }
 
+.prop-color-bar[data-props="10"] {
+    background: #ffd700; /* gold */
+}
+
+.prop-color-bar[data-props="11"] {
+    background: #006400; /* dark green */
+}
+
+.prop-color-bar[data-props="12"] {
+    background: #ff1493; /* deep pink */
+}
+
+.prop-color-bar[data-props="13"] {
+    background: #1e90ff; /* dodger blue */
+}
+
 /* Ensure white text for 3,5,7,9 and black for 4,6,8 */
 .prop-color-bar[data-props="3"] .prop-count-text,
 .prop-color-bar[data-props="5"] .prop-count-text,
 .prop-color-bar[data-props="7"] .prop-count-text,
-.prop-color-bar[data-props="9"] .prop-count-text {
+.prop-color-bar[data-props="9"] .prop-count-text,
+.prop-color-bar[data-props="11"] .prop-count-text,
+.prop-color-bar[data-props="12"] .prop-count-text,
+.prop-color-bar[data-props="13"] .prop-count-text {
     color: white;
 }
 
 .prop-color-bar[data-props="4"] .prop-count-text,
 .prop-color-bar[data-props="6"] .prop-count-text,
-.prop-color-bar[data-props="8"] .prop-count-text {
+.prop-color-bar[data-props="8"] .prop-count-text,
+.prop-color-bar[data-props="10"] .prop-count-text {
     color: black;
 }
 
@@ -2356,7 +2552,8 @@ a.primary-button.live-event-button:hover {
 
 .live-event-layout {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    /* enforce exact 50/50 split */
+    grid-template-columns: 50% 50%;
     gap: 0;
     min-height: 600px;
     position: relative;
@@ -2669,21 +2866,17 @@ a.primary-button.live-event-button:hover {
 /* Responsive design for live event */
 @media (max-width: 1200px) {
     .live-event-layout {
-        grid-template-columns: 1fr;
+        /* keep exact 50/50 even on narrower screens */
+        grid-template-columns: 50% 50%;
         gap: 0;
     }
-    
+
+    /* Keep podium horizontal on narrower screens; allow horizontal scroll if needed */
     .podium-container {
-        flex-direction: column;
-        align-items: center;
+        flex-direction: row;
+        align-items: flex-end;
         gap: 1rem;
-    }
-    
-    .podium-place:nth-child(1),
-    .podium-place:nth-child(2),
-    .podium-place:nth-child(3) {
-        order: unset;
-        transform: none;
+        flex-wrap: nowrap;
     }
     
 

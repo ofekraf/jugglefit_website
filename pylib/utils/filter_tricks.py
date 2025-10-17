@@ -1,13 +1,10 @@
 import random
 from typing import Set, List, Optional
-from hardcoded_database.tricks import PROP_TO_TRICKS
+from hardcoded_database.tricks import ALL_PROPS_SETTINGS, ALL_PROPS_TRICKS
 from pylib.classes.prop import Prop
 from pylib.classes.tag import Tag
 from pylib.classes.trick import Trick
-from pylib.configuration.consts import (
-    MIN_TRICK_PROPS_COUNT, MAX_TRICK_PROPS_COUNT,
-    MIN_TRICK_DIFFICULTY, MAX_TRICK_DIFFICULTY
-)
+from pylib.configuration.consts import MIN_TRICK_DIFFICULTY, MAX_TRICK_DIFFICULTY
 
 
 from pylib.utils.general import has_intersection
@@ -15,20 +12,23 @@ from pylib.utils.general import has_intersection
 
 def filter_tricks(
     prop: Prop,
-    min_props: int = MIN_TRICK_PROPS_COUNT,
-    max_props: int = MAX_TRICK_PROPS_COUNT,
-    min_difficulty: int = MIN_TRICK_DIFFICULTY,
-    max_difficulty: int = MAX_TRICK_DIFFICULTY,
+    min_props: Optional[int] = None,
+    max_props: Optional[int] = None,
+    min_difficulty: Optional[int] = None,
+    max_difficulty: Optional[int] = None,
     limit: Optional[int] = None,
     exclude_tags: Optional[Set[Tag]] = None,
     tricks: Optional[List[Trick]] = None,
     max_throw: Optional[int] = None,
 ) -> List[Trick]:
-    if exclude_tags is None:
-        exclude_tags = set()
+    prop_settings = ALL_PROPS_SETTINGS[prop]
     
-    if tricks is None:
-        tricks = PROP_TO_TRICKS[prop]
+    exclude_tags = exclude_tags if exclude_tags is not None else set()
+    tricks = tricks if tricks is not None else ALL_PROPS_TRICKS[prop]
+    min_props = min_props if min_props is not None else prop_settings.min_props
+    max_props = max_props if max_props is not None else prop_settings.max_props
+    min_difficulty = min_difficulty if min_difficulty is not None else MIN_TRICK_DIFFICULTY
+    max_difficulty = max_difficulty if max_difficulty is not None else MAX_TRICK_DIFFICULTY
     
     filtered_tricks = [
         trick for trick in tricks

@@ -1,23 +1,20 @@
 from typing import List, Set, Optional
 from pylib.classes.prop import Prop
 from pylib.classes.tag import Tag
-from pylib.classes.trick import Trick
 from pylib.classes.route import Route
-from pylib.configuration.consts import (
-    MIN_TRICK_PROPS_COUNT, MAX_TRICK_PROPS_COUNT,
-    MIN_TRICK_DIFFICULTY, MAX_TRICK_DIFFICULTY
-)
+from pylib.configuration.consts import MIN_TRICK_DIFFICULTY, MAX_TRICK_DIFFICULTY
 from pylib.utils.filter_tricks import filter_tricks
 from .exceptions import NotEnoughTricksFoundException
 
 class RouteGenerator:
     @staticmethod
     def generate(
+        *,
         prop: Prop,
-        min_props: int = MIN_TRICK_PROPS_COUNT,
-        max_props: int = MAX_TRICK_PROPS_COUNT,
-        min_difficulty: int = MIN_TRICK_DIFFICULTY,
-        max_difficulty: int = MAX_TRICK_DIFFICULTY,
+        min_props: Optional[int] = None,
+        max_props: Optional[int] = None,
+        min_difficulty: Optional[int] = None,
+        max_difficulty: Optional[int] = None,
         route_length: int = 5,
         exclude_tags: Optional[Set[Tag]] = None,
         name: str = '',
