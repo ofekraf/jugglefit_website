@@ -877,6 +877,12 @@ a.primary-button.live-event-button:hover {
         print-color-adjust: exact;
     }
 
+    @media print {
+        .toast-notification {
+            display: none !important;
+        }
+    }
+
     @page {
         size: portrait;
         margin: 0.25cm;
