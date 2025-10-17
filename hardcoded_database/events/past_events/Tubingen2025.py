@@ -6,14 +6,14 @@ from pylib.classes.trick import Trick
 
 # @Todo: add image_url when available
 Tubingen2025 = PastEvent(
-    name="Tübingen 2025",
+    name="Tubingen 2025",
     date=date(2025, 10, 4),
-    location="Tübingen, Germany",
-    image_url="/static/images/Tübingen_2025_competitors.jpg",
+    location="Tubingen, Germany",
+    image_url="/static/images/Tubingen_2025_competitors.jpg",
     results=[
         RouteResult(
             route=Route(
-                name="Tübingen 2025 - Balls Open",
+                name="Tubingen 2025 - Balls Open",
                 prop=Prop.Balls,
                 duration_seconds=600,
                 tricks=[
@@ -37,7 +37,7 @@ Tubingen2025 = PastEvent(
         ),
         RouteResult(
             route=Route(
-                name="Tübingen 2025 - Clubs open",
+                name="Tubingen 2025 - Clubs open",
                 prop=Prop.Clubs,
                 duration_seconds=600,
                 tricks=[
