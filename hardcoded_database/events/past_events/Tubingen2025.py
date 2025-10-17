@@ -6,7 +6,7 @@ from pylib.classes.trick import Trick
 
 # @Todo: add image_url when available
 Tubingen2025 = PastEvent(
-    name="Tubingen 2025",
+    name="Tübingen Con 2025",
     date=date(2025, 10, 4),
     location="Tubingen, Germany",
     image_url="/static/images/Tubingen_2025_competitors.jpg",
