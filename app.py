@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 from pylib.classes.prop import MAIN_PROPS, Prop
 from pylib.classes.route import Route
 from pylib.classes.tag import TAG_CATEGORY_MAP_JSON, Tag, TagCategory
-from hardcoded_database.tricks import ALL_PROPS_SETTINGS_JSON
+from hardcoded_database.tricks import ALL_PROPS_SETTINGS, ALL_PROPS_SETTINGS_JSON
 from pylib.route_generator.exceptions import NotEnoughTricksFoundException
 from pylib.route_generator.route_generator import RouteGenerator
 from pylib.utils.filter_tricks import filter_tricks

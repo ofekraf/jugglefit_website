@@ -112,7 +112,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 {% for prop in props_settings.keys() %}
                     {% if prop in main_props %}
                         <label class="prop-option" data-prop-type="{{ prop }}">
-                            <input type="radio" name="prop" class="prop-option-input" value="{{ prop }}"> 
+                            <input type="radio" name="prop" class="prop-option-input" value="{{ prop }}" 
+                                {% if initial_route and initial_route.prop == prop %}checked{% elif not initial_route and loop.first %}checked{% endif %}> 
                             <span class="prop-option-name">{{ prop|replace('_',' ')|capitalize }}</span>
                             <div class="prop-icon"></div>
                         </label>
@@ -126,7 +127,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         {% for prop in props_settings.keys() %}
                             {% if prop not in main_props %}
                                 <label class="prop-option" data-prop-type="{{ prop }}">
-                                    <input type="radio" name="prop" class="prop-option-input" value="{{ prop }}"> 
+                                    <input type="radio" name="prop" class="prop-option-input" value="{{ prop }}" 
+                                        {% if initial_route and initial_route.prop == prop %}checked{% endif %}> 
                                     <span class="prop-option-name">{{ prop|replace('_',' ')|capitalize }}</span>
                                     <div class="prop-icon"></div>
                                 </label>

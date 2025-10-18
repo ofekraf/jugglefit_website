@@ -8,8 +8,8 @@ class TagCategory(ReverseLookupEnum):
     SpinControl = "spin control"
     Siteswap = "siteswap"
     Isolation = "isolation"
-    OneSidedPassing = "one-sided-passing"
-    TwoSidedPassing = "two-sided-passing"
+    OneSidedPassing = "one sided passing"
+    TwoSidedPassing = "two sided passing"
 
     def __lt__(self, other):
         """Make TagCategory sortable by comparing their values."""
