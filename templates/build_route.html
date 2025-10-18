@@ -140,7 +140,6 @@ document.addEventListener('DOMContentLoaded', function() {
         <!-- Route Display -->
         <!-- Route display using Jinja macro -->
         <div class="form-section">
-            <label class="form-label">Your Route</label>
             {% if initial_route %}
                 {% set route = initial_route %}
                 {% include "macros/route_display.html" %}
@@ -187,7 +186,6 @@ document.addEventListener('DOMContentLoaded', function() {
         <div class="form-section">
             <div class="route-form">
                 <h4 class="subsection-title">Add Tricks</h4>
-                <label class="form-label">Select Prop Type</label>
                 <div class="prop-options-row" style="margin-bottom: 1em; display: flex; gap: 1em;">
                     {% for prop in prop_options %}
                     <label class="prop-option" style="display: flex; align-items: center; gap: 0.3em; cursor: pointer;">
@@ -197,9 +195,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     {% endfor %}
                 </div>
                 <label class="form-label">Available Tricks</label>
-                <div class="siteswap-x-toggle-row" style="margin-top:0.25rem;">
-                    <label class="siteswap-x-toggle-label"><input type="checkbox" id="toggle-siteswap-x-checkbox" class="siteswap-x-toggle-checkbox"> Show Siteswap-X</label>
-                </div>
 
         <div class="form-section">
             <label class="form-label">Number of Props</label>
