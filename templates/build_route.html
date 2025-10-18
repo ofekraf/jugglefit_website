@@ -1,3 +1,6 @@
+{% extends "macros/base.html" %}
+
+{% block head %}
 <script>
 // Trick filtering constants from Flask context
 const MIN_TRICK_PROPS_COUNT = {{ MIN_TRICK_PROPS_COUNT }};
@@ -15,6 +18,7 @@ if (typeof currentRoute === 'undefined') {
 // Expose initial_route from Flask as window.initialRoute for JS
 window.initialRoute = {{ initial_route|tojson|safe }};
 </script>
+{% endblock %}
 <script>
 // Initialize props and difficulty sliders after DOM and allTricks are ready
 document.addEventListener('DOMContentLoaded', function() {
@@ -63,13 +67,10 @@ document.addEventListener('DOMContentLoaded', function() {
             if (typeof updateSearchTricks === 'function') updateSearchTricks();
         });
     }
-    // Only initialize prop selection and event listeners; let initializePropSelection handle initial tricks loading
-    initializePropSelection();
-    initializeEventListeners();
-    // No need to fetch tricks here; initializePropSelection will do it for the selected prop
+    // Only initialize prop selection and event listeners; these will be called
+    // later after the functions are defined to avoid calling undefined symbols.
 });
 </script>
-{% extends "macros/base.html" %}
 {% block title %}Create Your Own Route{% endblock %}
 {% block content %}
 <div class="route-page">
@@ -256,7 +257,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     const trickContainer = CreateTrickContainer(trick.name, trick.comment || '', trick.siteswap_x || '', {
                         onNameBlur: (newName) => { trick.name = newName; },
-                        onCommentBlur: (newComment) => { trick.comment = newComment; }
+                        onCommentBlur: (newComment) => { trick.comment = newComment; },
+                        addCheckbox: true
                     });
                     const addButton = document.createElement('button');
                     addButton.className = 'add-trick';
@@ -484,7 +486,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Use shared CreateTrickContainer to build consistent inner DOM
                 const container = CreateTrickContainer(trick.name, trick.comment || '', trick.siteswap_x || '', {
                     onNameBlur: (newName) => { trick.name = newName; frame.setAttribute('data-trick-name', newName); },
-                    onCommentBlur: (newComment) => { trick.comment = newComment; }
+                    onCommentBlur: (newComment) => { trick.comment = newComment; },
+                    addCheckbox: true
                 });
 
                 // Insert trick number before the name inside the container

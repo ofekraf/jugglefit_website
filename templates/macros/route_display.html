@@ -33,7 +33,6 @@
                     <div class="prop-details-frame">
                         <div class="trick-content">
                             <div class="trick-main" style="display: inline-flex; align-items: center; gap: 0.5em;">
-                                <input type="checkbox" class="trick-checkbox" style="margin-right: 0.5em;" onclick="toggleLinethrough(this)">
                                 <span class="trick-number">{{ trick_counter.count }}.</span>
                                 {% include 'macros/trick_container.html' %}
                             </div>
@@ -61,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     const name = ph.dataset.name || '';
                     const comment = ph.dataset.comment || '';
                     const siteswap = ph.dataset.siteswapX || ph.dataset.siteswap || '';
-                    const opts = createdRoute ? { editable: false } : {};
+                    const opts = createdRoute ? { editable: false } : { addCheckbox: true };
                     const newEl = window.CreateTrickContainer(name, comment, siteswap, opts);
                     ph.parentNode.replaceChild(newEl, ph);
                 } catch (e) {

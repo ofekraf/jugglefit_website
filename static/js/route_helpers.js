@@ -25,7 +25,7 @@ export async function fetchTricks(filters = {}) {
             return [];
         }
 
-        console.debug('fetchTricks payload:', payload);
+    // fetchTricks payload prepared
         const resp = await fetch('/api/fetch_tricks', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -158,7 +158,7 @@ export function setMaxThrowForProp(propSettings = {}) {
     else if (propSettings && typeof propSettings === 'object') propMaxThrow = propSettings.max_throw;
     else throw new Error('setMaxThrowForProp expects a number or an object with max_throw');
     try {
-        console.debug('setMaxThrowForProp called with', propSettings);
+    // setMaxThrowForProp called
         const maxThrowSlider = document.getElementById('max-throw-slider');
         const maxThrowValue = document.getElementById('max-throw-value');
         const maxThrowInput = document.getElementById('max-throw-input');
@@ -181,7 +181,7 @@ export function setMaxThrowForProp(propSettings = {}) {
                     try { maxThrowContainer.style.display = 'block'; } catch (e) {}
                 }
             }
-        if (maxThrowContainer) console.debug('setMaxThrowForProp container state:', { classList: maxThrowContainer.classList.toString(), inlineDisplay: maxThrowContainer.style.display });
+    // maxThrowContainer state
         } else {
             if (maxThrowValue) maxThrowValue.textContent = maxThrowSlider.value;
         }
@@ -261,3 +261,111 @@ try {
         window.routeHelpersLoaded = true;
     }
 } catch (e) {}
+
+/**
+ * Select a random trick appropriate for a target difficulty and constraints.
+ * Returns a trick object from the provided allTricks array or null when none match.
+ *
+ * Parameters:
+ * - allTricks: array of trick objects (each should have props_count, difficulty, name, tags[], max_throw)
+ * - difficulty: target difficulty number (integer)
+ * - minProps/maxProps: numeric props count bounds (inclusive)
+ * - excludedTags: array of tag keys to exclude
+ * - maxThrow: optional numeric maximum throw to filter tricks by their max_throw attribute
+ */
+export function getRandomTrickForDifficulty(allTricks, difficulty, minProps, maxProps, excludedTags = [], maxThrow = null) {
+    try {
+        if (!Array.isArray(allTricks) || allTricks.length === 0) return null;
+
+        // Normalize inputs
+        const minP = Number.isFinite(Number(minProps)) ? Number(minProps) : -Infinity;
+        const maxP = Number.isFinite(Number(maxProps)) ? Number(maxProps) : Infinity;
+        const targetDiff = Number.isFinite(Number(difficulty)) ? Number(difficulty) : null;
+        const excluded = Array.isArray(excludedTags) ? excludedTags.map(String) : [];
+
+        // Step 1: filter by props count
+        const byProps = allTricks.filter(t => {
+            try {
+                const props = Number.isFinite(Number(t.props_count)) ? Number(t.props_count) : null;
+                if (props === null) return false;
+                return props >= minP && props <= maxP;
+            } catch (e) { return false; }
+        });
+        
+
+        // Step 2: filter out excluded tags
+        const byTags = byProps.filter(t => {
+            try {
+                const tTags = Array.isArray(t.tags) ? t.tags.map(x => String(x)) : [];
+                for (const ex of excluded) if (tTags.includes(String(ex))) return false;
+                return true;
+            } catch (e) { return false; }
+        });
+        
+
+        // Step 3: filter by max_throw if provided
+        let candidates = byTags;
+        if (Number.isFinite(Number(maxThrow))) {
+            candidates = byTags.filter(t => {
+                try {
+                    if (!Number.isFinite(Number(t.max_throw))) return true; // treat missing max_throw as allowed
+                    return Number(t.max_throw) <= Number(maxThrow);
+                } catch (e) { return false; }
+            });
+            
+        }
+        if (candidates.length > 0) {
+            const sample = candidates.slice(0, 5).map(c => ({ name: c.name, props_count: c.props_count, difficulty: c.difficulty, max_throw: c.max_throw }));
+            
+        }
+
+        // Progressive relaxation: if nothing matched, try loosening filters so tooltip can still show a sample.
+        if (candidates.length === 0) {
+            
+            // 1) ignore max_throw (use byTags)
+            if (byTags && byTags.length > 0) {
+                candidates = byTags.slice();
+                
+            }
+        }
+
+        if (candidates.length === 0) {
+            // 2) ignore excluded tags (use byProps)
+            if (byProps && byProps.length > 0) {
+                candidates = byProps.slice();
+                
+            }
+        }
+
+        if (candidates.length === 0) {
+            // 3) ignore props filter (use allTricks)
+            candidates = Array.isArray(allTricks) ? allTricks.slice() : [];
+            
+        }
+
+        if (candidates.length === 0) return null;
+
+        // If difficulty target provided, only accept exact difficulty matches
+        if (targetDiff !== null) {
+            const exact = candidates.filter(t => {
+                try { return Number.isFinite(Number(t.difficulty)) && Number(t.difficulty) === targetDiff; } catch (e) { return false; }
+            });
+            
+            if (exact.length === 0) return null;
+            const idx = Math.floor(Math.random() * exact.length);
+            return exact[idx] || null;
+        }
+
+        // No target difficulty provided: return a random candidate
+        try {
+            const idx = Math.floor(Math.random() * candidates.length);
+            return candidates[idx] || null;
+        } catch (e) {
+            console.error('getRandomTrickForDifficulty failed selecting random candidate', e);
+            return null;
+        }
+    } catch (e) {
+        console.error('getRandomTrickForDifficulty failed', e);
+        return null;
+    }
+}

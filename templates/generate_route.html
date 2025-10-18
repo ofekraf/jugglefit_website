@@ -44,7 +44,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.js"></script>
 <script src="{{ url_for('static', filename='js/siteswap_x.js') }}"></script>
 <script type="module">
-    import { fetchTricks, updatePropsSliderRange, updateRelevantTags, setMaxThrowForProp, initMaxThrowBindings } from "{{ url_for('static', filename='js/route_helpers.js') }}";
+    import { fetchTricks, updatePropsSliderRange, updateRelevantTags, setMaxThrowForProp, initMaxThrowBindings, getRandomTrickForDifficulty } from "{{ url_for('static', filename='js/route_helpers.js') }}";
 
     // Props settings from Flask
     const propsSettings = {{ props_settings|tojson|safe }};
@@ -88,7 +88,7 @@
         updateRelevantTags(propSettings.relevant_tags, '');
 
         // Use centralized max-throw handler
-    console.debug('Calling setMaxThrowForProp with', propSettings);
+    // setMaxThrowForProp called for initial prop
     try { setMaxThrowForProp(propSettings); } catch (e) { console.error('setMaxThrowForProp error', e); }
 
         // Fetch tricks for selected prop and current max throw
@@ -105,7 +105,10 @@
 
         // Load all tricks for this prop (no client-side filters yet). Filtering is applied later when generating routes/tooltips.
         fetchTricks({ propType: prop })
-            .then(tricks => { window.allTricks = tricks; })
+            .then(tricks => { 
+                window.allTricks = tricks; 
+                // fetchTricks resolved
+            })
             .catch(error => { console.error('Error fetching tricks:', error); });
     }
 
@@ -141,6 +144,8 @@
             // Ensure max-throw bindings are active (idempotent)
             try { initMaxThrowBindings(); } catch (e) { console.error('initMaxThrowBindings error', e); }
         }
+
+        // (diagnostic overlay removed) 
     });
 
     // Difficulty slider and props slider initialization moved into macros
@@ -154,7 +159,9 @@
 
     // Function to show trick tooltip
     function showTrickTooltip(event, difficulty) {
-        if (!Array.isArray(allTricks) || allTricks.length === 0) return;
+        if (!Array.isArray(allTricks) || allTricks.length === 0) {
+            return;
+        }
         const minProps = parseInt(document.getElementById('min-props-input').value);
         const maxProps = parseInt(document.getElementById('max-props-input').value);
         const excludedTags = Array.from(document.querySelectorAll('input[name="exclude_tags"]:checked')).map(cb => cb.value);
@@ -165,25 +172,72 @@
         const maxThrowElem = document.getElementById('max-throw-enabled');
         const tooltipMaxThrow = maxThrowElem && maxThrowElem.checked ? parseInt(document.getElementById('max-throw-input').value) : null;
         // Get a random trick for the current difficulty
-        const trick = getRandomTrickForDifficulty(allTricks, difficulty, minProps, maxProps, excludedTags, tooltipMaxThrow);
-        if (!trick) return;
+        let trick = null;
+        try {
+            trick = getRandomTrickForDifficulty(allTricks, difficulty, minProps, maxProps, excludedTags, tooltipMaxThrow);
+        } catch (e) { /* ignore helper errors */ }
+
+        // Diagnostic banner removed
 
         // Remove any existing tooltip
         const existingTooltip = document.querySelector('.trick-tooltip');
-        if (existingTooltip) {
-            existingTooltip.remove();
+        if (!trick) {
+            if (existingTooltip) existingTooltip.remove();
+            // No exact-match trick — do not show a tooltip
+            return;
         }
+
+        if (existingTooltip) existingTooltip.remove();
 
         const tooltip = document.createElement('div');
         tooltip.className = 'trick-tooltip';
-        tooltip.textContent = `${trick.props_count} ${currentProp}: ${trick.name}`;
-        
-        // Position the tooltip near the cursor
-        tooltip.style.left = `${event.clientX + 10}px`;
-        tooltip.style.top = `${event.clientY + 10}px`;
-        
+        // Defensive tooltip text: prefer trick.name but fall back to siteswap or a placeholder
+        let tooltipText = `${trick.props_count || ''} ${currentProp || ''}: ${trick.name || ''}`;
+        if (!tooltipText || tooltipText.trim() === '' || tooltipText.match(/^\s*:\s*$/)) {
+            tooltipText = `${trick.props_count || ''} ${currentProp || ''}: ${trick.siteswap || trick.name || '(unknown trick)'}`;
+        }
+        tooltip.textContent = tooltipText;
+
+        // Determine coordinates (guard against synthetic event objects)
+        let x = (event && typeof event.clientX === 'number') ? event.clientX : null;
+        let y = (event && typeof event.clientY === 'number') ? event.clientY : null;
+        if (x === null || y === null) {
+            // Try to derive from target element bounding rect if available
+            if (event && event.target && event.target.getBoundingClientRect) {
+                const r = event.target.getBoundingClientRect();
+                x = Math.round(r.left + r.width / 2);
+                y = Math.round(r.top + r.height / 2);
+            } else {
+                // Fallback to center of viewport
+                x = Math.round(window.innerWidth / 2);
+                y = Math.round(window.innerHeight / 2);
+            }
+        }
+
+        // Position the tooltip near the computed point
+        tooltip.style.left = (x + 10) + 'px';
+        tooltip.style.top = (y + 10) + 'px';
+
+        // Add a bright outline to ensure visibility for debugging
+        tooltip.style.outline = '2px solid rgba(255,255,0,0.9)';
+
         document.body.appendChild(tooltip);
+
+        // Log what element sits under the tooltip point
+        try {
+            const elAtPoint = document.elementFromPoint(x + 12, y + 12);
+            const rect = tooltip.getBoundingClientRect();
+            const style = window.getComputedStyle(tooltip);
+        } catch (e) { /* ignore elementFromPoint errors */ }
+
+        // Auto-remove after 3 seconds so debug doesn't persist
+        setTimeout(() => {
+            try { tooltip.remove(); } catch (e) {}
+        }, 3000);
     }
+
+    // Expose to global for the difficulty macro which expects window.showTrickTooltip
+    try { window.showTrickTooltip = showTrickTooltip; } catch (e) { console.warn('Failed to attach showTrickTooltip to window', e); }
 
     // Update the difficulty range display (only if slider exists)
     if (difficultySlider && difficultySlider.noUiSlider) {
@@ -196,24 +250,94 @@
 
     // Difficulty slider hover/tooltip handled inside the difficulty_range_macro
 
+    // Robustly attach tooltip handlers to noUiSlider handles. The slider may be created
+    // by the macro after this script runs, so retry and use a MutationObserver.
+    function attachDifficultyHandleTooltips() {
+        const slider = document.getElementById('difficulty-slider');
+        if (!slider) return false;
+        const handles = Array.from(slider.querySelectorAll('.noUi-handle'));
+        if (!handles || handles.length === 0) return false;
+
+        handles.forEach((handle, index) => {
+            if (handle._tooltipHandlerAttached) return;
+            const enter = (event) => {
+                try {
+                    const currentValue = slider.noUiSlider ? parseInt(slider.noUiSlider.get()[index]) : null;
+                    if (typeof window.showTrickTooltip === 'function') window.showTrickTooltip(event, currentValue);
+                } catch (e) { /* swallow */ }
+            };
+            const leave = () => {
+                try { const t = document.querySelector('.trick-tooltip'); if (t) t.remove(); } catch (e) {}
+            };
+            handle.addEventListener('mouseenter', enter);
+            handle.addEventListener('mouseleave', leave);
+            handle._tooltipHandlerAttached = true;
+        });
+
+        // Also ensure updates while dragging show tooltip for hovered handle
+        if (slider.noUiSlider && typeof slider.noUiSlider.on === 'function') {
+            try {
+                slider.noUiSlider.on('update', function(values) {
+                    try {
+                        const handlesNow = Array.from(slider.querySelectorAll('.noUi-handle'));
+                        handlesNow.forEach((h, i) => {
+                            if (h.matches(':hover')) {
+                                const ev = { clientX: h.getBoundingClientRect().left, clientY: h.getBoundingClientRect().top, target: h };
+                                if (typeof window.showTrickTooltip === 'function') window.showTrickTooltip(ev, parseInt(values[i]));
+                            }
+                        });
+                    } catch (e) {}
+                });
+            } catch (e) {}
+        }
+
+        return true;
+    }
+
+    // Try immediate attach and retry a couple of times; observe mutations on the slider parent
+    (function ensureHandlesAttached() {
+        let attached = attachDifficultyHandleTooltips();
+        if (attached) return;
+        // retry timers
+        const retries = [200, 800, 1600];
+        retries.forEach((ms) => setTimeout(() => { try { attached = attachDifficultyHandleTooltips(); } catch(e){} }, ms));
+
+        // MutationObserver to attach when nodes are added under the slider's parent
+        try {
+            const parent = document.querySelector('.slider-container') || document.body;
+            const mo = new MutationObserver((mutations) => {
+                try {
+                    if (attachDifficultyHandleTooltips()) {
+                        mo.disconnect();
+                    }
+                } catch (e) {}
+            });
+            mo.observe(parent, { childList: true, subtree: true });
+        } catch (e) { /* ignore */ }
+    })();
+
     // Update the value displayed next to the "Number of Tricks" slider
     const routeLengthSlider = document.getElementById('route-length-slider');
     const routeLengthValue = document.getElementById('route-length-value');
     const routeLengthInput = document.getElementById('route-length-input');
-    routeLengthSlider.addEventListener('input', () => {
-        routeLengthValue.textContent = routeLengthSlider.value;
-        routeLengthInput.value = routeLengthSlider.value;
-    });
+    if (routeLengthSlider && routeLengthValue && routeLengthInput) {
+        routeLengthSlider.addEventListener('input', () => {
+            routeLengthValue.textContent = routeLengthSlider.value;
+            routeLengthInput.value = routeLengthSlider.value;
+        });
+    }
 
     // Update the value displayed next to the "Route Duration" slider
     const routeDurationSlider = document.getElementById('route-duration-slider');
     const routeDurationValue = document.getElementById('route-duration-value');
     const routeDurationInput = document.getElementById('route-duration-input');
-    routeDurationSlider.addEventListener('input', () => {
-        const minutes = parseInt(routeDurationSlider.value);
-        routeDurationValue.textContent = minutes;
-        routeDurationInput.value = minutes;
-    });
+    if (routeDurationSlider && routeDurationValue && routeDurationInput) {
+        routeDurationSlider.addEventListener('input', () => {
+            const minutes = parseInt(routeDurationSlider.value);
+            routeDurationValue.textContent = minutes;
+            routeDurationInput.value = minutes;
+        });
+    }
 
     // Max Throw UI is handled by the limit_max_throw_macro
 

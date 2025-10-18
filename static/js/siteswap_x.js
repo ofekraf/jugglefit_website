@@ -196,7 +196,8 @@ function CreateTrickContainer(name, comment = '', siteswapX = '', options = {}) 
     const nameEl = document.createElement('span');
     nameEl.className = 'trick-name';
     nameEl.textContent = name || 'Unnamed Trick';
-    nameEl.contentEditable = true;
+    // Respect editable option (false = non-editable view like created-route)
+    nameEl.contentEditable = options.editable !== false;
     nameEl.addEventListener('blur', function() {
         const newName = this.textContent.trim();
         if (newName) {
@@ -223,7 +224,7 @@ function CreateTrickContainer(name, comment = '', siteswapX = '', options = {}) 
         const commentEl = document.createElement('span');
         commentEl.className = 'trick-comment';
         commentEl.textContent = ` [${comment}]`;
-        commentEl.contentEditable = true;
+        commentEl.contentEditable = options.editable !== false;
         commentEl.addEventListener('blur', function() {
             const newComment = this.textContent.replace(/\[|\]/g, '').trim();
             if (typeof options.onCommentBlur === 'function') options.onCommentBlur(newComment);
@@ -232,12 +233,32 @@ function CreateTrickContainer(name, comment = '', siteswapX = '', options = {}) 
         main.appendChild(commentEl);
     }
 
+    // Optional checkbox (for route display to toggle line-through / selection)
+    let checkboxEl = null;
+    if (options.addCheckbox) {
+        checkboxEl = document.createElement('input');
+        checkboxEl.type = 'checkbox';
+        checkboxEl.className = 'trick-checkbox';
+        checkboxEl.style.marginRight = '0.5em';
+        // Wire change handler: prefer explicit callback, otherwise try global toggleLinethrough
+        checkboxEl.addEventListener('change', function(e) {
+            if (typeof options.onCheckboxChange === 'function') {
+                options.onCheckboxChange(e.target);
+            } else if (typeof window.toggleLinethrough === 'function') {
+                window.toggleLinethrough(e.target);
+            }
+        });
+        // Insert checkbox before name
+        main.insertBefore(checkboxEl, nameEl);
+    }
+
     container.appendChild(main);
 
     // Expose helper references for external code
     container._nameEl = nameEl;
     container._siteswapEl = xEl;
     container._commentEl = comment ? container.querySelector('.trick-comment') : null;
+    container._checkboxEl = checkboxEl;
 
     // If an onAdd callback is provided, create an add button wrapper (caller may append it elsewhere)
     if (typeof options.onAdd === 'function') {

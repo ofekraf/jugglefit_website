@@ -30,11 +30,11 @@ function initMaxThrowUI() {
         const maxThrowSlider = document.getElementById('max-throw-slider');
         const maxThrowValue = document.getElementById('max-throw-value');
         const maxThrowInput = document.getElementById('max-throw-input');
-    console.debug('initMaxThrowUI running', { maxThrowEnabled: !!maxThrowEnabled, maxThrowSlider: !!maxThrowSlider, maxThrowContainer: !!maxThrowContainer });
+    // initMaxThrowUI running
         if (!maxThrowEnabled || !maxThrowContainer || !maxThrowSlider) return;
 
         function updateMaxThrowUI() {
-            console.debug('updateMaxThrowUI checked=', maxThrowEnabled.checked);
+            // updateMaxThrowUI
             if (maxThrowEnabled.checked) {
                 // Use CSS classes to control visibility (consistent with stylesheet)
                 maxThrowContainer.classList.add('show');
@@ -48,7 +48,7 @@ function initMaxThrowUI() {
                 try { maxThrowContainer.style.display = 'none'; } catch (e) {}
                 maxThrowInput.value = '';
             }
-            console.debug('maxThrowContainer state:', { classList: maxThrowContainer.classList.toString(), inlineDisplay: maxThrowContainer.style.display });
+            // maxThrowContainer state
         }
 
         // Avoid attaching handlers multiple times
