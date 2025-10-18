@@ -98,16 +98,13 @@ export function updateRelevantTags(relevantTagsOrPropSettings = [], naming = '')
 
         const containerId = 'exclude_tags' + name_suffix;
         const container = document.getElementById(containerId);
-        console.debug('updateRelevantTags called with tagsArray:', tagsArray, 'naming:', naming, 'containerId:', containerId, 'containerExists:', !!container);
         if (!container) {
             console.warn('updateRelevantTags: container not found for id', containerId, '— will skip tag filtering');
             return;
         }
     const categories = container.querySelectorAll('.tag-category');
-    console.debug('updateRelevantTags: found categories count:', categories.length);
     // If no tags provided, show all categories (don't hide everything)
     if (!tagsArray || tagsArray.length === 0) {
-        console.debug('updateRelevantTags: no tags provided, showing all categories');
         categories.forEach(cat => {
             cat.style.display = '';
             // Ensure individual tag containers are visible
@@ -123,9 +120,8 @@ export function updateRelevantTags(relevantTagsOrPropSettings = [], naming = '')
     // Otherwise, for each category hide non-relevant tags, unhide relevant ones
     categories.forEach(cat => {
         let revealedCount = 0;
-        // Only target the actual tag checkboxes (not the header category checkbox)
-        const tagCheckboxes = cat.querySelectorAll('input.tag-checkbox');
-        console.debug('updateRelevantTags: category', cat.dataset.category, 'tagCheckboxes:', tagCheckboxes.length);
+    // Only target the actual tag checkboxes (not the header category checkbox)
+    const tagCheckboxes = cat.querySelectorAll('input.tag-checkbox');
         tagCheckboxes.forEach(cb => {
             const val = cb.value || cb.getAttribute('value') || '';
             const valLower = String(val).toLowerCase();
@@ -191,6 +187,71 @@ export function setMaxThrowForProp(propSettings = {}) {
         }
     } catch (e) {
         console.error('setMaxThrowForProp failed', e);
+    }
+}
+
+// Ensure max-throw UI handlers are bound. Exported so pages that import this module
+// can call it and guarantee the binding happens (idempotent).
+export function initMaxThrowBindings() {
+    try {
+        if (typeof window === 'undefined') return;
+        if (window._maxThrowBindingsInit) return;
+        window._maxThrowBindingsInit = true;
+
+        // Delegate change handling for the checkbox to toggle the container and keep inputs in sync
+        document.addEventListener('change', function(e) {
+            try {
+                const t = e.target;
+                if (!t) return;
+                if (t.id === 'max-throw-enabled') {
+                    const container = document.getElementById('max-throw-input-container');
+                    const slider = document.getElementById('max-throw-slider');
+                    const input = document.getElementById('max-throw-input');
+                    if (!container) return;
+                    if (t.checked) {
+                        container.classList.add('show'); container.classList.remove('hide');
+                        try { container.style.display = 'block'; container.style.visibility = 'visible'; container.style.opacity = '1'; container.style.maxHeight = '1000px'; } catch(e){}
+                        if (slider && input) input.value = slider.value;
+                    } else {
+                        container.classList.add('hide'); container.classList.remove('show');
+                        try { container.style.display = 'none'; container.style.visibility = 'hidden'; container.style.opacity = '0'; container.style.maxHeight = '0'; } catch(e){}
+                        if (input) input.value = '';
+                    }
+                }
+            } catch (e) { /* swallow */ }
+        });
+
+        // Make sure label clicks also propagate a change event in case some browsers/markup
+        // don't trigger it synchronously.
+        document.addEventListener('click', function(e) {
+            try {
+                const t = e.target;
+                if (!t) return;
+                if (t.matches && t.matches('label[for="max-throw-enabled"]')) {
+                    setTimeout(function() {
+                        const cb = document.getElementById('max-throw-enabled');
+                        if (cb) cb.dispatchEvent(new Event('change', { bubbles: true }));
+                    }, 0);
+                }
+            } catch (e) {}
+        });
+
+        // Keep slider -> hidden input in sync
+        document.addEventListener('input', function(e) {
+            try {
+                const t = e.target;
+                if (!t) return;
+                if (t.id === 'max-throw-slider') {
+                    const valueEl = document.getElementById('max-throw-value');
+                    const input = document.getElementById('max-throw-input');
+                    const enabled = document.getElementById('max-throw-enabled');
+                    if (valueEl) valueEl.textContent = t.value;
+                    if (enabled && enabled.checked && input) input.value = t.value;
+                }
+            } catch (e) {}
+        });
+    } catch (e) {
+        console.error('initMaxThrowBindings failed', e);
     }
 }
 

@@ -3341,8 +3341,25 @@ a.primary-button.live-event-button:hover {
     display: block;
 }
 
+/* Ensure show state cannot be overridden by other rules; make it part of document flow and visible */
+.max-throw-input-container.show {
+    display: block !important;
+    position: relative !important;
+    z-index: 5 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
 .max-throw-input-container.hide {
     display: none;
+}
+
+/* Force hide state to take precedence if applied */
+.max-throw-input-container.hide {
+    display: none !important;
+    position: static !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
 }
 
 /* Expand Database Page Styles */

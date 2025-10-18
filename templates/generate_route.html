@@ -44,7 +44,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.js"></script>
 <script src="{{ url_for('static', filename='js/siteswap_x.js') }}"></script>
 <script type="module">
-    import { fetchTricks, updatePropsSliderRange, updateRelevantTags, setMaxThrowForProp } from "{{ url_for('static', filename='js/route_helpers.js') }}";
+    import { fetchTricks, updatePropsSliderRange, updateRelevantTags, setMaxThrowForProp, initMaxThrowBindings } from "{{ url_for('static', filename='js/route_helpers.js') }}";
 
     // Props settings from Flask
     const propsSettings = {{ props_settings|tojson|safe }};
@@ -138,6 +138,8 @@
             if (typeof handlePropChange === 'function') {
                 handlePropChange();
             }
+            // Ensure max-throw bindings are active (idempotent)
+            try { initMaxThrowBindings(); } catch (e) { console.error('initMaxThrowBindings error', e); }
         }
     });
 
