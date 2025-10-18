@@ -52,15 +52,17 @@ document.addEventListener('DOMContentLoaded', function() {
     if (cb && window.toggleSiteswapXEverywhere && window.CreateTrickContainer) {
         cb.addEventListener('change', window.toggleSiteswapXEverywhere);
         // Upgrade any placeholder containers into live elements created by CreateTrickContainer
-        try {
+            try {
             const placeholders = document.querySelectorAll('.trick-container[data-name]');
+            const createdRoute = !!document.querySelector('.created-route-page');
             placeholders.forEach(ph => {
                 try {
                     if (ph.classList.contains('trick-widget')) return;
                     const name = ph.dataset.name || '';
                     const comment = ph.dataset.comment || '';
                     const siteswap = ph.dataset.siteswapX || ph.dataset.siteswap || '';
-                    const newEl = window.CreateTrickContainer(name, comment, siteswap, {});
+                    const opts = createdRoute ? { editable: false } : {};
+                    const newEl = window.CreateTrickContainer(name, comment, siteswap, opts);
                     ph.parentNode.replaceChild(newEl, ph);
                 } catch (e) {
                     console.error('Error upgrading trick placeholder', ph, e);

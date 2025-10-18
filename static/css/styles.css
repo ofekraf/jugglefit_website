@@ -25,6 +25,27 @@
     padding-bottom: 0.15em;
     margin: 0; /* remove extra margins that add height */
 }
+
+/* Route display: let the trick-main row take full width so name and siteswap
+   have room before wrapping. The siteswap keeps a sensible max-width while the
+   name element can shrink or wrap as needed. */
+.route-page .trick-main {
+    display: flex !important;
+    width: 100%;
+    gap: 0.5em;
+    align-items: center;
+}
+.route-page .trick-main .trick-name {
+    flex: 1 1 auto;
+    min-width: 0; /* allow flex items to shrink properly */
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+}
+.route-page .trick-main .trick-siteswap-x {
+    flex: 0 0 auto;
+    max-width: 45%; /* allow siteswap to take reasonable space */
+}
 .trick-siteswap-x {
     /* Keep siteswap-x compact as well */
     min-height: 1.2em;
@@ -197,6 +218,77 @@
 .siteswap-x-catch-mod {
     bottom: -0.9em; /* below the digit */
 }
+
+/* High-specificity overrides for route display: ensure trick names and
+   siteswap aren't clipped with ellipsis on the route display pages. These
+   override earlier global rules that intentionally use ellipsis elsewhere. */
+.route-page .route-content .trick-main,
+.route-page .trick-main,
+.route-page .trick-container .trick-main {
+    white-space: normal !important;
+}
+.route-page .route-content .trick-container .trick-name,
+.route-page .trick-main .trick-name,
+.route-page .trick-container .trick-name {
+    overflow: visible !important;
+    white-space: normal !important;
+    text-overflow: clip !important;
+}
+.route-page .route-content .trick-container .trick-siteswap-x,
+.route-page .trick-main .trick-siteswap-x,
+.route-page .trick-container .trick-siteswap-x {
+    overflow: visible !important;
+    text-overflow: clip !important;
+    max-width: none !important;
+}
+
+/* Final override placed at end of stylesheet to defeat earlier !important rules
+   that force ellipsis/nowrap. This targets only pages whose root contains
+   `.route-page` so other compact views remain unchanged. */
+.route-page .route-container .route-content .trick-main,
+.route-page .route-content .trick-main,
+.route-page .trick-container .trick-main,
+.route-page .trick-main {
+    white-space: normal !important;
+    overflow: visible !important;
+}
+.route-page .route-container .route-content .trick-name,
+.route-page .route-content .trick-name,
+.route-page .trick-container .trick-name,
+.route-page .trick-name {
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    max-width: none !important;
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+}
+.route-page .route-container .route-content .trick-siteswap-x,
+.route-page .route-content .trick-siteswap-x,
+.route-page .trick-container .trick-siteswap-x,
+.route-page .trick-siteswap-x {
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    max-width: none !important;
+    flex: 0 0 auto !important;
+}
+
+    /* Force pixel-precise checkbox sizing to avoid scaling differences when
+        other inline elements (like siteswap) are hidden/shown. Targets both the
+        route display checkbox and general trick checkbox class. */
+    .trick-checkbox,
+    .siteswap-x-toggle-checkbox,
+    input.trick-checkbox[type="checkbox"] {
+         width: 16px !important;
+         height: 16px !important;
+         min-width: 16px !important;
+         min-height: 16px !important;
+         box-sizing: content-box !important;
+         vertical-align: middle !important;
+         margin-right: 8px !important;
+         transform: none !important;
+    }
 
 .tags-grid {
     display: grid;
