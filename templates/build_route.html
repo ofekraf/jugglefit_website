@@ -86,58 +86,21 @@ document.addEventListener('DOMContentLoaded', function() {
     <input type="hidden" id="min-difficulty-input" name="min_difficulty" value="20">
     <input type="hidden" id="max-difficulty-input" name="max_difficulty" value="30">
 
+    {% from 'macros/route_name_input.html' import route_name_input %}
+    {% from 'macros/prop_selection_macro.html' import prop_selection_macro %}
+    {% from 'macros/number_of_props_macro.html' import number_of_props_macro %}
+    {% from 'macros/difficulty_range_macro.html' import difficulty_range_macro %}
+    {% from 'macros/route_duration_macro.html' import route_duration_macro %}
+    {% from 'macros/limit_max_throw_macro.html' import limit_max_throw_macro %}
+    {% from 'macros/relevant_tags_macro.html' import relevant_tags_macro %}
+
     <div class="route-form">
-        <!-- Only keep the route name and duration input for building, not for display -->
-        <div class="form-section">
-            <label for="route_name" class="form-label">Route Name</label>
-            <input type="text" id="route_name" name="route_name" placeholder="My awesome route" class="form-input" required>
-        </div>
-        <div class="form-section">
-            <label for="route_duration" class="form-label">Route Duration (minutes)</label>
-            <div class="slider-container">
-                <div class="slider-wrapper">
-                    <input type="range" id="route-duration-slider" min="1" max="30" value="10" class="custom-range">
-                    <span id="route-duration-value" class="slider-value">10</span>
-                </div>
-                <input type="hidden" id="route-duration-input" name="route_duration" value="10">
-            </div>
-        </div>
+        {{ route_name_input() }}
+        {{ route_duration_macro() }}
 
 
 
-        <div class="form-section">
-            <label class="form-label">Select Prop</label>
-            <div class="prop-group">
-                {# Render main props according to server-provided main_props (keeps single source of truth) #}
-                {% for prop in props_settings.keys() %}
-                    {% if prop in main_props %}
-                        <label class="prop-option" data-prop-type="{{ prop }}">
-                            <input type="radio" name="prop" class="prop-option-input" value="{{ prop }}" 
-                                {% if initial_route and initial_route.prop == prop %}checked{% elif not initial_route and loop.first %}checked{% endif %}> 
-                            <span class="prop-option-name">{{ prop|replace('_',' ')|capitalize }}</span>
-                            <div class="prop-icon"></div>
-                        </label>
-                    {% endif %}
-                {% endfor %}
-
-                {# Additional props dropdown placed to the right #}
-                <div class="prop-dropdown">
-                    <div class="prop-dropdown-label">Additional Props ▾</div>
-                    <div class="prop-dropdown-menu">
-                        {% for prop in props_settings.keys() %}
-                            {% if prop not in main_props %}
-                                <label class="prop-option" data-prop-type="{{ prop }}">
-                                    <input type="radio" name="prop" class="prop-option-input" value="{{ prop }}" 
-                                        {% if initial_route and initial_route.prop == prop %}checked{% endif %}> 
-                                    <span class="prop-option-name">{{ prop|replace('_',' ')|capitalize }}</span>
-                                    <div class="prop-icon"></div>
-                                </label>
-                            {% endif %}
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-        </div>
+        {{ prop_selection_macro(props_settings, main_props, initial_route.prop if initial_route else None) }}
 
         <!-- Route Display -->
         <!-- Route display using Jinja macro -->
@@ -220,53 +183,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 <input type="hidden" id="max-difficulty-input" name="max_difficulty" value="30">
             </div>
         </div>
-        <div class="form-section">
-            <label class="form-label">Max Throw (Optional)</label>
-            <div class="max-throw-container">
-                <div class="checkbox-wrapper">
-                    <input type="checkbox" id="max-throw-enabled" class="form-checkbox">
-                    <label for="max-throw-enabled" class="checkbox-label">Limit maximum throw height</label>
-                </div>
-                <div id="max-throw-input-container" class="max-throw-input-container" style="display: none;">
-                    <div class="slider-container">
-                        <div class="slider-wrapper">
-                            <input type="range" id="max-throw-slider" min="5" max="15" value="10" class="custom-range">
-                            <span id="max-throw-value" class="slider-value">10</span>
-                        </div>
-                        <input type="hidden" id="max-throw-input" name="max_throw" value="">
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="form-section">
-            <label class="form-label">Exclude Tags</label>
-            <div class="tricks-container">
-                <div class="tricks-column">
-                    <div id="exclude_tags_available" class="tags-grid">
-                        {% for category in tag_categories %}
-                            <div class="tag-category">
-                                <div class="tag-category-header">
-                                    <input type="checkbox" id="category-available-{{ category.value }}" class="category-checkbox-available">
-                                    <label for="category-available-{{ category.value }}" class="tag-category-title-available">
-                                        {{ category.value }}
-                                    </label>
-                                </div>
-                                <div class="tag-category-content">
-                        {% for tag in tag_options %}
-                                    {% if tag_category_map[tag] == category %}
-                                        <div class="checkbox-container">
-                                            <input type="checkbox" id="tag-available-{{ tag.value }}" name="exclude_tags_available" value="{{ tag.value }}" class="tag-checkbox-available" data-category="{{ category.value }}">
-                                            <label for="tag-available-{{ tag.value }}">{{ tag.value }}</label>
-                                        </div>
-                                    {% endif %}
-                                {% endfor %}
-                                </div>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-        </div>
+        {{ limit_max_throw_macro(props_settings) }}
+        {{ relevant_tags_macro(tag_category_map, 'available') }}
         <div class="tricks-container">
                 <div class="tricks-column">
                 <div id="all_tricks" class="tricks-grid">

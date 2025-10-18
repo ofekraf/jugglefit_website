@@ -1,0 +1,98 @@
+{% macro number_of_props_macro() %}
+<div class="form-section">
+    <label class="form-label">Number of Props</label>
+    <div class="slider-container">
+        <div id="props-slider" class="custom-slider"></div>
+        <div class="slider-values">
+            <span id="props-range"></span>
+        </div>
+        <input type="hidden" id="min-props-input" name="min_props">
+        <input type="hidden" id="max-props-input" name="max_props">
+    </div>
+</div>
+
+<script>
+// Initialize props slider using global propsSettings (defined in page)
+document.addEventListener('DOMContentLoaded', function() {
+    try {
+        const propsSlider = document.getElementById('props-slider');
+        const propsRange = document.getElementById('props-range');
+        const propsMinInput = document.getElementById('min-props-input');
+        const propsMaxInput = document.getElementById('max-props-input');
+        if (!propsSlider || typeof noUiSlider === 'undefined') return;
+
+        const checkedPropInput = document.querySelector('.prop-option-input:checked');
+        const selectedProp = checkedPropInput ? checkedPropInput.value : Object.keys(window.propsSettings || {})[0];
+        const propSettings = (window.propsSettings || {})[selectedProp] || {min_props:2, max_props:9};
+        const minProps = propSettings.min_props;
+        const maxProps = propSettings.max_props;
+
+        if (!propsSlider.noUiSlider) {
+            noUiSlider.create(propsSlider, {
+                start: [minProps, maxProps],
+                connect: true,
+                range: { 'min': minProps, 'max': maxProps },
+                format: {
+                    to: (value) => Math.round(value),
+                    from: (value) => parseFloat(value)
+                }
+            });
+
+            propsSlider.noUiSlider.on('update', function(values) {
+                propsRange.textContent = `Min: ${values[0]}, Max: ${values[1]}`;
+                propsMinInput.value = Math.round(values[0]);
+                propsMaxInput.value = Math.round(values[1]);
+                if (typeof window.updateRelevantTags === 'function') {
+                    // keep in sync with other filters if necessary
+                }
+            });
+        }
+    } catch (e) {
+        console.error('Error initializing props slider', e);
+    }
+});
+
+// Expose a helper to update the props slider range and values from other scripts
+window.updatePropsSliderRange = window.updatePropsSliderRange || function(minProps, maxProps) {
+    try {
+        const propsSlider = document.getElementById('props-slider');
+        const propsRange = document.getElementById('props-range');
+        const propsMinInput = document.getElementById('min-props-input');
+        const propsMaxInput = document.getElementById('max-props-input');
+        if (!propsSlider) return;
+        // If slider already exists, update options; otherwise create it
+        if (propsSlider.noUiSlider) {
+            propsSlider.noUiSlider.updateOptions({
+                range: { 'min': minProps, 'max': maxProps },
+                start: [minProps, maxProps]
+            });
+            // Manually set values in case updateOptions doesn't trigger update event immediately
+            if (propsRange) propsRange.textContent = `Min: ${minProps}, Max: ${maxProps}`;
+            if (propsMinInput) propsMinInput.value = minProps;
+            if (propsMaxInput) propsMaxInput.value = maxProps;
+        } else if (typeof noUiSlider !== 'undefined') {
+            noUiSlider.create(propsSlider, {
+                start: [minProps, maxProps],
+                connect: true,
+                range: { 'min': minProps, 'max': maxProps },
+                format: {
+                    to: (value) => Math.round(value),
+                    from: (value) => parseFloat(value)
+                }
+            });
+            propsSlider.noUiSlider.on('update', function(values) {
+                if (propsRange) propsRange.textContent = `Min: ${values[0]}, Max: ${values[1]}`;
+                if (propsMinInput) propsMinInput.value = Math.round(values[0]);
+                if (propsMaxInput) propsMaxInput.value = Math.round(values[1]);
+                if (typeof window.updateRelevantTags === 'function') {
+                    // keep in sync
+                }
+            });
+        }
+    } catch (e) {
+        console.error('Error in updatePropsSliderRange', e);
+    }
+};
+</script>
+
+{% endmacro %}

@@ -247,6 +247,14 @@
     visibility: visible;
 }
 
+/* When JS adds the 'expanded' class, show the dropdown content like hover */
+.tag-category-content.expanded,
+.tag-category-content-available.expanded {
+    max-height: 1000px !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
 .checkbox-container {
     margin: 5px 0;
     padding-left: 20px;

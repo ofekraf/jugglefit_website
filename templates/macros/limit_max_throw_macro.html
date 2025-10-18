@@ -1,0 +1,123 @@
+{% macro limit_max_throw_macro(props_settings) %}
+<div class="form-section">
+    <label class="form-label">Max Throw (Optional)</label>
+    <div class="max-throw-container">
+        <div class="checkbox-wrapper">
+            <input type="checkbox" id="max-throw-enabled" class="form-checkbox">
+            <label for="max-throw-enabled" class="checkbox-label">Limit maximum throw height</label>
+        </div>
+    <div id="max-throw-input-container" class="max-throw-input-container hide">
+            <div class="slider-container">
+                <div class="slider-wrapper">
+                    <!-- Use safe defaults; per-prop values will be applied by setMaxThrowForProp -->
+                    <input type="range" id="max-throw-slider" min="1" max="50" value="10" class="custom-range">
+                    <span id="max-throw-value" class="slider-value">10</span>
+                </div>
+                <input type="hidden" id="max-throw-input" name="max_throw" value="">
+            </div>
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
+<script>
+// Max throw UI handlers
+function initMaxThrowUI() {
+    try {
+        // Query elements fresh in case DOM changed
+        const maxThrowEnabled = document.getElementById('max-throw-enabled');
+        const maxThrowContainer = document.getElementById('max-throw-input-container');
+        const maxThrowSlider = document.getElementById('max-throw-slider');
+        const maxThrowValue = document.getElementById('max-throw-value');
+        const maxThrowInput = document.getElementById('max-throw-input');
+    console.debug('initMaxThrowUI running', { maxThrowEnabled: !!maxThrowEnabled, maxThrowSlider: !!maxThrowSlider, maxThrowContainer: !!maxThrowContainer });
+        if (!maxThrowEnabled || !maxThrowContainer || !maxThrowSlider) return;
+
+        function updateMaxThrowUI() {
+            console.debug('updateMaxThrowUI checked=', maxThrowEnabled.checked);
+            if (maxThrowEnabled.checked) {
+                // Use CSS classes to control visibility (consistent with stylesheet)
+                maxThrowContainer.classList.add('show');
+                maxThrowContainer.classList.remove('hide');
+                // Fallback: also set inline display to ensure visibility if CSS specificity interferes
+                try { maxThrowContainer.style.display = 'block'; } catch (e) {}
+                maxThrowInput.value = maxThrowSlider.value;
+            } else {
+                maxThrowContainer.classList.add('hide');
+                maxThrowContainer.classList.remove('show');
+                try { maxThrowContainer.style.display = 'none'; } catch (e) {}
+                maxThrowInput.value = '';
+            }
+            console.debug('maxThrowContainer state:', { classList: maxThrowContainer.classList.toString(), inlineDisplay: maxThrowContainer.style.display });
+        }
+
+        // Avoid attaching handlers multiple times
+        if (!maxThrowEnabled._bound) {
+            maxThrowEnabled.addEventListener('change', updateMaxThrowUI);
+            // Also listen on the label click to handle cases where the event target is the label
+            const labelEl = document.querySelector('label[for="max-throw-enabled"]');
+            if (labelEl && !labelEl._bound) {
+                labelEl.addEventListener('click', function() { setTimeout(updateMaxThrowUI, 0); });
+                labelEl._bound = true;
+            }
+            maxThrowSlider.addEventListener('input', function() {
+                maxThrowValue.textContent = maxThrowSlider.value;
+                if (maxThrowEnabled.checked) {
+                    maxThrowInput.value = maxThrowSlider.value;
+                }
+                if (typeof window.updateSearchTricks === 'function') window.updateSearchTricks();
+            });
+            maxThrowEnabled._bound = true;
+        }
+        // Set initial state
+        updateMaxThrowUI();
+    } catch (e) {
+        console.error('Error initializing max-throw UI', e);
+    }
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initMaxThrowUI);
+} else {
+    initMaxThrowUI();
+}
+
+// Fallback delegated listeners: if direct binding did not occur, this will still handle toggle and slider input
+document.addEventListener('change', function(e) {
+    try {
+        const target = e.target;
+        if (!target) return;
+            if (target.id === 'max-throw-enabled') {
+            // Ensure container exists and is toggled
+            const maxThrowContainer = document.getElementById('max-throw-input-container');
+            const maxThrowSlider = document.getElementById('max-throw-slider');
+            const maxThrowValue = document.getElementById('max-throw-value');
+            const maxThrowInput = document.getElementById('max-throw-input');
+            console.debug('delegated change for max-throw-enabled checked=', target.checked);
+            if (target.checked) {
+                if (maxThrowContainer) { maxThrowContainer.classList.add('show'); maxThrowContainer.classList.remove('hide'); try { maxThrowContainer.style.display = 'block'; } catch(e){} }
+                if (maxThrowSlider && maxThrowInput) maxThrowInput.value = maxThrowSlider.value;
+            } else {
+                if (maxThrowContainer) { maxThrowContainer.classList.add('hide'); maxThrowContainer.classList.remove('show'); try { maxThrowContainer.style.display = 'none'; } catch(e){} }
+                if (maxThrowInput) maxThrowInput.value = '';
+            }
+            console.debug('delegated maxThrowContainer state after toggle:', maxThrowContainer ? { classList: maxThrowContainer.classList.toString(), inlineDisplay: maxThrowContainer.style.display } : null);
+            if (typeof window.updateSearchTricks === 'function') window.updateSearchTricks();
+        }
+        if (target.id === 'max-throw-slider') {
+            const maxThrowValue = document.getElementById('max-throw-value');
+            const maxThrowInput = document.getElementById('max-throw-input');
+            if (maxThrowValue) maxThrowValue.textContent = target.value;
+            if (maxThrowInput && document.getElementById('max-throw-enabled') && document.getElementById('max-throw-enabled').checked) {
+                maxThrowInput.value = target.value;
+            }
+            if (typeof window.updateSearchTricks === 'function') window.updateSearchTricks();
+        }
+    } catch (e) {
+        console.error('Error in delegated max-throw handler', e);
+    }
+});
+
+// setMaxThrowForProp is provided by the shared module `route_helpers.js` and should be
+// imported by pages that orchestrate prop changes. Keep only UI initialization here.
+</script>

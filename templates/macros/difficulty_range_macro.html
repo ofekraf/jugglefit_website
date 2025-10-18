@@ -1,0 +1,75 @@
+{% macro difficulty_range_macro() %}
+<div class="form-section">
+    <label class="form-label">Difficulty Range</label>
+    <div class="slider-container">
+        <div id="difficulty-slider" class="custom-slider"></div>
+        <div class="slider-values">
+            <span id="difficulty-range">Min: 20, Max: 30</span>
+        </div>
+        <input type="hidden" id="min-difficulty-input" name="min_difficulty" value="20">
+        <input type="hidden" id="max-difficulty-input" name="max_difficulty" value="30">
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    try {
+        const difficultySlider = document.getElementById('difficulty-slider');
+        const difficultyRange = document.getElementById('difficulty-range');
+        const difficultyMinInput = document.getElementById('min-difficulty-input');
+        const difficultyMaxInput = document.getElementById('max-difficulty-input');
+        if (!difficultySlider || typeof noUiSlider === 'undefined') return;
+
+        if (!difficultySlider.noUiSlider) {
+            noUiSlider.create(difficultySlider, {
+                start: [20, 30],
+                connect: true,
+                range: { 'min': 0, 'max': 100 },
+                format: {
+                    to: (value) => Math.round(value),
+                    from: (value) => parseFloat(value)
+                }
+            });
+
+            difficultySlider.noUiSlider.on('update', function(values) {
+                difficultyRange.textContent = `Min: ${values[0]}, Max: ${values[1]}`;
+                difficultyMinInput.value = Math.round(values[0]);
+                difficultyMaxInput.value = Math.round(values[1]);
+                if (typeof window.updateSearchTricks === 'function') window.updateSearchTricks();
+            });
+                // Add hover functionality to show trick tooltip when hovering slider handles
+                difficultySlider.querySelectorAll('.noUi-handle').forEach((handle, index) => {
+                    handle.addEventListener('mouseenter', (event) => {
+                        const currentValue = parseInt(difficultySlider.noUiSlider.get()[index]);
+                        if (typeof window.showTrickTooltip === 'function') window.showTrickTooltip(event, currentValue);
+                    });
+
+                    handle.addEventListener('mouseleave', () => {
+                        const tooltip = document.querySelector('.trick-tooltip');
+                        if (tooltip) tooltip.remove();
+                    });
+                });
+
+                // Update tooltip when slider value changes (including while dragging)
+                difficultySlider.noUiSlider.on('update', function(values) {
+                    const handles = difficultySlider.querySelectorAll('.noUi-handle');
+                    handles.forEach((handle, index) => {
+                        const isHovered = handle.matches(':hover');
+                        if (isHovered) {
+                            const currentValue = parseInt(values[index]);
+                            const event = {
+                                clientX: handle.getBoundingClientRect().left,
+                                clientY: handle.getBoundingClientRect().top
+                            };
+                            if (typeof window.showTrickTooltip === 'function') window.showTrickTooltip(event, currentValue);
+                        }
+                    });
+                });
+        }
+    } catch (e) {
+        console.error('Error initializing difficulty slider', e);
+    }
+});
+</script>
+
+{% endmacro %}

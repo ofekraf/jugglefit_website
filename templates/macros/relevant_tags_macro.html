@@ -1,0 +1,140 @@
+{% macro relevant_tags_macro(tag_category_map, naming='') %}
+<div class="form-section">
+    <label class="form-label">Exclude Tags</label>
+    <div class="tricks-container">
+        <div class="tricks-column">
+            {%- set suffix = ('-' ~ naming) if naming else '' -%}
+            {%- set name_suffix = ('_' ~ naming) if naming else '' -%}
+            <div id="exclude_tags{{ name_suffix }}" class="tags-grid">
+                {% for category, tags in tag_category_map.items() %}
+                    <div class="tag-category" data-category="{{ category }}">
+                        <div class="tag-category-header">
+                            <input type="checkbox" id="category{{ suffix }}-{{ category }}" class="category-checkbox{% if naming %} category-checkbox-{{ naming }}{% endif %}">
+                            <label for="category{{ suffix }}-{{ category }}" class="tag-category-title{% if naming %} tag-category-title-{{ naming }}{% endif %}">
+                                {{ category|capitalize }}
+                            </label>
+                        </div>
+                        <div class="tag-category-content">
+                            {% for tag in tags %}
+                                <div class="checkbox-container">
+                                    <input type="checkbox" id="tag{{ suffix }}-{{ tag }}" name="exclude_tags{{ name_suffix }}" value="{{ tag }}" class="tag-checkbox{% if naming %} tag-checkbox-{{ naming }}{% endif %}" data-category="{{ category }}">
+                                    <label for="tag{{ suffix }}-{{ tag }}">{{ tag|capitalize }}</label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
+<script>
+// Tag utilities for relevant tags macro
+// Define the helper immediately so other page scripts can call it synchronously
+window.updateRelevantTags = window.updateRelevantTags || function(relevantTags, naming) {
+    naming = naming || '';
+    const name_suffix = naming ? ('_' + naming) : '';
+    try {
+        // Normalize incoming relevantTags to an array of lowercase strings
+        let tagsArray = [];
+        if (Array.isArray(relevantTags)) {
+            tagsArray = relevantTags.map(t => String(t).toLowerCase());
+        } else if (relevantTags && typeof relevantTags === 'object') {
+            // If an object/map was passed, use its keys
+            tagsArray = Object.keys(relevantTags).map(t => String(t).toLowerCase());
+        } else if (typeof relevantTags === 'string') {
+            tagsArray = [relevantTags.toLowerCase()];
+        }
+
+    console.log('updateRelevantTags called', tagsArray, naming);
+
+        const containerId = 'exclude_tags' + name_suffix;
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        const categories = container.querySelectorAll('.tag-category');
+        categories.forEach(cat => cat.style.display = 'none');
+
+        categories.forEach(cat => {
+            let showCategory = false;
+            const checkboxes = cat.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(cb => {
+                const val = cb.value || cb.getAttribute('value') || '';
+                const valLower = String(val).toLowerCase();
+                if (tagsArray.includes(valLower)) {
+                    cb.parentElement.style.display = '';
+                    showCategory = true;
+                } else {
+                    cb.parentElement.style.display = 'none';
+                    try { cb.checked = false; } catch(e) {}
+                }
+            });
+            if (showCategory) cat.style.display = '';
+        });
+    } catch (e) {
+        console.error('Error in updateRelevantTags', e);
+    }
+};
+
+    // Also wire UI click handlers and change handlers when DOM is ready
+function initRelevantTagsUI() {
+    try {
+        // Toggle content on header title click
+        document.querySelectorAll('.tag-category-header').forEach(header => {
+            const title = header.querySelector('.tag-category-title') || header.querySelector('[class*="tag-category-title-"]');
+            if (!title || title._bound) return;
+            title.addEventListener('click', function(e) {
+                if (e.target.type === 'checkbox') return;
+                const content = header.nextElementSibling;
+                if (content) content.classList.toggle('expanded');
+            });
+            title._bound = true;
+        });
+
+        // Category checkbox functionality (checks/unchecks related tags)
+        document.querySelectorAll('input[id^="category"]').forEach(checkbox => {
+            if (checkbox._bound) return;
+            checkbox.addEventListener('change', function(e) {
+                e.stopPropagation();
+                const id = this.id; // category[-<naming>]-<category>
+                const parts = id.split('-');
+                const category = parts.slice(-1)[0];
+                const relatedCheckboxes = document.querySelectorAll(`input[type=checkbox][data-category="${category}"]`);
+                relatedCheckboxes.forEach(cb => { cb.checked = this.checked; });
+                if (typeof window.updateSearchTricks === 'function') window.updateSearchTricks();
+            });
+            checkbox._bound = true;
+        });
+
+        // Update category checkbox when individual tags change and trigger search update
+        document.querySelectorAll('input[type="checkbox"][id^="tag"]').forEach(checkbox => {
+            if (checkbox._bound) return;
+            checkbox.addEventListener('change', function() {
+                const category = this.dataset.category;
+                const categoryCheckbox = document.querySelectorAll(`input[id$='-${category}']`)[0];
+                const relatedCheckboxes = document.querySelectorAll(`input[type=checkbox][data-category="${category}"]`);
+                const allChecked = Array.from(relatedCheckboxes).every(cb => cb.checked);
+                const someChecked = Array.from(relatedCheckboxes).some(cb => cb.checked);
+                if (categoryCheckbox) {
+                    categoryCheckbox.checked = allChecked;
+                    categoryCheckbox.indeterminate = someChecked && !allChecked;
+                }
+                if (typeof window.updateSearchTricks === 'function') window.updateSearchTricks();
+            });
+            checkbox._bound = true;
+        });
+    } catch (e) {
+        console.error('Error initializing relevant tags UI', e);
+    }
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initRelevantTagsUI);
+} else {
+    initRelevantTagsUI();
+}
+
+// No automatic apply on prop change here; page scripts should call updateRelevantTags(propSettings.relevant_tags)
+</script>

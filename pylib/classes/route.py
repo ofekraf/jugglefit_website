@@ -7,8 +7,8 @@ from base64 import b64encode, b64decode
 from pylib.classes.prop import Prop
 from pylib.classes.trick import Trick
 
-
-DEFAULT_ROUTE_DURATION_SECONDS = 600  # 10 minutes
+DEFAULT_ROUTE_DURATION_MINUTES = 10
+DEFAULT_ROUTE_DURATION_SECONDS = 60 * DEFAULT_ROUTE_DURATION_MINUTES  # 10 minutes
 DEFAULT_QUALIFICATIONS_ROUTE_DURATION_SECONDS = 1800  # 30 minutes
 
 @dataclass(kw_only=True)
