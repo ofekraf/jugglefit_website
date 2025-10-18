@@ -6,10 +6,10 @@ from pylib.classes.trick import Trick
 
 
 Sapir2025 = PastEvent(
-    name="Sapir Juggling Convention 2025",
+    name="Sapir Con 2025",
     date=date(2025, 1, 17),
     location="Sapir, Israel", 
-    image_url="/static/images/sapir_juggling_convention_2025_winners.png",
+    image_url="/static/images/sapir_2025_winners.png",
     results=[
         RouteResult(
             route=Route(
