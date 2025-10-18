@@ -1,4 +1,5 @@
 name,props_count,difficulty,tags,comment,max_throw
+"1c under the leg",1,5,"under legs",,1
 "sync fountain -> async fountain",4,30,"sync base pattern|async base pattern","transition: (5x,4)",5
 "sync fountain -> 2up 360 -> sync fountain",4,32,"360 spin",,2
 "20c flats",4,40,"flats",,4

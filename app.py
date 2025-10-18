@@ -1,7 +1,6 @@
 import os
 from urllib.parse import unquote
 from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, Blueprint, send_file
-from pylib.utils.siteswap import format_siteswap_x_markup
 from hardcoded_database.consts import get_trick_csv_path
 from hardcoded_database.events.past_events import ALL_PAST_EVENTS, FRONT_PAGE_PAST_EVENTS
 from hardcoded_database.events.upcoming_events import UPCOMING_EVENTS
@@ -9,21 +8,24 @@ from hardcoded_database.organization.team import TEAM
 
 from dotenv import load_dotenv
 
-from pylib.classes.prop import Prop
+from pylib.classes.prop import MAIN_PROPS, Prop
 from pylib.classes.route import Route
-from pylib.classes.tag import TAG_CATEGORY_MAP, Tag, TagCategory
-from pylib.configuration.consts import DEFAULT_MAX_TRICK_DIFFICULTY, DEFAULT_MAX_TRICK_PROPS_COUNT, DEFAULT_MIN_TRICK_DIFFICULTY, DEFAULT_MIN_TRICK_PROPS_COUNT, MAX_TRICK_DIFFICULTY, MAX_TRICK_PROPS_COUNT, MIN_TRICK_DIFFICULTY, MIN_TRICK_PROPS_COUNT
+from pylib.classes.tag import TAG_CATEGORY_MAP_JSON, Tag, TagCategory
+from hardcoded_database.tricks import ALL_PROPS_SETTINGS_JSON
 from pylib.route_generator.exceptions import NotEnoughTricksFoundException
 from pylib.route_generator.route_generator import RouteGenerator
 from pylib.utils.filter_tricks import filter_tricks
+from pylib.configuration.consts import (
+	MIN_TRICK_DIFFICULTY,
+	MAX_TRICK_DIFFICULTY,
+)
 
 # Load environment variables
 load_dotenv()
 
 
 app = Flask(__name__)
-# Register Jinja filter for Siteswap-X formatting
-app.jinja_env.filters['format_siteswap_x'] = format_siteswap_x_markup
+# Note: siteswap formatting is now handled client-side in static/js/siteswap_x.js
 
 # Create API blueprint
 api = Blueprint('api', __name__, url_prefix='/api')
@@ -50,8 +52,8 @@ def fetch_tricks():
 			msg = f"Invalid prop_type '{prop_type_value}'. Allowed values: {allowed}"
 			print(msg)
 			return jsonify({'error': msg}), 400
-		min_props = int(data.get('min_props', MIN_TRICK_PROPS_COUNT))
-		max_props = int(data.get('max_props', MAX_TRICK_PROPS_COUNT))
+		min_props = int(data.get('min_props', ALL_PROPS_SETTINGS[prop_type].min_props))
+		max_props = int(data.get('max_props', ALL_PROPS_SETTINGS[prop_type].max_props))
 		min_difficulty = int(data.get('min_difficulty', MIN_TRICK_DIFFICULTY))
 		max_difficulty = int(data.get('max_difficulty', MAX_TRICK_DIFFICULTY))
 		exclude_tags = data.get('exclude_tags', [])
@@ -133,11 +135,11 @@ def past_events():
 def generate_route():
 	if request.method == 'GET':
 		return render_template('generate_route.html', 
-						 current_page='generate_route', 
-						 tag_options=list(Tag),
-						 tag_categories=list(TagCategory),
-						 tag_category_map=TAG_CATEGORY_MAP,
-						 prop_options=list(Prop))
+					 current_page='generate_route', 
+					 tag_category_map=TAG_CATEGORY_MAP_JSON,
+					 tag_categories=list(TagCategory),
+						props_settings=ALL_PROPS_SETTINGS_JSON,
+						main_props=[Prop.Balls.value, Prop.Clubs.value, Prop.Rings.value])
 	
 	route_name = request.form['route_name']
 	prop = request.form['prop']
@@ -167,7 +169,7 @@ def generate_route():
 		serialized = route.serialize()
 		return redirect(url_for('created_route', route=serialized))
 	except NotEnoughTricksFoundException:
-		return '<p class="no-tricks">No tricks were generated. Try adjusting your criteria.</p>'
+		return '<p class="no-tricks">Not enough tricks in database. Try adjusting your criteria.</p>'
 
 @app.route('/host_event', methods=['GET'])
 def host_event():
@@ -189,31 +191,12 @@ def build_route():
 			flash(f'Error loading route: {str(e)}', 'error')
 			return redirect(url_for('build_route'))
 	
-		# Build available_tricks_by_props for the default prop (first in prop_options)
-		from hardcoded_database.tricks import PROP_TO_TRICKS
-		default_prop = list(Prop)[0]
-		all_tricks = PROP_TO_TRICKS[default_prop]
-		available_tricks_by_props = {}
-		for trick in all_tricks:
-			available_tricks_by_props.setdefault(trick.props_count, []).append(trick)
-		# Sort tricks in each group by name
-		for tricks in available_tricks_by_props.values():
-			tricks.sort(key=lambda t: t.name or "")
-		return render_template('build_route.html', 
-							 prop_options=list(Prop),
-							 tag_options=list(Tag),
-							 tag_categories=list(TagCategory),
-							 tag_category_map=TAG_CATEGORY_MAP,
-							 initial_route=initial_route,
-							 available_tricks_by_props=available_tricks_by_props,
-							 MIN_TRICK_PROPS_COUNT=MIN_TRICK_PROPS_COUNT,
-							 MAX_TRICK_PROPS_COUNT=MAX_TRICK_PROPS_COUNT,
-							 MIN_TRICK_DIFFICULTY=MIN_TRICK_DIFFICULTY,
-							 MAX_TRICK_DIFFICULTY=MAX_TRICK_DIFFICULTY,
-							 DEFAULT_MIN_TRICK_PROPS_COUNT=DEFAULT_MIN_TRICK_PROPS_COUNT,
-							 DEFAULT_MAX_TRICK_PROPS_COUNT=DEFAULT_MAX_TRICK_PROPS_COUNT,
-							 DEFAULT_MIN_TRICK_DIFFICULTY=DEFAULT_MIN_TRICK_DIFFICULTY,
-							 DEFAULT_MAX_TRICK_DIFFICULTY=DEFAULT_MAX_TRICK_DIFFICULTY)
+	return render_template('build_route.html',
+			 tag_category_map=TAG_CATEGORY_MAP_JSON,
+			 tag_categories=list(TagCategory),
+				props_settings=ALL_PROPS_SETTINGS_JSON,
+				initial_route=initial_route,
+				main_props=[Prop.Balls.value, Prop.Clubs.value, Prop.Rings.value])
 
 @app.route('/created_route', methods=['GET'])
 def created_route():

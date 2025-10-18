@@ -102,6 +102,42 @@ document.addEventListener('DOMContentLoaded', function() {
                 <input type="hidden" id="route-duration-input" name="route_duration" value="10">
             </div>
         </div>
+
+
+
+        <div class="form-section">
+            <label class="form-label">Select Prop</label>
+            <div class="prop-group">
+                {# Render main props according to server-provided main_props (keeps single source of truth) #}
+                {% for prop in props_settings.keys() %}
+                    {% if prop in main_props %}
+                        <label class="prop-option" data-prop-type="{{ prop }}">
+                            <input type="radio" name="prop" class="prop-option-input" value="{{ prop }}"> 
+                            <span class="prop-option-name">{{ prop|replace('_',' ')|capitalize }}</span>
+                            <div class="prop-icon"></div>
+                        </label>
+                    {% endif %}
+                {% endfor %}
+
+                {# Additional props dropdown placed to the right #}
+                <div class="prop-dropdown">
+                    <div class="prop-dropdown-label">Additional Props ▾</div>
+                    <div class="prop-dropdown-menu">
+                        {% for prop in props_settings.keys() %}
+                            {% if prop not in main_props %}
+                                <label class="prop-option" data-prop-type="{{ prop }}">
+                                    <input type="radio" name="prop" class="prop-option-input" value="{{ prop }}"> 
+                                    <span class="prop-option-name">{{ prop|replace('_',' ')|capitalize }}</span>
+                                    <div class="prop-icon"></div>
+                                </label>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Route Display -->
         <!-- Route display using Jinja macro -->
         <div class="form-section">
             <label class="form-label">Your Route</label>
@@ -161,16 +197,19 @@ document.addEventListener('DOMContentLoaded', function() {
                     {% endfor %}
                 </div>
                 <label class="form-label">Available Tricks</label>
+                <div class="siteswap-x-toggle-row" style="margin-top:0.25rem;">
+                    <label class="siteswap-x-toggle-label"><input type="checkbox" id="toggle-siteswap-x-checkbox" class="siteswap-x-toggle-checkbox"> Show Siteswap-X</label>
+                </div>
 
         <div class="form-section">
             <label class="form-label">Number of Props</label>
             <div class="slider-container">
                 <div id="props-slider" class="custom-slider"></div>
                 <div class="slider-values">
-                    <span id="props-range">Min: 3, Max: 9</span>
+                    <span id="props-range"></span>
                 </div>
-                <input type="hidden" id="min-props-input" name="min_props" value="3">
-                <input type="hidden" id="max-props-input" name="max_props" value="9">
+                <input type="hidden" id="min-props-input" name="min_props">
+                <input type="hidden" id="max-props-input" name="max_props">
             </div>
         </div>
         <div class="form-section">
@@ -232,25 +271,11 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         </div>
         <div class="tricks-container">
-            <div class="tricks-column">
+                <div class="tricks-column">
                 <div id="all_tricks" class="tricks-grid">
-                    {% for props_count, tricks in available_tricks_by_props.items() %}
-                        <div class="props-group" data-props-count="{{ props_count }}">
-                            <h3 class="props-count-header">{{ props_count }} Props</h3>
-                            <div class="tricks-list">
-                                {% for trick in tricks %}
-                                    <div class="trick-item" data-trick-name="{{ trick.name }}" data-difficulty="{{ trick.difficulty }}" data-tags="{{ trick.tags|join(',') }}" data-max-throw="{{ trick.max_throw }}">
-                                        <div class="trick-container">
-                                            <div class="trick-main" style="display: inline-flex; align-items: center; gap: 0.5em;">
-                                                {% include 'macros/trick_container.html' %}
-                                            </div>
-                                        </div>
-                                        <button class="add-trick" onclick="addTrickToRoute({{ trick.to_dict()|tojson|safe }})">Add</button>
-                                    </div>
-                                {% endfor %}
-                            </div>
-                        </div>
-                    {% endfor %}
+                    <!-- available tricks will be rendered client-side by updateSearchTricks()
+                         which uses CreateTrickContainer() to build consistent DOM for each trick.
+                         Server-side `available_tricks_by_props` is no longer required. -->
                 </div>
             </div>
         </div>
@@ -265,9 +290,9 @@ document.addEventListener('DOMContentLoaded', function() {
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script src="{{ url_for('static', filename='js/tricks_utils.js') }}"></script>
 <script src="{{ url_for('static', filename='js/general.js') }}"></script>
 <script src="{{ url_for('static', filename='js/siteswap_x.js') }}"></script>
+
 
 
 
@@ -275,130 +300,8 @@ document.addEventListener('DOMContentLoaded', function() {
 <script>
     // Siteswap-X toggle is unified for both route and available tricks
     document.addEventListener('DOMContentLoaded', function() {
-        function updateSearchTricks() {
-            // Get values from sliders and inputs
-            const propsSlider = document.getElementById('props-slider');
-            const difficultySlider = document.getElementById('difficulty-slider');
-            let minProps = MIN_TRICK_PROPS_COUNT, maxProps = MAX_TRICK_PROPS_COUNT;
-            let minDifficulty = MIN_TRICK_DIFFICULTY, maxDifficulty = MAX_TRICK_DIFFICULTY;
-            if (propsSlider && propsSlider.noUiSlider) {
-                const values = propsSlider.noUiSlider.get();
-                minProps = parseInt(values[0]);
-                maxProps = parseInt(values[1]);
-            }
-            if (difficultySlider && difficultySlider.noUiSlider) {
-                const values = difficultySlider.noUiSlider.get();
-                minDifficulty = parseInt(values[0]);
-                maxDifficulty = parseInt(values[1]);
-            }
-            // Max throw (optional)
-            let maxThrow = null;
-            const maxThrowInput = document.getElementById('max-throw-input');
-            if (maxThrowInput && maxThrowInput.value) {
-                maxThrow = parseInt(maxThrowInput.value);
-            }
-            // Exclude tags (from available tricks filter)
-            const excludedTags = Array.from(document.querySelectorAll('input[name="exclude_tags_available"]:checked')).map(cb => cb.value);
-
-            // Filter tricks based on criteria (add maxThrow if needed)
-            let filteredTricks = filterTricks(allTricks, minProps, maxProps, minDifficulty, maxDifficulty, excludedTags);
-            if (maxThrow !== null && !isNaN(maxThrow)) {
-                filteredTricks = filteredTricks.filter(trick => !trick.max_throw || trick.max_throw <= maxThrow);
-            }
-
-            // Group filtered tricks by props count
-            const groupedTricks = groupTricksByPropsCount(filteredTricks);
-
-            // Update the tricks display
-            const tricksGrid = document.getElementById('all_tricks');
-            tricksGrid.innerHTML = '';
-
-            // Display tricks grouped by props count
-            Object.keys(groupedTricks).sort((a, b) => parseInt(a) - parseInt(b)).forEach(count => {
-                const group = document.createElement('div');
-                group.className = 'props-group';
-                
-                const header = document.createElement('h3');
-                header.className = 'props-count-header';
-                header.textContent = `${count} Props`;
-                group.appendChild(header);
-                
-                const tricksList = document.createElement('div');
-                tricksList.className = 'tricks-list';
-                
-                // Sort tricks by name within each group
-                groupedTricks[count].sort((a, b) => a.name.localeCompare(b.name)).forEach(trick => {
-                    const trickItem = document.createElement('div');
-                    trickItem.className = 'trick-item';
-
-                    // Trick container (matches macros/trick_container.html)
-                    const trickContainer = document.createElement('div');
-                    trickContainer.className = 'trick-container';
-
-                    // .trick-main for left-aligned flex row
-                    const trickMain = document.createElement('div');
-                    trickMain.className = 'trick-main';
-                    trickMain.style.display = 'inline-flex';
-                    trickMain.style.alignItems = 'center';
-                    trickMain.style.gap = '0.5em';
-
-                    // Trick name
-                    const name = document.createElement('span');
-                    name.className = 'trick-name';
-                    name.textContent = trick.name || 'Unnamed Trick';
-                    name.contentEditable = true;
-                    name.style.display = 'inline';
-                    name.addEventListener('blur', function() {
-                        const newName = this.textContent.trim();
-                        if (newName) {
-                            trick.name = newName;
-                        } else {
-                            this.textContent = trick.name || 'Unnamed Trick';
-                        }
-                    });
-                    trickMain.appendChild(name);
-
-                    // Siteswap-x (formatted)
-                    const siteswap = document.createElement('span');
-                    siteswap.className = 'trick-siteswap-x';
-                    siteswap.style.display = 'none';
-                    siteswap.innerHTML = window.formatSiteswapX ? window.formatSiteswapX(trick.siteswap_x) : (trick.siteswap_x || '');
-                    trickMain.appendChild(siteswap);
-
-                    // Comment
-                    if (trick.comment) {
-                        const comment = document.createElement('span');
-                        comment.className = 'trick-comment';
-                        comment.textContent = ` [${trick.comment}]`;
-                        comment.contentEditable = true;
-                        comment.addEventListener('blur', function() {
-                            const newComment = this.textContent.replace(/\[|\]/g, '').trim();
-                            trick.comment = newComment;
-                            this.textContent = newComment ? ` [${newComment}]` : '';
-                        });
-                        trickMain.appendChild(comment);
-                    }
-
-                    trickContainer.appendChild(trickMain);
-
-                    // Add button
-                    const addButton = document.createElement('button');
-                    addButton.className = 'add-trick';
-                    addButton.textContent = 'Add';
-                    addButton.onclick = () => addTrickToRoute(trick);
-
-                    // Append trick container and add button to trick item
-                    trickItem.appendChild(trickContainer);
-                    trickItem.appendChild(addButton);
-                    tricksList.appendChild(trickItem);
-                });
-                
-                group.appendChild(tricksList);
-                tricksGrid.appendChild(group);
-            });
-        }
-        window.allTricks = [];
-
+        // window.updateSearchTricks is defined below; ensure allTricks exists
+        window.allTricks = window.allTricks || [];
         // Function to update search tricks
         window.updateSearchTricks = function() {
             const minProps = parseInt(document.getElementById('min-props-input').value);
@@ -436,48 +339,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     const trickItem = document.createElement('div');
                     trickItem.className = 'trick-item';
 
-                    // Trick container (matches macros/trick_container.html)
-                    const trickContainer = document.createElement('div');
-                    trickContainer.className = 'trick-container';
-
-                    // Trick name
-                    const name = document.createElement('span');
-                    name.className = 'trick-name';
-                    name.textContent = trick.name || 'Unnamed Trick';
-                    name.contentEditable = true;
-                    name.addEventListener('blur', function() {
-                        const newName = this.textContent.trim();
-                        if (newName) {
-                            trick.name = newName;
-                        } else {
-                            this.textContent = trick.name || 'Unnamed Trick';
-                        }
+                    const trickContainer = CreateTrickContainer(trick.name, trick.comment || '', trick.siteswap_x || '', {
+                        onNameBlur: (newName) => { trick.name = newName; },
+                        onCommentBlur: (newComment) => { trick.comment = newComment; }
                     });
-                    trickContainer.appendChild(name);
-
-                    // Siteswap-x (formatted, hidden by default)
-                    const siteswap = document.createElement('span');
-                    siteswap.className = 'trick-siteswap-x';
-                    siteswap.style.display = 'none';
-                    // Use JS formatter to output HTML, not raw text
-                    siteswap.innerHTML = window.formatSiteswapX ? window.formatSiteswapX(trick.siteswap_x) : (trick.siteswap_x || '');
-                    trickContainer.appendChild(siteswap);
-
-                    // Comment
-                    if (trick.comment) {
-                        const comment = document.createElement('span');
-                        comment.className = 'trick-comment';
-                        comment.textContent = ` [${trick.comment}]`;
-                        comment.contentEditable = true;
-                        comment.addEventListener('blur', function() {
-                            const newComment = this.textContent.replace(/\[|\]/g, '').trim();
-                            trick.comment = newComment;
-                            this.textContent = newComment ? ` [${newComment}]` : '';
-                        });
-                        trickContainer.appendChild(comment);
-                    }
-
-                    // Add button
                     const addButton = document.createElement('button');
                     addButton.className = 'add-trick';
                     addButton.textContent = 'Add';
@@ -491,6 +356,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 group.appendChild(tricksList);
                 tricksGrid.appendChild(group);
+            });
+            // After rendering available tricks, ensure the siteswap-X toggle state is applied
+            try {
+                if (typeof window.toggleSiteswapXEverywhere === 'function') window.toggleSiteswapXEverywhere();
+            } catch (e) { console.error('Error applying siteswap-x toggle after rendering tricks', e); }
+        }
+
+        // Wire the checkbox to toggle siteswap-x globally
+        const siteswapToggle = document.getElementById('toggle-siteswap-x-checkbox');
+        if (siteswapToggle) {
+            siteswapToggle.addEventListener('change', function() {
+                if (typeof window.toggleSiteswapXEverywhere === 'function') window.toggleSiteswapXEverywhere();
             });
         }
 
@@ -680,68 +557,41 @@ document.addEventListener('DOMContentLoaded', function() {
                     currentPropsCount = trick.props_count;
                 }
 
-                // Create trick frame
+                // Create trick frame using shared helper
                 const frame = document.createElement('div');
                 frame.className = 'prop-details-frame';
                 frame.setAttribute('draggable', 'true');
                 frame.setAttribute('data-trick-name', trick.name);
-                
+
                 const trickContent = document.createElement('div');
                 trickContent.className = 'trick-content';
-                
-                const trickMain = document.createElement('div');
-                trickMain.className = 'trick-main';
-                
-                // Add trick number
+
+                // Use shared CreateTrickContainer to build consistent inner DOM
+                const container = CreateTrickContainer(trick.name, trick.comment || '', trick.siteswap_x || '', {
+                    onNameBlur: (newName) => { trick.name = newName; frame.setAttribute('data-trick-name', newName); },
+                    onCommentBlur: (newComment) => { trick.comment = newComment; }
+                });
+
+                // Insert trick number before the name inside the container
                 const number = document.createElement('span');
                 number.className = 'trick-number';
                 number.textContent = `${trickCounter}.`;
-                trickMain.appendChild(number);
-
-                // Trick name
-                const name = document.createElement('span');
-                name.className = 'trick-name';
-                name.textContent = trick.name;
-                name.contentEditable = true;
-                name.addEventListener('blur', function() {
-                    const newName = this.textContent.trim();
-                    if (newName) {
-                        trick.name = newName;
-                        frame.setAttribute('data-trick-name', newName);
-                    } else {
-                        this.textContent = trick.name;
-                    }
-                });
-                trickMain.appendChild(name);
-
-                // Siteswap-x (formatted, hidden by default)
-                const siteswap = document.createElement('span');
-                siteswap.className = 'trick-siteswap-x';
-                siteswap.style.display = 'none';
-                siteswap.innerHTML = window.formatSiteswapX ? window.formatSiteswapX(trick.siteswap_x) : (trick.siteswap_x || '');
-                trickMain.appendChild(siteswap);
-
-                if (trick.comment) {
-                    const comment = document.createElement('span');
-                    comment.className = 'trick-comment';
-                    comment.textContent = ` [${trick.comment}]`;
-                    comment.contentEditable = true;
-                    comment.addEventListener('blur', function() {
-                        const newComment = this.textContent.replace(/[\[\]]/g, '').trim();
-                        trick.comment = newComment;
-                        this.textContent = newComment ? ` [${newComment}]` : '';
-                    });
-                    trickMain.appendChild(comment);
+                const innerMain = container.querySelector('.trick-main');
+                if (innerMain && innerMain.firstChild) {
+                    innerMain.insertBefore(number, innerMain.firstChild);
+                } else if (innerMain) {
+                    innerMain.appendChild(number);
                 }
 
-                trickContent.appendChild(trickMain);
-                
+                // Remove button
                 const removeButton = document.createElement('button');
                 removeButton.className = 'remove-trick';
                 removeButton.textContent = '×';
                 removeButton.onclick = () => removeTrick(trick);
+
+                trickContent.appendChild(container);
                 trickContent.appendChild(removeButton);
-                
+
                 frame.appendChild(trickContent);
                 
                 // Add drag and drop event listeners for tricks
@@ -882,6 +732,9 @@ document.addEventListener('DOMContentLoaded', function() {
             // Update the display to show the new trick at the end
             updateRouteDisplay();
         }
+    // Expose to window so renderTricks can call it
+    if (typeof window !== 'undefined') window.addTrickToRoute = addTrickToRoute;
+
 
         // Function to remove trick from route
         function removeTrick(trick) {
@@ -962,17 +815,26 @@ document.addEventListener('DOMContentLoaded', function() {
         // Add event listener for custom trick props slider
         const customTrickPropsSlider = document.getElementById('custom_trick_props');
         const customTrickPropsValue = document.getElementById('custom_trick_props_value');
-        customTrickPropsSlider.addEventListener('input', () => {
-            const value = parseInt(customTrickPropsSlider.value);
-            customTrickPropsValue.textContent = value;
-        });
+        if (customTrickPropsSlider && customTrickPropsValue) {
+            // Initialize displayed value
+            customTrickPropsValue.textContent = parseInt(customTrickPropsSlider.value);
+            customTrickPropsSlider.addEventListener('input', () => {
+                const value = parseInt(customTrickPropsSlider.value);
+                customTrickPropsValue.textContent = value;
+            });
+        }
 
         // View route functionality
         document.getElementById('view_route').addEventListener('click', async function() {
+            // Pull the typed route name into currentRoute before validating
+            const typedName = document.getElementById('route_name') ? document.getElementById('route_name').value.trim() : '';
+            if (typedName) {
+                currentRoute.name = typedName;
+                if (typeof window !== 'undefined') window.currentRoute = currentRoute;
+            }
+            // If no name was entered, show a non-blocking toast but allow viewing the route
             if (!currentRoute.name) {
-                showToast('Please enter a route name before viewing.', 'route_name');
-                document.getElementById('route_name').focus();
-                return;
+                showToast('No route name provided. Proceeding to view without a name.');
             }
             if (!currentRoute.prop) {
                 showToast('Please select a prop type before viewing.', 'prop-slider');
@@ -980,13 +842,28 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             try {
+                // Build a complete payload for serialization (ensure required fields)
+                const durationMinutes = document.getElementById('route-duration-input') ? parseInt(document.getElementById('route-duration-input').value) : 10;
+                const payload = {
+                    name: currentRoute.name,
+                    prop: currentRoute.prop,
+                    duration_seconds: Number.isFinite(durationMinutes) ? durationMinutes * 60 : 600,
+                    tricks: Array.isArray(currentRoute.tricks) ? currentRoute.tricks.map(t => ({
+                        name: t.name,
+                        props_count: t.props_count,
+                        difficulty: t.difficulty,
+                        tags: t.tags || [],
+                        comment: t.comment || null
+                    })) : []
+                };
+
                 // Serialize the route
                 const response = await fetch('/api/serialize_route', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(currentRoute)
+                    body: JSON.stringify(payload)
                 });
                 const serialized = await response.text();
                 
@@ -1042,6 +919,5 @@ document.addEventListener('DOMContentLoaded', function() {
                 updateSearchTricks();
             });
         });
-    });
 </script>
 {% endblock %}

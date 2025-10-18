@@ -1,4 +1,2 @@
 {# templates/macros/trick_container.html #}
-<span class="trick-name">{{ trick.name }}</span>
-<span class="trick-siteswap-x" style="display:none;" data-has-siteswap-x="{{ 1 if trick.siteswap_x else 0 }}">{{ trick.siteswap_x|format_siteswap_x|safe if trick.siteswap_x else '' }}</span>
-{% if trick.comment %}<span class="trick-comment">[{{ trick.comment }}]</span>{% endif %}
+<div class="trick-container" data-name="{{ trick.name|e }}"{% if trick.comment %} data-comment="{{ trick.comment|e }}"{% endif %}{% if trick.siteswap_x %} data-siteswap-x="{{ trick.siteswap_x|e }}"{% endif %}></div>

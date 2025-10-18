@@ -1,5 +1,6 @@
 
 
+from hardcoded_database.events.past_events.Tubingen2025 import Tubingen2025
 from hardcoded_database.events.past_events.Y2025.EJC2025 import EJC2025
 from hardcoded_database.events.past_events.Y2025.IJC2025 import IJC2025
 from hardcoded_database.events.past_events.Y2025.NJF2025 import NJF2025
@@ -11,6 +12,7 @@ FRONT_PAGE_PAST_EVENTS = [
     IJC2025,
     NJF2025,
     EJC2025,
+    Tubingen2025
 ]
 
 # Move here events to remove it from the website's front page

@@ -3,9 +3,7 @@ from typing import Set, Optional
 
 from pylib.classes.tag import Tag
 from pylib.configuration.consts import (
-    MAX_TRICK_NAME_LENGTH,
-    MIN_TRICK_PROPS_COUNT, MAX_TRICK_PROPS_COUNT,
-    MIN_TRICK_DIFFICULTY, MAX_TRICK_DIFFICULTY
+    MAX_TRICK_NAME_LENGTH, MIN_TRICK_DIFFICULTY, MAX_TRICK_DIFFICULTY
 )
 
 @dataclass(kw_only=True)
@@ -26,9 +24,6 @@ class Trick:
         not MIN_TRICK_DIFFICULTY <= self.difficulty <= MAX_TRICK_DIFFICULTY):
             raise ValueError(f"Trick {self.name} difficulty must be between {MIN_TRICK_DIFFICULTY} and {MAX_TRICK_DIFFICULTY}.")
 
-        if not MIN_TRICK_PROPS_COUNT <= self.props_count <= MAX_TRICK_PROPS_COUNT:
-            raise ValueError(f"Trick {self.name} props count must be between {MIN_TRICK_PROPS_COUNT} and {MAX_TRICK_PROPS_COUNT}.")
-        
         if self.siteswap_x is None and self.name is None:
             raise ValueError("Either siteswap_x or name must be provided for a trick.")
         
