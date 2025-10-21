@@ -9,7 +9,7 @@ Tubingen2025 = PastEvent(
     name="Tübingen Con 2025",
     date=date(2025, 10, 4),
     location="Tubingen, Germany",
-    image_url="/static/images/Tubingen_2025_competitors.jpg",
+    image_url="/static/images/tubingen_2025_competitors.jpg",
     results=[
         RouteResult(
             route=Route(
