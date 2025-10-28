@@ -1,0 +1,220 @@
+{% macro available_tricks_macro() %}
+<div class="form-section">
+    <h4 class="subsection-title">Available Tricks</h4>
+    <div class="available-tricks-description">
+        <p>Select tricks to add to your route. Use the filters above to narrow down the selection.</p>
+    </div>
+    <div class="tricks-container">
+        <div class="tricks-column">
+            <div id="all_tricks" class="tricks-grid">
+                <!-- Available tricks will be rendered by UpdateAvailableTricks() -->
+            </div>
+            <div id="no-tricks-message" class="no-tricks-message" style="display: none;">
+                <p>No tricks found matching your criteria. Try adjusting the filters above.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Available Tricks Logic - All logic contained in the macro
+(function() {
+    // Helper function to filter tricks based on criteria
+    function filterTricks(tricks, minProps, maxProps, minDifficulty, maxDifficulty, excludedTags) {
+        if (!Array.isArray(tricks)) return [];
+        
+        return tricks.filter(trick => {
+            // Check props count
+            if (trick.props_count < minProps || trick.props_count > maxProps) {
+                return false;
+            }
+            
+            // Check difficulty
+            if (trick.difficulty < minDifficulty || trick.difficulty > maxDifficulty) {
+                return false;
+            }
+            
+            // Check max throw if enabled
+            const maxThrowInput = document.getElementById('max-throw-input');
+            if (maxThrowInput && maxThrowInput.value) {
+                const maxThrow = parseInt(maxThrowInput.value);
+                if (trick.max_throw && trick.max_throw > maxThrow) {
+                    return false;
+                }
+            }
+            
+            // Check excluded tags
+            if (Array.isArray(excludedTags) && excludedTags.length > 0 && Array.isArray(trick.tags)) {
+                if (trick.tags.some(tag => excludedTags.includes(tag))) {
+                    return false;
+                }
+            }
+            
+            return true;
+        });
+    }
+
+    // Helper function to group tricks by props count
+    function groupTricksByPropsCount(tricks) {
+        const grouped = {};
+        tricks.forEach(trick => {
+            const count = trick.props_count;
+            if (!grouped[count]) {
+                grouped[count] = [];
+            }
+            grouped[count].push(trick);
+        });
+        return grouped;
+    }
+
+    // Main function to update available tricks display
+    function UpdateAvailableTricks() {
+        console.log('UpdateAvailableTricks called, allTricks count:', window.allTricks ? window.allTricks.length : 'undefined');
+        console.log('allTricks sample:', window.allTricks ? window.allTricks.slice(0, 2) : 'none');
+        
+        if (!window.allTricks || window.allTricks.length === 0) {
+            console.log('No allTricks available, showing no tricks message');
+            const tricksGrid = document.getElementById('all_tricks');
+            const noTricksMessage = document.getElementById('no-tricks-message');
+            if (tricksGrid) tricksGrid.innerHTML = '';
+            if (noTricksMessage) {
+                noTricksMessage.style.display = 'block';
+                noTricksMessage.innerHTML = '<p>No tricks available. Please select a prop type above.</p>';
+            }
+            return;
+        }
+        
+        // Get filter criteria from form elements
+        const minPropsInput = document.getElementById('min-props-input');
+        const maxPropsInput = document.getElementById('max-props-input');
+        const minDifficultyInput = document.getElementById('min-difficulty-input');
+        const maxDifficultyInput = document.getElementById('max-difficulty-input');
+        
+        const minProps = minPropsInput ? parseInt(minPropsInput.value) : 2;
+        const maxProps = maxPropsInput ? parseInt(maxPropsInput.value) : 9;
+        const minDifficulty = minDifficultyInput ? parseInt(minDifficultyInput.value) : 0;
+        const maxDifficulty = maxDifficultyInput ? parseInt(maxDifficultyInput.value) : 100;
+        
+        console.log('Filter criteria:', { minProps, maxProps, minDifficulty, maxDifficulty });
+        
+        // Get excluded tags (available)
+        const excludedTags = Array.from(document.querySelectorAll('input[name="exclude_tags_available"]:checked')).map(cb => cb.value);
+        console.log('Excluded tags:', excludedTags);
+
+        // Filter tricks based on criteria
+        const filteredTricks = filterTricks(window.allTricks, minProps, maxProps, minDifficulty, maxDifficulty, excludedTags);
+        console.log('Filtered tricks count:', filteredTricks.length);
+
+        // Group filtered tricks by props count
+        const groupedTricks = groupTricksByPropsCount(filteredTricks);
+        console.log('Grouped tricks:', Object.keys(groupedTricks));
+
+        // Update the tricks display
+        const tricksGrid = document.getElementById('all_tricks');
+        const noTricksMessage = document.getElementById('no-tricks-message');
+        
+        if (!tricksGrid) {
+            console.error('all_tricks element not found');
+            return;
+        }
+        
+        tricksGrid.innerHTML = '';
+
+        if (Object.keys(groupedTricks).length === 0) {
+            // Show no tricks message
+            if (noTricksMessage) noTricksMessage.style.display = 'block';
+            console.log('No tricks to display');
+            return;
+        } else {
+            // Hide no tricks message
+            if (noTricksMessage) noTricksMessage.style.display = 'none';
+        }
+
+        // Display tricks grouped by props count
+        Object.keys(groupedTricks).sort((a, b) => parseInt(a) - parseInt(b)).forEach(count => {
+            const group = document.createElement('div');
+            group.className = 'props-group';
+            
+            const header = document.createElement('h3');
+            header.className = 'props-count-header';
+            header.textContent = `${count} Props`;
+            group.appendChild(header);
+            
+            const tricksList = document.createElement('div');
+            tricksList.className = 'tricks-list';
+            
+            // Sort tricks by name within each group
+            groupedTricks[count].sort((a, b) => a.name.localeCompare(b.name)).forEach(trick => {
+                const trickItem = document.createElement('div');
+                trickItem.className = 'trick-item';
+
+                // Use CreateTrickContainer if available
+                if (typeof window.CreateTrickContainer === 'function') {
+                    const trickContainer = window.CreateTrickContainer(trick.name, trick.comment || '', trick.siteswap_x || '', {
+                        onNameBlur: (newName) => { trick.name = newName; },
+                        onCommentBlur: (newComment) => { trick.comment = newComment; },
+                        addCheckbox: false  // No checkbox for available tricks
+                    });
+                    
+                    const addButton = document.createElement('button');
+                    addButton.className = 'add-trick';
+                    addButton.textContent = 'Add';
+                    addButton.onclick = () => {
+                        if (typeof window.addTrickToRoute === 'function') {
+                            window.addTrickToRoute(trick);
+                        } else {
+                            console.error('addTrickToRoute function not available');
+                        }
+                    };
+
+                    // Append trick container and add button to trick item
+                    trickItem.appendChild(trickContainer);
+                    trickItem.appendChild(addButton);
+                } else {
+                    // Fallback if CreateTrickContainer not available
+                    const trickName = document.createElement('div');
+                    trickName.textContent = trick.name;
+                    trickName.className = 'trick-name';
+                    
+                    const addButton = document.createElement('button');
+                    addButton.className = 'add-trick';
+                    addButton.textContent = 'Add';
+                    addButton.onclick = () => {
+                        if (typeof window.addTrickToRoute === 'function') {
+                            window.addTrickToRoute(trick);
+                        } else {
+                            console.error('addTrickToRoute function not available');
+                        }
+                    };
+                    
+                    trickItem.appendChild(trickName);
+                    trickItem.appendChild(addButton);
+                }
+                
+                tricksList.appendChild(trickItem);
+            });
+            
+            group.appendChild(tricksList);
+            tricksGrid.appendChild(group);
+        });
+        
+        console.log('Tricks display updated, total groups added:', Object.keys(groupedTricks).length);
+        
+        // After rendering available tricks, ensure the siteswap-X toggle state is applied
+        try {
+            if (typeof window.toggleSiteswapXEverywhere === 'function') {
+                window.toggleSiteswapXEverywhere();
+            }
+        } catch (e) { 
+            console.error('Error applying siteswap-x toggle after rendering tricks', e); 
+        }
+    }
+
+    // Export the function globally
+    window.UpdateAvailableTricks = UpdateAvailableTricks;
+    
+    console.log('Available tricks macro loaded, UpdateAvailableTricks function exported');
+})();
+</script>
+
+{% endmacro %}

@@ -1718,8 +1718,17 @@ a.primary-button.live-event-button:hover {
     border-radius: 8px;
     box-shadow: 0 2px 4px var(--shadow-color);
     max-width: 1200px;
-    margin: 0 auto;
     width: 100%;
+}
+
+/* Force route display to stay left-aligned */
+.route-page .route-form,
+.route-page .route-container,
+.route-page .route-content,
+.route-page .form-section,
+.route-page .route-sections {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
 }
 
 .form-section {
@@ -1938,13 +1947,11 @@ a.primary-button.live-event-button:hover {
     position: relative;
     width: 100%;
     max-width: 1200px;
-    margin: 0 auto;
 }
 
 .route-container {
     width: 100%;
     max-width: 1200px;
-    margin: 0 auto;
     padding: 1rem;
     box-sizing: border-box;
 }
@@ -1952,7 +1959,6 @@ a.primary-button.live-event-button:hover {
 .route-content {
     width: 100%;
     max-width: 1200px;
-    margin: 0 auto;
     box-sizing: border-box;
 }
 

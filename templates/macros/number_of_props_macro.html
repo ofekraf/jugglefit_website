@@ -42,8 +42,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 propsRange.textContent = `Min: ${values[0]}, Max: ${values[1]}`;
                 propsMinInput.value = Math.round(values[0]);
                 propsMaxInput.value = Math.round(values[1]);
-                if (typeof window.updateRelevantTags === 'function') {
-                    // keep in sync with other filters if necessary
+                if (typeof window.updateSearchTricks === 'function') {
+                    window.updateSearchTricks();
                 }
             });
         }
@@ -84,8 +84,8 @@ window.updatePropsSliderRange = window.updatePropsSliderRange || function(minPro
                 if (propsRange) propsRange.textContent = `Min: ${values[0]}, Max: ${values[1]}`;
                 if (propsMinInput) propsMinInput.value = Math.round(values[0]);
                 if (propsMaxInput) propsMaxInput.value = Math.round(values[1]);
-                if (typeof window.updateRelevantTags === 'function') {
-                    // keep in sync
+                if (typeof window.updateSearchTricks === 'function') {
+                    window.updateSearchTricks();
                 }
             });
         }

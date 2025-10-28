@@ -2,6 +2,13 @@
 
 export async function fetchTricks(filters = {}) {
     try {
+        // Prevent multiple concurrent fetches for the same prop
+        const propType = filters.prop_type || filters.propType || filters.prop || null;
+        if (propType && window._currentFetchPromise && window._currentFetchProp === propType) {
+            console.log('fetchTricks: returning existing promise for', propType);
+            return await window._currentFetchPromise;
+        }
+        
         // Map common camelCase client keys to the server-expected snake_case keys
         const payload = {
             prop_type: filters.prop_type || filters.propType || filters.prop || null,
@@ -25,27 +32,72 @@ export async function fetchTricks(filters = {}) {
             return [];
         }
 
-    // fetchTricks payload prepared
-        const resp = await fetch('/api/fetch_tricks', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
+        console.log('fetchTricks: starting fetch for', payload.prop_type);
+        
+        // Store current fetch promise to prevent duplicates
+        window._currentFetchProp = payload.prop_type;
+        window._currentFetchPromise = (async () => {
+            try {
+                const resp = await fetch('/api/fetch_tricks', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
 
-        if (!resp.ok) {
-            let bodyText = '';
-            try { bodyText = await resp.text(); } catch (e) {}
-            const err = new Error('fetchTricks API error ' + resp.status + ': ' + bodyText);
-            err.status = resp.status;
-            err.body = bodyText;
-            throw err;
-        }
+                if (!resp.ok) {
+                    let bodyText = '';
+                    try { bodyText = await resp.text(); } catch (e) {}
+                    const err = new Error('fetchTricks API error ' + resp.status + ': ' + bodyText);
+                    err.status = resp.status;
+                    err.body = bodyText;
+                    throw err;
+                }
 
-        const data = await resp.json();
-        return Array.isArray(data) ? data : (data.tricks || data || []);
+                const data = await resp.json();
+                const result = Array.isArray(data) ? data : (data.tricks || data || []);
+                console.log('fetchTricks: completed for', payload.prop_type, 'got', result.length, 'tricks');
+                return result;
+            } finally {
+                // Clear the current fetch promise
+                if (window._currentFetchProp === payload.prop_type) {
+                    window._currentFetchPromise = null;
+                    window._currentFetchProp = null;
+                }
+            }
+        })();
+        
+        return await window._currentFetchPromise;
     } catch (e) {
         console.error('fetchTricks failed', e);
         throw e;
+    }
+}
+
+export function updateCustomTrickPropsRange(minProps, maxProps) {
+    try {
+        const customTrickPropsSlider = document.getElementById('custom_trick_props');
+        const customTrickPropsValue = document.getElementById('custom_trick_props_value');
+        
+        if (customTrickPropsSlider) {
+            // Update slider range
+            customTrickPropsSlider.min = minProps;
+            customTrickPropsSlider.max = maxProps;
+            
+            // Adjust current value if it's outside the new range
+            const currentValue = parseInt(customTrickPropsSlider.value);
+            if (currentValue < minProps) {
+                customTrickPropsSlider.value = minProps;
+            } else if (currentValue > maxProps) {
+                customTrickPropsSlider.value = maxProps;
+            }
+            
+            // Update displayed value
+            if (customTrickPropsValue) {
+                customTrickPropsValue.textContent = customTrickPropsSlider.value;
+            }
+        }
+    } catch (e) {
+        console.error('updateCustomTrickPropsRange failed', e);
     }
 }
 
@@ -259,6 +311,11 @@ export function initMaxThrowBindings() {
 try {
     if (typeof window !== 'undefined') {
         window.routeHelpersLoaded = true;
+        // Make functions directly available on window for macro compatibility
+        window.updateRouteDisplay = updateRouteDisplay;
+        window.addTrickToRoute = addTrickToRoute;
+        window.removeTrick = removeTrick;
+        window.updateCustomTrickPropsRange = updateCustomTrickPropsRange;
     }
 } catch (e) {}
 
@@ -273,6 +330,415 @@ try {
  * - excludedTags: array of tag keys to exclude
  * - maxThrow: optional numeric maximum throw to filter tricks by their max_throw attribute
  */
+// Prop selection functionality
+// Route display and manipulation functionality
+export function updateRouteDisplay() {
+    console.log('updateRouteDisplay called, currentRoute tricks:', window.currentRoute ? window.currentRoute.tricks.length : 'no currentRoute');
+    
+    const routeSections = document.getElementById('route-sections');
+    if (!routeSections || !window.currentRoute) {
+        console.log('Missing routeSections element or currentRoute');
+        return;
+    }
+    
+    routeSections.innerHTML = '';
+
+    let currentPropsCount = null;
+    let currentSection = null;
+    let trickCounter = 1;
+
+    window.currentRoute.tricks.forEach((trick, index) => {
+        // Check if we need to create a new section
+        if (currentPropsCount !== trick.props_count || 
+            (index > 0 && window.currentRoute.tricks[index - 1].props_count !== trick.props_count)) {
+            // Close previous section if it exists
+            if (currentSection) {
+                currentSection.querySelector('.trick-container').appendChild(document.createElement('div'));
+            }
+
+            // Create new section
+            const section = document.createElement('div');
+            section.className = 'prop-section';
+            section.setAttribute('data-props-count', trick.props_count);
+            
+            const colorBar = document.createElement('div');
+            colorBar.className = 'prop-color-bar';
+            colorBar.setAttribute('data-props', trick.props_count);
+            colorBar.setAttribute('data-prop-type', window.currentRoute.prop);
+            colorBar.setAttribute('draggable', 'true');
+            
+            const propCount = document.createElement('div');
+            propCount.className = 'prop-count';
+            
+            const propCountText = document.createElement('div');
+            propCountText.className = 'prop-count-text';
+            propCountText.textContent = trick.props_count;
+            
+            propCount.appendChild(propCountText);
+            colorBar.appendChild(propCount);
+            section.appendChild(colorBar);
+            
+            const trickContainer = document.createElement('div');
+            trickContainer.className = 'trick-container';
+            trickContainer.setAttribute('data-props-count', trick.props_count);
+            
+            section.appendChild(trickContainer);
+            routeSections.appendChild(section);
+            
+            // Add drag and drop event listeners for the color bar
+            colorBar.addEventListener('dragstart', handleSectionDragStart);
+            colorBar.addEventListener('dragover', handleSectionDragOver);
+            colorBar.addEventListener('drop', handleSectionDrop);
+            colorBar.addEventListener('dragend', handleSectionDragEnd);
+            
+            currentSection = section;
+            currentPropsCount = trick.props_count;
+        }
+
+        // Create trick frame using shared helper
+        const frame = document.createElement('div');
+        frame.className = 'prop-details-frame';
+        frame.setAttribute('draggable', 'true');
+        frame.setAttribute('data-trick-name', trick.name);
+
+        const trickContent = document.createElement('div');
+        trickContent.className = 'trick-content';
+
+        // Use shared CreateTrickContainer to build consistent inner DOM
+        const container = window.CreateTrickContainer ? window.CreateTrickContainer(trick.name, trick.comment || '', trick.siteswap_x || '', {
+            onNameBlur: (newName) => { trick.name = newName; frame.setAttribute('data-trick-name', newName); },
+            onCommentBlur: (newComment) => { trick.comment = newComment; },
+            addCheckbox: true
+        }) : createFallbackTrickContainer(trick);
+
+        // Insert trick number before the name inside the container
+        const number = document.createElement('span');
+        number.className = 'trick-number';
+        number.textContent = `${trickCounter}.`;
+        const innerMain = container.querySelector('.trick-main');
+        if (innerMain && innerMain.firstChild) {
+            innerMain.insertBefore(number, innerMain.firstChild);
+        } else if (innerMain) {
+            innerMain.appendChild(number);
+        }
+
+        // Remove button
+        const removeButton = document.createElement('button');
+        removeButton.className = 'remove-trick';
+        removeButton.textContent = '×';
+        removeButton.onclick = () => removeTrick(trick);
+
+        trickContent.appendChild(container);
+        trickContent.appendChild(removeButton);
+
+        frame.appendChild(trickContent);
+        
+        // Add drag and drop event listeners for tricks
+        frame.addEventListener('dragstart', handleDragStart);
+        frame.addEventListener('dragover', handleDragOver);
+        frame.addEventListener('drop', handleDrop);
+        frame.addEventListener('dragend', handleDragEnd);
+        
+        currentSection.querySelector('.trick-container').appendChild(frame);
+        trickCounter++;
+    });
+}
+
+function createFallbackTrickContainer(trick) {
+    const container = document.createElement('div');
+    container.className = 'trick-container-fallback';
+    const name = document.createElement('div');
+    name.textContent = trick.name;
+    name.className = 'trick-name';
+    container.appendChild(name);
+    return container;
+}
+
+export function addTrickToRoute(trick) {
+    if (!window.currentRoute) {
+        window.currentRoute = { name: '', duration_seconds: 600, prop: '', tricks: [] };
+    }
+    
+    // Ensure the current route has a prop set (use the currently selected prop)
+    if (!window.currentRoute.prop) {
+        const selectedPropInput = document.querySelector('.prop-option-input:checked');
+        if (selectedPropInput) {
+            window.currentRoute.prop = selectedPropInput.value;
+            console.log('Set currentRoute prop to:', window.currentRoute.prop);
+        }
+    }
+    
+    // Check if a trick with the same name and props_count already exists
+    const isDuplicate = window.currentRoute.tricks.some(t => 
+        t.name === trick.name && t.props_count === trick.props_count
+    );
+    
+    if (isDuplicate) {
+        if (typeof window.showToast === 'function') {
+            window.showToast('This trick is already in your route.');
+        }
+        return;
+    }
+    
+    // Add the trick to the end of the route
+    window.currentRoute.tricks.push(trick);
+    
+    console.log('Trick added to route:', trick.name, 'Total tricks:', window.currentRoute.tricks.length);
+    console.log('Current route:', window.currentRoute);
+    
+    // Update the display to show the new trick at the end
+    if (typeof window.updateRouteDisplay === 'function') {
+        window.updateRouteDisplay();
+    } else {
+        updateRouteDisplay();
+    }
+}
+
+export function removeTrick(trick) {
+    if (!window.currentRoute) return;
+    
+    window.currentRoute.tricks = window.currentRoute.tricks.filter(t => t.name !== trick.name);
+    updateRouteDisplay();
+}
+
+// Drag and drop functionality for route tricks
+let draggedItem = null;
+let draggedSection = null;
+
+function handleDragStart(e) {
+    draggedItem = e.target;
+    e.target.classList.add('dragging');
+}
+
+function handleDragOver(e) {
+    e.preventDefault();
+    const frame = e.target.closest('.prop-details-frame');
+    if (!frame || frame === draggedItem) return;
+    
+    const container = frame.parentElement;
+    const rect = frame.getBoundingClientRect();
+    const midY = rect.top + rect.height / 2;
+    
+    if (e.clientY < midY) {
+        container.insertBefore(draggedItem, frame);
+    } else {
+        container.insertBefore(draggedItem, frame.nextSibling);
+    }
+}
+
+function handleDrop(e) {
+    e.preventDefault();
+    e.target.classList.remove('dragging');
+}
+
+function handleDragEnd(e) {
+    e.target.classList.remove('dragging');
+    draggedItem = null;
+    
+    // Update the tricks array to match the new DOM order
+    const frames = document.querySelectorAll('.prop-details-frame');
+    const newTricks = [];
+    
+    frames.forEach(frame => {
+        const name = frame.getAttribute('data-trick-name');
+        const trick = window.currentRoute.tricks.find(t => t.name === name);
+        if (trick) {
+            newTricks.push(trick);
+        }
+    });
+    
+    window.currentRoute.tricks = newTricks;
+    updateRouteDisplay();
+}
+
+function handleSectionDragStart(e) {
+    draggedSection = e.target.closest('.prop-section');
+    draggedSection.classList.add('dragging');
+    draggedSection.style.opacity = '0.5';
+}
+
+function handleSectionDragOver(e) {
+    e.preventDefault();
+    const section = e.target.closest('.prop-section');
+    if (!section || section === draggedSection) return;
+    
+    const container = section.parentElement;
+    const rect = section.getBoundingClientRect();
+    const midY = rect.top + rect.height / 2;
+    
+    if (e.clientY < midY) {
+        container.insertBefore(draggedSection, section);
+    } else {
+        container.insertBefore(draggedSection, section.nextSibling);
+    }
+}
+
+function handleSectionDrop(e) {
+    e.preventDefault();
+    e.target.classList.remove('dragging');
+}
+
+function handleSectionDragEnd(e) {
+    e.target.classList.remove('dragging');
+    draggedSection.style.opacity = '1';
+    draggedSection = null;
+    
+    // Update the tricks array to match the new section order
+    const sections = document.querySelectorAll('.prop-section');
+    const newTricks = [];
+    sections.forEach(section => {
+        const frames = section.querySelectorAll('.prop-details-frame');
+        frames.forEach(frame => {
+            const name = frame.getAttribute('data-trick-name');
+            const trick = window.currentRoute.tricks.find(t => t.name === name);
+            if (trick) newTricks.push(trick);
+        });
+    });
+    window.currentRoute.tricks = newTricks;
+    
+    // Update the route display to reflect the new order and numbers
+    updateRouteDisplay();
+    
+    // Update the tricks list to reflect the new order
+    if (typeof window.updateSearchTricks === 'function') {
+        window.updateSearchTricks();
+    }
+}
+
+export function initializePropSelection() {
+    const propOptions = document.querySelectorAll('.prop-option');
+    const propInputs = document.querySelectorAll('.prop-option-input');
+
+    function updateSelectedState() {
+        propOptions.forEach(option => {
+            const input = option.querySelector('.prop-option-input');
+            if (input.checked) {
+                option.classList.add('selected');
+                if (window.currentRoute && window.currentRoute.prop !== input.value) {
+                    window.currentRoute.tricks = [];
+                    window.currentRoute.prop = input.value;
+                    
+                    // Get prop settings for the selected prop
+                    const propSettings = window.propsSettings && window.propsSettings[input.value];
+                    if (propSettings) {
+                        // Update relevant tags for this prop (with 'available' suffix to match build_route naming)
+                        if (typeof window.updateRelevantTags === 'function') {
+                            window.updateRelevantTags(propSettings.relevant_tags, 'available');
+                        }
+                        
+                        // Update max throw settings for this prop
+                        if (typeof window.setMaxThrowForProp === 'function') {
+                            window.setMaxThrowForProp(propSettings);
+                        }
+                        
+                        // Update props slider range if available
+                        if (typeof window.updatePropsSliderRange === 'function') {
+                            window.updatePropsSliderRange(propSettings.min_props, propSettings.max_props);
+                        }
+                        
+                        // Update custom trick props range
+                        if (typeof window.updateCustomTrickPropsRange === 'function') {
+                            window.updateCustomTrickPropsRange(propSettings.min_props, propSettings.max_props);
+                        }
+                    }
+                    
+                    // Fetch tricks and update available tricks on prop change
+                    if (typeof window.fetchTricks === 'function') {
+                        console.log('Fetching tricks for prop:', input.value);
+                        window.fetchTricks({ propType: input.value })
+                            .then(tricks => {
+                                console.log('Fetched tricks SUCCESS:', tricks.length, 'tricks');
+                                window.allTricks = tricks;
+                                if (typeof window.UpdateAvailableTricks === 'function') {
+                                    console.log('Calling UpdateAvailableTricks');
+                                    window.UpdateAvailableTricks();
+                                } else {
+                                    console.error('UpdateAvailableTricks function not available');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error fetching tricks:', error);
+                                if (!window.allTricks || window.allTricks.length === 0) {
+                                    if (typeof window.showToast === 'function') {
+                                        window.showToast('Error loading tricks. Please try again.');
+                                    }
+                                }
+                            });
+                    } else {
+                        console.error('fetchTricks function not available');
+                    }
+                } else {
+                    // Even if prop hasn't changed, still update UI elements on initial load
+                    const propSettings = window.propsSettings && window.propsSettings[input.value];
+                    if (propSettings) {
+                        // Update relevant tags for this prop
+                        if (typeof window.updateRelevantTags === 'function') {
+                            window.updateRelevantTags(propSettings.relevant_tags, 'available');
+                        }
+                        
+                        // Update max throw settings for this prop
+                        if (typeof window.setMaxThrowForProp === 'function') {
+                            window.setMaxThrowForProp(propSettings);
+                        }
+                        
+                        // Update custom trick props range for initial load
+                        if (typeof window.updateCustomTrickPropsRange === 'function') {
+                            window.updateCustomTrickPropsRange(propSettings.min_props, propSettings.max_props);
+                        }
+                    }
+                    
+                    // If tricks aren't loaded yet, fetch them even if prop hasn't changed
+                    if ((!window.allTricks || window.allTricks.length === 0) && !window._currentFetchPromise) {
+                        console.log('No tricks loaded and no fetch in progress, fetching for current prop:', input.value);
+                        if (typeof window.fetchTricks === 'function') {
+                            window.fetchTricks({ propType: input.value })
+                                .then(tricks => {
+                                    console.log('Current prop fetch SUCCESS:', tricks.length, 'tricks loaded');
+                                    window.allTricks = tricks;
+                                    if (typeof window.UpdateAvailableTricks === 'function') {
+                                        window.UpdateAvailableTricks();
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('Current prop fetch FAILED:', error);
+                                });
+                        }
+                    } else {
+                        if (typeof window.updateSearchTricks === 'function') {
+                            window.updateSearchTricks();
+                        }
+                    }
+                }
+                if (typeof window.updateRouteDisplay === 'function') {
+                    window.updateRouteDisplay();
+                }
+            } else {
+                option.classList.remove('selected');
+            }
+        });
+    }
+
+    updateSelectedState();
+
+    propOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            propInputs.forEach(input => input.checked = false);
+            const input = this.querySelector('.prop-option-input');
+            input.checked = true;
+            updateSelectedState();
+        });
+    });
+
+    propInputs.forEach(input => {
+        input.addEventListener('change', updateSelectedState);
+    });
+    
+    // Expose updateSelectedState so it can be called from outside
+    window.updatePropSelection = updateSelectedState;
+    
+    return updateSelectedState;
+}
+
 export function getRandomTrickForDifficulty(allTricks, difficulty, minProps, maxProps, excludedTags = [], maxThrow = null) {
     try {
         if (!Array.isArray(allTricks) || allTricks.length === 0) return null;
