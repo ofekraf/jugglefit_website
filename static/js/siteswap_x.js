@@ -42,20 +42,47 @@ function toggleSiteswapX(trickElement, showX) {
         }
     }
     const hasSiteswap = siteswapText !== '' && siteswapText.toLowerCase() !== 'none';
+    
+    // Check if name exists (not empty and not just the siteswap fallback)
+    const nameText = nameEl ? nameEl.textContent.trim() : '';
+    const hasName = nameText !== '' && nameText !== siteswapText;
 
-    // If showX not provided, toggle current state (show X if name currently visible)
-    if (typeof showX === 'undefined') {
-        const nameVisible = nameEl ? window.getComputedStyle(nameEl).display !== 'none' : false;
-        showX = !!nameVisible; // if name is visible, toggling should show X
-    }
-
-    if (showX && hasSiteswap) {
+    // Symmetrical logic: If one is empty, always show the other
+    if (!hasName && hasSiteswap) {
+        // No name but has siteswap - always show siteswap
         if (nameEl) nameEl.style.display = 'none';
         if (xEl) xEl.style.display = '';
-    } else {
+        return;
+    }
+    
+    if (hasName && !hasSiteswap) {
+        // Has name but no siteswap - always show name
         if (nameEl) nameEl.style.display = '';
         if (xEl) xEl.style.display = 'none';
+        return;
     }
+
+    // Both exist - respect the toggle state
+    if (hasName && hasSiteswap) {
+        // If showX not provided, toggle current state (show X if name currently visible)
+        if (typeof showX === 'undefined') {
+            const nameVisible = nameEl ? window.getComputedStyle(nameEl).display !== 'none' : false;
+            showX = !!nameVisible; // if name is visible, toggling should show X
+        }
+
+        if (showX) {
+            if (nameEl) nameEl.style.display = 'none';
+            if (xEl) xEl.style.display = '';
+        } else {
+            if (nameEl) nameEl.style.display = '';
+            if (xEl) xEl.style.display = 'none';
+        }
+        return;
+    }
+
+    // Neither exists - show name element (will be empty)
+    if (nameEl) nameEl.style.display = '';
+    if (xEl) xEl.style.display = 'none';
 }
 
 // Accepts either a string (returns formatted HTML) or an Element (sets element.innerHTML and returns it)
@@ -192,17 +219,13 @@ function CreateTrickContainer(name, comment = '', siteswapX = '', options = {}) 
 
     const nameEl = document.createElement('span');
     nameEl.className = 'trick-name';
-    nameEl.textContent = name || 'Unnamed Trick';
+    // Only show the actual name (or empty string if no name)
+    nameEl.textContent = name || '';
     // Respect editable option (false = non-editable view like created-route)
     nameEl.contentEditable = options.editable !== false;
     nameEl.addEventListener('blur', function() {
         const newName = this.textContent.trim();
-        if (newName) {
-            if (typeof options.onNameBlur === 'function') options.onNameBlur(newName);
-        } else {
-            this.textContent = name || 'Unnamed Trick';
-            if (typeof options.onNameBlur === 'function') options.onNameBlur(this.textContent);
-        }
+        if (typeof options.onNameBlur === 'function') options.onNameBlur(newName);
     });
     main.appendChild(nameEl);
 
@@ -230,10 +253,30 @@ function CreateTrickContainer(name, comment = '', siteswapX = '', options = {}) 
         const built = createSiteswapXElement(siteswapX);
         if (built) {
             xEl = built;
-            // ensure hidden by default
-            xEl.style.display = 'none';
             main.appendChild(xEl);
         }
+    }
+    
+    // Set up initial display state based on symmetrical logic
+    const hasName = name && name.trim() !== '';
+    const hasSiteswap = siteswapX && siteswapX.trim() !== '';
+    
+    if (!hasName && hasSiteswap) {
+        // No name but has siteswap - hide name div, show only siteswap div
+        nameEl.style.display = 'none';
+        if (xEl) xEl.style.display = '';
+    } else if (hasName && !hasSiteswap) {
+        // Has name but no siteswap - show name, hide siteswap
+        nameEl.style.display = '';
+        if (xEl) xEl.style.display = 'none';
+    } else if (hasName && hasSiteswap) {
+        // Both exist - show name by default, hide siteswap (can be toggled)
+        nameEl.style.display = '';
+        if (xEl) xEl.style.display = 'none';
+    } else {
+        // Neither exists - show name element (will be empty)
+        nameEl.style.display = '';
+        if (xEl) xEl.style.display = 'none';
     }
 
     // Optional checkbox (for route display to toggle line-through / selection)

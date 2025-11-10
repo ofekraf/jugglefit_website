@@ -14,56 +14,22 @@ const propsSettings = {{ props_settings|tojson|safe }};
 window.propsSettings = propsSettings;
 </script>
 <script>
-// Ensure currentRoute is defined to avoid ReferenceError
-if (typeof currentRoute === 'undefined') {
-    var currentRoute = { name: '', duration_seconds: 600, prop: '', tricks: [] };
-}
+// Initialize window.currentRoute properly
+window.currentRoute = { name: '', duration_seconds: 600, prop: '', tricks: [] };
 </script>
 <script>
 // Expose initial_route from Flask as window.initialRoute for JS
 window.initialRoute = {{ initial_route|tojson|safe }};
-</script>
-<style>
-/* FORCE LEFT ALIGNMENT - MAXIMUM PRIORITY OVERRIDES */
-.route-page,
-html body .route-page,
-html body main .route-page,
-html body main .main-content .route-page,
-body .main-content .route-page {
-    margin: 0 !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-    text-align: left !important;
-    padding-left: 1rem !important;
-    max-width: none !important;
-    width: 100% !important;
+
+// Initialize currentRoute from initial_route if available
+if (window.initialRoute && window.initialRoute.tricks) {
+    window.currentRoute = {
+        name: window.initialRoute.name || '',
+        duration_seconds: window.initialRoute.duration_seconds || 600,
+        prop: window.initialRoute.prop || '',
+        tricks: window.initialRoute.tricks || []
+    };
 }
-.route-sections,
-.route-container,
-.route-content,
-.route-form,
-.form-section,
-#route-sections {
-    margin: 0 !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-    text-align: left !important;
-    max-width: none !important;
-    width: 100% !important;
-}
-/* Prevent any container from centering child content */
-.main-content {
-    text-align: left !important;
-    display: block !important;
-}
-</style>
-<script>
-// AGGRESSIVE anti-centering script
-(function() {
-    'use strict';
-    
-    // Removed forceLeftAlignment system - it was interfering with comment positioning
-})();
 </script>
 {% endblock %}
 
@@ -126,6 +92,12 @@ body .main-content .route-page {
                         <input type="text" id="custom_trick_name" class="form-input" placeholder="Enter trick name">
                     </div>
                     <div class="form-group">
+                        <label for="custom_trick_siteswap">Siteswap-X</label>
+                        <input type="text" id="custom_trick_siteswap" class="form-input" placeholder="Enter siteswap-x notation">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
                         <label for="custom_trick_props">Number of Props</label>
                         <div class="slider-container">
                             <div class="slider-wrapper">
@@ -134,10 +106,10 @@ body .main-content .route-page {
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label for="custom_trick_comment">Comment (Optional)</label>
-                    <textarea id="custom_trick_comment" class="form-input" placeholder="Add a comment about the trick"></textarea>
+                    <div class="form-group">
+                        <label for="custom_trick_comment">Comment (Optional)</label>
+                        <textarea id="custom_trick_comment" class="form-input" placeholder="Add a comment about the trick"></textarea>
+                    </div>
                 </div>
                 <button type="button" id="add_custom_trick" class="add-trick">Add</button>
             </div>
@@ -172,7 +144,7 @@ body .main-content .route-page {
 <script type="module">
     console.log('Module script starting...');
     try {
-        const { fetchTricks, updatePropsSliderRange, updateRelevantTags, setMaxThrowForProp, initMaxThrowBindings, initializePropSelection, updateRouteDisplay, addTrickToRoute, removeTrick, updateCustomTrickPropsRange } = await import("{{ url_for('static', filename='js/route_helpers.js') }}");
+        const { fetchTricks, updatePropsSliderRange, updateRelevantTags, setMaxThrowForProp, initMaxThrowBindings, initializePropSelection, refreshFromRoute, updateRouteDisplay, addTrickToRoute, removeTrick, updateCustomTrickPropsRange } = await import("{{ url_for('static', filename='js/route_helpers.js') }}");
         console.log('Route helpers imported successfully');
         
         // Make functions available globally for non-module scripts and macros
@@ -181,6 +153,7 @@ body .main-content .route-page {
         window.setMaxThrowForProp = setMaxThrowForProp;
         window.updatePropsSliderRange = updatePropsSliderRange;
         window.initializePropSelection = initializePropSelection;
+        window.refreshFromRoute = refreshFromRoute;
         window.updateRouteDisplay = updateRouteDisplay;
         window.addTrickToRoute = addTrickToRoute;
         window.removeTrick = removeTrick;
@@ -197,9 +170,27 @@ body .main-content .route-page {
             console.log('Available functions:', {
                 fetchTricks: typeof window.fetchTricks,
                 UpdateAvailableTricks: typeof window.UpdateAvailableTricks,
-                initializePropSelection: typeof window.initializePropSelection
+                initializePropSelection: typeof window.initializePropSelection,
+                refreshFromRoute: typeof window.refreshFromRoute
             });
             console.log('Current allTricks:', window.allTricks ? window.allTricks.length : 'undefined');
+            console.log('Current route:', window.currentRoute);
+            
+            // Check for siteswap-x URL parameter and set checkbox
+            const urlParams = new URLSearchParams(window.location.search);
+            const siteswapXParam = urlParams.get('siteswapx');
+            if (siteswapXParam === '1') {
+                const siteswapToggle = document.getElementById('toggle-siteswap-x-checkbox');
+                if (siteswapToggle) {
+                    siteswapToggle.checked = true;
+                }
+            }
+            
+            // Refresh GUI from currentRoute (which now contains initial route data)
+            if (typeof window.refreshFromRoute === 'function') {
+                console.log('Calling refreshFromRoute to initialize GUI...');
+                window.refreshFromRoute();
+            }
             
             // Directly call initializePropSelection if functions are available
             if (typeof window.initializePropSelection === 'function') {
@@ -216,7 +207,15 @@ body .main-content .route-page {
     }
 </script>
 
-<!-- Route initialization macro with all the complex logic -->
+<!-- Main page functionality script -->
+<script>
+function setupPageFunctionality() {
+    console.log('Setting up page functionality...');
+
+
+}
+
+// Route initialization functions
 </script>
 
 <!-- Inlined route initialization logic (previously in macros/route_initialization_macro.html) -->
@@ -260,9 +259,8 @@ body .main-content .route-page {
                 propOption.classList.add('selected');
             }
             
-            // Set tricks BEFORE calling prop selection logic to prevent clearing
+            // Set tricks from initial route
             window.currentRoute.tricks = initialRoute.tricks || [];
-            console.log('Initial route tricks set:', window.currentRoute.tricks.length, 'tricks');
             
             // Initialize prop-specific functionality for the initial route prop
             const propSettings = window.propsSettings && window.propsSettings[initialRoute.prop];
@@ -299,28 +297,32 @@ body .main-content .route-page {
     function initializeEventListeners() {
         console.log('Initializing event listeners...');
         
-        // Route name input
+        // Route name input - simple: change currentRoute and refresh
         const routeNameInput = document.getElementById('route_name');
         if (routeNameInput) {
             routeNameInput.addEventListener('input', function(e) {
-                window.currentRoute.name = e.target.value;
-                if (typeof window.updateRouteDisplay === 'function') {
-                    window.updateRouteDisplay();
+                if (window.currentRoute) {
+                    window.currentRoute.name = e.target.value;
+                    // Only refresh route display, not all GUI (avoid cursor jumping)
+                    if (typeof window.updateRouteDisplay === 'function') {
+                        window.updateRouteDisplay();
+                    }
                 }
             });
         }
 
-        // Route duration slider
+        // Route duration slider - simple: change currentRoute and refresh
         const routeDurationSlider = document.getElementById('route-duration-slider');
-        const routeDurationValue = document.getElementById('route-duration-value');
-        const routeDurationInput = document.getElementById('route-duration-input');
         
         if (routeDurationSlider) {
             routeDurationSlider.addEventListener('input', () => {
                 const minutes = parseInt(routeDurationSlider.value);
-                if (routeDurationValue) routeDurationValue.textContent = minutes;
-                if (routeDurationInput) routeDurationInput.value = minutes;
-                window.currentRoute.duration_seconds = minutes * 60;
+                if (window.currentRoute) {
+                    window.currentRoute.duration_seconds = minutes * 60;
+                    if (typeof window.refreshFromRoute === 'function') {
+                        window.refreshFromRoute();
+                    }
+                }
             });
         }
 
@@ -448,33 +450,56 @@ body .main-content .route-page {
 
         // Custom trick functionality
         const addCustomTrickBtn = document.getElementById('add_custom_trick');
+        console.log('Add custom trick button found:', !!addCustomTrickBtn);
         if (addCustomTrickBtn) {
             addCustomTrickBtn.addEventListener('click', function() {
+                console.log('Add custom trick button clicked');
                 const name = document.getElementById('custom_trick_name').value.trim();
+                const siteswapX = document.getElementById('custom_trick_siteswap').value.trim();
                 const propsCount = parseInt(document.getElementById('custom_trick_props').value);
                 const comment = document.getElementById('custom_trick_comment').value.trim();
 
-                if (!name) {
+                console.log('Custom trick values:', { name, siteswapX, propsCount, comment });
+
+                // Validation: must have at least name or siteswap-x
+                if (!name && !siteswapX) {
+                    console.log('Validation failed: no name or siteswap-x');
                     if (typeof window.showToast === 'function') {
-                        window.showToast('Please enter a trick name', 'custom_trick_name');
+                        window.showToast('Please enter either a trick name or siteswap-x notation', 'custom_trick_name');
                     }
                     return;
                 }
 
                 const customTrick = {
-                    name: name,
+                    name: name || 'Custom Trick',
+                    siteswap_x: siteswapX || null,
                     props_count: propsCount,
                     difficulty: 30,
                     tags: [],
                     comment: comment || null
                 };
 
+                console.log('Custom trick object:', customTrick);
+                console.log('addTrickToRoute function available:', typeof window.addTrickToRoute);
+
                 if (typeof window.addTrickToRoute === 'function') {
+                    console.log('Calling addTrickToRoute...');
                     window.addTrickToRoute(customTrick);
+                } else {
+                    console.error('addTrickToRoute function not available - using direct method');
+                    // Fallback to direct addition
+                    if (!window.currentRoute) {
+                        window.currentRoute = { name: '', duration_seconds: 600, prop: '', tricks: [] };
+                    }
+                    window.currentRoute.tricks.push(customTrick);
+                    if (typeof window.refreshFromRoute === 'function') {
+                        window.refreshFromRoute();
+                    }
                 }
 
-                // Clear only the name and comment fields
+                // Clear the input fields
                 document.getElementById('custom_trick_name').value = '';
+                document.getElementById('custom_trick_siteswap').value = '';
                 document.getElementById('custom_trick_comment').value = '';
             });
         }
@@ -482,10 +507,12 @@ body .main-content .route-page {
         // Custom trick props slider
         const customTrickPropsSlider = document.getElementById('custom_trick_props');
         const customTrickPropsValue = document.getElementById('custom_trick_props_value');
+        console.log('Props slider elements found:', { slider: !!customTrickPropsSlider, value: !!customTrickPropsValue });
         if (customTrickPropsSlider && customTrickPropsValue) {
             customTrickPropsValue.textContent = parseInt(customTrickPropsSlider.value);
             customTrickPropsSlider.addEventListener('input', () => {
                 const value = parseInt(customTrickPropsSlider.value);
+                console.log('Props slider changed to:', value);
                 customTrickPropsValue.textContent = value;
             });
         }
@@ -615,21 +642,27 @@ body .main-content .route-page {
 
         try {
             // Build a complete payload for serialization
-            const durationMinutes = document.getElementById('route-duration-input') ? parseInt(document.getElementById('route-duration-input').value) : 10;
+            const durationSeconds = window.currentRoute.duration_seconds || 600;
+            
+            // Get tricks from currentRoute
+            const allTricks = Array.isArray(window.currentRoute.tricks) ? window.currentRoute.tricks : [];
+            
             const payload = {
                 name: window.currentRoute.name,
                 prop: window.currentRoute.prop,
-                duration_seconds: Number.isFinite(durationMinutes) ? durationMinutes * 60 : 600,
-                tricks: Array.isArray(window.currentRoute.tricks) ? window.currentRoute.tricks.map(t => ({
+                duration_seconds: durationSeconds,
+                tricks: allTricks.map(t => ({
                     name: t.name,
+                    siteswap_x: t.siteswap_x || null,
                     props_count: t.props_count,
                     difficulty: t.difficulty,
                     tags: t.tags || [],
                     comment: t.comment || null
-                })) : []
+                }))
             };
 
             // Serialize the route
+            console.log('Sending payload to serialize_route:', payload);
             const response = await fetch('/api/serialize_route', {
                 method: 'POST',
                 headers: {
@@ -637,11 +670,26 @@ body .main-content .route-page {
                 },
                 body: JSON.stringify(payload)
             });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
             const serialized = await response.text();
+            console.log('Received serialized route:', serialized.substring(0, 100) + '...');
+            
+            // Check if siteswap-x is enabled and add URL param
+            const siteswapToggle = document.getElementById('toggle-siteswap-x-checkbox');
+            const siteswapXEnabled = siteswapToggle && siteswapToggle.checked;
             
             // Redirect to the created_route page with the serialized route
             const encodedRoute = encodeURIComponent(serialized);
-            window.location.href = `/created_route?route=${encodedRoute}`;
+            const url = siteswapXEnabled 
+                ? `/created_route?route=${encodedRoute}&siteswapx=1`
+                : `/created_route?route=${encodedRoute}`;
+            
+            console.log('Redirecting to:', url);
+            window.location.href = url;
         } catch (error) {
             console.error('Error preparing route for viewing:', error);
             if (typeof window.showToast === 'function') {
@@ -667,6 +715,81 @@ body .main-content .route-page {
     
     console.log('Route initialization inlined');
 })();
+
+    console.log('Page functionality setup complete');
+}
+
+// Simple approach - wait for everything to be ready
+setTimeout(function() {
+    console.log('Setting up page functionality with timeout...');
+    setupPageFunctionality();
+}, 1000);
+</script>
+
+<!-- Backup direct implementation for testing -->
+<script>
+setTimeout(function() {
+    // Direct props slider setup
+    const slider = document.getElementById('custom_trick_props');
+    const valueDisplay = document.getElementById('custom_trick_props_value');
+    if (slider && valueDisplay) {
+        slider.addEventListener('input', function() {
+            valueDisplay.textContent = this.value;
+        });
+    }
+    
+    // Simple trick addition - add to currentRoute and refresh
+    function addTrickDirectly() {
+        const nameInput = document.getElementById('custom_trick_name');
+        const siteswapInput = document.getElementById('custom_trick_siteswap');
+        const propsInput = document.getElementById('custom_trick_props');
+        const commentInput = document.getElementById('custom_trick_comment');
+        
+        if (!nameInput || !siteswapInput || !propsInput) return;
+        
+        const name = nameInput.value.trim();
+        const siteswap = siteswapInput.value.trim();
+        const propsCount = parseInt(propsInput.value) || 3;
+        const comment = commentInput ? commentInput.value.trim() : '';
+        
+        if (!name && !siteswap) {
+            alert('Please enter either a trick name or siteswap-x notation');
+            return;
+        }
+        
+        // Create trick object
+        const trick = {
+            name: name || null,
+            siteswap_x: siteswap || null,
+            props_count: propsCount,
+            difficulty: 30,
+            tags: [],
+            comment: comment || null
+        };
+        
+        // Ensure currentRoute exists
+        if (!window.currentRoute) {
+            window.currentRoute = { name: '', duration_seconds: 600, prop: '', tricks: [] };
+        }
+        
+        // Add to currentRoute.tricks and refresh
+        window.currentRoute.tricks.push(trick);
+        if (typeof window.refreshFromRoute === 'function') {
+            window.refreshFromRoute();
+        }
+        
+        // Clear form
+        nameInput.value = '';
+        siteswapInput.value = '';
+        if (commentInput) commentInput.value = '';
+    }
+    
+    // Direct add button setup
+    const addBtn = document.getElementById('add_custom_trick');
+    if (addBtn) {
+        addBtn.addEventListener('click', addTrickDirectly);
+    }
+}, 2000);
 </script>
 </div>
 {% endblock %}

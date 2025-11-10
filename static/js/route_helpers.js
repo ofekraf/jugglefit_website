@@ -312,6 +312,7 @@ try {
     if (typeof window !== 'undefined') {
         window.routeHelpersLoaded = true;
         // Make functions directly available on window for macro compatibility
+        window.refreshFromRoute = refreshFromRoute;
         window.updateRouteDisplay = updateRouteDisplay;
         window.addTrickToRoute = addTrickToRoute;
         window.removeTrick = removeTrick;
@@ -331,26 +332,88 @@ try {
  * - maxThrow: optional numeric maximum throw to filter tricks by their max_throw attribute
  */
 // Prop selection functionality
-// Route display and manipulation functionality
-export function updateRouteDisplay() {
-    console.log('updateRouteDisplay called, currentRoute tricks:', window.currentRoute ? window.currentRoute.tricks.length : 'no currentRoute');
+// Centralized refresh function that updates all GUI elements from a route object
+export function refreshFromRoute(route = null) {
+    const routeToUse = route || window.currentRoute;
+    if (!routeToUse) return;
     
-    if (window.currentRoute && window.currentRoute.tricks.length > 0) {
-        console.log('Route tricks:', window.currentRoute.tricks.map(t => ({ name: t.name, props_count: t.props_count })));
+    // Update route name input and title
+    const routeNameInput = document.getElementById('route_name');
+    if (routeNameInput) {
+        routeNameInput.value = routeToUse.name || '';
     }
     
+    // Also update route title if it exists (for created_route.html)
+    const routeTitle = document.getElementById('route-title');
+    if (routeTitle) {
+        routeTitle.textContent = routeToUse.name || 'Untitled Route';
+    }
+    
+    // Update duration slider and input
+    const durationMinutes = Math.floor((routeToUse.duration_seconds || 600) / 60);
+    const durationSlider = document.getElementById('route-duration-slider');
+    const durationValue = document.getElementById('route-duration-value');
+    const durationInput = document.getElementById('route-duration-input');
+    
+    if (durationSlider) durationSlider.value = durationMinutes;
+    if (durationValue) durationValue.textContent = durationMinutes;
+    if (durationInput) durationInput.value = durationMinutes;
+    
+    // Update prop selection
+    if (routeToUse.prop) {
+        const propInput = document.querySelector(`input[name="prop"][value="${routeToUse.prop}"]`);
+        if (propInput) {
+            propInput.checked = true;
+            const propOption = propInput.closest('.prop-option');
+            if (propOption) {
+                // Remove selected class from all options
+                document.querySelectorAll('.prop-option').forEach(opt => opt.classList.remove('selected'));
+                // Add selected class to current option
+                propOption.classList.add('selected');
+            }
+            
+            // Update prop-specific settings
+            const propSettings = window.propsSettings && window.propsSettings[routeToUse.prop];
+            if (propSettings) {
+                // Update relevant tags
+                if (typeof updateRelevantTags === 'function') {
+                    updateRelevantTags(propSettings.relevant_tags, 'available');
+                }
+                
+                // Set max throw for this prop
+                if (typeof setMaxThrowForProp === 'function') {
+                    setMaxThrowForProp(propSettings);
+                }
+                
+                // Update custom trick props range
+                if (typeof updateCustomTrickPropsRange === 'function') {
+                    updateCustomTrickPropsRange(propSettings.min_props, propSettings.max_props);
+                }
+            }
+        }
+    }
+    
+    // Update route display
+    updateRouteDisplay(routeToUse);
+    
+    // Check and apply siteswap-x toggle state
+    const siteswapToggle = document.getElementById('toggle-siteswap-x-checkbox');
+    if (siteswapToggle && typeof window.toggleSiteswapXEverywhere === 'function') {
+        window.toggleSiteswapXEverywhere();
+    }
+}
+
+// Route display functionality (updated to accept route parameter)
+export function updateRouteDisplay(route = null) {
+    const routeToUse = route || window.currentRoute;
     const routeSections = document.getElementById('route-sections');
-    if (!routeSections || !window.currentRoute) {
-        console.log('Missing routeSections element or currentRoute');
-        console.log('routeSections:', routeSections);
-        console.log('currentRoute:', window.currentRoute);
+    if (!routeSections || !routeToUse) {
         return;
     }
     
-    console.log('Clearing route display and rebuilding...');
     routeSections.innerHTML = '';
 
-    if (window.currentRoute.tricks.length === 0) {
+    if (!routeToUse.tricks || routeToUse.tricks.length === 0) {
         console.log('No tricks to display');
         return;
     }
@@ -359,10 +422,10 @@ export function updateRouteDisplay() {
     let currentSection = null;
     let trickCounter = 1;
 
-    window.currentRoute.tricks.forEach((trick, index) => {
+    routeToUse.tricks.forEach((trick, index) => {
         // Check if we need to create a new section
         if (currentPropsCount !== trick.props_count || 
-            (index > 0 && window.currentRoute.tricks[index - 1].props_count !== trick.props_count)) {
+            (index > 0 && routeToUse.tricks[index - 1].props_count !== trick.props_count)) {
             // Close previous section if it exists
             if (currentSection) {
                 currentSection.querySelector('.trick-container').appendChild(document.createElement('div'));
@@ -376,7 +439,7 @@ export function updateRouteDisplay() {
             const colorBar = document.createElement('div');
             colorBar.className = 'prop-color-bar';
             colorBar.setAttribute('data-props', trick.props_count);
-            colorBar.setAttribute('data-prop-type', window.currentRoute.prop);
+            colorBar.setAttribute('data-prop-type', routeToUse.prop);
             colorBar.setAttribute('draggable', 'true');
             
             const propCount = document.createElement('div');
@@ -411,13 +474,15 @@ export function updateRouteDisplay() {
         const frame = document.createElement('div');
         frame.className = 'prop-details-frame';
         frame.setAttribute('draggable', 'true');
-        frame.setAttribute('data-trick-name', trick.name);
+        frame.setAttribute('data-trick-name', trick.name || trick.siteswap_x || '');
 
         const trickContent = document.createElement('div');
         trickContent.className = 'trick-content';
 
         // Use shared CreateTrickContainer to build consistent inner DOM
-        const container = window.CreateTrickContainer ? window.CreateTrickContainer(trick.name, trick.comment || '', trick.siteswap_x || '', {
+        // Always pass the actual name (empty if not set) - siteswap-x will show when name is empty
+        const displayName = trick.name || '';
+        const container = window.CreateTrickContainer ? window.CreateTrickContainer(displayName, trick.comment || '', trick.siteswap_x || null, {
             onNameBlur: (newName) => { trick.name = newName; frame.setAttribute('data-trick-name', newName); },
             onCommentBlur: (newComment) => { trick.comment = newComment; },
             addCheckbox: false
@@ -460,7 +525,8 @@ function createFallbackTrickContainer(trick) {
     const container = document.createElement('div');
     container.className = 'trick-container-fallback';
     const name = document.createElement('div');
-    name.textContent = trick.name;
+    // Show siteswap-x if no name, empty string if neither
+    name.textContent = trick.name || trick.siteswap_x || '';
     name.className = 'trick-name';
     container.appendChild(name);
     return container;
@@ -476,7 +542,6 @@ export function addTrickToRoute(trick) {
         const selectedPropInput = document.querySelector('.prop-option-input:checked');
         if (selectedPropInput) {
             window.currentRoute.prop = selectedPropInput.value;
-            console.log('Set currentRoute prop to:', window.currentRoute.prop);
         }
     }
     
@@ -487,6 +552,7 @@ export function addTrickToRoute(trick) {
     if (typeof normalized.difficulty === 'undefined') normalized.difficulty = Number(normalized.diff) || 30;
     if (!Array.isArray(normalized.tags)) normalized.tags = normalized.tags ? [normalized.tags] : [];
     if (typeof normalized.comment === 'undefined') normalized.comment = null;
+    if (normalized.siteswap_x === '') normalized.siteswap_x = null;
 
     // Check if a trick with the same name and props_count already exists
     const isDuplicate = window.currentRoute.tricks.some(t => 
@@ -500,25 +566,16 @@ export function addTrickToRoute(trick) {
         return;
     }
     
-    // Add the trick to the end of the route (store a shallow copy)
+    // Add the trick to the route and refresh display
     window.currentRoute.tricks.push(Object.assign({}, normalized));
-    
-    console.log('Trick added to route:', normalized.name, 'Total tricks:', window.currentRoute.tricks.length);
-    console.log('Current route:', window.currentRoute);
-    
-    // Update the display to show the new trick at the end
-    if (typeof window.updateRouteDisplay === 'function') {
-        window.updateRouteDisplay();
-    } else {
-        updateRouteDisplay();
-    }
+    refreshFromRoute();
 }
 
 export function removeTrick(trick) {
     if (!window.currentRoute) return;
     
     window.currentRoute.tricks = window.currentRoute.tricks.filter(t => t.name !== trick.name);
-    updateRouteDisplay();
+    refreshFromRoute();
 }
 
 // Drag and drop functionality for route tricks
@@ -560,15 +617,18 @@ function handleDragEnd(e) {
     const newTricks = [];
     
     frames.forEach(frame => {
-        const name = frame.getAttribute('data-trick-name');
-        const trick = window.currentRoute.tricks.find(t => t.name === name);
+        const displayName = frame.getAttribute('data-trick-name');
+        const trick = window.currentRoute.tricks.find(t => 
+            (t.name && t.name === displayName) || 
+            (!t.name && t.siteswap_x === displayName)
+        );
         if (trick) {
             newTricks.push(trick);
         }
     });
     
     window.currentRoute.tricks = newTricks;
-    updateRouteDisplay();
+    refreshFromRoute();
 }
 
 function handleSectionDragStart(e) {
@@ -609,15 +669,18 @@ function handleSectionDragEnd(e) {
     sections.forEach(section => {
         const frames = section.querySelectorAll('.prop-details-frame');
         frames.forEach(frame => {
-            const name = frame.getAttribute('data-trick-name');
-            const trick = window.currentRoute.tricks.find(t => t.name === name);
+            const displayName = frame.getAttribute('data-trick-name');
+            const trick = window.currentRoute.tricks.find(t => 
+                (t.name && t.name === displayName) || 
+                (!t.name && t.siteswap_x === displayName)
+            );
             if (trick) newTricks.push(trick);
         });
     });
     window.currentRoute.tricks = newTricks;
     
     // Update the route display to reflect the new order and numbers
-    updateRouteDisplay();
+    refreshFromRoute();
     
     // Update the tricks list to reflect the new order
     if (typeof window.updateSearchTricks === 'function') {
@@ -626,6 +689,11 @@ function handleSectionDragEnd(e) {
 }
 
 export function initializePropSelection() {
+    // Prevent redundant initialization calls
+    if (window._propSelectionInitialized) {
+        return;
+    }
+    
     const propOptions = document.querySelectorAll('.prop-option');
     const propInputs = document.querySelectorAll('.prop-option-input');
 
@@ -634,16 +702,11 @@ export function initializePropSelection() {
             const input = option.querySelector('.prop-option-input');
             if (input.checked) {
                 option.classList.add('selected');
-                console.log('Prop selected:', input.value, 'current route prop:', window.currentRoute ? window.currentRoute.prop : 'undefined');
-                console.log('Current route tricks before:', window.currentRoute ? window.currentRoute.tricks.length : 'no currentRoute');
                 
-                // Only clear tricks if this is a genuine prop change (not during initialization)
-                // During initialization, the tricks should already be set before this is called
+                // Clear tricks when prop changes (not during initialization)
                 if (window.currentRoute && window.currentRoute.prop && window.currentRoute.prop !== input.value) {
                     console.log('Prop changed from', window.currentRoute.prop, 'to', input.value, '- clearing tricks');
                     window.currentRoute.tricks = [];
-                } else {
-                    console.log('Initial prop selection or same prop, keeping existing tricks');
                 }
                 
                 // Always update the current route prop
@@ -680,21 +743,15 @@ export function initializePropSelection() {
                                  (window.lastFetchedProp && window.lastFetchedProp !== input.value);
                 
                 if (needsFetch && typeof window.fetchTricks === 'function') {
-                    console.log('Fetching tricks for prop (needed):', input.value);
                     window.lastFetchedProp = input.value;
                     window.fetchTricks({ propType: input.value })
                         .then(tricks => {
-                            console.log('Fetched tricks SUCCESS:', tricks.length, 'tricks');
                             window.allTricks = tricks;
                             if (typeof window.UpdateAvailableTricks === 'function') {
-                                console.log('Calling UpdateAvailableTricks');
                                 window.UpdateAvailableTricks();
-                            } else {
-                                console.error('UpdateAvailableTricks function not available');
                             }
                         })
                         .catch(error => {
-                            console.error('Error fetching tricks:', error);
                             window.lastFetchedProp = null; // Reset on error
                             if (!window.allTricks || window.allTricks.length === 0) {
                                 if (typeof window.showToast === 'function') {
@@ -703,22 +760,15 @@ export function initializePropSelection() {
                             }
                         });
                 } else if (!needsFetch) {
-                    console.log('Tricks already available for prop:', input.value, '(' + (window.allTricks ? window.allTricks.length : 0) + ' tricks)');
                     // Still update the display with existing tricks
                     if (typeof window.UpdateAvailableTricks === 'function') {
-                        console.log('Calling UpdateAvailableTricks with existing tricks');
                         window.UpdateAvailableTricks();
                     }
-                } else {
-                    console.error('fetchTricks function not available');
                 }
                 
-                // Only update route display if route has tricks to avoid clearing it unnecessarily
-                if (typeof window.updateRouteDisplay === 'function' && window.currentRoute && window.currentRoute.tricks.length > 0) {
-                    console.log('Prop selection updating route display (has tricks)');
+                // Update route display (whether we have tricks or not)
+                if (typeof window.updateRouteDisplay === 'function' && window.currentRoute) {
                     window.updateRouteDisplay();
-                } else if (window.currentRoute && window.currentRoute.tricks.length === 0) {
-                    console.log('Prop selection: route has no tricks, skipping route display update');
                 }
             } else {
                 option.classList.remove('selected');
@@ -743,6 +793,9 @@ export function initializePropSelection() {
     
     // Expose updateSelectedState so it can be called from outside
     window.updatePropSelection = updateSelectedState;
+    
+    // Mark as initialized to prevent redundant calls
+    window._propSelectionInitialized = true;
     
     return updateSelectedState;
 }
@@ -813,11 +866,25 @@ export function loadRoute(serializedRoute) {
         // Update page title
         document.title = `${window.currentRoute.name} - JuggleFit`;
         
-        // Update route display
-        displayLoadedRoute(window.currentRoute);
+        // Use refreshFromRoute for consistent display
+        refreshFromRoute();
         
         // Set up siteswap-x toggle if not already present
         addSiteswapToggle();
+        
+        // Check for siteswap-x URL parameter and set checkbox
+        const urlParams = new URLSearchParams(window.location.search);
+        const siteswapXParam = urlParams.get('siteswapx');
+        if (siteswapXParam === '1') {
+            const siteswapToggle = document.getElementById('toggle-siteswap-x-checkbox');
+            if (siteswapToggle) {
+                siteswapToggle.checked = true;
+                // Trigger the toggle function to show siteswap-x
+                if (typeof window.toggleSiteswapXEverywhere === 'function') {
+                    window.toggleSiteswapXEverywhere();
+                }
+            }
+        }
         
         // Removed routeLoaded event dispatch to prevent post-load interference
         console.log('Route loaded successfully:', window.currentRoute.name);    } catch (error) {
@@ -899,7 +966,9 @@ function displayLoadedRoute(route) {
         trickContent.className = 'trick-content';
 
         // Use CreateTrickContainer to build consistent inner DOM
-        const container = window.CreateTrickContainer ? window.CreateTrickContainer(trick.name, trick.comment || '', trick.siteswap_x || '', {
+        // Always pass the actual name (empty if not set) - siteswap-x will show when name is empty
+        const displayName = trick.name || '';
+        const container = window.CreateTrickContainer ? window.CreateTrickContainer(displayName, trick.comment || '', trick.siteswap_x || null, {
             editable: false,  // Read-only for created route
             addCheckbox: true  // Add checkbox for line-through functionality
         }) : createFallbackTrickContainer(trick);
@@ -998,9 +1067,23 @@ export function initRouteLoading() {
             prop: 'balls',
             tricks: []
         };
-        displayLoadedRoute(window.currentRoute);
-        document.getElementById('route-title').textContent = 'No Route Data';
+        refreshFromRoute();
+        const routeTitle = document.getElementById('route-title');
+        if (routeTitle) routeTitle.textContent = 'No Route Data';
         showError('No route data found in URL. Please check the link and try again.');
+        
+        // Still check for siteswap-x URL parameter even without route data
+        const urlParams = new URLSearchParams(window.location.search);
+        const siteswapXParam = urlParams.get('siteswapx');
+        if (siteswapXParam === '1') {
+            const siteswapToggle = document.getElementById('toggle-siteswap-x-checkbox');
+            if (siteswapToggle) {
+                siteswapToggle.checked = true;
+                if (typeof window.toggleSiteswapXEverywhere === 'function') {
+                    window.toggleSiteswapXEverywhere();
+                }
+            }
+        }
     }
 }
 

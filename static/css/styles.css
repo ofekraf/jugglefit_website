@@ -3893,3 +3893,59 @@ html body main .route-page {
         padding: 0.75rem;
     }
 }
+
+/* ===== Custom Trick Form Layout ===== */
+.custom-trick-form .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.custom-trick-form .form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Responsive: stack vertically on mobile */
+@media (max-width: 768px) {
+    .custom-trick-form .form-row {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+}
+
+/* ===== From templates/build_route.html - Force left alignment for route pages ===== */
+.route-page,
+html body .route-page,
+html body main .route-page,
+html body main .main-content .route-page,
+body .main-content .route-page {
+    margin: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    text-align: left !important;
+    padding-left: 1rem !important;
+    max-width: none !important;
+    width: 100% !important;
+}
+
+.route-sections,
+.route-container,
+.route-content,
+.route-form,
+.form-section,
+#route-sections {
+    margin: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    text-align: left !important;
+    max-width: none !important;
+    width: 100% !important;
+}
+
+/* Prevent any container from centering child content */
+.main-content {
+    text-align: left !important;
+    display: block !important;
+}
