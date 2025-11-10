@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     const name = ph.dataset.name || '';
                     const comment = ph.dataset.comment || '';
                     const siteswap = ph.dataset.siteswapX || ph.dataset.siteswap || '';
-                    const opts = createdRoute ? { editable: false } : { addCheckbox: true };
+                    const opts = createdRoute ? { editable: false } : { addCheckbox: false };
                     const newEl = window.CreateTrickContainer(name, comment, siteswap, opts);
                     ph.parentNode.replaceChild(newEl, ph);
                 } catch (e) {

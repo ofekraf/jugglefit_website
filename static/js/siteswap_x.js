@@ -189,9 +189,6 @@ function CreateTrickContainer(name, comment = '', siteswapX = '', options = {}) 
 
     const main = document.createElement('div');
     main.className = 'trick-main';
-    main.style.display = 'inline-flex';
-    main.style.alignItems = 'center';
-    main.style.gap = '0.5em';
 
     const nameEl = document.createElement('span');
     nameEl.className = 'trick-name';
@@ -209,6 +206,25 @@ function CreateTrickContainer(name, comment = '', siteswapX = '', options = {}) 
     });
     main.appendChild(nameEl);
 
+    // Add comment immediately after name if it exists
+    let commentEl = null;
+    if (comment) {
+        // Add a small text node for spacing
+        main.appendChild(document.createTextNode(' '));
+        
+        commentEl = document.createElement('span');
+        commentEl.className = 'trick-comment';
+        commentEl.textContent = `[${comment}]`;
+        commentEl.contentEditable = options.editable !== false;
+        commentEl.addEventListener('blur', function() {
+            const newComment = this.textContent.replace(/\[|\]/g, '').trim();
+            if (typeof options.onCommentBlur === 'function') options.onCommentBlur(newComment);
+            this.textContent = newComment ? `[${newComment}]` : '';
+        });
+        main.appendChild(commentEl);
+    }
+
+    // Add siteswap-x after comment (or after name if no comment)
     let xEl = null;
     if (siteswapX) {
         const built = createSiteswapXElement(siteswapX);
@@ -218,19 +234,6 @@ function CreateTrickContainer(name, comment = '', siteswapX = '', options = {}) 
             xEl.style.display = 'none';
             main.appendChild(xEl);
         }
-    }
-
-    if (comment) {
-        const commentEl = document.createElement('span');
-        commentEl.className = 'trick-comment';
-        commentEl.textContent = ` [${comment}]`;
-        commentEl.contentEditable = options.editable !== false;
-        commentEl.addEventListener('blur', function() {
-            const newComment = this.textContent.replace(/\[|\]/g, '').trim();
-            if (typeof options.onCommentBlur === 'function') options.onCommentBlur(newComment);
-            this.textContent = newComment ? ` [${newComment}]` : '';
-        });
-        main.appendChild(commentEl);
     }
 
     // Optional checkbox (for route display to toggle line-through / selection)

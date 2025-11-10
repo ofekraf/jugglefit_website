@@ -216,7 +216,6 @@
     /* Much smaller vertical footprint to make trick rows compact */
     min-height: 1.4em;
     display: flex;
-    align-items: center;
     padding-top: 0.15em;
     padding-bottom: 0.15em;
     margin: 0; /* remove extra margins that add height */
@@ -232,11 +231,18 @@
     align-items: center;
 }
 .route-page .trick-main .trick-name {
-    flex: 1 1 auto;
+    flex: 0 1 auto !important; /* Don't grow to fill space, just shrink if needed */
     min-width: 0; /* allow flex items to shrink properly */
     white-space: normal;
     overflow: visible;
     text-overflow: clip;
+}
+
+/* Extra strong override for created route pages */
+body .route-page .trick-main .trick-name,
+body .trick-content .trick-main .trick-name,
+body .route-content .trick-main .trick-name {
+    flex: 0 1 auto !important;
 }
 .route-page .trick-main .trick-siteswap-x {
     flex: 0 0 auto;
@@ -339,14 +345,12 @@
 .route-content .trick-main,
 .trick-content .trick-main,
 .trick-container .trick-main {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    gap: 0.25rem !important;
+    display: block !important;
     width: 100% !important;
     white-space: nowrap !important;
     /* allow visible overflow so throw/catch modifiers are not clipped */
     overflow: visible !important;
+    line-height: 1.4em;
 }
 
 .trick-container .trick-number {
@@ -385,8 +389,8 @@
     flex-direction: column;
     align-items: center;
     position: relative;
-    min-width: 1.05em; /* tighter digit spacing */
-    margin: 0 0.12em 0 0;
+    min-width: 1.4em; /* even wider digit spacing for modifier clearance */
+    margin: 0 0.3em 0 0; /* more margin for better modifier visibility */
     overflow: visible !important;
 }
 
@@ -408,11 +412,11 @@
 }
 
 .siteswap-x-throw-mod {
-    top: -0.9em; /* above the digit */
+    top: -1.1em; /* move further above the digit for better visibility */
 }
 
 .siteswap-x-catch-mod {
-    bottom: -0.9em; /* below the digit */
+    bottom: -1.1em; /* move further below the digit for better visibility */
 }
 
 /* High-specificity overrides for route display: ensure trick names and
@@ -767,30 +771,86 @@ body {
 }
 
 .trick-name {
-    flex: 1 1 auto;
+    flex: none !important; /* Completely prevent growing */
+    width: auto !important;
     min-width: 0;
     font-weight: 500;
     color: var(--text-color);
     font-size: 1rem;
     font-family: inherit;
-    display: inline-block;
+    /* Don't force display - allow JavaScript to control visibility */
     margin: 0;
     /* keep name on one line and ellipsize if too long so comment stays adjacent */
-    overflow: hidden;
-    text-overflow: ellipsis;
+    overflow: visible !important;
+    text-overflow: clip !important;
     white-space: nowrap;
 }
 
 .trick-comment {
-    color: var(--light-text);
-    font-style: italic;
-    font-size: 0.9rem;
-    display: inline-block;
-    /* make comment a fixed-size flex item so it stays next to name/siteswap-x */
-    flex: 0 0 auto;
-    margin: 0 0 0 0.25rem !important;
-    white-space: nowrap;
-    vertical-align: middle;
+    color: var(--light-text) !important;
+    font-style: italic !important;
+    font-size: 0.9rem !important;
+    display: inline !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    white-space: nowrap !important;
+    vertical-align: baseline !important;
+    width: auto !important;
+    position: static !important;
+    float: none !important;
+    flex: none !important;
+    /* Remove any potential spacing issues */
+    border: none !important;
+    outline: none !important;
+    text-align: left !important;
+}
+
+.trick-comment {
+    flex: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    max-width: none !important;
+    width: auto !important;
+    min-width: auto !important;
+    position: static !important;
+    float: none !important;
+    right: auto !important;
+    left: auto !important;
+    top: auto !important;
+    bottom: auto !important;
+    display: inline !important;
+    text-align: left !important;
+    justify-self: auto !important;
+    align-self: auto !important;
+    order: 0 !important;
+    transform: none !important;
+}
+
+/* ABSOLUTE LOCK-DOWN for trick-main containers */
+* .trick-main,
+html body * .trick-main,
+body * .trick-main,
+.trick-main {
+    display: block !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
+    gap: 0 !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    text-align: left !important;
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    position: static !important;
+    float: none !important;
+    /* Prevent any animations or transitions */
+    transition: none !important;
+    animation: none !important;
+    /* Lock down all flex and alignment properties */
+    --justify-content: flex-start !important;
+    --align-items: center !important;
+    --display: block !important;
 }
 
 .remove-trick {
@@ -1685,7 +1745,9 @@ a.primary-button.live-event-button:hover {
 .route-page {
     width: 100%;
     max-width: 1200px;
-    margin: 0 auto;
+    margin: 0;
+    margin-left: 0;
+    margin-right: 0;
     padding: 1rem;
     box-sizing: border-box;
     margin-top: 0;
@@ -1721,12 +1783,35 @@ a.primary-button.live-event-button:hover {
     width: 100%;
 }
 
-/* Force route display to stay left-aligned */
+/* Force route display to stay left-aligned - targeted approach */
 .route-page .route-form,
 .route-page .route-container,
 .route-page .route-content,
 .route-page .form-section,
 .route-page .route-sections {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    text-align: left !important;
+}
+
+/* Additional specificity for route sections to prevent centering */
+.route-page .route-sections {
+    margin: 0 !important;
+    text-align: left !important;
+}
+
+/* Highest specificity override to prevent any dynamic centering */
+body .route-page,
+html body .route-page,
+html body main .route-page {
+    margin: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    text-align: left !important;
+}
+
+/* Prevent auto margins specifically on containers */
+.route-page .route-form {
     margin-left: 0 !important;
     margin-right: 0 !important;
 }
@@ -2308,8 +2393,7 @@ a.primary-button.live-event-button:hover {
 
 .route-sections {
     width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
+    margin: 0;
     padding: 0 10px;
     box-sizing: border-box;
 }

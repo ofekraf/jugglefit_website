@@ -335,13 +335,25 @@ try {
 export function updateRouteDisplay() {
     console.log('updateRouteDisplay called, currentRoute tricks:', window.currentRoute ? window.currentRoute.tricks.length : 'no currentRoute');
     
+    if (window.currentRoute && window.currentRoute.tricks.length > 0) {
+        console.log('Route tricks:', window.currentRoute.tricks.map(t => ({ name: t.name, props_count: t.props_count })));
+    }
+    
     const routeSections = document.getElementById('route-sections');
     if (!routeSections || !window.currentRoute) {
         console.log('Missing routeSections element or currentRoute');
+        console.log('routeSections:', routeSections);
+        console.log('currentRoute:', window.currentRoute);
         return;
     }
     
+    console.log('Clearing route display and rebuilding...');
     routeSections.innerHTML = '';
+
+    if (window.currentRoute.tricks.length === 0) {
+        console.log('No tricks to display');
+        return;
+    }
 
     let currentPropsCount = null;
     let currentSection = null;
@@ -408,7 +420,7 @@ export function updateRouteDisplay() {
         const container = window.CreateTrickContainer ? window.CreateTrickContainer(trick.name, trick.comment || '', trick.siteswap_x || '', {
             onNameBlur: (newName) => { trick.name = newName; frame.setAttribute('data-trick-name', newName); },
             onCommentBlur: (newComment) => { trick.comment = newComment; },
-            addCheckbox: true
+            addCheckbox: false
         }) : createFallbackTrickContainer(trick);
 
         // Insert trick number before the name inside the container
@@ -468,9 +480,17 @@ export function addTrickToRoute(trick) {
         }
     }
     
+    // Normalize trick fields to expected shape so display logic works
+    const normalized = Object.assign({}, trick);
+    if (typeof normalized.props_count === 'undefined' && typeof normalized.propsCount !== 'undefined') normalized.props_count = normalized.propsCount;
+    if (typeof normalized.props_count === 'undefined') normalized.props_count = Number(normalized.props) || 3;
+    if (typeof normalized.difficulty === 'undefined') normalized.difficulty = Number(normalized.diff) || 30;
+    if (!Array.isArray(normalized.tags)) normalized.tags = normalized.tags ? [normalized.tags] : [];
+    if (typeof normalized.comment === 'undefined') normalized.comment = null;
+
     // Check if a trick with the same name and props_count already exists
     const isDuplicate = window.currentRoute.tricks.some(t => 
-        t.name === trick.name && t.props_count === trick.props_count
+        t.name === normalized.name && Number(t.props_count) === Number(normalized.props_count)
     );
     
     if (isDuplicate) {
@@ -480,10 +500,10 @@ export function addTrickToRoute(trick) {
         return;
     }
     
-    // Add the trick to the end of the route
-    window.currentRoute.tricks.push(trick);
+    // Add the trick to the end of the route (store a shallow copy)
+    window.currentRoute.tricks.push(Object.assign({}, normalized));
     
-    console.log('Trick added to route:', trick.name, 'Total tricks:', window.currentRoute.tricks.length);
+    console.log('Trick added to route:', normalized.name, 'Total tricks:', window.currentRoute.tricks.length);
     console.log('Current route:', window.currentRoute);
     
     // Update the display to show the new trick at the end
@@ -614,13 +634,26 @@ export function initializePropSelection() {
             const input = option.querySelector('.prop-option-input');
             if (input.checked) {
                 option.classList.add('selected');
-                if (window.currentRoute && window.currentRoute.prop !== input.value) {
+                console.log('Prop selected:', input.value, 'current route prop:', window.currentRoute ? window.currentRoute.prop : 'undefined');
+                console.log('Current route tricks before:', window.currentRoute ? window.currentRoute.tricks.length : 'no currentRoute');
+                
+                // Only clear tricks if this is a genuine prop change (not during initialization)
+                // During initialization, the tricks should already be set before this is called
+                if (window.currentRoute && window.currentRoute.prop && window.currentRoute.prop !== input.value) {
+                    console.log('Prop changed from', window.currentRoute.prop, 'to', input.value, '- clearing tricks');
                     window.currentRoute.tricks = [];
+                } else {
+                    console.log('Initial prop selection or same prop, keeping existing tricks');
+                }
+                
+                // Always update the current route prop
+                if (window.currentRoute) {
                     window.currentRoute.prop = input.value;
-                    
-                    // Get prop settings for the selected prop
-                    const propSettings = window.propsSettings && window.propsSettings[input.value];
-                    if (propSettings) {
+                }
+                
+                // Get prop settings for the selected prop
+                const propSettings = window.propsSettings && window.propsSettings[input.value];
+                if (propSettings) {
                         // Update relevant tags for this prop (with 'available' suffix to match build_route naming)
                         if (typeof window.updateRelevantTags === 'function') {
                             window.updateRelevantTags(propSettings.relevant_tags, 'available');
@@ -640,77 +673,52 @@ export function initializePropSelection() {
                         if (typeof window.updateCustomTrickPropsRange === 'function') {
                             window.updateCustomTrickPropsRange(propSettings.min_props, propSettings.max_props);
                         }
-                    }
-                    
-                    // Fetch tricks and update available tricks on prop change
-                    if (typeof window.fetchTricks === 'function') {
-                        console.log('Fetching tricks for prop:', input.value);
-                        window.fetchTricks({ propType: input.value })
-                            .then(tricks => {
-                                console.log('Fetched tricks SUCCESS:', tricks.length, 'tricks');
-                                window.allTricks = tricks;
-                                if (typeof window.UpdateAvailableTricks === 'function') {
-                                    console.log('Calling UpdateAvailableTricks');
-                                    window.UpdateAvailableTricks();
-                                } else {
-                                    console.error('UpdateAvailableTricks function not available');
+                }
+                
+                // Only fetch tricks if we don't already have them for this prop
+                const needsFetch = !window.allTricks || window.allTricks.length === 0 || 
+                                 (window.lastFetchedProp && window.lastFetchedProp !== input.value);
+                
+                if (needsFetch && typeof window.fetchTricks === 'function') {
+                    console.log('Fetching tricks for prop (needed):', input.value);
+                    window.lastFetchedProp = input.value;
+                    window.fetchTricks({ propType: input.value })
+                        .then(tricks => {
+                            console.log('Fetched tricks SUCCESS:', tricks.length, 'tricks');
+                            window.allTricks = tricks;
+                            if (typeof window.UpdateAvailableTricks === 'function') {
+                                console.log('Calling UpdateAvailableTricks');
+                                window.UpdateAvailableTricks();
+                            } else {
+                                console.error('UpdateAvailableTricks function not available');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error fetching tricks:', error);
+                            window.lastFetchedProp = null; // Reset on error
+                            if (!window.allTricks || window.allTricks.length === 0) {
+                                if (typeof window.showToast === 'function') {
+                                    window.showToast('Error loading tricks. Please try again.');
                                 }
-                            })
-                            .catch(error => {
-                                console.error('Error fetching tricks:', error);
-                                if (!window.allTricks || window.allTricks.length === 0) {
-                                    if (typeof window.showToast === 'function') {
-                                        window.showToast('Error loading tricks. Please try again.');
-                                    }
-                                }
-                            });
-                    } else {
-                        console.error('fetchTricks function not available');
+                            }
+                        });
+                } else if (!needsFetch) {
+                    console.log('Tricks already available for prop:', input.value, '(' + (window.allTricks ? window.allTricks.length : 0) + ' tricks)');
+                    // Still update the display with existing tricks
+                    if (typeof window.UpdateAvailableTricks === 'function') {
+                        console.log('Calling UpdateAvailableTricks with existing tricks');
+                        window.UpdateAvailableTricks();
                     }
                 } else {
-                    // Even if prop hasn't changed, still update UI elements on initial load
-                    const propSettings = window.propsSettings && window.propsSettings[input.value];
-                    if (propSettings) {
-                        // Update relevant tags for this prop
-                        if (typeof window.updateRelevantTags === 'function') {
-                            window.updateRelevantTags(propSettings.relevant_tags, 'available');
-                        }
-                        
-                        // Update max throw settings for this prop
-                        if (typeof window.setMaxThrowForProp === 'function') {
-                            window.setMaxThrowForProp(propSettings);
-                        }
-                        
-                        // Update custom trick props range for initial load
-                        if (typeof window.updateCustomTrickPropsRange === 'function') {
-                            window.updateCustomTrickPropsRange(propSettings.min_props, propSettings.max_props);
-                        }
-                    }
-                    
-                    // If tricks aren't loaded yet, fetch them even if prop hasn't changed
-                    if ((!window.allTricks || window.allTricks.length === 0) && !window._currentFetchPromise) {
-                        console.log('No tricks loaded and no fetch in progress, fetching for current prop:', input.value);
-                        if (typeof window.fetchTricks === 'function') {
-                            window.fetchTricks({ propType: input.value })
-                                .then(tricks => {
-                                    console.log('Current prop fetch SUCCESS:', tricks.length, 'tricks loaded');
-                                    window.allTricks = tricks;
-                                    if (typeof window.UpdateAvailableTricks === 'function') {
-                                        window.UpdateAvailableTricks();
-                                    }
-                                })
-                                .catch(error => {
-                                    console.error('Current prop fetch FAILED:', error);
-                                });
-                        }
-                    } else {
-                        if (typeof window.updateSearchTricks === 'function') {
-                            window.updateSearchTricks();
-                        }
-                    }
+                    console.error('fetchTricks function not available');
                 }
-                if (typeof window.updateRouteDisplay === 'function') {
+                
+                // Only update route display if route has tricks to avoid clearing it unnecessarily
+                if (typeof window.updateRouteDisplay === 'function' && window.currentRoute && window.currentRoute.tricks.length > 0) {
+                    console.log('Prop selection updating route display (has tricks)');
                     window.updateRouteDisplay();
+                } else if (window.currentRoute && window.currentRoute.tricks.length === 0) {
+                    console.log('Prop selection: route has no tricks, skipping route display update');
                 }
             } else {
                 option.classList.remove('selected');
@@ -737,6 +745,263 @@ export function initializePropSelection() {
     window.updatePropSelection = updateSelectedState;
     
     return updateSelectedState;
+}
+
+/**
+ * Load and display a serialized route from URL parameter
+ * @param {string} serializedRoute - The serialized route string from URL
+ */
+export function loadRoute(serializedRoute) {
+    try {
+        console.log('Loading route from serialized string:', serializedRoute.substring(0, 100) + '...');
+        
+        // The route is zlib compressed then base64 encoded (Python: zlib.compress -> base64.b64encode)
+        let routeData;
+        try {
+            console.log('Deserializing route:', serializedRoute.substring(0, 50) + '...');
+            
+            // Check if pako library is available for decompression
+            if (typeof pako === 'undefined') {
+                throw new Error('Pako compression library not loaded');
+            }
+            
+            // Decode from base64
+            const compressedData = atob(serializedRoute);
+            console.log('Base64 decoded, compressed length:', compressedData.length);
+            
+            // Convert string to Uint8Array for pako
+            const compressedBytes = new Uint8Array(compressedData.length);
+            for (let i = 0; i < compressedData.length; i++) {
+                compressedBytes[i] = compressedData.charCodeAt(i);
+            }
+            
+            // Decompress using pako (zlib)
+            const decompressed = pako.inflate(compressedBytes, { to: 'string' });
+            console.log('Decompressed JSON length:', decompressed.length);
+            
+            // Parse the JSON
+            routeData = JSON.parse(decompressed);
+            console.log('Successfully deserialized route:', routeData.name);
+            
+        } catch (e) {
+            console.error('Failed to deserialize route:', e);
+            
+            // Extract some basic info from the URL if possible
+            const urlParams = new URLSearchParams(window.location.search);
+            const routeName = urlParams.get('name') || 'Failed to Load Route';
+            
+            // Create a fallback route with error message
+            routeData = {
+                name: routeName,
+                duration_seconds: 600,
+                prop: 'balls',
+                tricks: []
+            };
+            showError('Failed to deserialize route data: ' + e.message);
+        }
+        
+        console.log('Deserialized route data:', routeData);
+        
+        // Set up global route data
+        window.currentRoute = {
+            name: routeData.name || 'Untitled Route',
+            duration_seconds: routeData.duration_seconds || 600,
+            prop: routeData.prop || 'balls',
+            tricks: routeData.tricks || []
+        };
+        
+        // Update page title
+        document.title = `${window.currentRoute.name} - JuggleFit`;
+        
+        // Update route display
+        displayLoadedRoute(window.currentRoute);
+        
+        // Set up siteswap-x toggle if not already present
+        addSiteswapToggle();
+        
+        // Removed routeLoaded event dispatch to prevent post-load interference
+        console.log('Route loaded successfully:', window.currentRoute.name);    } catch (error) {
+        console.error('Error loading route:', error);
+        // Fallback to server-side deserialization
+        loadRouteFromServer(serializedRoute);
+    }
+}
+
+
+
+/**
+ * Display the loaded route on the page
+ */
+function displayLoadedRoute(route) {
+    const routeSections = document.getElementById('route-sections');
+    if (!routeSections) {
+        console.error('route-sections element not found');
+        return;
+    }
+    
+    // Clear existing content
+    routeSections.innerHTML = '';
+    
+    if (!route.tricks || route.tricks.length === 0) {
+        routeSections.innerHTML = '<div class="no-tricks">No tricks in this route.</div>';
+        return;
+    }
+    
+    let currentPropsCount = null;
+    let currentSection = null;
+    let trickCounter = 1;
+
+    route.tricks.forEach((trick, index) => {
+        // Check if we need to create a new section
+        if (currentPropsCount !== trick.props_count) {
+            // Close previous section if it exists
+            if (currentSection) {
+                currentSection.querySelector('.trick-container').appendChild(document.createElement('div'));
+            }
+
+            // Create new section
+            const section = document.createElement('div');
+            section.className = 'prop-section';
+            section.setAttribute('data-props-count', trick.props_count);
+            
+            const colorBar = document.createElement('div');
+            colorBar.className = 'prop-color-bar';
+            colorBar.setAttribute('data-props', trick.props_count);
+            colorBar.setAttribute('data-prop-type', route.prop);
+            
+            const propCount = document.createElement('div');
+            propCount.className = 'prop-count';
+            
+            const propCountText = document.createElement('div');
+            propCountText.className = 'prop-count-text';
+            propCountText.textContent = `X ${trick.props_count}`;
+            
+            propCount.appendChild(propCountText);
+            colorBar.appendChild(propCount);
+            section.appendChild(colorBar);
+            
+            const trickContainer = document.createElement('div');
+            trickContainer.className = 'trick-container';
+            trickContainer.setAttribute('data-props-count', trick.props_count);
+            
+            section.appendChild(trickContainer);
+            routeSections.appendChild(section);
+            
+            currentSection = section;
+            currentPropsCount = trick.props_count;
+        }
+
+        // Create trick frame
+        const frame = document.createElement('div');
+        frame.className = 'prop-details-frame';
+
+        const trickContent = document.createElement('div');
+        trickContent.className = 'trick-content';
+
+        // Use CreateTrickContainer to build consistent inner DOM
+        const container = window.CreateTrickContainer ? window.CreateTrickContainer(trick.name, trick.comment || '', trick.siteswap_x || '', {
+            editable: false,  // Read-only for created route
+            addCheckbox: true  // Add checkbox for line-through functionality
+        }) : createFallbackTrickContainer(trick);
+
+        // Insert trick number before the name
+        const number = document.createElement('span');
+        number.className = 'trick-number';
+        number.textContent = `${trickCounter}.`;
+        const innerMain = container.querySelector('.trick-main');
+        if (innerMain && innerMain.firstChild) {
+            innerMain.insertBefore(number, innerMain.firstChild);
+        } else if (innerMain) {
+            innerMain.appendChild(number);
+        }
+
+        trickContent.appendChild(container);
+        frame.appendChild(trickContent);
+        
+        currentSection.querySelector('.trick-container').appendChild(frame);
+        trickCounter++;
+    });
+}
+
+/**
+ * Add siteswap-x toggle to the page if not present
+ */
+function addSiteswapToggle() {
+    // Check if toggle already exists
+    if (document.getElementById('toggle-siteswap-x-checkbox')) {
+        return;
+    }
+    
+    // Create toggle container
+    const toggleContainer = document.createElement('div');
+    toggleContainer.className = 'siteswap-x-toggle-row center-row no-print';
+    toggleContainer.innerHTML = `
+        <label class="siteswap-x-toggle-label">
+            <input type="checkbox" id="toggle-siteswap-x-checkbox" class="siteswap-x-toggle-checkbox"> Siteswap-X
+        </label>
+    `;
+    
+    // Insert after route title or at the beginning of route content
+    const routePage = document.querySelector('.route-page');
+    const routeLayout = document.querySelector('.route-layout');
+    
+    if (routeLayout && routePage) {
+        routePage.insertBefore(toggleContainer, routeLayout);
+    } else if (routePage) {
+        routePage.insertBefore(toggleContainer, routePage.firstChild);
+    }
+    
+    // Set up event listener
+    const checkbox = document.getElementById('toggle-siteswap-x-checkbox');
+    if (checkbox && window.toggleSiteswapXEverywhere) {
+        checkbox.addEventListener('change', window.toggleSiteswapXEverywhere);
+        // Initialize display
+        window.toggleSiteswapXEverywhere();
+    }
+}
+
+/**
+ * Show error message to user
+ */
+function showError(message) {
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-message';
+    errorDiv.textContent = message;
+    errorDiv.style.cssText = 'background: #f44336; color: white; padding: 1rem; margin: 1rem; border-radius: 4px; text-align: center;';
+    
+    const routePage = document.querySelector('.route-page');
+    if (routePage) {
+        routePage.insertBefore(errorDiv, routePage.firstChild);
+    } else {
+        document.body.appendChild(errorDiv);
+    }
+}
+
+// Removed aggressive protection system - fixed by removing post-load interference
+
+/**
+ * Initialize route loading from URL parameter - immediate loading
+ */
+export function initRouteLoading() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const routeParam = urlParams.get('route');
+    
+    if (routeParam) {
+        console.log('Found route parameter, loading route immediately...');
+        loadRoute(routeParam);
+    } else {
+        console.log('No route parameter found in URL');
+        // Set a default empty route
+        window.currentRoute = {
+            name: 'No Route Data',
+            duration_seconds: 600,
+            prop: 'balls',
+            tricks: []
+        };
+        displayLoadedRoute(window.currentRoute);
+        document.getElementById('route-title').textContent = 'No Route Data';
+        showError('No route data found in URL. Please check the link and try again.');
+    }
 }
 
 export function getRandomTrickForDifficulty(allTricks, difficulty, minProps, maxProps, excludedTags = [], maxThrow = null) {
