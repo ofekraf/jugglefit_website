@@ -5,7 +5,7 @@ export async function fetchTricks(filters = {}) {
         // Prevent multiple concurrent fetches for the same prop
         const propType = filters.prop_type || filters.propType || filters.prop || null;
         if (propType && window._currentFetchPromise && window._currentFetchProp === propType) {
-            console.log('fetchTricks: returning existing promise for', propType);
+            
             return await window._currentFetchPromise;
         }
         
@@ -32,7 +32,7 @@ export async function fetchTricks(filters = {}) {
             return [];
         }
 
-        console.log('fetchTricks: starting fetch for', payload.prop_type);
+        
         
         // Store current fetch promise to prevent duplicates
         window._currentFetchProp = payload.prop_type;
@@ -55,7 +55,6 @@ export async function fetchTricks(filters = {}) {
 
                 const data = await resp.json();
                 const result = Array.isArray(data) ? data : (data.tricks || data || []);
-                console.log('fetchTricks: completed for', payload.prop_type, 'got', result.length, 'tricks');
                 return result;
             } finally {
                 // Clear the current fetch promise
@@ -447,7 +446,7 @@ export function updateRouteDisplay(route = null) {
             
             const propCountText = document.createElement('div');
             propCountText.className = 'prop-count-text';
-            propCountText.textContent = trick.props_count;
+            propCountText.textContent = `X ${trick.props_count}`;
             
             propCount.appendChild(propCountText);
             colorBar.appendChild(propCount);
@@ -887,7 +886,7 @@ export function loadRoute(serializedRoute) {
         }
         
         // Removed routeLoaded event dispatch to prevent post-load interference
-        console.log('Route loaded successfully:', window.currentRoute.name);    } catch (error) {
+    } catch (error) {
         console.error('Error loading route:', error);
         // Fallback to server-side deserialization
         loadRouteFromServer(serializedRoute);

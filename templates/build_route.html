@@ -3,10 +3,8 @@
 {% block head %}
 <script>
 // Trick filtering constants from Flask context
-const MIN_TRICK_PROPS_COUNT = {{ MIN_TRICK_PROPS_COUNT }};
-const MAX_TRICK_PROPS_COUNT = {{ MAX_TRICK_PROPS_COUNT }};
-const MIN_TRICK_DIFFICULTY = {{ MIN_TRICK_DIFFICULTY }};
-const MAX_TRICK_DIFFICULTY = {{ MAX_TRICK_DIFFICULTY }};
+window.MIN_TRICK_DIFFICULTY = {{ MIN_TRICK_DIFFICULTY }};
+window.MAX_TRICK_DIFFICULTY = {{ MAX_TRICK_DIFFICULTY }};
 </script>
 <script>
 // Make props settings available globally for macros
@@ -19,7 +17,11 @@ window.currentRoute = { name: '', duration_seconds: 600, prop: '', tricks: [] };
 </script>
 <script>
 // Expose initial_route from Flask as window.initialRoute for JS
+{% if initial_route %}
 window.initialRoute = {{ initial_route|tojson|safe }};
+{% else %}
+window.initialRoute = null;
+{% endif %}
 
 // Initialize currentRoute from initial_route if available
 if (window.initialRoute && window.initialRoute.tricks) {
@@ -142,10 +144,8 @@ if (window.initialRoute && window.initialRoute.tricks) {
 <script src="{{ url_for('static', filename='js/siteswap_x.js') }}"></script>
 
 <script type="module">
-    console.log('Module script starting...');
     try {
         const { fetchTricks, updatePropsSliderRange, updateRelevantTags, setMaxThrowForProp, initMaxThrowBindings, initializePropSelection, refreshFromRoute, updateRouteDisplay, addTrickToRoute, removeTrick, updateCustomTrickPropsRange } = await import("{{ url_for('static', filename='js/route_helpers.js') }}");
-        console.log('Route helpers imported successfully');
         
         // Make functions available globally for non-module scripts and macros
         window.fetchTricks = fetchTricks;
@@ -158,64 +158,31 @@ if (window.initialRoute && window.initialRoute.tricks) {
         window.addTrickToRoute = addTrickToRoute;
         window.removeTrick = removeTrick;
         window.updateCustomTrickPropsRange = updateCustomTrickPropsRange;
-        console.log('Functions exposed to window');
         
         // Initialize max throw bindings
         initMaxThrowBindings();
-        console.log('Max throw bindings initialized');
         
-        // Trigger initial prop setup after functions are available
-        setTimeout(() => {
-            console.log('Triggering initial prop setup from module...');
-            console.log('Available functions:', {
-                fetchTricks: typeof window.fetchTricks,
-                UpdateAvailableTricks: typeof window.UpdateAvailableTricks,
-                initializePropSelection: typeof window.initializePropSelection,
-                refreshFromRoute: typeof window.refreshFromRoute
-            });
-            console.log('Current allTricks:', window.allTricks ? window.allTricks.length : 'undefined');
-            console.log('Current route:', window.currentRoute);
-            
-            // Check for siteswap-x URL parameter and set checkbox
-            const urlParams = new URLSearchParams(window.location.search);
-            const siteswapXParam = urlParams.get('siteswapx');
-            if (siteswapXParam === '1') {
-                const siteswapToggle = document.getElementById('toggle-siteswap-x-checkbox');
-                if (siteswapToggle) {
-                    siteswapToggle.checked = true;
-                }
+        // Check for siteswap-x URL parameter and set checkbox immediately
+        const urlParams = new URLSearchParams(window.location.search);
+        const siteswapXParam = urlParams.get('siteswapx');
+        if (siteswapXParam === '1') {
+            const siteswapToggle = document.getElementById('toggle-siteswap-x-checkbox');
+            if (siteswapToggle) {
+                siteswapToggle.checked = true;
             }
-            
-            // Refresh GUI from currentRoute (which now contains initial route data)
-            if (typeof window.refreshFromRoute === 'function') {
-                console.log('Calling refreshFromRoute to initialize GUI...');
-                window.refreshFromRoute();
-            }
-            
-            // Directly call initializePropSelection if functions are available
-            if (typeof window.initializePropSelection === 'function') {
-                console.log('Calling initializePropSelection directly from module setup...');
-                window.initializePropSelection();
-            }
-            
-            const event = new CustomEvent('routeHelpersReady');
-            document.dispatchEvent(event);
-        }, 100);
+        }
+        
+        // Initialize prop selection immediately if functions are available
+        if (typeof window.initializePropSelection === 'function') {
+            window.initializePropSelection();
+        }
+        
+        const event = new CustomEvent('routeHelpersReady');
+        document.dispatchEvent(event);
         
     } catch (error) {
-        console.error('Failed to import route helpers:', error);
+        // Failed to import route helpers
     }
-</script>
-
-<!-- Main page functionality script -->
-<script>
-function setupPageFunctionality() {
-    console.log('Setting up page functionality...');
-
-
-}
-
-// Route initialization functions
 </script>
 
 <!-- Inlined route initialization logic (previously in macros/route_initialization_macro.html) -->
@@ -223,19 +190,14 @@ function setupPageFunctionality() {
 (function() {
     'use strict';
     
-    // Removed all initialization logic to prevent post-load interference with comment positioning
-    
     function initializeFromInitialRoute(initialRoute) {
-        console.log('Initializing from initial route:', initialRoute);
         
-        // Set route name with a small delay to ensure DOM is ready
-        setTimeout(() => {
-            const routeNameInput = document.getElementById('route_name');
-            if (routeNameInput) {
-                routeNameInput.value = initialRoute.name || '';
-                routeNameInput.dispatchEvent(new Event('input', { bubbles: true }));
-            }
-        }, 0);
+        // Set route name immediately without delay
+        const routeNameInput = document.getElementById('route_name');
+        if (routeNameInput) {
+            routeNameInput.value = initialRoute.name || '';
+            routeNameInput.dispatchEvent(new Event('input', { bubbles: true }));
+        }
 
         window.currentRoute.name = initialRoute.name || '';
 
@@ -250,7 +212,6 @@ function setupPageFunctionality() {
 
         // Set prop type
         window.currentRoute.prop = initialRoute.prop;
-        console.log('Initial route prop set to:', initialRoute.prop);
         const propInput = document.querySelector(`input[value="${initialRoute.prop}"]`);
         if (propInput) {
             propInput.checked = true;
@@ -295,7 +256,6 @@ function setupPageFunctionality() {
     }
     
     function initializeEventListeners() {
-        console.log('Initializing event listeners...');
         
         // Route name input - simple: change currentRoute and refresh
         const routeNameInput = document.getElementById('route_name');
@@ -350,7 +310,6 @@ function setupPageFunctionality() {
         document.querySelectorAll('input[name="prop"]').forEach(radio => {
             radio.addEventListener('change', function() {
                 if (this.checked && typeof window.initializePropSelection === 'function') {
-                    console.log('Prop changed to:', this.value, '- initializing tricks and tags');
                     window.initializePropSelection();
                 }
             });
@@ -360,16 +319,8 @@ function setupPageFunctionality() {
         function initializeWhenReady() {
             const currentlySelectedProp = document.querySelector('input[name="prop"]:checked');
             if (currentlySelectedProp && typeof window.initializePropSelection === 'function') {
-                console.log('Initializing tricks and tags for currently selected prop:', currentlySelectedProp.value);
-                console.log('Available functions at initialization:', {
-                    initializePropSelection: typeof window.initializePropSelection,
-                    fetchTricks: typeof window.fetchTricks,
-                    UpdateAvailableTricks: typeof window.UpdateAvailableTricks,
-                    updateRelevantTags: typeof window.updateRelevantTags
-                });
                 window.initializePropSelection();
             } else if (currentlySelectedProp) {
-                console.log('Prop selected but initializePropSelection not available yet, waiting...');
                 setTimeout(initializeWhenReady, 100);
             }
         }
@@ -382,27 +333,14 @@ function setupPageFunctionality() {
 
         // Debug function accessible from console
         window.debugInitialization = function() {
-            console.log('=== DEBUG INITIALIZATION ===');
             const selectedProp = document.querySelector('input[name="prop"]:checked');
-            console.log('Selected prop:', selectedProp ? selectedProp.value : 'none');
-            console.log('Function availability:', {
-                fetchTricks: typeof window.fetchTricks,
-                initializePropSelection: typeof window.initializePropSelection,
-                UpdateAvailableTricks: typeof window.UpdateAvailableTricks,
-                updateRelevantTags: typeof window.updateRelevantTags
-            });
-            console.log('allTricks:', window.allTricks ? window.allTricks.length : 'undefined');
-            console.log('propsSettings:', window.propsSettings);
-            
             if (selectedProp && typeof window.initializePropSelection === 'function') {
-                console.log('Calling initializePropSelection manually...');
                 window.initializePropSelection();
             }
         };
         
         // Manual trigger function
         window.manualInit = function() {
-            console.log('Manual initialization triggered');
             initializeWhenReady();
         };
 
@@ -450,20 +388,16 @@ function setupPageFunctionality() {
 
         // Custom trick functionality
         const addCustomTrickBtn = document.getElementById('add_custom_trick');
-        console.log('Add custom trick button found:', !!addCustomTrickBtn);
         if (addCustomTrickBtn) {
             addCustomTrickBtn.addEventListener('click', function() {
-                console.log('Add custom trick button clicked');
                 const name = document.getElementById('custom_trick_name').value.trim();
                 const siteswapX = document.getElementById('custom_trick_siteswap').value.trim();
                 const propsCount = parseInt(document.getElementById('custom_trick_props').value);
                 const comment = document.getElementById('custom_trick_comment').value.trim();
 
-                console.log('Custom trick values:', { name, siteswapX, propsCount, comment });
 
                 // Validation: must have at least name or siteswap-x
                 if (!name && !siteswapX) {
-                    console.log('Validation failed: no name or siteswap-x');
                     if (typeof window.showToast === 'function') {
                         window.showToast('Please enter either a trick name or siteswap-x notation', 'custom_trick_name');
                     }
@@ -479,14 +413,10 @@ function setupPageFunctionality() {
                     comment: comment || null
                 };
 
-                console.log('Custom trick object:', customTrick);
-                console.log('addTrickToRoute function available:', typeof window.addTrickToRoute);
 
                 if (typeof window.addTrickToRoute === 'function') {
-                    console.log('Calling addTrickToRoute...');
                     window.addTrickToRoute(customTrick);
                 } else {
-                    console.error('addTrickToRoute function not available - using direct method');
                     // Fallback to direct addition
                     if (!window.currentRoute) {
                         window.currentRoute = { name: '', duration_seconds: 600, prop: '', tricks: [] };
@@ -507,12 +437,10 @@ function setupPageFunctionality() {
         // Custom trick props slider
         const customTrickPropsSlider = document.getElementById('custom_trick_props');
         const customTrickPropsValue = document.getElementById('custom_trick_props_value');
-        console.log('Props slider elements found:', { slider: !!customTrickPropsSlider, value: !!customTrickPropsValue });
         if (customTrickPropsSlider && customTrickPropsValue) {
             customTrickPropsValue.textContent = parseInt(customTrickPropsSlider.value);
             customTrickPropsSlider.addEventListener('input', () => {
                 const value = parseInt(customTrickPropsSlider.value);
-                console.log('Props slider changed to:', value);
                 customTrickPropsValue.textContent = value;
             });
         }
@@ -571,52 +499,8 @@ function setupPageFunctionality() {
     }
     
     function setupRouteHelpers() {
-        console.log('Setting up route helpers...');
-        
-        // Initialize prop selection if function is available
-        if (typeof window.initializePropSelection === 'function') {
-            console.log('Calling initializePropSelection');
-            window.initializePropSelection();
-        } else {
-            console.error('initializePropSelection function not available');
-        }
-        
-        setTimeout(() => {
-            console.log('Initial prop setup starting...');
-            const selectedPropInput = document.querySelector('.prop-option-input:checked');
-            console.log('Selected prop input:', selectedPropInput ? selectedPropInput.value : 'none found');
-            console.log('All prop inputs:', document.querySelectorAll('.prop-option-input').length);
-            console.log('Available props:', Array.from(document.querySelectorAll('.prop-option-input')).map(i => i.value));
-            
-            // Force an update of the selected prop to ensure tags and max throw are initialized
-            if (typeof window.updatePropSelection === 'function') {
-                console.log('Calling updatePropSelection');
-                window.updatePropSelection();
-            } else {
-                console.error('updatePropSelection function not available');
-            }
-            
-            // Ensure tricks are fetched for the selected prop if not already loaded
-            setTimeout(() => {
-                if ((!window.allTricks || window.allTricks.length === 0) && selectedPropInput) {
-                    console.log('Fallback: fetching tricks for initial prop:', selectedPropInput.value);
-                    if (typeof window.fetchTricks === 'function') {
-                        // Use the shared fetch which prevents concurrent duplicates
-                        window.fetchTricks({ propType: selectedPropInput.value })
-                            .then(tricks => {
-                                console.log('Fallback fetch SUCCESS:', tricks.length, 'tricks');
-                                window.allTricks = tricks;
-                                if (typeof window.UpdateAvailableTricks === 'function') {
-                                    window.UpdateAvailableTricks();
-                                }
-                            })
-                            .catch(err => console.error('Fallback fetch failed', err));
-                    } else {
-                        console.error('fetchTricks function not available for fallback fetch');
-                    }
-                }
-            }, 100);
-        }, 100);
+        // Removed all initialization logic that was destroying the UI
+        // The props slider and other UI elements are already initialized by their respective macros
     }
     
     async function handleViewRoute() {
@@ -661,22 +545,10 @@ function setupPageFunctionality() {
                 }))
             };
 
-            // Serialize the route
-            console.log('Sending payload to serialize_route:', payload);
-            const response = await fetch('/api/serialize_route', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload)
-            });
-            
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
-            
-            const serialized = await response.text();
-            console.log('Received serialized route:', serialized.substring(0, 100) + '...');
+            // Serialize the route directly in the browser
+            const jsonString = JSON.stringify(payload);
+            const compressed = pako.deflate(jsonString);
+            const serialized = btoa(String.fromCharCode.apply(null, compressed));
             
             // Check if siteswap-x is enabled and add URL param
             const siteswapToggle = document.getElementById('toggle-siteswap-x-checkbox');
@@ -684,14 +556,12 @@ function setupPageFunctionality() {
             
             // Redirect to the created_route page with the serialized route
             const encodedRoute = encodeURIComponent(serialized);
-            const url = siteswapXEnabled 
+            const url = siteswapXEnabled
                 ? `/created_route?route=${encodedRoute}&siteswapx=1`
                 : `/created_route?route=${encodedRoute}`;
             
-            console.log('Redirecting to:', url);
             window.location.href = url;
         } catch (error) {
-            console.error('Error preparing route for viewing:', error);
             if (typeof window.showToast === 'function') {
                 window.showToast('Error preparing route for viewing. Please try again.');
             }
@@ -700,96 +570,22 @@ function setupPageFunctionality() {
     
     // Export main delegation function
     window.updateSearchTricks = function() {
-        console.log('updateSearchTricks called, checking for UpdateAvailableTricks...');
-        console.log('Available functions:', {
-            UpdateAvailableTricks: typeof window.UpdateAvailableTricks,
-            allTricks: window.allTricks ? window.allTricks.length : 'undefined'
-        });
         if (typeof window.UpdateAvailableTricks === 'function') {
-            console.log('Calling UpdateAvailableTricks...');
             window.UpdateAvailableTricks();
-        } else {
-            console.error('UpdateAvailableTricks function not available from macro');
         }
     };
     
-    console.log('Route initialization inlined');
+    // Call initializeEventListeners when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeEventListeners);
+    } else {
+        initializeEventListeners();
+    }
+    
 })();
-
-    console.log('Page functionality setup complete');
-}
-
-// Simple approach - wait for everything to be ready
-setTimeout(function() {
-    console.log('Setting up page functionality with timeout...');
-    setupPageFunctionality();
-}, 1000);
 </script>
 
-<!-- Backup direct implementation for testing -->
-<script>
-setTimeout(function() {
-    // Direct props slider setup
-    const slider = document.getElementById('custom_trick_props');
-    const valueDisplay = document.getElementById('custom_trick_props_value');
-    if (slider && valueDisplay) {
-        slider.addEventListener('input', function() {
-            valueDisplay.textContent = this.value;
-        });
-    }
-    
-    // Simple trick addition - add to currentRoute and refresh
-    function addTrickDirectly() {
-        const nameInput = document.getElementById('custom_trick_name');
-        const siteswapInput = document.getElementById('custom_trick_siteswap');
-        const propsInput = document.getElementById('custom_trick_props');
-        const commentInput = document.getElementById('custom_trick_comment');
-        
-        if (!nameInput || !siteswapInput || !propsInput) return;
-        
-        const name = nameInput.value.trim();
-        const siteswap = siteswapInput.value.trim();
-        const propsCount = parseInt(propsInput.value) || 3;
-        const comment = commentInput ? commentInput.value.trim() : '';
-        
-        if (!name && !siteswap) {
-            alert('Please enter either a trick name or siteswap-x notation');
-            return;
-        }
-        
-        // Create trick object
-        const trick = {
-            name: name || null,
-            siteswap_x: siteswap || null,
-            props_count: propsCount,
-            difficulty: 30,
-            tags: [],
-            comment: comment || null
-        };
-        
-        // Ensure currentRoute exists
-        if (!window.currentRoute) {
-            window.currentRoute = { name: '', duration_seconds: 600, prop: '', tricks: [] };
-        }
-        
-        // Add to currentRoute.tricks and refresh
-        window.currentRoute.tricks.push(trick);
-        if (typeof window.refreshFromRoute === 'function') {
-            window.refreshFromRoute();
-        }
-        
-        // Clear form
-        nameInput.value = '';
-        siteswapInput.value = '';
-        if (commentInput) commentInput.value = '';
-    }
-    
-    // Direct add button setup
-    const addBtn = document.getElementById('add_custom_trick');
-    if (addBtn) {
-        addBtn.addEventListener('click', addTrickDirectly);
-    }
-}, 2000);
-</script>
+<!-- Removed backup implementation that was using setTimeout -->
 </div>
 {% endblock %}
+

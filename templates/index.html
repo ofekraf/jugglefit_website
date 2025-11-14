@@ -1,5 +1,44 @@
+{% extends "macros/base.html" %}
+
+{% block content %}
     </section>
 </main>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    function initCarousel(selector) {
+        const container = document.querySelector(selector);
+        if (!container) return;
+        
+        const carousel = container.querySelector('.carousel');
+        const items = carousel.querySelectorAll('.event-card');
+        const prevBtn = container.parentElement.querySelector('.prev-btn');
+        const nextBtn = container.parentElement.querySelector('.next-btn');
+        
+        if (items.length <= 2) {
+            prevBtn.style.display = 'none';
+            nextBtn.style.display = 'none';
+            return;
+        }
+        
+        let currentIndex = 0;
+        let isAnimating = false;
+        
+        function getItemWidth() {
+            const item = items[0];
+            const style = window.getComputedStyle(item);
+            const marginRight = parseInt(style.marginRight);
+            return item.offsetWidth + marginRight;
+        }
+        
+        function updateCarousel(animate = true) {
+            if (!animate) {
+                carousel.style.transition = 'none';
+                setTimeout(() => {
+                    carousel.style.transition = '';
+                }, 10);
             }
             const itemWidth = getItemWidth();
             const offset = -currentIndex * itemWidth;

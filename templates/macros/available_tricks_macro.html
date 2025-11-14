@@ -69,11 +69,7 @@
 
     // Main function to update available tricks display
     function UpdateAvailableTricks() {
-        console.log('UpdateAvailableTricks called, allTricks count:', window.allTricks ? window.allTricks.length : 'undefined');
-        console.log('allTricks sample:', window.allTricks ? window.allTricks.slice(0, 2) : 'none');
-        
         if (!window.allTricks || window.allTricks.length === 0) {
-            console.log('No allTricks available, showing no tricks message');
             const tricksGrid = document.getElementById('all_tricks');
             const noTricksMessage = document.getElementById('no-tricks-message');
             if (tricksGrid) tricksGrid.innerHTML = '';
@@ -95,26 +91,20 @@
         const minDifficulty = minDifficultyInput ? parseInt(minDifficultyInput.value) : 0;
         const maxDifficulty = maxDifficultyInput ? parseInt(maxDifficultyInput.value) : 100;
         
-        console.log('Filter criteria:', { minProps, maxProps, minDifficulty, maxDifficulty });
-        
         // Get excluded tags (available)
         const excludedTags = Array.from(document.querySelectorAll('input[name="exclude_tags_available"]:checked')).map(cb => cb.value);
-        console.log('Excluded tags:', excludedTags);
 
         // Filter tricks based on criteria
         const filteredTricks = filterTricks(window.allTricks, minProps, maxProps, minDifficulty, maxDifficulty, excludedTags);
-        console.log('Filtered tricks count:', filteredTricks.length);
 
         // Group filtered tricks by props count
         const groupedTricks = groupTricksByPropsCount(filteredTricks);
-        console.log('Grouped tricks:', Object.keys(groupedTricks));
 
         // Update the tricks display
         const tricksGrid = document.getElementById('all_tricks');
         const noTricksMessage = document.getElementById('no-tricks-message');
         
         if (!tricksGrid) {
-            console.error('all_tricks element not found');
             return;
         }
         
@@ -123,7 +113,6 @@
         if (Object.keys(groupedTricks).length === 0) {
             // Show no tricks message
             if (noTricksMessage) noTricksMessage.style.display = 'block';
-            console.log('No tricks to display');
             return;
         } else {
             // Hide no tricks message
@@ -198,22 +187,14 @@
             tricksGrid.appendChild(group);
         });
         
-        console.log('Tricks display updated, total groups added:', Object.keys(groupedTricks).length);
-        
         // After rendering available tricks, ensure the siteswap-X toggle state is applied
-        try {
-            if (typeof window.toggleSiteswapXEverywhere === 'function') {
-                window.toggleSiteswapXEverywhere();
-            }
-        } catch (e) { 
-            console.error('Error applying siteswap-x toggle after rendering tricks', e); 
+        if (typeof window.toggleSiteswapXEverywhere === 'function') {
+            window.toggleSiteswapXEverywhere();
         }
     }
 
     // Export the function globally
     window.UpdateAvailableTricks = UpdateAvailableTricks;
-    
-    console.log('Available tricks macro loaded, UpdateAvailableTricks function exported');
 })();
 </script>
 

@@ -30,15 +30,6 @@ app = Flask(__name__)
 # Create API blueprint
 api = Blueprint('api', __name__, url_prefix='/api')
 
-@api.route('/serialize_route', methods=['POST'])
-def serialize_route():
-	route_data = request.json
-	try:
-		route = Route.from_dict(route_data)
-		serialized = route.serialize()
-		return serialized
-	except Exception as e:
-		return str(e), 400
 
 @api.route('/fetch_tricks', methods=['POST'])
 def fetch_tricks():
@@ -139,7 +130,7 @@ def generate_route():
 					 tag_category_map=TAG_CATEGORY_MAP_JSON,
 					 tag_categories=list(TagCategory),
 						props_settings=ALL_PROPS_SETTINGS_JSON,
-						main_props=[Prop.Balls.value, Prop.Clubs.value, Prop.Rings.value])
+						main_props=MAIN_PROPS)
 	
 	route_name = request.form['route_name']
 	prop = request.form['prop']

@@ -232,9 +232,6 @@ function CreateTrickContainer(name, comment = '', siteswapX = '', options = {}) 
     // Add comment immediately after name if it exists
     let commentEl = null;
     if (comment) {
-        // Add a small text node for spacing
-        main.appendChild(document.createTextNode(' '));
-        
         commentEl = document.createElement('span');
         commentEl.className = 'trick-comment';
         commentEl.textContent = `[${comment}]`;

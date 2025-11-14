@@ -1,3 +1,6 @@
+/* Import Google Fonts - must be at the top of the stylesheet */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 .trick-main {
     box-sizing: border-box;
 }
@@ -225,14 +228,16 @@
    have room before wrapping. The siteswap keeps a sensible max-width while the
    name element can shrink or wrap as needed. */
 .route-page .trick-main {
-    display: flex !important;
-    width: 100%;
-    gap: 0.5em;
-    align-items: center;
+    display: inline-flex !important;
+    width: auto !important;
+    white-space: nowrap !important;
+    align-items: center !important;
+    gap: 0.3rem !important;
 }
 .route-page .trick-main .trick-name {
-    flex: 0 1 auto !important; /* Don't grow to fill space, just shrink if needed */
-    min-width: 0; /* allow flex items to shrink properly */
+    display: inline-block;
+    width: auto !important;
+    min-width: 0; /* allow items to shrink properly */
     white-space: normal;
     overflow: visible;
     text-overflow: clip;
@@ -242,10 +247,11 @@
 body .route-page .trick-main .trick-name,
 body .trick-content .trick-main .trick-name,
 body .route-content .trick-main .trick-name {
-    flex: 0 1 auto !important;
+    display: inline-block;
+    width: auto !important;
 }
 .route-page .trick-main .trick-siteswap-x {
-    flex: 0 0 auto;
+    display: inline-flex;
     max-width: 45%; /* allow siteswap to take reasonable space */
 }
 .trick-siteswap-x {
@@ -261,11 +267,12 @@ body .route-content .trick-main .trick-name {
     font-weight: 500;
     color: var(--text-color);
     margin-left: 0.4em; /* ensure separation from trick name/number */
-    display: inline-block; /* avoid flex shrinking/overlap */
     vertical-align: middle;
     max-width: 30%;
     overflow: hidden;
     text-overflow: ellipsis;
+    flex-shrink: 0;
+    white-space: nowrap !important;
 }
 /* Siteswap-X Modifiers Styling */
 .siteswap-x-digit-container {
@@ -345,12 +352,14 @@ body .route-content .trick-main .trick-name {
 .route-content .trick-main,
 .trick-content .trick-main,
 .trick-container .trick-main {
-    display: block !important;
-    width: 100% !important;
+    display: inline-flex !important;
+    width: auto !important;
     white-space: nowrap !important;
     /* allow visible overflow so throw/catch modifiers are not clipped */
     overflow: visible !important;
     line-height: 1.4em;
+    align-items: center !important;
+    gap: 0.3rem !important;
 }
 
 .trick-container .trick-number {
@@ -360,8 +369,8 @@ body .route-content .trick-main .trick-name {
 }
 
 .trick-container .trick-name {
-    /* allow the name to take available space but not push siteswap too far */
-    flex: 1 1 auto !important;
+    /* keep name inline and don't let it grow */
+    display: inline-block;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
     white-space: nowrap !important;
@@ -460,7 +469,8 @@ body .route-content .trick-main .trick-name {
     overflow: visible !important;
     text-overflow: clip !important;
     max-width: none !important;
-    flex: 1 1 auto !important;
+    display: inline-block;
+    width: auto !important;
     min-width: 0 !important;
 }
 .route-page .route-container .route-content .trick-siteswap-x,
@@ -471,7 +481,7 @@ body .route-content .trick-main .trick-name {
     overflow: visible !important;
     text-overflow: clip !important;
     max-width: none !important;
-    flex: 0 0 auto !important;
+    display: inline-flex;
 }
 
     /* Force pixel-precise checkbox sizing to avoid scaling differences when
@@ -611,8 +621,6 @@ body .route-content .trick-main .trick-name {
     accent-color: #0078d4;
     margin-right: 0.3em;
 }
-/* Import Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 /* CSS Variables */
 :root {
@@ -738,20 +746,20 @@ body {
 
 /* Trick Content Styles */
 .trick-content {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+    display: flex !important;
+    align-items: center !important;
     width: 100%;
     padding: 0.25rem 0;
+    white-space: nowrap !important;
 }
 
 .trick-main {
-    display: flex; /* full-width single-line row */
-    align-items: center;
-    gap: 0.5rem;
-    width: 100%;
-    white-space: nowrap; /* keep single-line */
-    overflow: hidden;
+    display: inline-flex !important;
+    align-items: center !important;
+    width: auto !important;
+    white-space: nowrap !important;
+    overflow: visible !important;
+    gap: 0.3rem !important;
 }
 
 .trick-number,
@@ -768,10 +776,11 @@ body {
     min-width: 2rem;
     display: inline-block;
     margin-right: 0.5rem;
+    flex-shrink: 0;
 }
 
 .trick-name {
-    flex: none !important; /* Completely prevent growing */
+    display: inline-block;
     width: auto !important;
     min-width: 0;
     font-weight: 500;
@@ -783,47 +792,35 @@ body {
     /* keep name on one line and ellipsize if too long so comment stays adjacent */
     overflow: visible !important;
     text-overflow: clip !important;
-    white-space: nowrap;
+    white-space: nowrap !important;
+    flex-shrink: 0;
 }
 
 .trick-comment {
     color: var(--light-text) !important;
     font-style: italic !important;
     font-size: 0.9rem !important;
-    display: inline !important;
-    margin: 0 !important;
+    display: inline-block !important;
+    margin: 0 0 0 0.3em !important;
     padding: 0 !important;
     white-space: nowrap !important;
-    vertical-align: baseline !important;
+    vertical-align: middle !important;
     width: auto !important;
     position: static !important;
     float: none !important;
-    flex: none !important;
-    /* Remove any potential spacing issues */
     border: none !important;
     outline: none !important;
     text-align: left !important;
-}
-
-.trick-comment {
-    flex: none !important;
-    margin: 0 !important;
-    padding: 0 !important;
     max-width: none !important;
-    width: auto !important;
     min-width: auto !important;
-    position: static !important;
-    float: none !important;
     right: auto !important;
     left: auto !important;
     top: auto !important;
     bottom: auto !important;
-    display: inline !important;
-    text-align: left !important;
-    justify-self: auto !important;
-    align-self: auto !important;
-    order: 0 !important;
     transform: none !important;
+    transition: none !important;
+    animation: none !important;
+    flex-shrink: 0;
 }
 
 /* ABSOLUTE LOCK-DOWN for trick-main containers */
@@ -831,14 +828,9 @@ body {
 html body * .trick-main,
 body * .trick-main,
 .trick-main {
-    display: block !important;
-    justify-content: flex-start !important;
-    align-items: center !important;
-    gap: 0 !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
+    display: inline-flex !important;
     text-align: left !important;
-    width: 100% !important;
+    width: auto !important;
     max-width: none !important;
     margin: 0 !important;
     padding: 0 !important;
@@ -847,10 +839,9 @@ body * .trick-main,
     /* Prevent any animations or transitions */
     transition: none !important;
     animation: none !important;
-    /* Lock down all flex and alignment properties */
-    --justify-content: flex-start !important;
-    --align-items: center !important;
-    --display: block !important;
+    white-space: nowrap !important;
+    align-items: center !important;
+    gap: 0.3rem !important;
 }
 
 .remove-trick {
@@ -863,7 +854,9 @@ body * .trick-main,
     font-size: 0.9rem;
     transition: all 0.3s ease;
     margin-left: 0.5rem;
-    align-self: flex-start;
+    flex-shrink: 0;
+    display: inline-block;
+    vertical-align: middle;
 }
 
 /* Header Styles */
@@ -1722,7 +1715,7 @@ a.primary-button.live-event-button:hover {
 
     .trick-name {
     .trick-name {
-        flex: 1 1 auto;
+        display: inline-block;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
@@ -2066,23 +2059,26 @@ html body main .route-page {
 .trick-item {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
     padding: 0.5rem 0.75rem;
     background: #fff;
     border: 1px solid #f0f0f0;
     border-radius: 4px;
+    gap: 0.5rem;
+}
+.trick-item .trick-container {
+    flex: 0 0 auto;
+    max-width: fit-content;
 }
 .prop-details-frame.trick-item {
     padding: 0.5rem 0.75rem;
 }
 .prop-details-frame.trick-item .trick-content {
-    display: flex;
-    align-items: center;
+    display: block !important;
     width: 100%;
-    gap: 0.5rem;
 }
 .prop-details-frame.trick-item .add-trick {
-    margin-left: auto;
+    margin-left: 0;
 }
 .trick-item-title { font-weight: 600; margin-bottom: 0.25rem; }
 .trick-item-meta { display: none; }
@@ -2133,17 +2129,17 @@ html body main .route-page {
 .trick-item .trick-main,
 .prop-details-frame .trick-main,
 .trick-details-frame .trick-main {
-    display: inline-flex !important;
+    display: inline !important;
     width: auto !important;
-    align-items: center !important;
-    gap: 0.5rem !important;
+    align-items: baseline !important;
 }
 
 .trick-item .trick-name,
 .prop-details-frame .trick-name,
 .trick-details-frame .trick-name {
-    /* don't flex-grow here — keep the name only as wide as needed so the comment sits next to it */
-    flex: 0 1 auto !important;
+    /* keep the name inline and only as wide as needed so the comment sits next to it */
+    display: inline-block;
+    width: auto !important;
     max-width: 30ch;
     white-space: nowrap;
     overflow: hidden;
@@ -2151,12 +2147,7 @@ html body main .route-page {
 }
 
 .trick-details-container {
-    display: flex;
-    flex-direction: row;
-    gap: 10px;
-    align-items: center;
-    justify-content: flex-start;
-    flex: 1;
+    display: block;
     position: relative;
     padding: 5px 0;
     width: 100%;
@@ -2165,12 +2156,7 @@ html body main .route-page {
 .trick-details-frame {
     border-radius: 15px;
     padding: 4px 12px;
-    display: flex;
-    flex-direction: row;
-    gap: 8px;
-    align-items: center;
-    justify-content: flex-start;
-    flex: 0 0 auto;
+    display: inline-block;
     min-width: 200px;
     position: relative;
     width: auto;
@@ -2189,7 +2175,7 @@ html body main .route-page {
     vertical-align: baseline;
     white-space: normal;
     opacity: 0.8;
-    margin-left: 0.5em;
+    margin-left: 0;
     margin-right: 0;
     float: none;
 }
@@ -2900,11 +2886,11 @@ html body main .route-page {
 }
 
 .trick-content {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.5rem;
+    display: flex !important;
+    align-items: center !important;
     width: 100%;
     padding: 0.25rem 0;
+    white-space: nowrap !important;
 }
 
 .trick-number,
@@ -3557,10 +3543,9 @@ html body main .route-page {
 }
 
 .live-event-page .route-content .trick-main {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    width: 100%;
+    display: inline !important;
+    align-items: baseline !important;
+    width: auto !important;
 }
 
 .live-event-page .route-content .prop-details-frame {
