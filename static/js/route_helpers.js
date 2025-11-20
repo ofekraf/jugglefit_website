@@ -409,7 +409,10 @@ export function updateRouteDisplay(route = null) {
     if (!routeSections || !routeToUse) {
         return;
     }
-    
+
+    // Determine context: build page (editable) vs. created_route page (read-only)
+    const isBuildPage = document.querySelector('.route-form') !== null;
+
     routeSections.innerHTML = '';
 
     if (!routeToUse.tricks || routeToUse.tricks.length === 0) {
@@ -422,72 +425,71 @@ export function updateRouteDisplay(route = null) {
     let trickCounter = 1;
 
     routeToUse.tricks.forEach((trick, index) => {
-        // Check if we need to create a new section
-        if (currentPropsCount !== trick.props_count || 
+        if (currentPropsCount !== trick.props_count ||
             (index > 0 && routeToUse.tricks[index - 1].props_count !== trick.props_count)) {
-            // Close previous section if it exists
             if (currentSection) {
                 currentSection.querySelector('.trick-container').appendChild(document.createElement('div'));
             }
 
-            // Create new section
             const section = document.createElement('div');
             section.className = 'prop-section';
             section.setAttribute('data-props-count', trick.props_count);
-            
+
             const colorBar = document.createElement('div');
             colorBar.className = 'prop-color-bar';
             colorBar.setAttribute('data-props', trick.props_count);
             colorBar.setAttribute('data-prop-type', routeToUse.prop);
-            colorBar.setAttribute('draggable', 'true');
-            
+
+            if (isBuildPage) {
+                colorBar.setAttribute('draggable', 'true');
+                colorBar.addEventListener('dragstart', handleSectionDragStart);
+                colorBar.addEventListener('dragover', handleSectionDragOver);
+                colorBar.addEventListener('drop', handleSectionDrop);
+                colorBar.addEventListener('dragend', handleSectionDragEnd);
+            }
+
             const propCount = document.createElement('div');
             propCount.className = 'prop-count';
-            
             const propCountText = document.createElement('div');
             propCountText.className = 'prop-count-text';
             propCountText.textContent = `X ${trick.props_count}`;
-            
             propCount.appendChild(propCountText);
             colorBar.appendChild(propCount);
             section.appendChild(colorBar);
-            
+
             const trickContainer = document.createElement('div');
             trickContainer.className = 'trick-container';
             trickContainer.setAttribute('data-props-count', trick.props_count);
-            
             section.appendChild(trickContainer);
             routeSections.appendChild(section);
-            
-            // Add drag and drop event listeners for the color bar
-            colorBar.addEventListener('dragstart', handleSectionDragStart);
-            colorBar.addEventListener('dragover', handleSectionDragOver);
-            colorBar.addEventListener('drop', handleSectionDrop);
-            colorBar.addEventListener('dragend', handleSectionDragEnd);
-            
+
             currentSection = section;
             currentPropsCount = trick.props_count;
         }
 
-        // Create trick frame using shared helper
         const frame = document.createElement('div');
         frame.className = 'prop-details-frame';
-        frame.setAttribute('draggable', 'true');
         frame.setAttribute('data-trick-name', trick.name || trick.siteswap_x || '');
 
         const trickContent = document.createElement('div');
         trickContent.className = 'trick-content';
 
-        // Use shared CreateTrickContainer to build consistent inner DOM
-        // Always pass the actual name (empty if not set) - siteswap-x will show when name is empty
         const displayName = trick.name || '';
-        const container = window.CreateTrickContainer ? window.CreateTrickContainer(displayName, trick.comment || '', trick.siteswap_x || null, {
-            onNameBlur: (newName) => { trick.name = newName; frame.setAttribute('data-trick-name', newName); },
-            onCommentBlur: (newComment) => { trick.comment = newComment; },
-            addCheckbox: false
-        }) : createFallbackTrickContainer(trick);
+        const siteswapToggle = document.getElementById('toggle-siteswap-x-checkbox');
+        const showSiteswap = siteswapToggle && siteswapToggle.checked;
 
-        // Insert trick number before the name inside the container
+        const containerOptions = {
+            editable: isBuildPage,
+            addCheckbox: !isBuildPage,
+            onNameBlur: isBuildPage ? (newName) => { trick.name = newName; frame.setAttribute('data-trick-name', newName); } : null,
+            onCommentBlur: isBuildPage ? (newComment) => { trick.comment = newComment; } : null,
+            showSiteswap: showSiteswap
+        };
+
+        const container = window.CreateTrickContainer ?
+            window.CreateTrickContainer(displayName, trick.comment || '', trick.siteswap_x || null, containerOptions) :
+            createFallbackTrickContainer(trick);
+
         const number = document.createElement('span');
         number.className = 'trick-number';
         number.textContent = `${trickCounter}.`;
@@ -498,23 +500,23 @@ export function updateRouteDisplay(route = null) {
             innerMain.appendChild(number);
         }
 
-        // Remove button
-        const removeButton = document.createElement('button');
-        removeButton.className = 'remove-trick';
-        removeButton.textContent = '×';
-        removeButton.onclick = () => removeTrick(trick);
-
         trickContent.appendChild(container);
-        trickContent.appendChild(removeButton);
+
+        if (isBuildPage) {
+            frame.setAttribute('draggable', 'true');
+            const removeButton = document.createElement('button');
+            removeButton.className = 'remove-trick';
+            removeButton.textContent = '×';
+            removeButton.onclick = () => removeTrick(trick);
+            trickContent.appendChild(removeButton);
+
+            frame.addEventListener('dragstart', handleDragStart);
+            frame.addEventListener('dragover', handleDragOver);
+            frame.addEventListener('drop', handleDrop);
+            frame.addEventListener('dragend', handleDragEnd);
+        }
 
         frame.appendChild(trickContent);
-        
-        // Add drag and drop event listeners for tricks
-        frame.addEventListener('dragstart', handleDragStart);
-        frame.addEventListener('dragover', handleDragOver);
-        frame.addEventListener('drop', handleDrop);
-        frame.addEventListener('dragend', handleDragEnd);
-        
         currentSection.querySelector('.trick-container').appendChild(frame);
         trickCounter++;
     });
@@ -749,6 +751,10 @@ export function initializePropSelection() {
                             if (typeof window.UpdateAvailableTricks === 'function') {
                                 window.UpdateAvailableTricks();
                             }
+                            // After rendering, ensure the siteswap-x view is correct.
+                            if (typeof window.toggleSiteswapXEverywhere === 'function') {
+                                window.toggleSiteswapXEverywhere();
+                            }
                         })
                         .catch(error => {
                             window.lastFetchedProp = null; // Reset on error
@@ -762,6 +768,10 @@ export function initializePropSelection() {
                     // Still update the display with existing tricks
                     if (typeof window.UpdateAvailableTricks === 'function') {
                         window.UpdateAvailableTricks();
+                    }
+                    // Also apply toggle here for cases where fetch is skipped
+                    if (typeof window.toggleSiteswapXEverywhere === 'function') {
+                        window.toggleSiteswapXEverywhere();
                     }
                 }
                 
@@ -803,7 +813,7 @@ export function initializePropSelection() {
  * Load and display a serialized route from URL parameter
  * @param {string} serializedRoute - The serialized route string from URL
  */
-export function loadRoute(serializedRoute) {
+export function loadRoute(serializedRoute, callback) {
     try {
         console.log('Loading route from serialized string:', serializedRoute.substring(0, 100) + '...');
         
@@ -886,6 +896,9 @@ export function loadRoute(serializedRoute) {
         }
         
         // Removed routeLoaded event dispatch to prevent post-load interference
+        if (typeof callback === 'function') {
+            callback();
+        }
     } catch (error) {
         console.error('Error loading route:', error);
         // Fallback to server-side deserialization
@@ -1050,13 +1063,13 @@ function showError(message) {
 /**
  * Initialize route loading from URL parameter - immediate loading
  */
-export function initRouteLoading() {
+export function initRouteLoading(callback) {
     const urlParams = new URLSearchParams(window.location.search);
     const routeParam = urlParams.get('route');
     
     if (routeParam) {
         console.log('Found route parameter, loading route immediately...');
-        loadRoute(routeParam);
+        loadRoute(routeParam, callback);
     } else {
         console.log('No route parameter found in URL');
         // Set a default empty route

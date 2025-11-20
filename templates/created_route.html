@@ -49,7 +49,7 @@
     window.initRouteLoading = initRouteLoading;
     
     // Initialize route loading immediately 
-    initRouteLoading();
+    initRouteLoading(updateUIWithRoute);
     
     // Update UI elements after route loads
     // Removed all DOMContentLoaded logic to prevent post-load interference
@@ -80,7 +80,13 @@
                 liveEventLink.href = `/live_event?route=${encodedRoute}`;
             }
             if (editRouteLink) {
-                editRouteLink.href = `/build_route?route=${encodedRoute}`;
+                const siteswapToggle = document.getElementById('toggle-siteswap-x-checkbox');
+                const siteswapXEnabled = siteswapToggle && siteswapToggle.checked;
+                let editUrl = `/build_route?route=${encodedRoute}`;
+                if (siteswapXEnabled) {
+                    editUrl += '&siteswapx=1';
+                }
+                editRouteLink.href = editUrl;
             }
         }
     }

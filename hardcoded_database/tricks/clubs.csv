@@ -9,8 +9,8 @@ name,props_count,difficulty,tags,comment,max_throw
 "7c cascade",7,53,"async base pattern",,7
 "cascade",7,60,"async base pattern",,7
 "cascade -> 3up 360 -> cascade",3,30,"360 spin",,3
-"531 -> 75300 3up 360 -> cascade",3,37,"360 spin|async siteswap",,7
-"441 -> 66300 3up 360 -> 441",3,39,"360 spin|async siteswap",,6
+"2 rounds 531 -> 75300 3up 360 -> cascade",3,37,"360 spin|async siteswap",,7
+"2 rounds 441 -> 66300 3up 360 -> 2 rounds 441",3,39,"360 spin|async siteswap",,6
 "cascade -> 1up 720 -> flats",3,38,"720 spin",,1
 "9440022 3up 2-stage -> cascade",3,44,"multi stage",,9
 "backcrosses -> 3up 360 in backcrosses -> backcrosses",3,52,"360 spin|backcrosses",,5
@@ -21,62 +21,62 @@ name,props_count,difficulty,tags,comment,max_throw
 "cascade -> 5up 180 -> cascade",5,54,"180 spin",,7
 "cascade -> 97522 3up 360 -> cascade",5,50,"360 spin|async siteswap",,9
 "cascade -> b66227722 3up 2-stage -> cascade",5,62,"multi stage|async siteswap",,11
-"6c 663 -> 88522 3up 360 -> 6c 663",5,60,"360 spin|async siteswap",,8
+"2 rounds 663 -> 88522 3up 360 -> 2 rounds 663",5,60,"360 spin|async siteswap",,8
 "744 -> 96622 3up 360 -> singles cascade",5,56,"360 spin|async siteswap|spin control",9
 "6c async fountain -> 4up 360 -> ANY",6,76,"360 spin",,6
 "7c cascade -> 5up 720 -> 7c cascade",7,100,"720 spin",,11
-"24c 531",3,23,"async siteswap",,5
-"36c 801",3,52,"async siteswap","Entrance: 46",8
-"20c 45123",3,26,"async siteswap",,5
-"30c 44133",3,24,"async siteswap",,4
-"18c 552",4,32,"async siteswap",,5
-"18c 633",4,37,"async siteswap",,6
-"18c 741",4,38,"async siteswap","entrance: 5",7
-"18c 534, single 5, double 3",4,55,"async siteswap|spin control",,5
-"20c 55550",4,35,"async siteswap",,5
-"20c 56450",4,38,"async siteswap",,6
-"30c 771",5,55,"async siteswap","entrance: 75",7
-"30c 744 isolated",5,52,"async siteswap|isolated",,7
+"8 rounds 531",3,23,"async siteswap",,5
+"12 rounds 801",3,52,"async siteswap","Entrance: 46",8
+"4 rounds 45123",3,26,"async siteswap",,5
+"6 rounds 44133",3,24,"async siteswap",,4
+"6 rounds 552",4,32,"async siteswap",,5
+"6 rounds 633",4,37,"async siteswap",,6
+"6 rounds 741",4,38,"async siteswap","entrance: 5",7
+"6 rounds 534, single 5, double 3",4,55,"async siteswap|spin control",,5
+"4 rounds 55550",4,35,"async siteswap",,5
+"4 rounds 56450",4,38,"async siteswap",,6
+"10 rounds 771",5,55,"async siteswap","entrance: 75",7
+"10 rounds 744 isolated",5,52,"async siteswap|isolated",,7
 "cascade -> 5c 66751 -> cascade",5,43,"async siteswap",,7
-"10c 94444",5,47,"async siteswap",,9
-"20c 94633",5,68,"async siteswap",,9
-"cascade -> 10c 77335 -> cascade",5,50,"async siteswap",,7
-"cascade -> 10c 74464 -> cascade",5,47,"async siteswap",,7
-"30c 84445",5,60,"async siteswap",,8
+"2 rounds 94444",5,47,"async siteswap",,9
+"4 rounds 94633",5,68,"async siteswap",,9
+"cascade -> 2 rounds 77335 -> cascade",5,50,"async siteswap",,7
+"cascade -> 2 rounds 74464 -> cascade",5,47,"async siteswap",,7
+"6 rounds 84445",5,60,"async siteswap",,8
 "14c 7575164",5,53,"async siteswap",,7
 "6c 756",6,56,"async siteswap",,7
 "6c fountain -> 6c 864 -> 6c fountain",6,74,"async siteswap",,8
-"10c 77781",6,81,"async siteswap","entrance: 7",7
-"cascade -> 3c 966",7,78,"async siteswap",,9
+"2 rounds 77781",6,81,"async siteswap","entrance: 7",7
+"cascade -> 1 rounds 966",7,78,"async siteswap",,9
 "20c backcrosses",3,33,"backcrosses",,3
 "under the leg throws",3,26,"under legs",,3
 "lazies",3,24,"lazies",,3
-"24c 423, shoulder throw 4",3,33,"shoulders|async siteswap",,4
-"12c 423, shoulder throw lazy 4",3,35,"shoulders|lazies|async siteswap",,4
-"lazies -> backcrosses",3,34,"lazies|backcrosses",,3
-"4c backcrosses singles -> 4c backcrosses doubles -> 4c backcrosses triples ",3,32,"backcrosses|spin control",,4
+"8 rounds 423, shoulder throw 4",3,33,"shoulders|async siteswap",,4,"8 rounds 4{S}23"
+"4 rounds 423, shoulder throw lazy 4",3,35,"shoulders|lazies|async siteswap",,4,"4 rounds 4{S/L}23"
+"lazies -> backcrosses",3,34,"lazies|backcrosses",,3,"3{/L} -> 3{B}"
+"4c backcrosses singles -> 4c backcrosses doubles -> 4c backcrosses triples ",3,32,"backcrosses|spin control",,4,"4c 3{B1} -> 4c{B2} -> 4c{B3}"
 "overheads",4,42,"overheads",,4
-"534, backcross 5",4,45,"backcrosses|async siteswap",,5
-"552 -> 6c 552, backcrosses 5's -> 552",4,47,"backcrosses|async siteswap",,5
-"5c cascade -> 4c 7733, backcrosses 3's -> cascade",5,65,"backcrosses|async siteswap",,7
+"3 rounds 534, backcross 5",4,45,"backcrosses|async siteswap",,5,"3 rounds 5{B}34"
+"2 rounds 552 -> 2 rounds 552, backcrosses 5's -> 2 rounds 552",4,47,"backcrosses|async siteswap",,5,"2 rounds 552 -> 2 rounds 5{B}5{B}2 -> 2 rounds 552"
+"5c cascade -> 1 round 7733, backcrosses 3's -> cascade",5,65,"backcrosses|async siteswap",,7,"cascade -> 1 round 773{B}3{B} -> cascade"
 "20c triples backcrosses",5,58,"backcrosses",,5
-"cascade -> 5c 94444, lazies 4's -> cascade",5,68,"lazies|async siteswap",,9
-"6c ANY -> 4c 9555, backcrosses 5's -> 6c ANY",6,83,"backcrosses|async siteswap",,9
-"20c reverse spin singles",3,24,"spin control",,3
+"cascade -> 1 round 94444, lazies 4's -> cascade",5,68,"lazies|async siteswap",,9,"cascade -> 1 round 94{/L}4{/L}4{/L}4{/L} -> cascade"
+"6c ANY -> 1 round 9555, backcrosses 5's -> 6c ANY",6,83,"backcrosses|async siteswap",,9,"6c ANY -> 1 rounds 95{B}5{B}5{B} -> 6c ANY"
+"20c reverse spin singles",3,24,"spin control",,3,"20c 3{-1}"
 "10c helicopters",3,30,"spin control",,3
-"30c flats",3,25,"spin control|flats",,3
-"12c triples",3,25,"spin control",,3
+"30c flats",3,25,"spin control|flats",,3,"30c 3{0}"
+"12c triples",3,25,"spin control",,3,"12c 3{3}"
 "10c slapbacks",3,28,"spin control",,3
-"10c singles -> 10c doubles  -> 10c triples",3,28,"spin control",,3
-"flat flatfronts -> 3c 441 double flatfronts 4's -> single flatfronts",3,35,"spin control|async siteswap",,4
-"18c 534 singles",4,36,"spin control|async siteswap",,5
-"18c 633 singles",4,50,"spin control|async siteswap",,6
-"534, flat 4",4,37,"spin control|async siteswap|flats",,5
-"4c singles -> 4c doubles -> 4c triples -> 4c singles",4,36,"spin control",,4
-"534, flatfront 5",4,39,"spin control|async siteswap",,5
-"10c singles",5,38,"spin control",,5
-"10c triples",5,40,"spin control",,5
-"6c triples -> 6c singles",5,40,"spin control",,5
-"cascade -> 12c 744, flat 4's",5,58,"spin control|async siteswap|flats",,7
-"6c singles",5,38,"spin control",,5
-"6c fountain -> 6c flats",6,82,"spin control|flats",,6 
+"10c singles -> 10c doubles  -> 10c triples",3,28,"spin control",,3,"10c 3{1} -> 10c 3{2} -> 10c 3{3}"
+"flat flatfronts -> 1 rounds 441 double flatfronts 4's -> single flatfronts",3,35,"spin control|async siteswap",,4,"3{F0} -> 1 rounds 4{F2}4{F2}1 -> 3{F1}"
+"6 rounds 534 singles",4,36,"spin control|async siteswap",,5,"6 rounds 5{1}3{1}4{1}"
+"6 rounds 633 singles",4,50,"spin control|async siteswap",,6,"6 rounds 6{1}3{1}3{1}"
+"6 rounds 534, flat 4",4,37,"spin control|async siteswap|flats",,5,,"6 rounds 534{0}"
+"4c singles -> 4c doubles -> 4c triples -> 4c singles",4,36,"spin control",,4,"4c 4{1} -> 4c 4{2} -> 4c 4{3} -> 4c 4{1}"
+"4 rounds 534, flatfront 5",4,39,"spin control|async siteswap",,5,"4 rounds 5{F}34"
+"10c singles",5,38,"spin control",,5,"10c 5{1}"
+"10c triples",5,40,"spin control",,5,"10c 5{3}"
+"6c triples -> 6c singles",5,40,"spin control",,5,,"6c 5{3} -> 6c 5{1}"
+"cascade -> 4 rounds 744, flat 4's",5,58,"spin control|async siteswap|flats",,7,"cascade -> 4 rounds 74{0}4{0}"
+"6c singles",5,38,"spin control",,5,"6c 5{1}"
+"6c fountain -> 6c fountain flats",6,82,"spin control|flats",,6,"6c 6 -> 6c 6{0}"

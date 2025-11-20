@@ -17,7 +17,7 @@ class Trick:
     siteswap_x: Optional[str] = None
 
     def __post_init__(self):
-        if len(self.name) > MAX_TRICK_NAME_LENGTH:
+        if self.name is not None and len(self.name) > MAX_TRICK_NAME_LENGTH:
             raise ValueError(f"Trick name {self.name} is too long. Please keep it under {MAX_TRICK_NAME_LENGTH} characters.")
 
         if (self.difficulty != -1 and 

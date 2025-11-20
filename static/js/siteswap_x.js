@@ -93,47 +93,35 @@ function formatSiteswapX(siteswapString) {
     const escapeHtml = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     const escaped = escapeHtml(siteswapString).replace(/-&gt;|->/g, '→');
 
-    // We'll walk the string and only mark digits that have modifiers (in curly braces).
-    // Any plain characters without modifiers are returned as unwrapped text so they keep their original spacing.
-    const tokenRe = /([0-9a-z→]+)(?:\{([^{}\/]*)?(?:\/([^{}]*))?\})?([A-Z0-9])?/gi;
-    let lastIndex = 0;
+    // New parsing logic: find either a modified digit or a block of plain text.
+    // This avoids regex greediness issues with consecutive modifiers.
+    const tokenRe = /([0-9a-z→])(?:\{([^{}\/]*)?(?:\/([^{}]*))?\})|([0-9a-z→])/gi;
     let out = '';
-    let m;
-    while ((m = tokenRe.exec(escaped)) !== null) {
-        const idx = m.index;
-        // append literal text between previous match and this match
-        if (idx > lastIndex) {
-            out += escaped.slice(lastIndex, idx);
+    let lastIndex = 0;
+    let match;
+    while ((match = tokenRe.exec(escaped))) {
+        // Add any text between the last match and this one
+        if (match.index > lastIndex) {
+            out += '<span>' + escaped.slice(lastIndex, match.index) + '</span>';
         }
-        const main = m[1] || '';
-        const throwMod = m[2] || '';
-        const catchMod = m[3] || '';
-        const trailingMod = m[4] || '';
 
-        if (throwMod || catchMod) {
-            // If this token has modifiers, wrap the relevant digit(s).
-            // If main is more than one character, attach modifier to the last character
-            // but leave preceding characters unwrapped (plain text).
-            if (main.length > 1) {
-                out += escapeHtml(main.slice(0, -1));
-            }
-            const targetChar = escapeHtml(main.slice(-1));
-            let html = '<span class="siteswap-x-digit-container">';
-            if (throwMod) html += '<span class="siteswap-x-throw-mod">' + escapeHtml(throwMod) + '</span>';
-            html += '<span class="siteswap-x-digit">' + targetChar + '</span>';
-            if (catchMod) html += '<span class="siteswap-x-catch-mod">' + escapeHtml(catchMod) + '</span>';
-            html += '</span>';
-            out += html;
-            if (trailingMod) out += escapeHtml(trailingMod);
-        } else {
-            // No modifiers: keep the token as plain text
-            out += escapeHtml(main + (trailingMod || ''));
-        }
+        const mainDigit = match[1] || match[4];
+        const throwMod = match[2];
+        const catchMod = match[3];
+
+        let html = '<span class="siteswap-x-digit-container">';
+        if (throwMod) html += '<span class="siteswap-x-throw-mod">' + throwMod + '</span>';
+        html += '<span class="siteswap-x-digit">' + mainDigit + '</span>';
+        if (catchMod) html += '<span class="siteswap-x-catch-mod">' + catchMod + '</span>';
+        html += '</span>';
+        out += html;
 
         lastIndex = tokenRe.lastIndex;
     }
-    // append remainder
-    if (lastIndex < escaped.length) out += escaped.slice(lastIndex);
+    // Add any remaining text after the last match
+    if (lastIndex < escaped.length) {
+        out += '<span>' + escaped.slice(lastIndex) + '</span>';
+    }
     return out;
 }
 
@@ -149,60 +137,50 @@ function createSiteswapXElement(siteswapString) {
     container.className = 'trick-siteswap-x';
     container.style.display = 'none';
 
-    const tokenRe = /([0-9a-z→]+)(?:\{([^{}\/]*)?(?:\/([^{}]*))?\})?([A-Z0-9])?/gi;
-    let match;
+    // Use the same robust parsing logic as formatSiteswapX
+    const tokenRe = /([0-9a-z→])(?:\{([^{}\/]*)?(?:\/([^{}]*))?\})|([0-9a-z→])/gi;
     let lastIndex = 0;
-    while ((match = tokenRe.exec(normalized)) !== null) {
-        const idx = match.index;
-        // append any literal text between tokens (spaces, punctuation)
-        if (idx > lastIndex) {
-            container.appendChild(document.createTextNode(normalized.slice(lastIndex, idx)));
+    let match;
+    while ((match = tokenRe.exec(normalized))) {
+        if (match.index > lastIndex) {
+            const textSpan = document.createElement('span');
+            textSpan.textContent = normalized.slice(lastIndex, match.index);
+            container.appendChild(textSpan);
         }
 
-        const main = match[1] || '';
-        const throwMod = match[2] || '';
-        const catchMod = match[3] || '';
-        const trailingMod = match[4] || '';
+        const mainDigit = match[1] || match[4];
+        const throwMod = match[2];
+        const catchMod = match[3];
 
-        if (throwMod || catchMod) {
-            // If main has multiple characters, keep preceding chars as plain text
-            if (main.length > 1) {
-                container.appendChild(document.createTextNode(main.slice(0, -1)));
-            }
-            const char = main.slice(-1);
-            const digitContainer = document.createElement('span');
-            digitContainer.className = 'siteswap-x-digit-container';
+        const digitContainer = document.createElement('span');
+        digitContainer.className = 'siteswap-x-digit-container';
 
-            if (throwMod) {
-                const throwEl = document.createElement('span');
-                throwEl.className = 'siteswap-x-throw-mod';
-                throwEl.textContent = throwMod;
-                digitContainer.appendChild(throwEl);
-            }
-
-            const digitEl = document.createElement('span');
-            digitEl.className = 'siteswap-x-digit';
-            digitEl.textContent = char;
-            digitContainer.appendChild(digitEl);
-
-            if (catchMod) {
-                const catchEl = document.createElement('span');
-                catchEl.className = 'siteswap-x-catch-mod';
-                catchEl.textContent = catchMod;
-                digitContainer.appendChild(catchEl);
-            }
-
-            container.appendChild(digitContainer);
-            if (trailingMod) container.appendChild(document.createTextNode(trailingMod));
-        } else {
-            // No modifiers — append the token text as-is
-            container.appendChild(document.createTextNode(main + (trailingMod || '')));
+        if (throwMod) {
+            const throwEl = document.createElement('span');
+            throwEl.className = 'siteswap-x-throw-mod';
+            throwEl.textContent = throwMod;
+            digitContainer.appendChild(throwEl);
         }
+
+        const digitEl = document.createElement('span');
+        digitEl.className = 'siteswap-x-digit';
+        digitEl.textContent = mainDigit;
+        digitContainer.appendChild(digitEl);
+
+        if (catchMod) {
+            const catchEl = document.createElement('span');
+            catchEl.className = 'siteswap-x-catch-mod';
+            catchEl.textContent = catchMod;
+            digitContainer.appendChild(catchEl);
+        }
+        container.appendChild(digitContainer);
 
         lastIndex = tokenRe.lastIndex;
     }
     if (lastIndex < normalized.length) {
-        container.appendChild(document.createTextNode(normalized.slice(lastIndex)));
+        const textSpan = document.createElement('span');
+        textSpan.textContent = normalized.slice(lastIndex);
+        container.appendChild(textSpan);
     }
     container.dataset.hasSiteswapX = '1';
     return container;
@@ -229,7 +207,17 @@ function CreateTrickContainer(name, comment = '', siteswapX = '', options = {}) 
     });
     main.appendChild(nameEl);
 
-    // Add comment immediately after name if it exists
+    // Add siteswap-x after name
+    let xEl = null;
+    if (siteswapX) {
+        const built = createSiteswapXElement(siteswapX);
+        if (built) {
+            xEl = built;
+            main.appendChild(xEl);
+        }
+    }
+
+    // Add comment after siteswap-x
     let commentEl = null;
     if (comment) {
         commentEl = document.createElement('span');
@@ -242,16 +230,6 @@ function CreateTrickContainer(name, comment = '', siteswapX = '', options = {}) 
             this.textContent = newComment ? `[${newComment}]` : '';
         });
         main.appendChild(commentEl);
-    }
-
-    // Add siteswap-x after comment (or after name if no comment)
-    let xEl = null;
-    if (siteswapX) {
-        const built = createSiteswapXElement(siteswapX);
-        if (built) {
-            xEl = built;
-            main.appendChild(xEl);
-        }
     }
     
     // Set up initial display state based on symmetrical logic
@@ -268,8 +246,13 @@ function CreateTrickContainer(name, comment = '', siteswapX = '', options = {}) 
         if (xEl) xEl.style.display = 'none';
     } else if (hasName && hasSiteswap) {
         // Both exist - show name by default, hide siteswap (can be toggled)
-        nameEl.style.display = '';
-        if (xEl) xEl.style.display = 'none';
+        if (options.showSiteswap) {
+            nameEl.style.display = 'none';
+            if (xEl) xEl.style.display = '';
+        } else {
+            nameEl.style.display = '';
+            if (xEl) xEl.style.display = 'none';
+        }
     } else {
         // Neither exists - show name element (will be empty)
         nameEl.style.display = '';

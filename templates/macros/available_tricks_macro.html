@@ -137,49 +137,28 @@
                 const trickItem = document.createElement('div');
                 trickItem.className = 'trick-item';
 
-                // Use CreateTrickContainer if available
-                if (typeof window.CreateTrickContainer === 'function') {
-                    const trickContainer = window.CreateTrickContainer(trick.name, trick.comment || '', trick.siteswap_x || '', {
-                        onNameBlur: (newName) => { trick.name = newName; },
-                        onCommentBlur: (newComment) => { trick.comment = newComment; },
-                        addCheckbox: false  // No checkbox for available tricks
-                    });
-                    
-                    const addButton = document.createElement('button');
-                    addButton.className = 'add-trick';
-                    addButton.textContent = 'Add';
-                    addButton.onclick = () => {
-                        if (typeof window.addTrickToRoute === 'function') {
-                            window.addTrickToRoute(trick);
-                        } else {
-                            console.error('addTrickToRoute function not available');
-                        }
-                    };
+                // Use CreateTrickContainer to ensure consistent rendering
+                const trickContainer = window.CreateTrickContainer(trick.name || '', trick.comment || '', trick.siteswap_x || '', {
+                    onNameBlur: (newName) => { trick.name = newName; },
+                    onCommentBlur: (newComment) => { trick.comment = newComment; },
+                    addCheckbox: false  // No checkbox for available tricks
+                });
 
-                    // Append trick container and add button to trick item
-                    trickItem.appendChild(trickContainer);
-                    trickItem.appendChild(addButton);
-                } else {
-                    // Fallback if CreateTrickContainer not available
-                    const trickName = document.createElement('div');
-                    trickName.textContent = trick.name;
-                    trickName.className = 'trick-name';
-                    
-                    const addButton = document.createElement('button');
-                    addButton.className = 'add-trick';
-                    addButton.textContent = 'Add';
-                    addButton.onclick = () => {
-                        if (typeof window.addTrickToRoute === 'function') {
-                            window.addTrickToRoute(trick);
-                        } else {
-                            console.error('addTrickToRoute function not available');
-                        }
-                    };
-                    
-                    trickItem.appendChild(trickName);
-                    trickItem.appendChild(addButton);
-                }
-                
+                const addButton = document.createElement('button');
+                addButton.className = 'add-trick';
+                addButton.textContent = 'Add';
+                addButton.onclick = () => {
+                    if (typeof window.addTrickToRoute === 'function') {
+                        window.addTrickToRoute(trick);
+                    } else {
+                        console.error('addTrickToRoute function not available');
+                    }
+                };
+
+                // Append trick container and add button to trick item
+                trickItem.appendChild(trickContainer);
+                trickItem.appendChild(addButton);
+
                 tricksList.appendChild(trickItem);
             });
             
@@ -187,7 +166,7 @@
             tricksGrid.appendChild(group);
         });
         
-        // After rendering available tricks, ensure the siteswap-X toggle state is applied
+        // After rendering, ensure the siteswap-x view is correct.
         if (typeof window.toggleSiteswapXEverywhere === 'function') {
             window.toggleSiteswapXEverywhere();
         }

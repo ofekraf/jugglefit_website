@@ -120,8 +120,6 @@ if (window.initialRoute && window.initialRoute.tricks) {
         <div class="form-section">
             <div class="route-form">
                 <h4 class="subsection-title">Add Tricks</h4>
-                <label class="form-label">Available Tricks</label>
-
                 {{ number_of_props_macro() }}
                 {{ difficulty_range_macro() }}
                 {{ limit_max_throw_macro(props_settings) }}
@@ -405,7 +403,7 @@ if (window.initialRoute && window.initialRoute.tricks) {
                 }
 
                 const customTrick = {
-                    name: name || 'Custom Trick',
+                    name: name || null,  // Keep name as null if not provided, don't default to 'Custom Trick'
                     siteswap_x: siteswapX || null,
                     props_count: propsCount,
                     difficulty: 30,

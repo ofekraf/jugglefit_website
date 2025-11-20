@@ -272,7 +272,7 @@ body .route-content .trick-main .trick-name {
     overflow: hidden;
     text-overflow: ellipsis;
     flex-shrink: 0;
-    white-space: nowrap !important;
+    white-space: pre !important;
 }
 /* Siteswap-X Modifiers Styling */
 .siteswap-x-digit-container {
@@ -280,9 +280,9 @@ body .route-content .trick-main .trick-name {
     flex-direction: column;
     align-items: center;
     position: relative;
-    margin: 0 0.12em; /* narrower spacing between digits */
-    min-width: 1.2em;
-    width: 1.2em;
+    margin: 0;
+    min-width: 0;
+    width: auto;
     /* ensure layout but use base text styling */
     font-size: 1rem;
     font-family: inherit;
@@ -380,26 +380,26 @@ body .route-content .trick-main .trick-name {
     /* layout digit containers horizontally next to the name */
     display: inline-flex;
     align-items: center;
-    gap: 0.08rem;
+    gap: 0;
     flex: 0 0 auto;
     margin-left: 0.12rem;
     overflow: visible;
     position: relative;
     /* ensure the siteswap digits don't wrap into multiple lines */
     flex-wrap: nowrap;
-    white-space: nowrap;
+    white-space: pre;
     max-width: none;
 }
 
 /* Siteswap-X digit container: ensure digits are compact but modifiers can be positioned above/below */
 .siteswap-x-digit-container {
     /* each digit container stacks throw-mod, digit, catch-mod vertically */
-    display: flex;
+    display: inline-flex;
     flex-direction: column;
     align-items: center;
     position: relative;
-    min-width: 1.4em; /* even wider digit spacing for modifier clearance */
-    margin: 0 0.3em 0 0; /* more margin for better modifier visibility */
+    /*min-width: 1.4em; even wider digit spacing for modifier clearance */
+    margin: 0; /* more margin for better modifier visibility */
     overflow: visible !important;
 }
 
@@ -477,7 +477,7 @@ body .route-content .trick-main .trick-name {
 .route-page .route-content .trick-siteswap-x,
 .route-page .trick-container .trick-siteswap-x,
 .route-page .trick-siteswap-x {
-    white-space: normal !important;
+    white-space: pre-wrap !important;
     overflow: visible !important;
     text-overflow: clip !important;
     max-width: none !important;
@@ -2129,7 +2129,7 @@ html body main .route-page {
 .trick-item .trick-main,
 .prop-details-frame .trick-main,
 .trick-details-frame .trick-main {
-    display: inline !important;
+    display: inline-flex !important;
     width: auto !important;
     align-items: baseline !important;
 }
