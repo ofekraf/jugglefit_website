@@ -302,3 +302,4 @@ function CreateTrickContainer(name, comment = '', siteswapX = '', options = {}) 
 window.CreateTrickContainer = CreateTrickContainer;
 window.toggleSiteswapXEverywhere = toggleSiteswapXEverywhere;
 window.toggleSiteswapX = toggleSiteswapX;
+window.formatSiteswapX = formatSiteswapX;

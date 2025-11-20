@@ -3934,3 +3934,101 @@ body .main-content .route-page {
     text-align: left !important;
     display: block !important;
 }
+
+
+
+
+/* Siteswap X Article Page Specific Styles */
+.siteswap-x-article .siteswap-x-digit-container {
+    font-size: 2rem !important; /* Double the base size */
+    margin: 1em 0.2em !important; /* Add vertical and horizontal margin */
+}
+
+.siteswap-x-article .siteswap-x-digit {
+    font-size: 1em !important; /* Inherit the 2rem size from the container */
+}
+
+.siteswap-x-article .siteswap-x-throw-mod {
+    top: -1.2em !important; /* Adjust position for larger font */
+}
+
+.siteswap-x-article .siteswap-x-catch-mod {
+    bottom: -1.2em !important; /* Adjust position for larger font */
+}
+
+/* Add vertical spacing to the list items */
+.siteswap-example-list li {
+    padding-top: 2em !important;
+    padding-bottom: 2em !important;
+}
+
+
+/* Siteswap X Article Page Styles */
+.siteswap-x-article .subsection {
+    margin-bottom: 3rem;
+}
+
+.siteswap-x-article .subsection-title {
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.siteswap-x-article .modifiers-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.siteswap-x-article .modifier-table h3 {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.siteswap-x-article .table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+}
+
+.siteswap-x-article .table th,
+.siteswap-x-article .table td {
+    border: 1px solid var(--border-color);
+    padding: 0.75rem;
+    text-align: left;
+}
+
+.siteswap-x-article .table thead {
+    background-color: var(--section-bg);
+}
+
+.siteswap-x-article .table-note {
+    font-size: 0.9rem;
+    color: var(--light-text);
+}
+
+.siteswap-x-article .siteswap-example-list li {
+    padding: 2.5em 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.siteswap-x-article .siteswap-example-list li:last-child {
+    border-bottom: none;
+}
+
+.siteswap-x-article .siteswap-x-digit-container {
+    font-size: 2rem !important;
+    margin: 1em 0.2em !important;
+}
+
+.siteswap-x-article .siteswap-x-digit {
+    font-size: 1em !important;
+}
+
+.siteswap-x-article .siteswap-x-throw-mod {
+    top: -1.2em !important;
+}
+
+.siteswap-x-article .siteswap-x-catch-mod {
+    bottom: -1.2em !important;
+}
