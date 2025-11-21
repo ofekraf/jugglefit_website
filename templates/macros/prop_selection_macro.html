@@ -1,0 +1,35 @@
+{% macro prop_selection_macro(props_settings, main_props, selected_prop=None) %}
+<div class="form-section">
+    <label class="form-label">Select Prop</label>
+    <div class="prop-group">
+        {# Render main props according to server-provided main_props (single source of truth) #}
+        {% for prop in props_settings.keys() %}
+            {% if prop in main_props %}
+                <label class="prop-option" data-prop-type="{{ prop }}">
+                    <input type="radio" name="prop" class="prop-option-input" value="{{ prop }}" 
+                        {% if selected_prop and selected_prop == prop %}checked{% elif not selected_prop and loop.first %}checked{% endif %}> 
+                    <span class="prop-option-name">{{ prop|replace('_',' ')|capitalize }}</span>
+                    <div class="prop-icon"></div>
+                </label>
+            {% endif %}
+        {% endfor %}
+
+        {# Additional props dropdown (opens on hover) placed to the right of main props #}
+        <div class="prop-dropdown">
+            <div class="prop-dropdown-label">Additional Props ▾</div>
+            <div class="prop-dropdown-menu">
+                {% for prop in props_settings.keys() %}
+                    {% if prop not in main_props %}
+                        <label class="prop-option" data-prop-type="{{ prop }}">
+                            <input type="radio" name="prop" class="prop-option-input" value="{{ prop }}" 
+                                {% if selected_prop and selected_prop == prop %}checked{% endif %}> 
+                            <span class="prop-option-name">{{ prop|replace('_',' ')|capitalize }}</span>
+                            <div class="prop-icon"></div>
+                        </label>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endmacro %}

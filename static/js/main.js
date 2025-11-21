@@ -24,33 +24,8 @@ function initMainJS() {
         });
     }
 
-    // Initialize the props slider
-    const propsSlider = document.getElementById('props-slider');
-    if (propsSlider && !propsSlider.noUiSlider) {  // Check if slider exists and not already initialized
-        const propsRange = document.getElementById('props-range');
-        const propsMinInput = document.getElementById('min-props-input');
-        const propsMaxInput = document.getElementById('max-props-input');
-
-        noUiSlider.create(propsSlider, {
-            start: [3, 7],
-            connect: true,
-            range: {
-                'min': 2,
-                'max': 9
-            },
-            format: {
-                to: (value) => Math.round(value),
-                from: (value) => parseFloat(value)
-            }
-        });
-
-        // Add event listener for props slider updates
-        propsSlider.noUiSlider.on('update', function(values) {
-            propsRange.textContent = `Min: ${values[0]}, Max: ${values[1]}`;
-            propsMinInput.value = Math.round(values[0]);
-            propsMaxInput.value = Math.round(values[1]);
-        });
-    }
+    // Props slider initialization is handled by number_of_props_macro.html
+    // No initialization needed here to avoid conflicts
 
     // Initialize the difficulty slider
     const difficultySlider = document.getElementById('difficulty-slider');

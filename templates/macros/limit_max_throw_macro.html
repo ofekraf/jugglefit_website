@@ -1,0 +1,122 @@
+{% macro limit_max_throw_macro(props_settings) %}
+<div class="form-section">
+    <label class="form-label">Max Throw (Optional)</label>
+    <div class="max-throw-container">
+        <div class="checkbox-wrapper">
+            <input type="checkbox" id="max-throw-enabled" class="form-checkbox">
+            <label for="max-throw-enabled" class="checkbox-label">Limit maximum throw height</label>
+        </div>
+    <div id="max-throw-input-container" class="max-throw-input-container hide">
+            <div class="slider-container">
+                <div class="slider-wrapper">
+                    <!-- Use safe defaults; per-prop values will be applied by setMaxThrowForProp -->
+                    <input type="range" id="max-throw-slider" min="1" max="50" value="10" class="custom-range">
+                    <span id="max-throw-value" class="slider-value">10</span>
+                </div>
+                <input type="hidden" id="max-throw-input" name="max_throw" value="">
+            </div>
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
+<script>
+// Max throw UI handlers
+function initMaxThrowUI() {
+    try {
+        // Query elements fresh in case DOM changed
+        const maxThrowEnabled = document.getElementById('max-throw-enabled');
+        const maxThrowContainer = document.getElementById('max-throw-input-container');
+        const maxThrowSlider = document.getElementById('max-throw-slider');
+        const maxThrowValue = document.getElementById('max-throw-value');
+        const maxThrowInput = document.getElementById('max-throw-input');
+    // initMaxThrowUI running
+        if (!maxThrowEnabled || !maxThrowContainer || !maxThrowSlider) return;
+
+        function updateMaxThrowUI() {
+            // updateMaxThrowUI
+            if (maxThrowEnabled.checked) {
+                // Use CSS classes to control visibility (consistent with stylesheet)
+                maxThrowContainer.classList.add('show');
+                maxThrowContainer.classList.remove('hide');
+                // Fallback: also set inline display to ensure visibility if CSS specificity interferes
+                try { maxThrowContainer.style.display = 'block'; } catch (e) {}
+                maxThrowInput.value = maxThrowSlider.value;
+            } else {
+                maxThrowContainer.classList.add('hide');
+                maxThrowContainer.classList.remove('show');
+                try { maxThrowContainer.style.display = 'none'; } catch (e) {}
+                maxThrowInput.value = '';
+            }
+            // maxThrowContainer state
+        }
+
+        // Avoid attaching handlers multiple times
+        if (!maxThrowEnabled._bound) {
+            maxThrowEnabled.addEventListener('change', updateMaxThrowUI);
+            // Also listen on the label click to handle cases where the event target is the label
+            const labelEl = document.querySelector('label[for="max-throw-enabled"]');
+            if (labelEl && !labelEl._bound) {
+                labelEl.addEventListener('click', function() { setTimeout(updateMaxThrowUI, 0); });
+                labelEl._bound = true;
+            }
+            maxThrowSlider.addEventListener('input', function() {
+                maxThrowValue.textContent = maxThrowSlider.value;
+                if (maxThrowEnabled.checked) {
+                    maxThrowInput.value = maxThrowSlider.value;
+                }
+                if (typeof window.updateSearchTricks === 'function') window.updateSearchTricks();
+            });
+            maxThrowEnabled._bound = true;
+        }
+        // Set initial state
+        updateMaxThrowUI();
+    } catch (e) {
+        console.error('Error initializing max-throw UI', e);
+    }
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initMaxThrowUI);
+} else {
+    initMaxThrowUI();
+}
+
+// Delegated fallback: if initMaxThrowUI didn't bind for some reason, ensure checkbox/label toggles the UI
+document.addEventListener('change', function(e) {
+    try {
+        const t = e.target;
+        if (!t) return;
+        if (t.id === 'max-throw-enabled') {
+            const container = document.getElementById('max-throw-input-container');
+            const slider = document.getElementById('max-throw-slider');
+            const input = document.getElementById('max-throw-input');
+            if (!container) return;
+            if (t.checked) {
+                container.classList.add('show'); container.classList.remove('hide');
+                try { container.style.display = 'block'; container.style.visibility = 'visible'; container.style.opacity = '1'; container.style.maxHeight = '1000px'; } catch(e){}
+                if (slider && input) input.value = slider.value;
+            } else {
+                container.classList.add('hide'); container.classList.remove('show');
+                try { container.style.display = 'none'; container.style.visibility = 'hidden'; container.style.opacity = '0'; container.style.maxHeight = '0'; } catch(e){}
+                if (input) input.value = '';
+            }
+        }
+    } catch (e) { /* swallow */ }
+});
+
+document.addEventListener('click', function(e) {
+    try {
+        const t = e.target;
+        if (!t) return;
+        // handle clicks on the label that may not produce a change event immediately
+        if (t.matches && t.matches('label[for="max-throw-enabled"]')) {
+            setTimeout(function() {
+                const cb = document.getElementById('max-throw-enabled');
+                if (cb) cb.dispatchEvent(new Event('change', { bubbles: true }));
+            }, 0);
+        }
+    } catch (e) {}
+});
+
+</script>

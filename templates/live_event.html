@@ -1,4 +1,4 @@
-{% extends "utils/base.html" %}
+{% extends "macros/base.html" %}
 {% block title %}Live Event - {{ route.name }}{% endblock %}
 {% block content %}
 <div class="live-event-page">
@@ -40,13 +40,13 @@
         <!-- Right Side - Route Map -->
         <div class="route-section">
             <div class="route-content">
-                {% include "utils/route_display.html" %}
+                {% include "macros/route_display.html" %}
             </div>
         </div>
     </div>
 
     <!-- Podium Section -->
-    <div class="podium-section" id="podium-section" style="display: none;">
+    <div class="podium-section hidden" id="podium-section">
         <h2>🏆</h2>
         <div class="podium-container">
             <div class="podium-place" id="podium-1">

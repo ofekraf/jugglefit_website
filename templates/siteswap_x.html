@@ -1,0 +1,109 @@
+{% extends "macros/base.html" %}
+
+{% block title %}Siteswap X: Official Syntax Reference{% endblock %}
+
+{% block head %}
+{{ super() }}
+{% endblock %}
+
+{% block content %}
+<div class="section siteswap-x-article">
+    <div class="section-container" style="max-width: 960px; margin: 0 auto;">
+        <h1 class="section-title" style="text-align: center;">Siteswap X: Official Syntax Reference</h1>
+        <p class="lead" style="text-align: center; max-width: 800px; margin: 0 auto 3rem auto;">Siteswap X extends standard siteswap notation to clearly describe advanced throws and catches for competitive and performance juggling.</p>
+
+        <div class="subsection">
+            <h2 class="subsection-title">1. Core Siteswap Syntax</h2>
+            <p>If you are not familiar with siteswap notation, see <a href="https://thomwall.com/siteswap-fundamentals/" target="_blank" rel="noopener noreferrer" class="link">Thom Wall's article on the fundamentals</a>.</p>
+        </div>
+
+        <div class="subsection">
+            <h2 class="subsection-title">2. Throw and Catch Modifiers</h2>
+            <p>Modifiers are written <strong>above</strong> and <strong>below</strong> each <strong>siteswap digit</strong>. The <strong>throw modifier</strong> (and optional spin) appears <strong>above</strong> the digit, and the <strong>catch modifier</strong> appears <strong>below</strong> the digit. The format is:</p>
+            <div style="padding: 3em 0; text-align: center;">
+                <span id="js-sx-demo-1"></span>
+            </div>
+            <ul>
+                <li><strong>Throw modifier</strong>: Above the siteswap digit.</li>
+                <li><strong>Catch modifier</strong>: Below the siteswap digit.</li>
+            </ul>
+
+            <div class="modifiers-grid">
+                <div class="modifier-table">
+                    <h3>Throw Modifiers</h3>
+                    <table class="table">
+                        <thead><tr><th>Code</th><th>Meaning</th></tr></thead>
+                        <tbody>
+                            <tr><td>B</td><td>Backcross</td></tr>
+                            <tr><td>UL</td><td>Under-the-leg</td></tr>
+                            <tr><td>S</td><td>Shoulder</td></tr>
+                            <tr><td>N</td><td>Neck</td></tr>
+                            <tr><td>OH</td><td>Overhead</td></tr>
+                            <tr><td>OU</td><td>Outside</td></tr>
+                            <tr><td>F</td><td>Flatfront</td></tr>
+                        </tbody>
+                    </table>
+                    <p class="table-note"><strong>Spin</strong> is written after the throw modifier, e.g. <code>B2</code> for a backcross with 2 spins.</p>
+                </div>
+                <div class="modifier-table">
+                    <h3>Catch Modifiers</h3>
+                    <table class="table">
+                        <thead><tr><th>Code</th><th>Meaning</th></tr></thead>
+                        <tbody>
+                            <tr><td>P</td><td>Penguin</td></tr>
+                            <tr><td>L</td><td>Lazy</td></tr>
+                            <tr><td>RB</td><td>Reverse Backcross</td></tr>
+                            <tr><td>RS</td><td>Reverse Shoulder</td></tr>
+                            <tr><td>UL</td><td>Under the Leg</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="subsection">
+            <h2 class="subsection-title">3. Pattern Examples</h2>
+            <ul class="list-unstyled siteswap-example-list">
+                <li><div id="js-sx-demo-2"></div></li>
+                <li><div id="js-sx-demo-3"></div></li>
+                <li><div id="js-sx-demo-4"></div></li>
+                <li><div id="js-sx-demo-5"></div></li>
+                <li><div id="js-sx-demo-6"></div></li>
+                <li><div id="js-sx-demo-7"></div></li>
+                <li><div id="js-sx-demo-8"></div></li>
+                <li><div id="js-sx-demo-9"></div></li>
+				<li><div id="js-sx-demo-10"></div></li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+    {{ super() }}
+<script src="{{ url_for('static', filename='js/siteswap_x.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof formatSiteswapX === 'function') {
+        document.getElementById('js-sx-demo-1').innerHTML = formatSiteswapX('3{B/P}');
+        const sxExamples = [
+            { id: 'js-sx-demo-2', pattern: '3', label: '3 props cascade' },
+            { id: 'js-sx-demo-3', pattern: '5{B}', label: '5 props backcrosses' },
+            { id: 'js-sx-demo-4', pattern: '53{UL}', label: '53, under the leg 3' },
+            { id: 'js-sx-demo-5', pattern: '4{S}', label: '4 props shoulder throws' },
+            { id: 'js-sx-demo-6', pattern: '53{B}4{/RS}', label: '534, backcross 3, Reverse shoulder 4' },
+			{ id: 'js-sx-demo-7', pattern: '5{F0}5555', label: "cascade, every 5'th throw as flat flatfront" },
+            { id: 'js-sx-demo-8', pattern: '3{-1/L}', label: 'reverse spin singles caught as lazies' },
+            { id: 'js-sx-demo-9', pattern: '4{S1/L}23{0}', label: '423, shoulder caught as lazy 4 with single spin, flat 3' },
+            { id: 'js-sx-demo-10', pattern: '3{/RB}3{B}3{UL}', label: '<a href="https://www.instagram.com/reel/C7q4GuHM-t3/?igsh=ODN6MmEyd3kxaWZz" target="_blank">Video example</a>' }
+        ];
+        sxExamples.forEach(({ id, pattern, label }) => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.className = 'siteswap-x-row';
+                el.innerHTML = `<span>${formatSiteswapX(pattern)}</span> <span class="text-muted" style="margin-left: 10px;">(${label})</span>`;
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

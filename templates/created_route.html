@@ -1,9 +1,15 @@
-{% extends "utils/base.html" %}
-{% block title %}{% endblock %}
+{% extends "macros/base.html" %}
+{% block title %}Route - JuggleFit{% endblock %}
 {% block content %}
-<div class="route-page">
+<div class="route-page created-route-page">
+    <div class="route-header">
+        <h1 id="route-title" class="route-title">Route</h1>
+    </div>
+    
     <div class="route-layout">
-        {% include "utils/route_display.html" %}
+        <div id="route-sections" class="route-sections">
+            <!-- Route content will be populated by JavaScript -->
+        </div>
     </div>
 </div>
 
@@ -22,20 +28,76 @@
     </div>
     <div class="route-buttons">
         <button class="primary-button" onclick="shareRoute()">Share</button>
-        <a href="/live_event?route={{ route.serialize() | urlencode }}" class="primary-button live-event-button">Live Event</a>
-        <a href="/build_route?route={{ route.serialize() | urlencode }}" class="primary-button">Edit</a>
+        <a id="live-event-link" href="#" class="primary-button live-event-button">Live Event</a>
+        <a id="edit-route-link" href="#" class="primary-button">Edit</a>
         <button class="primary-button print-button" onclick="printRoute()">Print with QR</button>
         <button class="primary-button print-button" onclick="printRouteWithoutQR()">Print without QR</button>
     </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
+<script src="{{ url_for('static', filename='js/general.js') }}"></script>
+<script src="{{ url_for('static', filename='js/siteswap_x.js') }}"></script>
+
+<script type="module">
+    // Import route loading functions
+    const { loadRoute, initRouteLoading } = await import("{{ url_for('static', filename='js/route_helpers.js') }}");
+    
+    // Make functions available globally
+    window.loadRoute = loadRoute;
+    window.initRouteLoading = initRouteLoading;
+    
+    // Initialize route loading immediately 
+    initRouteLoading(updateUIWithRoute);
+    
+    // Update UI elements after route loads
+    // Removed all DOMContentLoaded logic to prevent post-load interference
+    
+    function updateUIWithRoute() {
+        if (!window.currentRoute) return;
+        
+        const titleElement = document.getElementById('route-title');
+        if (titleElement) {
+            titleElement.textContent = window.currentRoute.name || 'Untitled Route';
+        }
+        
+        // Update timer with correct duration
+        originalDuration = window.currentRoute.duration_seconds || 600;
+        if (typeof resetTimer === 'function') {
+            resetTimer();
+        }
+        
+        // Update action links with current route parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const routeParam = urlParams.get('route');
+        if (routeParam) {
+            const encodedRoute = encodeURIComponent(routeParam);
+            const liveEventLink = document.getElementById('live-event-link');
+            const editRouteLink = document.getElementById('edit-route-link');
+            
+            if (liveEventLink) {
+                liveEventLink.href = `/live_event?route=${encodedRoute}`;
+            }
+            if (editRouteLink) {
+                const siteswapToggle = document.getElementById('toggle-siteswap-x-checkbox');
+                const siteswapXEnabled = siteswapToggle && siteswapToggle.checked;
+                let editUrl = `/build_route?route=${encodedRoute}`;
+                if (siteswapXEnabled) {
+                    editUrl += '&siteswapx=1';
+                }
+                editRouteLink.href = editUrl;
+            }
+        }
+    }
+</script>
+
 <script>
     // Initialize countdown timer
     let finalTime = null;
     let timerInterval = null;
     let isRunning = false;
-    const originalDuration = parseInt('{{ route.duration_seconds }}') || 600;
+    let originalDuration = 600; // Default, will be updated when route loads
 
     // Share Route functionality
     function shareRoute() {
@@ -67,35 +129,6 @@
             }, 300);
         }, 3000);
     }
-
-    // Add checkboxes to all tricks
-    document.addEventListener('DOMContentLoaded', function() {
-        const trickContents = document.querySelectorAll('.trick-content');
-        trickContents.forEach(content => {
-            const checkbox = document.createElement('input');
-            checkbox.type = 'checkbox';
-            checkbox.className = 'trick-checkbox no-print';
-            
-            checkbox.addEventListener('change', function() {
-                const trickNumber = content.querySelector('.trick-number');
-                const trickName = content.querySelector('.trick-name');
-                const trickComment = content.querySelector('.trick-comment');
-                
-                if (this.checked) {
-                    if (trickNumber) trickNumber.style.textDecoration = 'line-through';
-                    if (trickName) trickName.style.textDecoration = 'line-through';
-                    if (trickComment) trickComment.style.textDecoration = 'line-through';
-                } else {
-                    if (trickNumber) trickNumber.style.textDecoration = 'none';
-                    if (trickName) trickName.style.textDecoration = 'none';
-                    if (trickComment) trickComment.style.textDecoration = 'none';
-                }
-            });
-            
-            // Insert checkbox at the beginning of the trick content
-            content.insertBefore(checkbox, content.firstChild);
-        });
-    });
 
     function updateTimer() {
         if (!finalTime) return;

@@ -1,4 +1,4 @@
-{% extends "utils/base.html" %}
+{% extends "macros/base.html" %}
 {% block title %}Create Your Own Route{% endblock %}
 {% block content %}
 <div class="route-page">
@@ -9,136 +9,24 @@
         </div>
     </div>
 
+    {% from 'macros/route_name_input.html' import route_name_input %}
+    {% from 'macros/prop_selection_macro.html' import prop_selection_macro %}
+    {% from 'macros/number_of_props_macro.html' import number_of_props_macro %}
+    {% from 'macros/difficulty_range_macro.html' import difficulty_range_macro %}
+    {% from 'macros/number_of_tricks_macro.html' import number_of_tricks_macro %}
+    {% from 'macros/route_duration_macro.html' import route_duration_macro %}
+    {% from 'macros/limit_max_throw_macro.html' import limit_max_throw_macro %}
+    {% from 'macros/relevant_tags_macro.html' import relevant_tags_macro %}
+
     <form method="POST" action="{{ url_for('generate_route') }}" class="route-form">
-        <div class="form-section">
-            <label for="route_name" class="form-label">Route Name</label>
-            <input type="text" id="route_name" name="route_name" placeholder="My awesome route" class="form-input" required>
-        </div>
-
-        <div class="form-section">
-            <label class="form-label">Select Prop</label>
-            <div class="prop-group">
-                {# Render main props according to server-provided main_props (single source of truth) #}
-                {% for prop in props_settings.keys() %}
-                    {% if prop in main_props %}
-                        <label class="prop-option" data-prop-type="{{ prop }}">
-                            <input type="radio" name="prop" class="prop-option-input" value="{{ prop }}" {% if loop.first %}checked{% endif %}> 
-                            <span class="prop-option-name">{{ prop|replace('_',' ')|capitalize }}</span>
-                            <div class="prop-icon"></div>
-                        </label>
-                    {% endif %}
-                {% endfor %}
-
-                {# Additional props dropdown (opens on hover) placed to the right of main props #}
-                <div class="prop-dropdown">
-                    <div class="prop-dropdown-label">Additional Props ▾</div>
-                    <div class="prop-dropdown-menu">
-                        {% for prop in props_settings.keys() %}
-                            {% if prop not in main_props %}
-                                <label class="prop-option" data-prop-type="{{ prop }}">
-                                    <input type="radio" name="prop" class="prop-option-input" value="{{ prop }}"> 
-                                    <span class="prop-option-name">{{ prop|replace('_',' ')|capitalize }}</span>
-                                    <div class="prop-icon"></div>
-                                </label>
-                            {% endif %}
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="form-section">
-            <label class="form-label">Number of Props</label>
-            <div class="slider-container">
-                <div id="props-slider" class="custom-slider"></div>
-                <div class="slider-values">
-                    <span id="props-range"></span>
-                </div>
-                <input type="hidden" id="min-props-input" name="min_props">
-                <input type="hidden" id="max-props-input" name="max_props">
-            </div>
-        </div>
-
-        <div class="form-section">
-            <label class="form-label">Difficulty Range</label>
-            <div class="slider-container">
-                <div id="difficulty-slider" class="custom-slider"></div>
-                <div class="slider-values">
-                    <span id="difficulty-range">Min: 20, Max: 30</span>
-                </div>
-                <input type="hidden" id="min-difficulty-input" name="min_difficulty" value="20">
-                <input type="hidden" id="max-difficulty-input" name="max_difficulty" value="30">
-            </div>
-        </div>
-
-        <div class="form-section">
-            <label class="form-label">Number of Tricks</label>
-            <div class="slider-container">
-                <div class="slider-wrapper">
-                    <input type="range" id="route-length-slider" min="1" max="20" value="10" class="custom-range">
-                    <span id="route-length-value" class="slider-value">10</span>
-                </div>
-                <input type="hidden" id="route-length-input" name="route_length" value="10">
-            </div>
-        </div>
-
-        <div class="form-section">
-            <label class="form-label">Route Duration (minutes)</label>
-            <div class="slider-container">
-                <div class="slider-wrapper">
-                    <input type="range" id="route-duration-slider" min="1" max="30" value="10" class="custom-range">
-                    <span id="route-duration-value" class="slider-value">10</span>
-                </div>
-                <input type="hidden" id="route-duration-input" name="route_duration" value="10">
-            </div>
-        </div>
-
-        <div class="form-section">
-            <label class="form-label">Max Throw (Optional)</label>
-            <div class="max-throw-container">
-                <div class="checkbox-wrapper">
-                    <input type="checkbox" id="max-throw-enabled" class="form-checkbox">
-                    <label for="max-throw-enabled" class="checkbox-label">Limit maximum throw height</label>
-                </div>
-                <div id="max-throw-input-container" class="max-throw-input-container" style="display: none;">
-                    <div class="slider-container">
-                        <div class="slider-wrapper">
-                            <input type="range" id="max-throw-slider" min="1" max="{{ props_settings.max_throw }}" value="10" class="custom-range">
-                            <span id="max-throw-value" class="slider-value">{{ props_settings.max_throw }}</span>
-                        </div>
-                        <input type="hidden" id="max-throw-input" name="max_throw" value="">
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="form-section">
-            <label class="form-label">Exclude Tags</label>
-            <div class="tricks-container">
-                <div class="tricks-column">
-                    <div id="exclude_tags" class="tags-grid">
-                        {% for category, tags in tag_category_map.items() %}
-                            <div class="tag-category" data-category="{{ category }}">
-                                <div class="tag-category-header">
-                                    <input type="checkbox" id="category-{{ category }}" class="category-checkbox">
-                                    <label for="category-{{ category }}" class="tag-category-title">
-                                        {{ category|capitalize }}
-                                    </label>
-                                </div>
-                                <div class="tag-category-content">
-                                    {% for tag in tags %}
-                                        <div class="checkbox-container">
-                                            <input type="checkbox" id="tag-{{ tag }}" name="exclude_tags" value="{{ tag }}" class="tag-checkbox" data-category="{{ category }}">
-                                            <label for="tag-{{ tag }}">{{ tag|capitalize }}</label>
-                                        </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-        </div>
+        {{ route_name_input() }}
+        {{ prop_selection_macro(props_settings, main_props) }}
+        {{ number_of_props_macro() }}
+        {{ difficulty_range_macro() }}
+        {{ number_of_tricks_macro() }}
+        {{ route_duration_macro() }}
+        {{ limit_max_throw_macro(props_settings) }}
+        {{ relevant_tags_macro(tag_category_map) }}
 
         <div class="form-actions">
             <button type="submit" class="primary-button">Generate Route</button>
@@ -154,10 +42,14 @@
 <!-- Include noUISlider CSS and JS -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.js"></script>
-<script src="{{ url_for('static', filename='js/tricks_utils.js') }}"></script>
-<script>
+<script src="{{ url_for('static', filename='js/siteswap_x.js') }}"></script>
+<script type="module">
+    import { fetchTricks, updatePropsSliderRange, updateRelevantTags, setMaxThrowForProp, initMaxThrowBindings, getRandomTrickForDifficulty } from "{{ url_for('static', filename='js/route_helpers.js') }}";
+
     // Props settings from Flask
     const propsSettings = {{ props_settings|tojson|safe }};
+    // Expose globally for macros that initialize sliders and helpers
+    window.propsSettings = propsSettings;
     const propsSlider = document.getElementById('props-slider');
     const propsRange = document.getElementById('props-range');
     const propsMinInput = document.getElementById('min-props-input');
@@ -176,24 +68,6 @@
     let minProps = propSettings.min_props;
     let maxProps = propSettings.max_props;
 
-    noUiSlider.create(propsSlider, {
-        start: [minProps, maxProps],
-        connect: true,
-        range: {
-            'min': minProps,
-            'max': maxProps
-        },
-        format: {
-            to: (value) => Math.round(value),
-            from: (value) => parseFloat(value)
-        }
-    });
-
-    propsSlider.noUiSlider.on('update', function(values) {
-        propsRange.textContent = `Min: ${values[0]}, Max: ${values[1]}`;
-        propsMinInput.value = Math.round(values[0]);
-        propsMaxInput.value = Math.round(values[1]);
-    });
 
     // Handler for prop change: updates all prop-dependent UI and fetches tricks
     function handlePropChange() {
@@ -203,70 +77,41 @@
         const propSettings = propsSettings[prop];
         const minProps = propSettings.min_props;
         const maxProps = propSettings.max_props;
-        // Update slider range
-        propsSlider.noUiSlider.updateOptions({
-            range: { min: minProps, max: maxProps },
-            start: [minProps, maxProps]
-        });
+
+        // Update slider range via helper imported from module
+        updatePropsSliderRange(minProps, maxProps);
         propsRange.textContent = `Min: ${minProps}, Max: ${maxProps}`;
         propsMinInput.value = minProps;
         propsMaxInput.value = maxProps;
-        // Show only relevant tags
-        updateRelevantTags(propSettings.relevant_tags);
-        // Update max-throw slider limits for the newly selected prop (if available)
-        try {
-            const propMaxThrow = propSettings.max_throw;
-            if (Number.isFinite(propMaxThrow)) {
-                maxThrowSlider.min = 1;
-                maxThrowSlider.max = propMaxThrow;
-                maxThrowSlider.value = propMaxThrow; // default to top max
-                maxThrowValue.textContent = propMaxThrow;
-                if (maxThrowEnabled.checked) maxThrowInput.value = propMaxThrow;
-            } else {
-                // leave existing slider configuration in place
-                maxThrowValue.textContent = maxThrowSlider.value;
-            }
-        } catch (e) {
-            console.warn('Error setting max-throw for prop:', e);
-        }
-    // Fetch tricks for selected prop and current max throw
-    const maxThrowElem = document.getElementById('max-throw-enabled');
-    const maxThrow = maxThrowElem && maxThrowElem.checked ? parseInt(document.getElementById('max-throw-input').value) : null;
-    // Build request payload with numeric values where available. Use propSettings' min/max props by default.
-    const minPropsValue = Number.isFinite(Number(propSettings.min_props)) ? Number(propSettings.min_props) : null;
-    const maxPropsValue = Number.isFinite(Number(propSettings.max_props)) ? Number(propSettings.max_props) : null;
-    const _minDifficulty = parseInt(document.getElementById('min-difficulty-input').value);
-    const _maxDifficulty = parseInt(document.getElementById('max-difficulty-input').value);
-    const minDifficultyValue = Number.isFinite(_minDifficulty) ? _minDifficulty : null;
-    const maxDifficultyValue = Number.isFinite(_maxDifficulty) ? _maxDifficulty : null;
-    const excludedTags = Array.from(document.querySelectorAll('input[name="exclude_tags"]:checked')).map(cb => cb.value);
 
-    // Load all tricks for this prop (no client-side filters yet). Filtering is applied later when generating routes/tooltips.
-    fetchTricks({ propType: prop })
-        .then(tricks => { window.allTricks = tricks; })
-        .catch(error => { console.error('Error fetching tricks:', error); });
+        // Update relevant tags via imported helper
+        updateRelevantTags(propSettings.relevant_tags, '');
+
+        // Use centralized max-throw handler
+    // setMaxThrowForProp called for initial prop
+    try { setMaxThrowForProp(propSettings); } catch (e) { console.error('setMaxThrowForProp error', e); }
+
+        // Fetch tricks for selected prop and current max throw
+        const maxThrowElem = document.getElementById('max-throw-enabled');
+        const maxThrow = maxThrowElem && maxThrowElem.checked ? parseInt(document.getElementById('max-throw-input').value) : null;
+        // Build request payload with numeric values where available. Use propSettings' min/max props by default.
+        const minPropsValue = Number.isFinite(Number(propSettings.min_props)) ? Number(propSettings.min_props) : null;
+        const maxPropsValue = Number.isFinite(Number(propSettings.max_props)) ? Number(propSettings.max_props) : null;
+        const _minDifficulty = parseInt(document.getElementById('min-difficulty-input').value);
+        const _maxDifficulty = parseInt(document.getElementById('max-difficulty-input').value);
+        const minDifficultyValue = Number.isFinite(_minDifficulty) ? _minDifficulty : null;
+        const maxDifficultyValue = Number.isFinite(_maxDifficulty) ? _maxDifficulty : null;
+        const excludedTags = Array.from(document.querySelectorAll('input[name="exclude_tags"]:checked')).map(cb => cb.value);
+
+        // Load all tricks for this prop (no client-side filters yet). Filtering is applied later when generating routes/tooltips.
+        fetchTricks({ propType: prop })
+            .then(tricks => { 
+                window.allTricks = tricks; 
+                // fetchTricks resolved
+            })
+            .catch(error => { console.error('Error fetching tricks:', error); });
     }
 
-    // Handler for max throw checkbox: only toggles slider visibility and updates hidden input
-    function handleMaxThrowCheckbox() {
-        if (maxThrowEnabled.checked) {
-            maxThrowContainer.style.display = 'block';
-            const maxThrow = parseInt(maxThrowSlider.value);
-            maxThrowInput.value = maxThrow;
-        } else {
-            maxThrowContainer.style.display = 'none';
-            maxThrowInput.value = '';
-        }
-    }
-
-    // Handler for max throw slider: only updates value and slider text
-    function handleMaxThrowSlider() {
-        const maxThrow = parseInt(maxThrowSlider.value);
-        maxThrowValue.textContent = maxThrow;
-        if (maxThrowEnabled.checked) {
-            maxThrowInput.value = maxThrow;
-        }
-    }
 
     // Attach handler to all prop radio inputs and update .selected class
     document.querySelectorAll('.prop-option-input').forEach(input => {
@@ -283,30 +128,7 @@
             handlePropChange();
         });
     });
-    // Attach handler to max throw slider for value/text only
-    maxThrowSlider.addEventListener('input', handleMaxThrowSlider);
-
-    // Attach handler to max throw checkbox for visibility only
-    maxThrowEnabled.addEventListener('change', handleMaxThrowCheckbox);
-    // Show only relevant tags for selected prop
-    function updateRelevantTags(relevantTags) {
-        // Hide all tag categories by default
-        document.querySelectorAll('.tag-category').forEach(cat => cat.style.display = 'none');
-        // Show only categories with at least one relevant tag
-        document.querySelectorAll('.tag-category').forEach(cat => {
-            let showCategory = false;
-            cat.querySelectorAll('.tag-checkbox').forEach(cb => {
-                if (relevantTags.includes(cb.value)) {
-                    cb.parentElement.style.display = '';
-                    showCategory = true;
-                } else {
-                    cb.parentElement.style.display = 'none';
-                    cb.checked = false;
-                }
-            });
-            if (showCategory) cat.style.display = '';
-        });
-    }
+    // max-throw handlers are implemented inside the limit_max_throw_macro
 
     // On page load, select the first prop and trigger change to initialize UI
     document.addEventListener('DOMContentLoaded', function() {
@@ -319,165 +141,206 @@
             if (typeof handlePropChange === 'function') {
                 handlePropChange();
             }
+            // Ensure max-throw bindings are active (idempotent)
+            try { initMaxThrowBindings(); } catch (e) { console.error('initMaxThrowBindings error', e); }
         }
+
+        // (diagnostic overlay removed) 
     });
 
-    // Initialize the difficulty slider (range 0 to 100)
+    // Difficulty slider and props slider initialization moved into macros
     const difficultySlider = document.getElementById('difficulty-slider');
     const difficultyRange = document.getElementById('difficulty-range');  
     const difficultyMinInput = document.getElementById('min-difficulty-input');
     const difficultyMaxInput = document.getElementById('max-difficulty-input');
-    noUiSlider.create(difficultySlider, {
-        start: [20, 30],
-        connect: true,
-        range: {
-            'min': 0,
-            'max': 100
-        },
-        format: {
-            to: (value) => Math.round(value),
-            from: (value) => parseFloat(value)
-        }
-    });
 
     // Store all tricks for the current prop type
     window.allTricks = [];
 
     // Function to show trick tooltip
     function showTrickTooltip(event, difficulty) {
-        if (!Array.isArray(allTricks) || allTricks.length === 0) return;
+        if (!Array.isArray(allTricks) || allTricks.length === 0) {
+            return;
+        }
         const minProps = parseInt(document.getElementById('min-props-input').value);
         const maxProps = parseInt(document.getElementById('max-props-input').value);
         const excludedTags = Array.from(document.querySelectorAll('input[name="exclude_tags"]:checked')).map(cb => cb.value);
-    const currentPropInput = document.querySelector('.prop-option-input:checked');
-    const currentProp = currentPropInput ? currentPropInput.value : null;
+        const currentPropInput = document.querySelector('.prop-option-input:checked');
+        const currentProp = currentPropInput ? currentPropInput.value : null;
 
-    // Determine maxThrow from checkbox/slider and get a random trick respecting it
-    const maxThrowElem = document.getElementById('max-throw-enabled');
-    const tooltipMaxThrow = maxThrowElem && maxThrowElem.checked ? parseInt(document.getElementById('max-throw-input').value) : null;
-    // Get a random trick for the current difficulty
-    const trick = getRandomTrickForDifficulty(allTricks, difficulty, minProps, maxProps, excludedTags, tooltipMaxThrow);
-        if (!trick) return;
+        // Determine maxThrow from checkbox/slider and get a random trick respecting it
+        const maxThrowElem = document.getElementById('max-throw-enabled');
+        const tooltipMaxThrow = maxThrowElem && maxThrowElem.checked ? parseInt(document.getElementById('max-throw-input').value) : null;
+        // Get a random trick for the current difficulty
+        let trick = null;
+        try {
+            trick = getRandomTrickForDifficulty(allTricks, difficulty, minProps, maxProps, excludedTags, tooltipMaxThrow);
+        } catch (e) { /* ignore helper errors */ }
+
+        // Diagnostic banner removed
 
         // Remove any existing tooltip
         const existingTooltip = document.querySelector('.trick-tooltip');
-        if (existingTooltip) {
-            existingTooltip.remove();
+        if (!trick) {
+            if (existingTooltip) existingTooltip.remove();
+            // No exact-match trick — do not show a tooltip
+            return;
         }
+
+        if (existingTooltip) existingTooltip.remove();
 
         const tooltip = document.createElement('div');
         tooltip.className = 'trick-tooltip';
-        tooltip.textContent = `${trick.props_count} ${currentProp}: ${trick.name}`;
-        
-        // Position the tooltip near the cursor
-        tooltip.style.left = `${event.clientX + 10}px`;
-        tooltip.style.top = `${event.clientY + 10}px`;
-        
+        // Defensive tooltip text: prefer trick.name but fall back to siteswap or a placeholder
+        let tooltipText = `${trick.props_count || ''} ${currentProp || ''}: ${trick.name || ''}`;
+        if (!tooltipText || tooltipText.trim() === '' || tooltipText.match(/^\s*:\s*$/)) {
+            tooltipText = `${trick.props_count || ''} ${currentProp || ''}: ${trick.siteswap || trick.name || '(unknown trick)'}`;
+        }
+        tooltip.textContent = tooltipText;
+
+        // Determine coordinates (guard against synthetic event objects)
+        let x = (event && typeof event.clientX === 'number') ? event.clientX : null;
+        let y = (event && typeof event.clientY === 'number') ? event.clientY : null;
+        if (x === null || y === null) {
+            // Try to derive from target element bounding rect if available
+            if (event && event.target && event.target.getBoundingClientRect) {
+                const r = event.target.getBoundingClientRect();
+                x = Math.round(r.left + r.width / 2);
+                y = Math.round(r.top + r.height / 2);
+            } else {
+                // Fallback to center of viewport
+                x = Math.round(window.innerWidth / 2);
+                y = Math.round(window.innerHeight / 2);
+            }
+        }
+
+        // Position the tooltip near the computed point
+        tooltip.style.left = (x + 10) + 'px';
+        tooltip.style.top = (y + 10) + 'px';
+
+        // Add a bright outline to ensure visibility for debugging
+        tooltip.style.outline = '2px solid rgba(255,255,0,0.9)';
+
         document.body.appendChild(tooltip);
+
+        // Log what element sits under the tooltip point
+        try {
+            const elAtPoint = document.elementFromPoint(x + 12, y + 12);
+            const rect = tooltip.getBoundingClientRect();
+            const style = window.getComputedStyle(tooltip);
+        } catch (e) { /* ignore elementFromPoint errors */ }
+
+        // Auto-remove after 3 seconds so debug doesn't persist
+        setTimeout(() => {
+            try { tooltip.remove(); } catch (e) {}
+        }, 3000);
     }
 
-    // Update the difficulty range display
-    difficultySlider.noUiSlider.on('update', function(values) {
-        difficultyRange.textContent = `Min: ${values[0]}, Max: ${values[1]}`;
-        difficultyMinInput.value = Math.round(values[0]);
-        difficultyMaxInput.value = Math.round(values[1]);
-    });
+    // Expose to global for the difficulty macro which expects window.showTrickTooltip
+    try { window.showTrickTooltip = showTrickTooltip; } catch (e) { console.warn('Failed to attach showTrickTooltip to window', e); }
 
-    // Add hover functionality to the difficulty slider
-    difficultySlider.querySelectorAll('.noUi-handle').forEach((handle, index) => {
-        handle.addEventListener('mouseenter', (event) => {
-            const currentValue = parseInt(difficultySlider.noUiSlider.get()[index]);
-            showTrickTooltip(event, currentValue);
+    // Update the difficulty range display (only if slider exists)
+    if (difficultySlider && difficultySlider.noUiSlider) {
+        difficultySlider.noUiSlider.on('update', function(values) {
+            difficultyRange.textContent = `Min: ${values[0]}, Max: ${values[1]}`;
+            difficultyMinInput.value = Math.round(values[0]);
+            difficultyMaxInput.value = Math.round(values[1]);
         });
+    }
 
-        handle.addEventListener('mouseleave', () => {
-            const tooltip = document.querySelector('.trick-tooltip');
-            if (tooltip) {
-                tooltip.remove();
-            }
-        });
-    });
+    // Difficulty slider hover/tooltip handled inside the difficulty_range_macro
 
-    // Update tooltip when slider value changes (including while dragging)
-    difficultySlider.noUiSlider.on('update', function(values) {
-        const handles = difficultySlider.querySelectorAll('.noUi-handle');
+    // Robustly attach tooltip handlers to noUiSlider handles. The slider may be created
+    // by the macro after this script runs, so retry and use a MutationObserver.
+    function attachDifficultyHandleTooltips() {
+        const slider = document.getElementById('difficulty-slider');
+        if (!slider) return false;
+        const handles = Array.from(slider.querySelectorAll('.noUi-handle'));
+        if (!handles || handles.length === 0) return false;
+
         handles.forEach((handle, index) => {
-            const isHovered = handle.matches(':hover');
-            if (isHovered) {
-                const currentValue = parseInt(values[index]);
-                const event = { 
-                    clientX: handle.getBoundingClientRect().left, 
-                    clientY: handle.getBoundingClientRect().top 
-                };
-                showTrickTooltip(event, currentValue);
-            }
+            if (handle._tooltipHandlerAttached) return;
+            const enter = (event) => {
+                try {
+                    const currentValue = slider.noUiSlider ? parseInt(slider.noUiSlider.get()[index]) : null;
+                    if (typeof window.showTrickTooltip === 'function') window.showTrickTooltip(event, currentValue);
+                } catch (e) { /* swallow */ }
+            };
+            const leave = () => {
+                try { const t = document.querySelector('.trick-tooltip'); if (t) t.remove(); } catch (e) {}
+            };
+            handle.addEventListener('mouseenter', enter);
+            handle.addEventListener('mouseleave', leave);
+            handle._tooltipHandlerAttached = true;
         });
-    });
+
+        // Also ensure updates while dragging show tooltip for hovered handle
+        if (slider.noUiSlider && typeof slider.noUiSlider.on === 'function') {
+            try {
+                slider.noUiSlider.on('update', function(values) {
+                    try {
+                        const handlesNow = Array.from(slider.querySelectorAll('.noUi-handle'));
+                        handlesNow.forEach((h, i) => {
+                            if (h.matches(':hover')) {
+                                const ev = { clientX: h.getBoundingClientRect().left, clientY: h.getBoundingClientRect().top, target: h };
+                                if (typeof window.showTrickTooltip === 'function') window.showTrickTooltip(ev, parseInt(values[i]));
+                            }
+                        });
+                    } catch (e) {}
+                });
+            } catch (e) {}
+        }
+
+        return true;
+    }
+
+    // Try immediate attach and retry a couple of times; observe mutations on the slider parent
+    (function ensureHandlesAttached() {
+        let attached = attachDifficultyHandleTooltips();
+        if (attached) return;
+        // retry timers
+        const retries = [200, 800, 1600];
+        retries.forEach((ms) => setTimeout(() => { try { attached = attachDifficultyHandleTooltips(); } catch(e){} }, ms));
+
+        // MutationObserver to attach when nodes are added under the slider's parent
+        try {
+            const parent = document.querySelector('.slider-container') || document.body;
+            const mo = new MutationObserver((mutations) => {
+                try {
+                    if (attachDifficultyHandleTooltips()) {
+                        mo.disconnect();
+                    }
+                } catch (e) {}
+            });
+            mo.observe(parent, { childList: true, subtree: true });
+        } catch (e) { /* ignore */ }
+    })();
 
     // Update the value displayed next to the "Number of Tricks" slider
     const routeLengthSlider = document.getElementById('route-length-slider');
     const routeLengthValue = document.getElementById('route-length-value');
     const routeLengthInput = document.getElementById('route-length-input');
-    routeLengthSlider.addEventListener('input', () => {
-        routeLengthValue.textContent = routeLengthSlider.value;
-        routeLengthInput.value = routeLengthSlider.value;
-    });
+    if (routeLengthSlider && routeLengthValue && routeLengthInput) {
+        routeLengthSlider.addEventListener('input', () => {
+            routeLengthValue.textContent = routeLengthSlider.value;
+            routeLengthInput.value = routeLengthSlider.value;
+        });
+    }
 
     // Update the value displayed next to the "Route Duration" slider
     const routeDurationSlider = document.getElementById('route-duration-slider');
     const routeDurationValue = document.getElementById('route-duration-value');
     const routeDurationInput = document.getElementById('route-duration-input');
-    routeDurationSlider.addEventListener('input', () => {
-        const minutes = parseInt(routeDurationSlider.value);
-        routeDurationValue.textContent = minutes;
-        routeDurationInput.value = minutes;
-    });
-
-    // (max throw handlers are declared earlier to avoid duplicate declarations)
-
-    // (Removed updateSelectedState and its call; will use central handler instead)
-
-    document.addEventListener('DOMContentLoaded', function() {
-        // Tag category functionality
-        document.querySelectorAll('.tag-category-title').forEach(title => {
-            title.addEventListener('click', function(e) {
-                // Don't toggle if clicking the checkbox
-                if (e.target.type === 'checkbox') return;
-                
-                const header = this.closest('.tag-category-header');
-                const content = header.nextElementSibling;
-                
-                content.classList.toggle('expanded');
-            });
+    if (routeDurationSlider && routeDurationValue && routeDurationInput) {
+        routeDurationSlider.addEventListener('input', () => {
+            const minutes = parseInt(routeDurationSlider.value);
+            routeDurationValue.textContent = minutes;
+            routeDurationInput.value = minutes;
         });
+    }
 
-        // Category checkbox functionality
-        document.querySelectorAll('.category-checkbox').forEach(checkbox => {
-            checkbox.addEventListener('change', function(e) {
-                // Stop event from triggering the header click
-                e.stopPropagation();
-                
-                const category = this.id.replace('category-', '');
-                const relatedCheckboxes = document.querySelectorAll(`.tag-checkbox[data-category="${category}"]`);
-                relatedCheckboxes.forEach(cb => {
-                    cb.checked = this.checked;
-                });
-            });
-        });
+    // Max Throw UI is handled by the limit_max_throw_macro
 
-        // Update category checkbox when individual tags change
-        document.querySelectorAll('.tag-checkbox').forEach(checkbox => {
-            checkbox.addEventListener('change', function() {
-                const category = this.dataset.category;
-                const categoryCheckbox = document.getElementById(`category-${category}`);
-                const relatedCheckboxes = document.querySelectorAll(`.tag-checkbox[data-category="${category}"]`);
-                const allChecked = Array.from(relatedCheckboxes).every(cb => cb.checked);
-                const someChecked = Array.from(relatedCheckboxes).some(cb => cb.checked);
-                
-                categoryCheckbox.checked = allChecked;
-                categoryCheckbox.indeterminate = someChecked && !allChecked;                
-            });
-        });
-    });
+    // Tag interactions are handled by the relevant_tags_macro
 </script>
 {% endblock %}

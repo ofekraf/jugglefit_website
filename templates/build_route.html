@@ -1,4 +1,40 @@
-{% extends "utils/base.html" %}
+{% extends "macros/base.html" %}
+
+{% block head %}
+<script>
+// Trick filtering constants from Flask context
+window.MIN_TRICK_DIFFICULTY = {{ MIN_TRICK_DIFFICULTY }};
+window.MAX_TRICK_DIFFICULTY = {{ MAX_TRICK_DIFFICULTY }};
+</script>
+<script>
+// Make props settings available globally for macros
+const propsSettings = {{ props_settings|tojson|safe }};
+window.propsSettings = propsSettings;
+</script>
+<script>
+// Initialize window.currentRoute properly
+window.currentRoute = { name: '', duration_seconds: 600, prop: '', tricks: [] };
+</script>
+<script>
+// Expose initial_route from Flask as window.initialRoute for JS
+{% if initial_route %}
+window.initialRoute = {{ initial_route|tojson|safe }};
+{% else %}
+window.initialRoute = null;
+{% endif %}
+
+// Initialize currentRoute from initial_route if available
+if (window.initialRoute && window.initialRoute.tricks) {
+    window.currentRoute = {
+        name: window.initialRoute.name || '',
+        duration_seconds: window.initialRoute.duration_seconds || 600,
+        prop: window.initialRoute.prop || '',
+        tricks: window.initialRoute.tricks || []
+    };
+}
+</script>
+{% endblock %}
+
 {% block title %}Create Your Own Route{% endblock %}
 {% block content %}
 <div class="route-page">
@@ -7,67 +43,38 @@
         <div class="route-description">
             <p>Create a custom route by selecting tricks.</p>
         </div>
+        <div class="siteswap-x-toggle-row center-row">
+            <label class="siteswap-x-toggle-label">
+                <input type="checkbox" id="toggle-siteswap-x-checkbox" class="siteswap-x-toggle-checkbox"> Siteswap-X
+            </label>
+        </div>
     </div>
 
+    {% from 'macros/route_name_input.html' import route_name_input %}
+    {% from 'macros/prop_selection_macro.html' import prop_selection_macro %}
+    {% from 'macros/number_of_props_macro.html' import number_of_props_macro %}
+    {% from 'macros/difficulty_range_macro.html' import difficulty_range_macro %}
+    {% from 'macros/route_duration_macro.html' import route_duration_macro %}
+    {% from 'macros/limit_max_throw_macro.html' import limit_max_throw_macro %}
+    {% from 'macros/relevant_tags_macro.html' import relevant_tags_macro %}
+    {% from 'macros/available_tricks_macro.html' import available_tricks_macro %}
+
     <div class="route-form">
-        <div class="form-section">
-            <label for="route_name" class="form-label">Route Name</label>
-            <input type="text" id="route_name" name="route_name" placeholder="My awesome route" class="form-input" required>
-        </div>
+        {{ route_name_input() }}
+        {{ route_duration_macro() }}
 
-        <div class="form-section">
-            <label for="route_duration" class="form-label">Route Duration (minutes)</label>
-            <div class="slider-container">
-                <div class="slider-wrapper">
-                    <input type="range" id="route-duration-slider" min="1" max="30" value="10" class="custom-range">
-                    <span id="route-duration-value" class="slider-value">10</span>
-                </div>
-                <input type="hidden" id="route-duration-input" name="route_duration" value="10">
-            </div>
-        </div>
-
-
-
-        <div class="form-section">
-            <label class="form-label">Select Prop</label>
-            <div class="prop-group">
-                {# Render main props according to server-provided main_props (keeps single source of truth) #}
-                {% for prop in props_settings.keys() %}
-                    {% if prop in main_props %}
-                        <label class="prop-option" data-prop-type="{{ prop }}">
-                            <input type="radio" name="prop" class="prop-option-input" value="{{ prop }}"> 
-                            <span class="prop-option-name">{{ prop|replace('_',' ')|capitalize }}</span>
-                            <div class="prop-icon"></div>
-                        </label>
-                    {% endif %}
-                {% endfor %}
-
-                {# Additional props dropdown placed to the right #}
-                <div class="prop-dropdown">
-                    <div class="prop-dropdown-label">Additional Props ▾</div>
-                    <div class="prop-dropdown-menu">
-                        {% for prop in props_settings.keys() %}
-                            {% if prop not in main_props %}
-                                <label class="prop-option" data-prop-type="{{ prop }}">
-                                    <input type="radio" name="prop" class="prop-option-input" value="{{ prop }}"> 
-                                    <span class="prop-option-name">{{ prop|replace('_',' ')|capitalize }}</span>
-                                    <div class="prop-icon"></div>
-                                </label>
-                            {% endif %}
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-        </div>
+        {{ prop_selection_macro(props_settings, main_props, initial_route.prop if initial_route else None) }}
 
         <!-- Route Display -->
         <div class="form-section">
-            <label class="form-label">Your Route</label>
             <div class="route-container">
                 <div class="route-content">
-                    <div class="route-sections" id="route-sections">
-                        <!-- Route sections will be populated by JavaScript -->
-                    </div>
+                    {% if initial_route %}
+                        {% set route = initial_route %}
+                        {% include "macros/route_display.html" %}
+                    {% else %}
+                        <div id="route-sections" class="route-sections"></div>
+                    {% endif %}
                 </div>
             </div>
             <div class="route-actions">
@@ -87,97 +94,39 @@
                         <input type="text" id="custom_trick_name" class="form-input" placeholder="Enter trick name">
                     </div>
                     <div class="form-group">
+                        <label for="custom_trick_siteswap">Siteswap-X</label>
+                        <input type="text" id="custom_trick_siteswap" class="form-input" placeholder="Enter siteswap-x notation">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
                         <label for="custom_trick_props">Number of Props</label>
                         <div class="slider-container">
                             <div class="slider-wrapper">
-                                <input type="range" id="custom_trick_props" class="custom-range" 
-                                    min="1" 
-                                    max="10" 
-                                    value="1">
-                                <span id="custom_trick_props_value" class="slider-value">1</span>
+                                <input type="range" id="custom_trick_props" class="custom-range" min="1" max="{{ MAX_TRICK_PROPS_COUNT }}" value="3">
+                                <span id="custom_trick_props_value" class="slider-value">3</span>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="form-group">
-                    <label for="custom_trick_comment">Comment (Optional)</label>
-                    <textarea id="custom_trick_comment" class="form-input" placeholder="Add a comment about the trick"></textarea>
+                    <div class="form-group">
+                        <label for="custom_trick_comment">Comment (Optional)</label>
+                        <textarea id="custom_trick_comment" class="form-input" placeholder="Add a comment about the trick"></textarea>
+                    </div>
                 </div>
                 <button type="button" id="add_custom_trick" class="add-trick">Add</button>
             </div>
         </div>
 
         <div class="form-section">
-            <h4 class="subsection-title">Add Tricks</h4>
-            <label class="form-label">Number of Props</label>
-            <div class="slider-container">
-                <div id="props-slider" class="custom-slider"></div>
-                <div class="slider-values">
-                    <span id="props-range"></span>
-                </div>
-                <input type="hidden" id="min-props-input" name="min_props">
-                <input type="hidden" id="max-props-input" name="max_props">
+            <div class="route-form">
+                <h4 class="subsection-title">Add Tricks</h4>
+                {{ number_of_props_macro() }}
+                {{ difficulty_range_macro() }}
+                {{ limit_max_throw_macro(props_settings) }}
+                {{ relevant_tags_macro(tag_category_map, 'available') }}
+                {{ available_tricks_macro() }}
             </div>
         </div>
-
-        <div class="form-section">
-            <label class="form-label">Difficulty Range</label>
-            <div class="slider-container">
-                <div id="difficulty-slider" class="custom-slider"></div>
-                <div class="slider-values">
-                    <span id="difficulty-range">Min: 20, Max: 30</span>
-                </div>
-                <input type="hidden" id="min-difficulty-input" name="min_difficulty" value="20">
-                <input type="hidden" id="max-difficulty-input" name="max_difficulty" value="30">
-            </div>
-        </div>
-
-        <div class="form-section">
-            <label class="form-label">Exclude Tags</label>
-            <div class="tricks-container">
-                <div class="tricks-column">
-                    <div id="exclude_tags" class="tags-grid">
-                        {% for category, tags in tag_category_map.items() %}
-                            <div class="tag-category" data-category="{{ category }}">
-                                <div class="tag-category-header">
-                                    <input type="checkbox" id="category-{{ category }}" class="category-checkbox">
-                                    <label for="category-{{ category }}" class="tag-category-title">
-                                        {{ category|capitalize }}
-                                    </label>
-                                </div>
-                                <div class="tag-category-content">
-                                    {% for tag in tags %}
-                                        <div class="checkbox-container">
-                                            <input type="checkbox" id="tag-{{ tag }}" name="exclude_tags" value="{{ tag }}" class="tag-checkbox" data-category="{{ category }}">
-                                            <label for="tag-{{ tag }}">{{ tag|capitalize }}</label>
-                                        </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="form-section">
-            <label class="form-label">Available Tricks</label>
-            <div class="tricks-container">
-                <div class="tricks-column">
-                    <div id="all_tricks" class="tricks-grid">
-                        <!-- Tricks will be populated by filterTricks function -->
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Print-only container -->
-    <div id="print-container" class="print-only">
-        <div class="print-header">
-            <h1 id="print-route-name"></h1>
-        </div>
-        <div id="print-route-content"></div>
     </div>
 </div>
 
@@ -188,734 +137,305 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script src="{{ url_for('static', filename='js/tricks_utils.js') }}"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
 <script src="{{ url_for('static', filename='js/general.js') }}"></script>
+<script src="{{ url_for('static', filename='js/siteswap_x.js') }}"></script>
 
-<!-- Pass Flask data to JavaScript -->
+<script type="module">
+    try {
+        const { fetchTricks, updatePropsSliderRange, updateRelevantTags, setMaxThrowForProp, initMaxThrowBindings, initializePropSelection, refreshFromRoute, updateRouteDisplay, addTrickToRoute, removeTrick, updateCustomTrickPropsRange } = await import("{{ url_for('static', filename='js/route_helpers.js') }}");
+        
+        // Make functions available globally for non-module scripts and macros
+        window.fetchTricks = fetchTricks;
+        window.updateRelevantTags = updateRelevantTags;
+        window.setMaxThrowForProp = setMaxThrowForProp;
+        window.updatePropsSliderRange = updatePropsSliderRange;
+        window.initializePropSelection = initializePropSelection;
+        window.refreshFromRoute = refreshFromRoute;
+        window.updateRouteDisplay = updateRouteDisplay;
+        window.addTrickToRoute = addTrickToRoute;
+        window.removeTrick = removeTrick;
+        window.updateCustomTrickPropsRange = updateCustomTrickPropsRange;
+        
+        // Initialize max throw bindings
+        initMaxThrowBindings();
+        
+        // Check for siteswap-x URL parameter and set checkbox immediately
+        const urlParams = new URLSearchParams(window.location.search);
+        const siteswapXParam = urlParams.get('siteswapx');
+        if (siteswapXParam === '1') {
+            const siteswapToggle = document.getElementById('toggle-siteswap-x-checkbox');
+            if (siteswapToggle) {
+                siteswapToggle.checked = true;
+            }
+        }
+        
+        // Initialize prop selection immediately if functions are available
+        if (typeof window.initializePropSelection === 'function') {
+            window.initializePropSelection();
+        }
+        
+        const event = new CustomEvent('routeHelpersReady');
+        document.dispatchEvent(event);
+        
+    } catch (error) {
+        // Failed to import route helpers
+    }
+</script>
+
+<!-- Inlined route initialization logic (previously in macros/route_initialization_macro.html) -->
 <script>
-    // Props settings from Flask
-    const propsSettings = {{ props_settings|tojson|safe }};
-    // Initial route data passed from server (may be null)
-    const initialRoute = {{ initial_route|tojson|default('null') }};
-    // Current route state used by the builder
-    let currentRoute = initialRoute ? initialRoute : { name: '', prop: null, tricks: [] };
-    if (typeof window !== 'undefined') window.currentRoute = currentRoute;
-    // Cache tricks per prop to avoid repeated network calls
-    if (typeof window !== 'undefined') window.tricksCache = window.tricksCache || {};
-    // Elements used across functions: keep them top-level so handlers can reference reliably
-    const propsSlider = document.getElementById('props-slider');
-    const propsRange = document.getElementById('props-range');
-    const propsMinInput = document.getElementById('min-props-input');
-    const propsMaxInput = document.getElementById('max-props-input');
-
-    // Toast notification function
-    function showToast(message, focusElementId = null) {
-        const toast = document.getElementById('toast');
-        toast.textContent = message;
-        toast.classList.add('show');
+(function() {
+    'use strict';
+    
+    function initializeFromInitialRoute(initialRoute) {
         
-        // Focus on the specified element if provided
-        if (focusElementId) {
-            const element = document.getElementById(focusElementId);
-            if (element) {
-                element.focus();
-                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
+        // Set route name immediately without delay
+        const routeNameInput = document.getElementById('route_name');
+        if (routeNameInput) {
+            routeNameInput.value = initialRoute.name || '';
+            routeNameInput.dispatchEvent(new Event('input', { bubbles: true }));
         }
+
+        window.currentRoute.name = initialRoute.name || '';
+
+        // Set duration
+        const durationMinutes = Math.floor(initialRoute.duration_seconds / 60);
+        const durationSlider = document.getElementById('route-duration-slider');
+        const durationValue = document.getElementById('route-duration-value');
         
-        setTimeout(() => {
-            toast.classList.remove('show');
-        }, 3000);
+        if (durationSlider) durationSlider.value = durationMinutes;
+        if (durationValue) durationValue.textContent = durationMinutes;
+        window.currentRoute.duration_seconds = initialRoute.duration_seconds;
+
+        // Set prop type
+        window.currentRoute.prop = initialRoute.prop;
+        const propInput = document.querySelector(`input[value="${initialRoute.prop}"]`);
+        if (propInput) {
+            propInput.checked = true;
+            const propOption = propInput.closest('.prop-option');
+            if (propOption) {
+                propOption.classList.add('selected');
+            }
+            
+            // Set tricks from initial route
+            window.currentRoute.tricks = initialRoute.tricks || [];
+            
+            // Initialize prop-specific functionality for the initial route prop
+            const propSettings = window.propsSettings && window.propsSettings[initialRoute.prop];
+            if (propSettings) {
+                // Update relevant tags for this prop
+                if (typeof window.updateRelevantTags === 'function') {
+                    window.updateRelevantTags(propSettings.relevant_tags, 'available');
+                }
+                
+                // Set max throw for this prop
+                if (typeof window.setMaxThrowForProp === 'function') {
+                    window.setMaxThrowForProp(propSettings);
+                }
+                
+                // Update custom trick props range for initial route
+                if (typeof window.updateCustomTrickPropsRange === 'function') {
+                    window.updateCustomTrickPropsRange(propSettings.min_props, propSettings.max_props);
+                }
+            }
+            
+            // Update route display after setting tricks
+            if (typeof window.updateRouteDisplay === 'function') {
+                window.updateRouteDisplay();
+            }
+        } else {
+            // Set tricks if no prop input found
+            window.currentRoute.tricks = initialRoute.tricks || [];
+            if (typeof window.updateRouteDisplay === 'function') {
+                window.updateRouteDisplay();
+            }
+        }
     }
-
-    // Note: initialization of the first selected prop is handled after sliders/listeners
-    // are set up by calling initializePropSelection() once the page scripts run.
-
-    // Store all tricks for the current prop type (populated on prop change)
-    window.allTricks = [];
-
-        // Function to update route display
-        function updateRouteDisplay() {
-            const routeSections = document.getElementById('route-sections');
-            routeSections.innerHTML = '';
-
-            let currentPropsCount = null;
-            let currentSection = null;
-            let trickCounter = 1;
-
-            currentRoute.tricks.forEach((trick, index) => {
-                // Check if we need to create a new section
-                if (currentPropsCount !== trick.props_count || 
-                    (index > 0 && currentRoute.tricks[index - 1].props_count !== trick.props_count)) {
-                    // Close previous section if it exists
-                    if (currentSection) {
-                        currentSection.querySelector('.trick-container').appendChild(document.createElement('div'));
+    
+    function initializeEventListeners() {
+        
+        // Route name input - simple: change currentRoute and refresh
+        const routeNameInput = document.getElementById('route_name');
+        if (routeNameInput) {
+            routeNameInput.addEventListener('input', function(e) {
+                if (window.currentRoute) {
+                    window.currentRoute.name = e.target.value;
+                    // Only refresh route display, not all GUI (avoid cursor jumping)
+                    if (typeof window.updateRouteDisplay === 'function') {
+                        window.updateRouteDisplay();
                     }
-
-                    // Create new section
-                    const section = document.createElement('div');
-                    section.className = 'prop-section';
-                    section.setAttribute('data-props-count', trick.props_count);
-                    
-                    const colorBar = document.createElement('div');
-                    colorBar.className = 'prop-color-bar';
-                    colorBar.setAttribute('data-props', trick.props_count);
-                    colorBar.setAttribute('data-prop-type', currentRoute.prop);
-                    colorBar.setAttribute('draggable', 'true');
-                    
-                    const propCount = document.createElement('div');
-                    propCount.className = 'prop-count';
-                    
-                    const propCountText = document.createElement('div');
-                    propCountText.className = 'prop-count-text';
-                    propCountText.textContent = trick.props_count;
-                    
-                    propCount.appendChild(propCountText);
-                    colorBar.appendChild(propCount);
-                    section.appendChild(colorBar);
-                    
-                    const trickContainer = document.createElement('div');
-                    trickContainer.className = 'trick-container';
-                    trickContainer.setAttribute('data-props-count', trick.props_count);
-                    
-                    section.appendChild(trickContainer);
-                    routeSections.appendChild(section);
-                    
-                    // Add drag and drop event listeners for the color bar
-                    colorBar.addEventListener('dragstart', handleSectionDragStart);
-                    colorBar.addEventListener('dragover', handleSectionDragOver);
-                    colorBar.addEventListener('drop', handleSectionDrop);
-                    colorBar.addEventListener('dragend', handleSectionDragEnd);
-                    
-                    currentSection = section;
-                    currentPropsCount = trick.props_count;
                 }
+            });
+        }
 
-                // Create trick frame
-                const frame = document.createElement('div');
-                frame.className = 'prop-details-frame';
-                frame.setAttribute('draggable', 'true');
-                frame.setAttribute('data-trick-name', trick.name);
-                
-                const trickContent = document.createElement('div');
-                trickContent.className = 'trick-content';
-                
-                const trickMain = document.createElement('div');
-                trickMain.className = 'trick-main';
-                
-                // Add trick number
-                const number = document.createElement('span');
-                number.className = 'trick-number';
-                number.textContent = `${trickCounter}.`;
-                trickMain.appendChild(number);
-                
-                const name = document.createElement('span');
-                name.className = 'trick-name';
-                name.textContent = trick.name;
-                name.contentEditable = true;
-                name.addEventListener('blur', function() {
-                    const newName = this.textContent.trim();
-                    if (newName) {
-                        trick.name = newName;
-                        frame.setAttribute('data-trick-name', newName);
-                    } else {
-                        this.textContent = trick.name;
+        // Route duration slider - simple: change currentRoute and refresh
+        const routeDurationSlider = document.getElementById('route-duration-slider');
+        
+        if (routeDurationSlider) {
+            routeDurationSlider.addEventListener('input', () => {
+                const minutes = parseInt(routeDurationSlider.value);
+                if (window.currentRoute) {
+                    window.currentRoute.duration_seconds = minutes * 60;
+                    if (typeof window.refreshFromRoute === 'function') {
+                        window.refreshFromRoute();
                     }
+                }
+            });
+        }
+
+        // Siteswap-X toggle
+        const siteswapToggle = document.getElementById('toggle-siteswap-x-checkbox');
+        if (siteswapToggle) {
+            siteswapToggle.addEventListener('change', function() {
+                if (typeof window.toggleSiteswapXEverywhere === 'function') {
+                    window.toggleSiteswapXEverywhere();
+                }
+            });
+        }
+
+        // Available tricks filters
+        const maxThrowInput = document.getElementById('max-throw-input');
+        if (maxThrowInput) {
+            maxThrowInput.addEventListener('input', () => {
+                if (typeof window.updateSearchTricks === 'function') {
+                    window.updateSearchTricks();
+                }
+            });
+        }
+
+        // Prop selection radio buttons - initialize tricks and tags when prop is selected
+        document.querySelectorAll('input[name="prop"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                if (this.checked && typeof window.initializePropSelection === 'function') {
+                    window.initializePropSelection();
+                }
+            });
+        });
+
+        // Wait for route helpers to be ready before initializing
+        function initializeWhenReady() {
+            const currentlySelectedProp = document.querySelector('input[name="prop"]:checked');
+            if (currentlySelectedProp && typeof window.initializePropSelection === 'function') {
+                window.initializePropSelection();
+            } else if (currentlySelectedProp) {
+                setTimeout(initializeWhenReady, 100);
+            }
+        }
+
+        // Listen for route helpers ready event
+        document.addEventListener('routeHelpersReady', initializeWhenReady);
+        
+        // Also try immediate initialization in case the event already fired
+        setTimeout(initializeWhenReady, 50);
+
+        // Debug function accessible from console
+        window.debugInitialization = function() {
+            const selectedProp = document.querySelector('input[name="prop"]:checked');
+            if (selectedProp && typeof window.initializePropSelection === 'function') {
+                window.initializePropSelection();
+            }
+        };
+        
+        // Manual trigger function
+        window.manualInit = function() {
+            initializeWhenReady();
+        };
+
+        // Exclude tags for available tricks
+        document.querySelectorAll('input[name="exclude_tags_available"]').forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                if (typeof window.updateSearchTricks === 'function') {
+                    window.updateSearchTricks();
+                }
+            });
+        });
+
+        // Category checkboxes for available tricks
+        document.querySelectorAll('.category-checkbox-available').forEach(checkbox => {
+            checkbox.addEventListener('change', function(e) {
+                e.stopPropagation();
+                const category = this.id.replace('category-available-', '');
+                const relatedCheckboxes = document.querySelectorAll(`.tag-checkbox-available[data-category="${category}"]`);
+                relatedCheckboxes.forEach(cb => {
+                    cb.checked = this.checked;
                 });
-                trickMain.appendChild(name);
-                
-                if (trick.comment) {
-                    const comment = document.createElement('span');
-                    comment.className = 'trick-comment';
-                    comment.textContent = ` [${trick.comment}]`;
-                    comment.contentEditable = true;
-                    comment.addEventListener('blur', function() {
-                        const newComment = this.textContent.replace(/[\[\]]/g, '').trim();
-                        trick.comment = newComment;
-                        this.textContent = newComment ? ` [${newComment}]` : '';
-                    });
-                    trickMain.appendChild(comment);
+                if (typeof window.updateSearchTricks === 'function') {
+                    window.updateSearchTricks();
                 }
-                
-                trickContent.appendChild(trickMain);
-                
-                const removeButton = document.createElement('button');
-                removeButton.className = 'remove-trick';
-                removeButton.textContent = '×';
-                removeButton.onclick = () => removeTrick(trick);
-                trickContent.appendChild(removeButton);
-                
-                frame.appendChild(trickContent);
-                
-                // Add drag and drop event listeners for tricks
-                frame.addEventListener('dragstart', handleDragStart);
-                frame.addEventListener('dragover', handleDragOver);
-                frame.addEventListener('drop', handleDrop);
-                frame.addEventListener('dragend', handleDragEnd);
-                
-                currentSection.querySelector('.trick-container').appendChild(frame);
-                trickCounter++;
             });
-        }
+        });
 
-        // Drag and drop functionality
-        let draggedItem = null;
-        let draggedSection = null;
+        // Update category checkbox when individual tags change (available tricks)
+        document.querySelectorAll('.tag-checkbox-available').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const category = this.dataset.category;
+                const categoryCheckbox = document.getElementById(`category-available-${category}`);
+                const relatedCheckboxes = document.querySelectorAll(`.tag-checkbox-available[data-category="${category}"]`);
+                const allChecked = Array.from(relatedCheckboxes).every(cb => cb.checked);
+                const someChecked = Array.from(relatedCheckboxes).some(cb => cb.checked);
+                if (categoryCheckbox) {
+                    categoryCheckbox.checked = allChecked;
+                    categoryCheckbox.indeterminate = someChecked && !allChecked;
+                }
+                if (typeof window.updateSearchTricks === 'function') {
+                    window.updateSearchTricks();
+                }
+            });
+        });
 
-        function handleDragStart(e) {
-            draggedItem = e.target;
-            e.target.classList.add('dragging');
-        }
+        // Custom trick functionality
+        const addCustomTrickBtn = document.getElementById('add_custom_trick');
+        if (addCustomTrickBtn) {
+            addCustomTrickBtn.addEventListener('click', function() {
+                const name = document.getElementById('custom_trick_name').value.trim();
+                const siteswapX = document.getElementById('custom_trick_siteswap').value.trim();
+                const propsCount = parseInt(document.getElementById('custom_trick_props').value);
+                const comment = document.getElementById('custom_trick_comment').value.trim();
 
-        function handleDragOver(e) {
-            e.preventDefault();
-            const frame = e.target.closest('.prop-details-frame');
-            if (!frame || frame === draggedItem) return;
-            
-            const container = frame.parentElement;
-            const rect = frame.getBoundingClientRect();
-            const midY = rect.top + rect.height / 2;
-            
-            if (e.clientY < midY) {
-                container.insertBefore(draggedItem, frame);
-            } else {
-                container.insertBefore(draggedItem, frame.nextSibling);
-            }
-        }
 
-        function handleDrop(e) {
-            e.preventDefault();
-            e.target.classList.remove('dragging');
-        }
-
-        function handleDragEnd(e) {
-            e.target.classList.remove('dragging');
-            draggedItem = null;
-            
-            // Update the tricks array to match the new DOM order
-            const frames = document.querySelectorAll('.prop-details-frame');
-            const newTricks = [];
-            let currentPropsCount = null;
-            let currentSection = null;
-            
-            frames.forEach(frame => {
-                const name = frame.getAttribute('data-trick-name');
-                const trick = currentRoute.tricks.find(t => t.name === name);
-                if (trick) {
-                    // If this is a new props count or we're in a different section
-                    if (currentPropsCount !== trick.props_count || currentSection !== frame.closest('.prop-section')) {
-                        currentPropsCount = trick.props_count;
-                        currentSection = frame.closest('.prop-section');
+                // Validation: must have at least name or siteswap-x
+                if (!name && !siteswapX) {
+                    if (typeof window.showToast === 'function') {
+                        window.showToast('Please enter either a trick name or siteswap-x notation', 'custom_trick_name');
                     }
-                    newTricks.push(trick);
+                    return;
                 }
-            });
-            
-            currentRoute.tricks = newTricks;
-            updateRouteDisplay();
-        }
 
-        function handleSectionDragStart(e) {
-            draggedSection = e.target.closest('.prop-section');
-            draggedSection.classList.add('dragging');
-            // Add a visual indicator that the entire section is being dragged
-            draggedSection.style.opacity = '0.5';
-        }
-
-        function handleSectionDragOver(e) {
-            e.preventDefault();
-            const section = e.target.closest('.prop-section');
-            if (!section || section === draggedSection) return;
-            
-            const container = section.parentElement;
-            const rect = section.getBoundingClientRect();
-            const midY = rect.top + rect.height / 2;
-            
-            if (e.clientY < midY) {
-                container.insertBefore(draggedSection, section);
-            } else {
-                container.insertBefore(draggedSection, section.nextSibling);
-            }
-        }
-
-        function handleSectionDrop(e) {
-            e.preventDefault();
-            e.target.classList.remove('dragging');
-        }
-
-        function handleSectionDragEnd(e) {
-            e.target.classList.remove('dragging');
-            draggedSection.style.opacity = '1';
-            draggedSection = null;
-            
-            // Update the tricks array to match the new section order
-            const sections = document.querySelectorAll('.prop-section');
-            const newTricks = [];
-            sections.forEach(section => {
-                const frames = section.querySelectorAll('.prop-details-frame');
-                frames.forEach(frame => {
-                    const name = frame.getAttribute('data-trick-name');
-                    const trick = currentRoute.tricks.find(t => t.name === name);
-                    if (trick) newTricks.push(trick);
-                });
-            });
-            currentRoute.tricks = newTricks;
-            
-            // Update the route display to reflect the new order and numbers
-            updateRouteDisplay();
-            
-            // Update the tricks list to reflect the new order
-            updateSearchTricks();
-        }
-
-        function addTrickToRoute(trick) {
-            // Check if a trick with the same name and props_count already exists
-            const isDuplicate = currentRoute.tricks.some(t => 
-                t.name === trick.name && t.props_count === trick.props_count
-            );
-            
-            if (isDuplicate) {
-                showToast('This trick is already in your route.');
-                return;
-            }
-            
-            // Add the trick to the end of the route
-            currentRoute.tricks.push(trick);
-            
-            // Update the display to show the new trick at the end
-            updateRouteDisplay();
-        }
-    // Expose to window so renderTricks can call it
-    if (typeof window !== 'undefined') window.addTrickToRoute = addTrickToRoute;
+                const customTrick = {
+                    name: name || null,  // Keep name as null if not provided, don't default to 'Custom Trick'
+                    siteswap_x: siteswapX || null,
+                    props_count: propsCount,
+                    difficulty: 30,
+                    tags: [],
+                    comment: comment || null
+                };
 
 
-        // Function to remove trick from route
-        function removeTrick(trick) {
-            currentRoute.tricks = currentRoute.tricks.filter(t => t.name !== trick.name);
-            updateRouteDisplay();
-        }
-
-        // Function to initialize sliders
-        function initializeSliders() {
-            // Props slider initialization
-            if (propsSlider && !propsSlider.noUiSlider) {  // Check if slider exists and not already initialized
-
-                // Try to get the initially selected prop (may be null if initialRoute will select later)
-                const firstSelectedInput = document.querySelector('.prop-option-input:checked');
-                if (firstSelectedInput) {
-                    const selectedProp = firstSelectedInput.value;
-                    const propSettings = propsSettings[selectedProp];
-                    const minProps = propSettings.min_props;
-                    const maxProps = propSettings.max_props;
-
-                    noUiSlider.create(propsSlider, {
-                        start: [minProps, maxProps],
-                        connect: true,
-                        range: {
-                            'min': minProps,
-                            'max': maxProps
-                        },
-                        format: {
-                            to: (value) => Math.round(value),
-                            from: (value) => parseFloat(value)
-                        }
-                    });
-
-                    propsSlider.noUiSlider.on('update', function(values) {
-                        if (propsRange) propsRange.textContent = `Min: ${values[0]}, Max: ${values[1]}`;
-                        if (propsMinInput) propsMinInput.value = Math.round(values[0]);
-                        if (propsMaxInput) propsMaxInput.value = Math.round(values[1]);
-                        updateSearchTricks();
-                    });
+                if (typeof window.addTrickToRoute === 'function') {
+                    window.addTrickToRoute(customTrick);
                 } else {
-                    // No selected prop yet (likely initialRoute will set it). Leave slider uninitialized;
-                    // the prop-change handler will lazy-initialize the slider when a prop is selected.
-                    if (propsRange) propsRange.textContent = '';
-                    if (propsMinInput) propsMinInput.value = '';
-                    if (propsMaxInput) propsMaxInput.value = '';
+                    // Fallback to direct addition
+                    if (!window.currentRoute) {
+                        window.currentRoute = { name: '', duration_seconds: 600, prop: '', tricks: [] };
+                    }
+                    window.currentRoute.tricks.push(customTrick);
+                    if (typeof window.refreshFromRoute === 'function') {
+                        window.refreshFromRoute();
+                    }
                 }
-            }
 
-            // When prop changes, update slider limits and tags
-            document.querySelectorAll('.prop-option-input').forEach(input => {
-                input.addEventListener('change', function() {
-                    // Update .selected class on prop labels
-                    document.querySelectorAll('.prop-option').forEach(label => {
-                        const radio = label.querySelector('.prop-option-input');
-                        if (radio && radio.checked) {
-                            label.classList.add('selected');
-                        } else {
-                            label.classList.remove('selected');
-                        }
-                    });
-
-                    let prop = this.value;
-                    // Keep currentRoute.prop in sync with selected prop
-                    if (!currentRoute) currentRoute = { name: '', prop: prop, tricks: [] };
-                    else currentRoute.prop = prop;
-                    // Reset the route's tricks when the prop changes (user starts a new route)
-                    currentRoute.tricks = [];
-                    if (typeof window !== 'undefined') window.currentRoute = currentRoute;
-                    // Refresh the visible route to show the empty state
-                    try { updateRouteDisplay(); } catch (e) { /* ignore if not initialized yet */ }
-                    let propSettings = propsSettings[prop];
-                    let minProps = propSettings.min_props;
-                    let maxProps = propSettings.max_props;
-                    // Update or (lazy) initialize slider range
-                    if (propsSlider) {
-                        if (propsSlider.noUiSlider) {
-                            propsSlider.noUiSlider.updateOptions({
-                                range: { min: minProps, max: maxProps },
-                                start: [minProps, maxProps]
-                            });
-                        } else {
-                            // lazy-create slider if it wasn't initialized (e.g., when initialRoute selects a prop)
-                            try {
-                                noUiSlider.create(propsSlider, {
-                                    start: [minProps, maxProps],
-                                    connect: true,
-                                    range: { 'min': minProps, 'max': maxProps },
-                                    format: { to: (value) => Math.round(value), from: (value) => parseFloat(value) }
-                                });
-                                propsSlider.noUiSlider.on('update', function(values) {
-                                    if (propsRange) propsRange.textContent = `Min: ${values[0]}, Max: ${values[1]}`;
-                                    if (propsMinInput) propsMinInput.value = Math.round(values[0]);
-                                    if (propsMaxInput) propsMaxInput.value = Math.round(values[1]);
-                                    updateSearchTricks();
-                                });
-                            } catch (e) {
-                                console.warn('Failed to create props slider dynamically:', e);
-                            }
-                        }
-                    }
-                    if (propsRange) propsRange.textContent = `Min: ${minProps}, Max: ${maxProps}`;
-                    if (propsMinInput) propsMinInput.value = minProps;
-                    if (propsMaxInput) propsMaxInput.value = maxProps;
-                    // Update custom trick props slider to match prop limits and set to 3 (clamped)
-                    const customPropsEl = document.getElementById('custom_trick_props');
-                    const customPropsValueEl = document.getElementById('custom_trick_props_value');
-                    if (customPropsEl) {
-                        customPropsEl.min = minProps;
-                        customPropsEl.max = maxProps;
-                        // Desired default for custom trick props is 3; clamp to available range
-                        let desired = 3;
-                        if (desired < minProps) desired = minProps;
-                        if (desired > maxProps) desired = maxProps;
-                        customPropsEl.value = desired;
-                    }
-                    if (customPropsValueEl) {
-                        customPropsValueEl.textContent = customPropsEl ? customPropsEl.value : minProps;
-                    }
-                    // Show only relevant tags
-                    updateRelevantTags(propSettings.relevant_tags);
-                    // Load all tricks for this prop (use cache when available)
-                    if (window.tricksCache && window.tricksCache[prop]) {
-                        window.allTricks = window.tricksCache[prop];
-                        updateSearchTricks();
-                    } else {
-                        fetchTricks({ propType: prop })
-                            .then(tricks => {
-                                window.allTricks = tricks;
-                                window.tricksCache = window.tricksCache || {};
-                                window.tricksCache[prop] = tricks;
-                                updateSearchTricks();
-                            })
-                            .catch(error => {
-                                console.error('Error fetching tricks:', error);
-                                updateSearchTricks();
-                            });
-                    }
-                });
+                // Clear the input fields
+                document.getElementById('custom_trick_name').value = '';
+                document.getElementById('custom_trick_siteswap').value = '';
+                document.getElementById('custom_trick_comment').value = '';
             });
         }
 
-        // Show only relevant tags for selected prop (copied from generate_route behavior)
-        function updateRelevantTags(relevantTags) {
-            // Hide all tag categories by default
-            document.querySelectorAll('.tag-category').forEach(cat => cat.style.display = 'none');
-            // Show only categories with at least one relevant tag
-            document.querySelectorAll('.tag-category').forEach(cat => {
-                let showCategory = false;
-                cat.querySelectorAll('.tag-checkbox').forEach(cb => {
-                    if (relevantTags.includes(cb.value)) {
-                        cb.parentElement.style.display = '';
-                        showCategory = true;
-                    } else {
-                        cb.parentElement.style.display = 'none';
-                        cb.checked = false;
-                    }
-                });
-                if (showCategory) cat.style.display = '';
-            });
-        }
-
-    // Initialize difficulty slider (range 0 to 100) - same defaults as generate_route
-    const difficultySlider = document.getElementById('difficulty-slider');
-    const difficultyRange = document.getElementById('difficulty-range');
-    const difficultyMinInput = document.getElementById('min-difficulty-input');
-    const difficultyMaxInput = document.getElementById('max-difficulty-input');
-    if (difficultySlider && !difficultySlider.noUiSlider) {
-        noUiSlider.create(difficultySlider, {
-            // Use client-side defaults: full range 0-100, default window 20-30
-            start: [20, 30],
-            connect: true,
-            range: { 'min': 0, 'max': 100 },
-            format: { to: (v)=>Math.round(v), from: (v)=>parseFloat(v) }
-        });
-
-        difficultySlider.noUiSlider.on('update', function(values) {
-            difficultyRange.textContent = `Min: ${values[0]}, Max: ${values[1]}`;
-            difficultyMinInput.value = Math.round(values[0]);
-            difficultyMaxInput.value = Math.round(values[1]);
-            updateSearchTricks();
-        });
-    }
-
-        // Initialize sliders and event listeners
-        initializeSliders();
-
-        // Ensure a function exists to activate the first prop after listeners are attached
-        function initializePropSelection() {
-            // If the server provided an initialRoute, avoid auto-selecting the first prop here
-            // so the initialRoute selection logic can run and select the correct prop.
-            if (initialRoute) {
-                return;
-            }
-
-            const firstPropInput = document.querySelector('.prop-option-input');
-            if (firstPropInput) {
-                firstPropInput.checked = true;
-                const label = firstPropInput.closest('.prop-option');
-                if (label) label.classList.add('selected');
-                // Dispatch change so the prop change handler updates sliders/tags and fetches tricks
-                firstPropInput.dispatchEvent(new Event('change', { bubbles: true }));
-                if (typeof updateSearchTricks === 'function') updateSearchTricks();
-            }
-        }
-
-        // Stub for backward compatibility; most event listeners are attached inline below.
-        function initializeEventListeners() {
-            // intentionally empty
-        }
-
-        initializePropSelection();
-        initializeEventListeners();
-
-        // If the server provided an initial route via the `route` URL parameter, load it into the UI
-        function loadInitialRoute() {
-            if (!initialRoute) return;
-            try {
-                // Populate route name (set even if empty string is provided)
-                if (initialRoute && Object.prototype.hasOwnProperty.call(initialRoute, 'name')) {
-                    const rn = document.getElementById('route_name');
-                    if (rn) {
-                        rn.value = initialRoute.name;
-                    }
-                    // Ensure currentRoute.name is set from initialRoute
-                    currentRoute.name = initialRoute.name || '';
-                    if (typeof window !== 'undefined') window.currentRoute = currentRoute;
-                }
-
-                // Populate duration
-                if (initialRoute.duration_seconds) {
-                    const minutes = Math.round(initialRoute.duration_seconds / 60);
-                    const durationInput = document.getElementById('route-duration-input');
-                    const durationSlider = document.getElementById('route-duration-slider');
-                    const durationValue = document.getElementById('route-duration-value');
-                    if (durationInput) durationInput.value = minutes;
-                    if (durationSlider) durationSlider.value = minutes;
-                    if (durationValue) durationValue.textContent = minutes;
-                }
-
-                // If a prop is provided, try to select it robustly. Some props live in the "Additional Props"
-                // dropdown and the selector may not match exactly in some edge cases, so attempt both
-                // value-based selection and data attribute selection. After selecting, explicitly fetch
-                // tricks for that prop and only then populate the route's tricks so the UI is consistent.
-                async function selectPropAndLoadTricks(propToSelect) {
-                    if (!propToSelect) return;
-                    // Retry to find the radio input/label a few times to handle timing races
-                    const maxAttempts = 6;
-                    const delayMs = 100;
-                    let attempt = 0;
-
-                    async function tryFind() {
-                        attempt++;
-                        // Try to find the radio input by value first
-                        let propRadio = document.querySelector(`.prop-option-input[value="${propToSelect}"]`);
-                        // If not found, try to find label with data-prop-type attribute
-                        if (!propRadio) {
-                            const label = document.querySelector(`.prop-option[data-prop-type="${propToSelect}"]`);
-                            if (label) propRadio = label.querySelector('.prop-option-input');
-                        }
-
-                        if (propRadio) {
-                        
-                            // Mark the radio and visible selected state
-                            try { propRadio.checked = true; } catch (e) {}
-                            const label = propRadio.closest('.prop-option');
-                            if (label) {
-                                document.querySelectorAll('.prop-option').forEach(l => l.classList.remove('selected'));
-                                label.classList.add('selected');
-                            }
-
-                            // Ensure currentRoute.prop is set immediately
-                            currentRoute.prop = propToSelect;
-                            if (typeof window !== 'undefined') window.currentRoute = currentRoute;
-
-                            // Instead of dispatching a change (which would duplicate fetches),
-                            // update the UI pieces that the change handler would handle here:
-                            try {
-                                // Update selected class on labels
-                                document.querySelectorAll('.prop-option').forEach(l => l.classList.remove('selected'));
-                                if (label) label.classList.add('selected');
-                                // Update slider range or initialize it
-                                if (propsSlider) {
-                                    try {
-                                        const propSettingsInner = propsSettings[propToSelect] || {};
-                                        const minPropsInner = propSettingsInner.min_props || 1;
-                                        const maxPropsInner = propSettingsInner.max_props || 10;
-                                        if (propsSlider.noUiSlider) {
-                                            propsSlider.noUiSlider.updateOptions({ range: { min: minPropsInner, max: maxPropsInner }, start: [minPropsInner, maxPropsInner] });
-                                        } else {
-                                            noUiSlider.create(propsSlider, {
-                                                start: [minPropsInner, maxPropsInner],
-                                                connect: true,
-                                                range: { 'min': minPropsInner, 'max': maxPropsInner },
-                                                format: { to: (v)=>Math.round(v), from: (v)=>parseFloat(v) }
-                                            });
-                                            propsSlider.noUiSlider.on('update', function(values) {
-                                                if (propsRange) propsRange.textContent = `Min: ${values[0]}, Max: ${values[1]}`;
-                                                if (propsMinInput) propsMinInput.value = Math.round(values[0]);
-                                                if (propsMaxInput) propsMaxInput.value = Math.round(values[1]);
-                                                updateSearchTricks();
-                                            });
-                                        }
-                                    } catch (uiErr) {
-                                        console.warn('Error updating/creating props slider during initial select:', uiErr);
-                                    }
-                                }
-                                // Update relevant tags
-                                const ps = propsSettings[propToSelect] || {};
-                                updateRelevantTags(ps.relevant_tags || []);
-                            } catch (e) {
-                                console.warn('Error applying UI updates during initial prop selection:', e);
-                            }
-
-                            // Explicitly fetch tricks once
-                            try {
-                                const propSettings = propsSettings[propToSelect] || {};
-                                const minProps = propSettings.min_props || 1;
-                                const maxProps = propSettings.max_props || 10;
-                                const tricks = await fetchTricks({ propType: propToSelect, minProps, maxProps });
-                                window.allTricks = tricks;
-                                window.tricksCache = window.tricksCache || {};
-                                window.tricksCache[propToSelect] = tricks;
-
-                                // If the fetch returned nothing, try a one-off retry to work around server timing races
-                                if ((!Array.isArray(tricks) || tricks.length === 0) && propToSelect) {
-                                    console.warn('Initial fetch returned zero tricks for', propToSelect, '- attempting fallback fetch');
-                                    try {
-                                        const fallback = await fetchTricks({ propType: propToSelect, minProps, maxProps });
-                                        window.allTricks = fallback;
-                                        window.tricksCache[propToSelect] = fallback;
-                                    } catch (fbErr) {
-                                        console.warn('Fallback fetch failed for initial prop:', fbErr);
-                                    }
-                                }
-                            } catch (err) {
-                                console.warn('Could not fetch tricks for initial prop:', err);
-                            }
-
-                            return true;
-                        }
-
-                        if (attempt < maxAttempts) {
-                            return new Promise(resolve => setTimeout(() => resolve(tryFind()), delayMs));
-                        }
-
-                        console.warn('Could not locate prop input for initial prop:', propToSelect);
-                        return false;
-                    }
-
-                    return tryFind();
-                }
-
-                        // If the initial route included a prop, select it and ensure tricks are fetched first
-                if (initialRoute.prop) {
-                    selectPropAndLoadTricks(initialRoute.prop).then(() => {
-                        // Populate tricks into currentRoute once the prop selection and fetch (if any) completed
-                        if (Array.isArray(initialRoute.tricks) && initialRoute.tricks.length > 0) {
-                            
-                            currentRoute.tricks = initialRoute.tricks.map(t => ({
-                                name: t.name,
-                                props_count: t.props_count,
-                                difficulty: t.difficulty || 30,
-                                tags: t.tags || [],
-                                comment: t.comment || null
-                            }));
-                            // Ensure currentRoute.prop is set
-                            currentRoute.prop = initialRoute.prop;
-                            if (typeof window !== 'undefined') window.currentRoute = currentRoute;
-                            // Update the visible route now that tricks are present
-                            updateRouteDisplay();
-                        }
-                        // Refresh search results to reflect any tags/filters and the fetched tricks
-                        updateSearchTricks();
-                    }).catch(e => console.error('Error selecting initial prop:', e));
-                } else {
-                    // No prop in initial route — still populate tricks if present and refresh UI
-                    if (Array.isArray(initialRoute.tricks) && initialRoute.tricks.length > 0) {
-                        currentRoute.tricks = initialRoute.tricks.map(t => ({
-                            name: t.name,
-                            props_count: t.props_count,
-                            difficulty: t.difficulty || 30,
-                            tags: t.tags || [],
-                            comment: t.comment || null
-                        }));
-                        if (typeof window !== 'undefined') window.currentRoute = currentRoute;
-                        updateRouteDisplay();
-                        updateSearchTricks();
-                    }
-                }
-            } catch (e) {
-                console.error('Error loading initial route into builder:', e);
-            }
-        }
-
-        // Call loadInitialRoute after initial selection and listeners are set
-        loadInitialRoute();
-
-        // Add Custom Trick functionality
-        document.getElementById('add_custom_trick').addEventListener('click', function() {
-            const name = document.getElementById('custom_trick_name').value.trim();
-            const propsCount = parseInt(document.getElementById('custom_trick_props').value);
-            const comment = document.getElementById('custom_trick_comment').value.trim();
-
-            if (!name) {
-                showToast('Please enter a trick name', 'custom_trick_name');
-                return;
-            }
-
-            const customTrick = {
-                name: name,
-                props_count: propsCount,
-                difficulty: 30, // Default difficulty
-                tags: [], // No tags by default
-                comment: comment || null
-            };
-
-            addTrickToRoute(customTrick);
-
-            // Clear only the name and comment fields, keep the props count
-            document.getElementById('custom_trick_name').value = '';
-            document.getElementById('custom_trick_comment').value = '';
-        });
-
-        // Add event listener for custom trick props slider
+        // Custom trick props slider
         const customTrickPropsSlider = document.getElementById('custom_trick_props');
         const customTrickPropsValue = document.getElementById('custom_trick_props_value');
         if (customTrickPropsSlider && customTrickPropsValue) {
-            // Initialize displayed value
             customTrickPropsValue.textContent = parseInt(customTrickPropsSlider.value);
             customTrickPropsSlider.addEventListener('input', () => {
                 const value = parseInt(customTrickPropsSlider.value);
@@ -924,74 +444,25 @@
         }
 
         // View route functionality
-        document.getElementById('view_route').addEventListener('click', async function() {
-            // Pull the typed route name into currentRoute before validating
-            const typedName = document.getElementById('route_name') ? document.getElementById('route_name').value.trim() : '';
-            if (typedName) {
-                currentRoute.name = typedName;
-                if (typeof window !== 'undefined') window.currentRoute = currentRoute;
-            }
-            // If no name was entered, show a non-blocking toast but allow viewing the route
-            if (!currentRoute.name) {
-                showToast('No route name provided. Proceeding to view without a name.');
-            }
-            if (!currentRoute.prop) {
-                showToast('Please select a prop type before viewing.', 'prop-slider');
-                return;
-            }
-
-            try {
-                // Build a complete payload for serialization (ensure required fields)
-                const durationMinutes = document.getElementById('route-duration-input') ? parseInt(document.getElementById('route-duration-input').value) : 10;
-                const payload = {
-                    name: currentRoute.name,
-                    prop: currentRoute.prop,
-                    duration_seconds: Number.isFinite(durationMinutes) ? durationMinutes * 60 : 600,
-                    tricks: Array.isArray(currentRoute.tricks) ? currentRoute.tricks.map(t => ({
-                        name: t.name,
-                        props_count: t.props_count,
-                        difficulty: t.difficulty,
-                        tags: t.tags || [],
-                        comment: t.comment || null
-                    })) : []
-                };
-
-                // Serialize the route
-                const response = await fetch('/api/serialize_route', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(payload)
-                });
-                const serialized = await response.text();
-                
-                // Redirect to the created_route page with the serialized route
-                // Use encodeURIComponent only once
-                const encodedRoute = encodeURIComponent(serialized);
-                window.location.href = `/created_route?route=${encodedRoute}`;
-            } catch (error) {
-                console.error('Error preparing route for viewing:', error);
-                showToast('Error preparing route for viewing. Please try again.');
-            }
-        });
+        const viewRouteBtn = document.getElementById('view_route');
+        if (viewRouteBtn) {
+            viewRouteBtn.addEventListener('click', handleViewRoute);
+        }
 
         // Tag category functionality
         document.querySelectorAll('.tag-category-title').forEach(title => {
             title.addEventListener('click', function(e) {
-                // Don't toggle if clicking the checkbox
                 if (e.target.type === 'checkbox') return;
                 
                 const header = this.closest('.tag-category-header');
-                const content = header.nextElementSibling;
-                content.classList.toggle('expanded');
+                const content = header ? header.nextElementSibling : null;
+                if (content) content.classList.toggle('expanded');
             });
         });
 
         // Category checkbox functionality
         document.querySelectorAll('.category-checkbox').forEach(checkbox => {
             checkbox.addEventListener('change', function(e) {
-                // Stop event from triggering the header click
                 e.stopPropagation();
                 
                 const category = this.id.replace('category-', '');
@@ -999,7 +470,9 @@
                 relatedCheckboxes.forEach(cb => {
                     cb.checked = this.checked;
                 });
-                updateSearchTricks();
+                if (typeof window.updateSearchTricks === 'function') {
+                    window.updateSearchTricks();
+                }
             });
         });
 
@@ -1011,12 +484,106 @@
                 const relatedCheckboxes = document.querySelectorAll(`.tag-checkbox[data-category="${category}"]`);
                 const allChecked = Array.from(relatedCheckboxes).every(cb => cb.checked);
                 const someChecked = Array.from(relatedCheckboxes).some(cb => cb.checked);
+                if (categoryCheckbox) {
+                    categoryCheckbox.checked = allChecked;
+                    categoryCheckbox.indeterminate = someChecked && !allChecked;
+                }
                 
-                categoryCheckbox.checked = allChecked;
-                categoryCheckbox.indeterminate = someChecked && !allChecked;
-                
-                updateSearchTricks();
+                if (typeof window.updateSearchTricks === 'function') {
+                    window.updateSearchTricks();
+                }
             });
         });
+    }
+    
+    function setupRouteHelpers() {
+        // Removed all initialization logic that was destroying the UI
+        // The props slider and other UI elements are already initialized by their respective macros
+    }
+    
+    async function handleViewRoute() {
+        // Pull the typed route name into currentRoute before validating
+        const typedName = document.getElementById('route_name') ? document.getElementById('route_name').value.trim() : '';
+        if (typedName) {
+            window.currentRoute.name = typedName;
+        }
+        
+        // If no name was entered, show a non-blocking toast but allow viewing the route
+        if (!window.currentRoute.name) {
+            if (typeof window.showToast === 'function') {
+                window.showToast('No route name provided. Proceeding to view without a name.');
+            }
+        }
+        
+        if (!window.currentRoute.prop) {
+            if (typeof window.showToast === 'function') {
+                window.showToast('Please select a prop type before viewing.', 'prop-slider');
+            }
+            return;
+        }
+
+        try {
+            // Build a complete payload for serialization
+            const durationSeconds = window.currentRoute.duration_seconds || 600;
+            
+            // Get tricks from currentRoute
+            const allTricks = Array.isArray(window.currentRoute.tricks) ? window.currentRoute.tricks : [];
+            
+            const payload = {
+                name: window.currentRoute.name,
+                prop: window.currentRoute.prop,
+                duration_seconds: durationSeconds,
+                tricks: allTricks.map(t => ({
+                    name: t.name,
+                    siteswap_x: t.siteswap_x || null,
+                    props_count: t.props_count,
+                    difficulty: t.difficulty,
+                    tags: t.tags || [],
+                    comment: t.comment || null
+                }))
+            };
+
+            // Serialize the route directly in the browser
+            const jsonString = JSON.stringify(payload);
+            const compressed = pako.deflate(jsonString);
+            const serialized = btoa(String.fromCharCode.apply(null, compressed));
+            
+            // Check if siteswap-x is enabled and add URL param
+            const siteswapToggle = document.getElementById('toggle-siteswap-x-checkbox');
+            const siteswapXEnabled = siteswapToggle && siteswapToggle.checked;
+            
+            // Redirect to the created_route page with the serialized route
+            const encodedRoute = encodeURIComponent(serialized);
+            const url = siteswapXEnabled
+                ? `/created_route?route=${encodedRoute}&siteswapx=1`
+                : `/created_route?route=${encodedRoute}`;
+            
+            window.location.href = url;
+        } catch (error) {
+            if (typeof window.showToast === 'function') {
+                window.showToast('Error preparing route for viewing. Please try again.');
+            }
+        }
+    }
+    
+    // Export main delegation function
+    window.updateSearchTricks = function() {
+        if (typeof window.UpdateAvailableTricks === 'function') {
+            window.UpdateAvailableTricks();
+        }
+    };
+    
+    // Call initializeEventListeners when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeEventListeners);
+    } else {
+        initializeEventListeners();
+    }
+    
+})();
 </script>
+
+<!-- Removed backup implementation that was using setTimeout -->
+</div>
 {% endblock %}
+

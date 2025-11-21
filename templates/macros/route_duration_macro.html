@@ -1,0 +1,12 @@
+{% macro route_duration_macro() %}
+<div class="form-section">
+    <label class="form-label">Route Duration (minutes)</label>
+    <div class="slider-container">
+        <div class="slider-wrapper">
+            <input type="range" id="route-duration-slider" min="1" max="30" value="10" class="custom-range">
+            <span id="route-duration-value" class="slider-value">10</span>
+        </div>
+        <input type="hidden" id="route-duration-input" name="route_duration" value="10">
+    </div>
+</div>
+{% endmacro %}

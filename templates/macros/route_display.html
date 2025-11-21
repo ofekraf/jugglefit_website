@@ -1,0 +1,85 @@
+<div id="route-sections" class="route-sections">
+                {% set trick_counter = namespace(count=0) %}
+                {% set current_props = namespace(count=none) %}
+                {% for trick in route.tricks %}
+                    {% if current_props.count != trick.props_count %}
+                        {% if not loop.first %}
+                            </div>
+                        </div>
+                        {% endif %}
+                        <div class="prop-section">
+                            <div class="prop-color-bar" data-props="{{ trick.props_count }}" data-prop-type="{{ route.prop }}">
+                                <div class="prop-count">
+                                    <div class="prop-count-text">X {{ trick.props_count }}</div>
+                                </div>
+                            </div>
+                            <div class="trick-container">
+                        {% set current_props.count = trick.props_count %}
+                    {% endif %}
+                    {% set trick_counter.count = trick_counter.count + 1 %}
+                    <div class="prop-details-frame">
+                        <div class="trick-content">
+                            <div class="trick-main" style="display: inline-flex; align-items: center; gap: 0.5em;">
+                                <span class="trick-number">{{ trick_counter.count }}.</span>
+                                {% include 'macros/trick_container.html' %}
+                            </div>
+                        </div>
+                    </div>
+                    {% if loop.last %}
+                        </div>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+<script>
+// Hook checkbox to shared toggle function
+document.addEventListener('DOMContentLoaded', function() {
+    const cb = document.getElementById('toggle-siteswap-x-checkbox');
+    if (cb && window.toggleSiteswapXEverywhere && window.CreateTrickContainer) {
+        cb.addEventListener('change', window.toggleSiteswapXEverywhere);
+        // Upgrade any placeholder containers into live elements created by CreateTrickContainer
+            try {
+            const placeholders = document.querySelectorAll('.trick-container[data-name]');
+            const createdRoute = !!document.querySelector('.created-route-page');
+            placeholders.forEach(ph => {
+                try {
+                    if (ph.classList.contains('trick-widget')) return;
+                    const name = ph.dataset.name || '';
+                    const comment = ph.dataset.comment || '';
+                    const siteswap = ph.dataset.siteswapX || ph.dataset.siteswap || '';
+                    const opts = createdRoute ? { editable: false } : { addCheckbox: false };
+                    const newEl = window.CreateTrickContainer(name, comment, siteswap, opts);
+                    ph.parentNode.replaceChild(newEl, ph);
+                } catch (e) {
+                    console.error('Error upgrading trick placeholder', ph, e);
+                }
+            });
+        } catch (e) {
+            console.error('Error during placeholder upgrade', e);
+        }
+        // Initialize display according to checkbox
+        window.toggleSiteswapXEverywhere();
+    }
+});
+// (Formatting is handled above during initialization.)
+function toggleLinethrough(checkbox) {
+    const trickMain = checkbox.closest('.trick-main');
+    if (!trickMain) return;
+    const trickName = trickMain.querySelector('.trick-name');
+    const siteswapX = trickMain.querySelector('.trick-siteswap-x');
+    if (trickName) {
+        if (checkbox.checked) {
+            trickName.classList.add('linethrough');
+        } else {
+            trickName.classList.remove('linethrough');
+        }
+    }
+    if (siteswapX && siteswapX.style.display !== 'none') {
+        if (checkbox.checked) {
+            siteswapX.classList.add('linethrough');
+        } else {
+            siteswapX.classList.remove('linethrough');
+        }
+    }
+}
+</script>

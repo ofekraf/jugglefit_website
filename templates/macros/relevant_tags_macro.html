@@ -1,0 +1,195 @@
+{% macro relevant_tags_macro(tag_category_map, naming='') %}
+<div class="form-section">
+    <br>
+    <label class="form-label">Exclude Tags</label>
+    <div class="tricks-container">
+        <div class="tricks-column">
+            {%- set suffix = ('-' ~ naming) if naming else '' -%}
+            {%- set name_suffix = ('_' ~ naming) if naming else '' -%}
+            <div id="exclude_tags{{ name_suffix }}" class="tags-grid">
+                {% for category, tags in tag_category_map.items() %}
+                    <div class="tag-category" data-category="{{ category }}">
+                        <div class="tag-category-header">
+                            <input type="checkbox" 
+                                   id="category{{ suffix }}-{{ category }}" 
+                                   class="category-checkbox" 
+                                   data-category="{{ category }}"
+                                   onchange="handleCategoryChange(this)">
+                            <label for="category{{ suffix }}-{{ category }}" class="tag-category-title">
+                                {{ category|capitalize }}
+                            </label>
+                        </div>
+                        <div class="tag-category-content">
+                            {% for tag in tags %}
+                                <div class="checkbox-container">
+                                    <input type="checkbox" 
+                                           id="tag{{ suffix }}-{{ tag }}" 
+                                           name="exclude_tags{{ name_suffix }}" 
+                                           value="{{ tag }}" 
+                                           class="tag-checkbox" 
+                                           data-category="{{ category }}"
+                                           onchange="handleTagChange(this)">
+                                    <label for="tag{{ suffix }}-{{ tag }}">{{ tag|capitalize }}</label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Simple, direct approach - no complex initialization
+window.updateRelevantTags = window.updateRelevantTags || function(relevantTags, naming) {
+    naming = naming || '';
+    const name_suffix = naming ? ('_' + naming) : '';
+    
+    // Normalize to array of lowercase strings
+    let tagsArray = [];
+    if (Array.isArray(relevantTags)) {
+        tagsArray = relevantTags.map(t => String(t).toLowerCase());
+    } else if (relevantTags && typeof relevantTags === 'object') {
+        tagsArray = Object.keys(relevantTags).map(t => String(t).toLowerCase());
+    } else if (typeof relevantTags === 'string') {
+        tagsArray = [relevantTags.toLowerCase()];
+    }
+
+    const containerId = 'exclude_tags' + name_suffix;
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    // Hide all categories first
+    const categories = container.querySelectorAll('.tag-category');
+    categories.forEach(cat => cat.style.display = 'none');
+
+    // Show relevant categories and tags
+    categories.forEach(cat => {
+        let showCategory = false;
+        const checkboxes = cat.querySelectorAll('input[type="checkbox"][value]');
+        
+        checkboxes.forEach(cb => {
+            const val = (cb.value || '').toLowerCase();
+            const parent = cb.closest('.checkbox-container');
+            
+            if (tagsArray.includes(val)) {
+                if (parent) parent.style.display = '';
+                showCategory = true;
+            } else {
+                if (parent) parent.style.display = 'none';
+                cb.checked = false;
+            }
+        });
+        
+        if (showCategory) {
+            cat.style.display = '';
+            updateCategoryState(cat);
+        }
+    });
+};
+
+// Handle category checkbox changes
+function handleCategoryChange(categoryCheckbox) {
+    const category = categoryCheckbox.dataset.category;
+    const container = categoryCheckbox.closest('.tag-category');
+    
+    // Find all visible tag checkboxes in this category
+    const tagCheckboxes = container.querySelectorAll('input[type="checkbox"][data-category="' + category + '"]');
+    const visibleTagCheckboxes = Array.from(tagCheckboxes).filter(cb => {
+        const parent = cb.closest('.checkbox-container');
+        return parent && parent.style.display !== 'none';
+    });
+    
+    // Set all visible tags to match category checkbox
+    visibleTagCheckboxes.forEach(cb => {
+        cb.checked = categoryCheckbox.checked;
+    });
+    
+    // Clear indeterminate state
+    categoryCheckbox.indeterminate = false;
+    
+    // Trigger search update if available
+    if (typeof window.updateSearchTricks === 'function') {
+        window.updateSearchTricks();
+    }
+}
+
+// Handle individual tag checkbox changes
+function handleTagChange(tagCheckbox) {
+    const category = tagCheckbox.dataset.category;
+    const container = tagCheckbox.closest('.tag-category');
+    const categoryCheckbox = container.querySelector('.category-checkbox[data-category="' + category + '"]');
+    
+    if (categoryCheckbox) {
+        updateCategoryState(container);
+    }
+    
+    // Trigger search update if available
+    if (typeof window.updateSearchTricks === 'function') {
+        window.updateSearchTricks();
+    }
+}
+
+// Update category checkbox state based on visible tag checkboxes
+function updateCategoryState(categoryContainer) {
+    const categoryCheckbox = categoryContainer.querySelector('.category-checkbox');
+    if (!categoryCheckbox) return;
+    
+    const category = categoryCheckbox.dataset.category;
+    const tagCheckboxes = categoryContainer.querySelectorAll('input[type="checkbox"][data-category="' + category + '"]');
+    
+    // Only consider visible tag checkboxes
+    const visibleTagCheckboxes = Array.from(tagCheckboxes).filter(cb => {
+        const parent = cb.closest('.checkbox-container');
+        return parent && parent.style.display !== 'none';
+    });
+    
+    const checkedCount = visibleTagCheckboxes.filter(cb => cb.checked).length;
+    const totalCount = visibleTagCheckboxes.length;
+    
+    if (totalCount === 0) {
+        categoryCheckbox.checked = false;
+        categoryCheckbox.indeterminate = false;
+    } else if (checkedCount === 0) {
+        categoryCheckbox.checked = false;
+        categoryCheckbox.indeterminate = false;
+    } else if (checkedCount === totalCount) {
+        categoryCheckbox.checked = true;
+        categoryCheckbox.indeterminate = false;
+    } else {
+        categoryCheckbox.checked = false;
+        categoryCheckbox.indeterminate = true;
+    }
+}
+
+// Add click handler for category areas (excluding checkboxes and labels)
+document.addEventListener('click', function(e) {
+    const categoryDiv = e.target.closest('.tag-category');
+    if (!categoryDiv) return;
+    
+    // Don't interfere with checkbox, label, or header clicks
+    if (e.target.type === 'checkbox' || 
+        e.target.tagName === 'LABEL' || 
+        e.target.closest('.checkbox-container') ||
+        e.target.closest('.tag-category-header')) {
+        return;
+    }
+    
+    // Click on empty category area toggles the category checkbox
+    const categoryCheckbox = categoryDiv.querySelector('.category-checkbox');
+    if (categoryCheckbox) {
+        categoryCheckbox.click();
+    }
+});
+
+// Initialize category states when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.tag-category').forEach(updateCategoryState);
+    });
+} else {
+    document.querySelectorAll('.tag-category').forEach(updateCategoryState);
+}
+</script>
+{% endmacro %}

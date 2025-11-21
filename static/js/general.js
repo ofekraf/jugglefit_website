@@ -17,3 +17,8 @@ function showToast(message, focusElementId = null) {
         toast.classList.remove('show');
     }, 3000);
 }
+
+// Make showToast globally available
+if (typeof window !== 'undefined') {
+    window.showToast = showToast;
+}

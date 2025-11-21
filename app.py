@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 from pylib.classes.prop import MAIN_PROPS, Prop
 from pylib.classes.route import Route
 from pylib.classes.tag import TAG_CATEGORY_MAP_JSON, Tag, TagCategory
-from hardcoded_database.tricks import ALL_PROPS_SETTINGS_JSON
+from hardcoded_database.tricks import ALL_PROPS_SETTINGS, ALL_PROPS_SETTINGS_JSON
 from pylib.route_generator.exceptions import NotEnoughTricksFoundException
 from pylib.route_generator.route_generator import RouteGenerator
 from pylib.utils.filter_tricks import filter_tricks
@@ -23,42 +23,33 @@ from pylib.configuration.consts import (
 # Load environment variables
 load_dotenv()
 
+
 app = Flask(__name__)
+# Note: siteswap formatting is now handled client-side in static/js/siteswap_x.js
 
 # Create API blueprint
 api = Blueprint('api', __name__, url_prefix='/api')
 
-@api.route('/serialize_route', methods=['POST'])
-def serialize_route():
-	route_data = request.json
-	try:
-		route = Route.from_dict(route_data)
-		serialized = route.serialize()
-		return serialized
-	except Exception as e:
-		return str(e), 400
 
 @api.route('/fetch_tricks', methods=['POST'])
 def fetch_tricks():
 	try:
 		data = request.get_json()
-		# Utility to safely parse ints from request data. Returns default when value is None or invalid.
-		def safe_int(val, default=None):
-			if val is None:
-				return default
-			try:
-				return int(val)
-			except (ValueError, TypeError):
-				return default
-
-		prop_type = Prop.get_key_by_value(data.get('prop_type'))
-		min_props = safe_int(data.get('min_props'), None)
-		max_props = safe_int(data.get('max_props'), None)
-		min_difficulty = safe_int(data.get('min_difficulty'), None)
-		max_difficulty = safe_int(data.get('max_difficulty'), None)
-		exclude_tags = data.get('exclude_tags', set())
-		limit = safe_int(data.get('limit'), 0)
-		max_throw = safe_int(data.get('max_throw'), None)
+		prop_type_value = data.get('prop_type')
+		try:
+			prop_type = Prop.get_key_by_value(prop_type_value)
+		except Exception as e:
+			allowed = [v.value for v in Prop]
+			msg = f"Invalid prop_type '{prop_type_value}'. Allowed values: {allowed}"
+			print(msg)
+			return jsonify({'error': msg}), 400
+		min_props = int(data.get('min_props', ALL_PROPS_SETTINGS[prop_type].min_props))
+		max_props = int(data.get('max_props', ALL_PROPS_SETTINGS[prop_type].max_props))
+		min_difficulty = int(data.get('min_difficulty', MIN_TRICK_DIFFICULTY))
+		max_difficulty = int(data.get('max_difficulty', MAX_TRICK_DIFFICULTY))
+		exclude_tags = data.get('exclude_tags', [])
+		limit = int(data.get('limit', 0))
+		max_throw = int(data.get('max_throw')) if data.get('max_throw') is not None else None
 
 		exclude_tags_set = {Tag.get_key_by_value(tag) for tag in exclude_tags}
 
@@ -76,7 +67,10 @@ def fetch_tricks():
 		tricks_dict = [trick.to_dict() for trick in filtered_tricks]
 		return jsonify(tricks_dict)
 	except Exception as e:
-		return str(e), 400
+		import traceback
+		print('Error in /api/fetch_tricks:', e)
+		traceback.print_exc()
+		return jsonify({'error': str(e)}), 400
 	
 
 @api.route('/shorten_url', methods=['POST'])
@@ -136,7 +130,7 @@ def generate_route():
 					 tag_category_map=TAG_CATEGORY_MAP_JSON,
 					 tag_categories=list(TagCategory),
 						props_settings=ALL_PROPS_SETTINGS_JSON,
-						main_props=[Prop.Balls.value, Prop.Clubs.value, Prop.Rings.value])
+						main_props=MAIN_PROPS)
 	
 	route_name = request.form['route_name']
 	prop = request.form['prop']
@@ -253,6 +247,9 @@ def download_tricks_csv(prop_type):
 	except Exception as e:
 		return f"Error serving CSV: {str(e)}", 500
 
+@app.route('/siteswap_x')
+def siteswap_x():
+		  return render_template('siteswap_x.html')
 
 if __name__ == '__main__':
 	port = int(os.environ.get("PORT", 5001))

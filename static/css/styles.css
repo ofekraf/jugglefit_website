@@ -1,5 +1,626 @@
-/* Import Google Fonts */
+/* Import Google Fonts - must be at the top of the stylesheet */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+.trick-main {
+    box-sizing: border-box;
+}
+
+/* ===== Inline styles moved from templates ===== */
+/* From templates/generate_route.html */
+.trick-tooltip {
+    position: fixed;
+    background: rgba(3, 138, 128, 0.95);
+    color: #fff;
+    padding: 8px 10px;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    z-index: 2147483647;
+    pointer-events: none;
+    white-space: nowrap;
+    font-size: 13px;
+}
+
+/* From templates/index.html */
+.carousel-container {
+    position: relative;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    overflow: hidden;
+    padding: 0 40px;
+}
+
+.carousel {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+    gap: 20px;
+    padding: 20px 0;
+    will-change: transform;
+}
+
+.carousel-item {
+    flex: 0 0 calc(50% - 10px);
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+    backface-visibility: hidden;
+    transform: translateZ(0);
+}
+
+@media (max-width: 1024px) {
+    .carousel-item { flex: 0 0 calc(50% - 10px); }
+}
+@media (max-width: 768px) {
+    .carousel-container { padding: 0 30px; }
+    .carousel-item { flex: 0 0 calc(100% - 20px); }
+    .carousel-control { width: 35px; height: 35px; }
+    .event-content { padding: 15px; }
+    .event-content h3 { font-size: 1.2em; }
+    .event-details p { font-size: 0.9em; }
+    .event-image, .event-image-link { height: 250px; }
+}
+
+.event-content { padding: 20px; }
+.event-content h3 { margin: 0 0 15px; font-size: 1.4em; color: #333; }
+.event-details { margin-bottom: 20px; }
+.event-details p { margin: 8px 0; font-size: 1em; color: #666; }
+
+/* From templates/host_event.html (carousel variant) */
+.carousel-item { flex: 0 0 280px; }
+.carousel-item:hover { transform: translateY(-5px); }
+.carousel-item-image { width: 100%; height: 280px; overflow: hidden; }
+.carousel-item-image img { width: 100%; height: 100%; object-fit: cover; }
+.carousel-item-content { padding: 15px; }
+.carousel-item-content h3 { margin: 0 0 8px; font-size: 1.1em; }
+.carousel-item-content p { margin: 0; font-size: 0.9em; color: #666; }
+.carousel-controls { position: absolute; top: 50%; left: 0; right: 0; transform: translateY(-50%); display: flex; justify-content: space-between; pointer-events: none; z-index: 2; }
+.carousel-control { background: white; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display:flex; align-items:center; justify-content:center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); pointer-events: auto; transition: transform 0.3s ease; }
+.carousel-control:hover { transform: scale(1.1); }
+
+/* From templates/event_checklist.html */
+.checklist-container { display: grid; gap: 30px; margin-top: 20px; }
+.checklist-section { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); }
+.checklist { list-style: none; padding: 0; margin: 0; }
+.checklist li { display: flex; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; }
+.checklist li:last-child { border-bottom: none; }
+.checklist input[type="checkbox"] { margin-right: 15px; width: 20px; height: 20px; cursor: pointer; }
+.checklist label { cursor: pointer; font-size: 1.1em; color: #333; }
+.save-progress-container { text-align: center; padding: 40px 0; }
+.button { display: inline-block; padding: 15px 30px; background-color: #4CAF50; color: white; text-decoration: none; border: none; border-radius: 5px; font-weight: bold; margin: 0 10px; cursor: pointer; transition: background-color 0.3s ease; }
+.button:hover { background-color: #45a049; }
+.button.secondary { background-color: #f44336; }
+.button.secondary:hover { background-color: #da190b; }
+.section-alt { margin-bottom: 60px; }
+.section-alt:last-of-type { margin-bottom: 0; }
+
+/* From templates/equipment_list.html */
+.section-alt { margin-bottom: 60px; }
+.section-alt:last-of-type { margin-bottom: 0; }
+.rules-grid { gap: 30px; }
+.checklist-container { margin-top: 15px; }
+.checklist { list-style: none; padding: 0; margin: 0; }
+.checklist li { display: flex; align-items: center; padding: 8px 0; border-bottom: 1px solid #eee; }
+.checklist li:last-child { border-bottom: none; }
+.checklist input[type="checkbox"] { margin-right: 15px; width: 18px; height: 18px; cursor: pointer; }
+.checklist label { cursor: pointer; font-size: 1em; color: #333; }
+.link { color: #4CAF50; text-decoration: none; transition: color 0.3s ease; }
+.link:hover { color: #45a049; text-decoration: underline; }
+.checklist-section { margin-bottom: 20px; padding: 15px; background: #f9f9f9; border-radius: 8px; }
+.checklist-section:last-child { margin-bottom: 0; }
+.checklist-section h4 { margin: 0 0 15px 0; color: #333; font-size: 1.1em; font-weight: 600; }
+
+/* End moved styles */
+
+/* ===== Additional inline styles moved from templates (appended) ===== */
+/* From templates/index.html (carousel & event styles) */
+.carousel-container {
+    position: relative;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    overflow: hidden;
+    padding: 0 40px;
+}
+
+.carousel {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+    gap: 20px;
+    padding: 20px 0;
+    will-change: transform;
+}
+
+.carousel-item {
+    flex: 0 0 calc(50% - 10px);
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+    backface-visibility: hidden;
+    transform: translateZ(0);
+}
+
+@media (max-width: 1024px) {
+    .carousel-item { flex: 0 0 calc(50% - 10px); }
+}
+
+@media (max-width: 768px) {
+    .carousel-container { padding: 0 30px; }
+    .carousel-item { flex: 0 0 calc(100% - 20px); }
+    .carousel-control { width: 35px; height: 35px; }
+}
+
+.event-content { padding: 20px; }
+.event-content h3 { margin: 0 0 15px; font-size: 1.4em; color: #333; }
+.event-details { margin-bottom: 20px; }
+.event-details p { margin: 8px 0; font-size: 1em; color: #666; }
+
+/* From templates/host_event.html (carousel variant) */
+.carousel-item { flex: 0 0 280px; }
+.carousel-item:hover { transform: translateY(-5px); }
+.carousel-item-image { width: 100%; height: 280px; overflow: hidden; }
+.carousel-item-image img { width: 100%; height: 100%; object-fit: cover; }
+.carousel-item-content { padding: 15px; }
+.carousel-item-content h3 { margin: 0 0 8px; font-size: 1.1em; }
+.carousel-item-content p { margin: 0; font-size: 0.9em; color: #666; }
+
+/* From templates/event_checklist.html (checklist styles) */
+.checklist-container { display: grid; gap: 30px; margin-top: 20px; }
+.checklist-section { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+.checklist { list-style: none; padding: 0; margin: 0; }
+.checklist li { display: flex; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; }
+.checklist li:last-child { border-bottom: none; }
+.checklist input[type="checkbox"] { margin-right: 15px; width: 20px; height: 20px; cursor: pointer; }
+.checklist label { cursor: pointer; font-size: 1.1em; color: #333; }
+.save-progress-container { text-align: center; padding: 40px 0; }
+.button { display: inline-block; padding: 15px 30px; background-color: #4CAF50; color: white; text-decoration: none; border: none; border-radius: 5px; font-weight: bold; margin: 0 10px; cursor: pointer; transition: background-color 0.3s ease; }
+.button:hover { background-color: #45a049; }
+.button.secondary { background-color: #f44336; }
+.button.secondary:hover { background-color: #da190b; }
+.section-alt { margin-bottom: 60px; }
+.section-alt:last-of-type { margin-bottom: 0; }
+
+/* From templates/equipment_list.html (checklist/equipment styles) */
+.section-alt { margin-bottom: 60px; }
+.section-alt:last-of-type { margin-bottom: 0; }
+.rules-grid { gap: 30px; }
+.checklist-container { margin-top: 15px; }
+.checklist { list-style: none; padding: 0; margin: 0; }
+.checklist li { display: flex; align-items: center; padding: 8px 0; border-bottom: 1px solid #eee; }
+.checklist li:last-child { border-bottom: none; }
+.checklist input[type="checkbox"] { margin-right: 15px; width: 18px; height: 18px; cursor: pointer; }
+.checklist label { cursor: pointer; font-size: 1em; color: #333; }
+.link { color: #4CAF50; text-decoration: none; transition: color 0.3s ease; }
+.link:hover { color: #45a049; text-decoration: underline; }
+.checklist-section { margin-bottom: 20px; padding: 15px; background: #f9f9f9; }
+.checklist-section:last-child { margin-bottom: 0; }
+.checklist-section h4 { margin: 0 0 15px 0; color: #333; font-size: 1.1em; font-weight: 600; }
+
+/* End additional moved styles */
+.trick-name, .trick-siteswap-x {
+    font-family: inherit;
+    /* Use the same base text sizing/weight as regular trick names */
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-color);
+    margin: 0;
+    white-space: normal;
+    word-break: break-word;
+}
+.trick-name.linethrough, .trick-siteswap-x.linethrough {
+    text-decoration: line-through !important;
+    border-bottom: none !important;
+}
+/* Ensure trick-container is tall enough for siteswap-x with modifiers */
+.trick-container, .trick-main {
+    /* Much smaller vertical footprint to make trick rows compact */
+    min-height: 1.4em;
+    display: flex;
+    padding-top: 0.15em;
+    padding-bottom: 0.15em;
+    margin: 0; /* remove extra margins that add height */
+}
+
+/* Route display: let the trick-main row take full width so name and siteswap
+   have room before wrapping. The siteswap keeps a sensible max-width while the
+   name element can shrink or wrap as needed. */
+.route-page .trick-main {
+    display: inline-flex !important;
+    width: auto !important;
+    white-space: nowrap !important;
+    align-items: center !important;
+    gap: 0.3rem !important;
+}
+.route-page .trick-main .trick-name {
+    display: inline-block;
+    width: auto !important;
+    min-width: 0; /* allow items to shrink properly */
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+}
+
+/* Extra strong override for created route pages */
+body .route-page .trick-main .trick-name,
+body .trick-content .trick-main .trick-name,
+body .route-content .trick-main .trick-name {
+    display: inline-block;
+    width: auto !important;
+}
+.route-page .trick-main .trick-siteswap-x {
+    display: inline-flex;
+    max-width: 45%; /* allow siteswap to take reasonable space */
+}
+.trick-siteswap-x {
+    /* Keep siteswap-x compact as well */
+    min-height: 1.2em;
+    display: inline-flex;
+    align-items: center;
+    padding-top: 0;
+    padding-bottom: 0;
+    /* base siteswap-x should match normal trick text; modifiers keep special styling */
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-color);
+    margin-left: 0.4em; /* ensure separation from trick name/number */
+    vertical-align: middle;
+    max-width: 30%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-shrink: 0;
+    white-space: pre !important;
+}
+/* Siteswap-X Modifiers Styling */
+.siteswap-x-digit-container {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    margin: 0;
+    min-width: 0;
+    width: auto;
+    /* ensure layout but use base text styling */
+    font-size: 1rem;
+    font-family: inherit;
+    font-weight: 500;
+}
+.siteswap-x-throw-mod {
+    color: #d32f2f;
+    font-size: 0.68em; /* Slightly smaller to reduce spacing */
+    position: absolute;
+    top: -0.9em; /* pull closer to digit so container stays short */
+    left: 50%;
+    transform: translateX(-50%);
+    font-weight: bold;
+    pointer-events: none;
+    white-space: nowrap;
+    font-family: inherit;
+}
+.siteswap-x-digit {
+    /* Base digit styling should match normal trick text */
+    font-size: 1rem;
+    font-weight: 500;
+    line-height: 1.1em;
+    white-space: pre;
+    font-family: inherit;
+    color: var(--text-color);
+}
+.siteswap-x-catch-mod {
+    color: #1976d2;
+    font-size: 0.68em; /* Slightly smaller to reduce spacing */
+    position: absolute;
+    bottom: -0.9em; /* pull closer to digit so container stays short */
+    left: 50%;
+    transform: translateX(-50%);
+    font-weight: bold;
+    pointer-events: none;
+    white-space: nowrap;
+    font-family: inherit;
+}
+/* Unify tag filtering styles for build_route and generate_route */
+.tag-category-title-available,
+.tag-category-title {
+    margin: 0;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    flex-grow: 1;
+    color: var(--text-color);
+    font-size: 1rem;
+}
+
+.tag-checkbox-available,
+.tag-checkbox {
+    cursor: pointer;
+    font-size: 1.2rem;
+    font-family: inherit;
+    color: var(--text-color);
+}
+
+.category-checkbox-available,
+.category-checkbox {
+    margin-right: 8px;
+    cursor: pointer;
+}
+
+/* Strong overrides to ensure trick rows render as a single full-width line */
+.route-content .trick-main,
+.trick-content .trick-main,
+.trick-container .trick-main {
+    display: inline-flex !important;
+    width: auto !important;
+    white-space: nowrap !important;
+    /* allow visible overflow so throw/catch modifiers are not clipped */
+    overflow: visible !important;
+    line-height: 1.4em;
+    align-items: center !important;
+    gap: 0.3rem !important;
+}
+
+.trick-container .trick-number {
+    flex: 0 0 auto !important;
+    min-width: 2rem !important;
+    margin-right: 0.5rem !important;
+}
+
+.trick-container .trick-name {
+    /* keep name inline and don't let it grow */
+    display: inline-block;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+.trick-container .trick-siteswap-x {
+    /* layout digit containers horizontally next to the name */
+    display: inline-flex;
+    align-items: center;
+    gap: 0;
+    flex: 0 0 auto;
+    margin-left: 0.12rem;
+    overflow: visible;
+    position: relative;
+    /* ensure the siteswap digits don't wrap into multiple lines */
+    flex-wrap: nowrap;
+    white-space: pre;
+    max-width: none;
+}
+
+/* Siteswap-X digit container: ensure digits are compact but modifiers can be positioned above/below */
+.siteswap-x-digit-container {
+    /* each digit container stacks throw-mod, digit, catch-mod vertically */
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    /*min-width: 1.4em; even wider digit spacing for modifier clearance */
+    margin: 0; /* more margin for better modifier visibility */
+    overflow: visible !important;
+}
+
+/* ensure the last digit in a siteswap string doesn't add extra trailing gap */
+.siteswap-x-digit-container:last-child {
+    margin-right: 0;
+}
+
+.siteswap-x-throw-mod,
+.siteswap-x-catch-mod {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 5; /* sit above other elements */
+    font-size: 0.72em;
+    font-weight: 600;
+}
+
+.siteswap-x-throw-mod {
+    top: -1.1em; /* move further above the digit for better visibility */
+}
+
+.siteswap-x-catch-mod {
+    bottom: -1.1em; /* move further below the digit for better visibility */
+}
+
+/* High-specificity overrides for route display: ensure trick names and
+   siteswap aren't clipped with ellipsis on the route display pages. These
+   override earlier global rules that intentionally use ellipsis elsewhere. */
+.route-page .route-content .trick-main,
+.route-page .trick-main,
+.route-page .trick-container .trick-main {
+    white-space: normal !important;
+}
+.route-page .route-content .trick-container .trick-name,
+.route-page .trick-main .trick-name,
+.route-page .trick-container .trick-name {
+    overflow: visible !important;
+    white-space: normal !important;
+    text-overflow: clip !important;
+}
+.route-page .route-content .trick-container .trick-siteswap-x,
+.route-page .trick-main .trick-siteswap-x,
+.route-page .trick-container .trick-siteswap-x {
+    overflow: visible !important;
+    text-overflow: clip !important;
+    max-width: none !important;
+}
+
+/* Final override placed at end of stylesheet to defeat earlier !important rules
+   that force ellipsis/nowrap. This targets only pages whose root contains
+   `.route-page` so other compact views remain unchanged. */
+.route-page .route-container .route-content .trick-main,
+.route-page .route-content .trick-main,
+.route-page .trick-container .trick-main,
+.route-page .trick-main {
+    white-space: normal !important;
+    overflow: visible !important;
+}
+.route-page .route-container .route-content .trick-name,
+.route-page .route-content .trick-name,
+.route-page .trick-container .trick-name,
+.route-page .trick-name {
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    max-width: none !important;
+    display: inline-block;
+    width: auto !important;
+    min-width: 0 !important;
+}
+.route-page .route-container .route-content .trick-siteswap-x,
+.route-page .route-content .trick-siteswap-x,
+.route-page .trick-container .trick-siteswap-x,
+.route-page .trick-siteswap-x {
+    white-space: pre-wrap !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    max-width: none !important;
+    display: inline-flex;
+}
+
+    /* Force pixel-precise checkbox sizing to avoid scaling differences when
+        other inline elements (like siteswap) are hidden/shown. Targets both the
+        route display checkbox and general trick checkbox class. */
+    .trick-checkbox,
+    .siteswap-x-toggle-checkbox,
+    input.trick-checkbox[type="checkbox"] {
+         width: 16px !important;
+         height: 16px !important;
+         min-width: 16px !important;
+         min-height: 16px !important;
+         box-sizing: content-box !important;
+         vertical-align: middle !important;
+         margin-right: 8px !important;
+         transform: none !important;
+    }
+
+.tags-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.tag-category-available,
+.tag-category {
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    position: relative;
+    background-color: var(--section-bg);
+    width: 100%;
+}
+
+.tag-category-header-available,
+.tag-category-header {
+    padding: 10px;
+    background-color: var(--section-bg);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.tag-category-content-available,
+.tag-category-content {
+    padding: 10px;
+    background-color: var(--background-color);
+    max-height: 0;
+    overflow: hidden;
+    transition: all 0.3s ease-out;
+    position: absolute;
+    width: 100%;
+    z-index: 1;
+    box-shadow: 0 4px 8px var(--shadow-color);
+    border-radius: 0 0 4px 4px;
+    opacity: 0;
+    visibility: hidden;
+}
+
+.tag-category-available:hover .tag-category-content-available,
+.tag-category:hover .tag-category-content {
+    max-height: 1000px;
+    opacity: 1;
+    visibility: visible;
+}
+
+/* When JS adds the 'expanded' class, show the dropdown content like hover */
+.tag-category-content.expanded,
+.tag-category-content-available.expanded {
+    max-height: 1000px !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+.checkbox-container {
+    margin: 5px 0;
+    padding-left: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+/* Center the siteswap-x toggle row */
+.center-row {
+    justify-content: center;
+}
+.trick-number-and-name {
+    display: flex;
+    align-items: center;
+    gap: 0.4em;
+}
+/* Utility class for hiding elements (replaces inline style="display:none;") */
+.hidden {
+    display: none !important;
+}
+/* Route Display: Siteswap-X Toggle Checkbox and Alignment (shared for build_route, etc.) */
+.siteswap-x-toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 1em;
+    margin-top: 0.5em;
+}
+.siteswap-x-toggle-label {
+    display: flex;
+    align-items: center;
+    font-weight: normal;
+    gap: 0.4em;
+    font-size: 1em;
+}
+.siteswap-x-toggle-checkbox,
+.trick-checkbox {
+    width: 1.1em;
+    height: 1.1em;
+    vertical-align: middle;
+    accent-color: #0078d4;
+    margin-right: 0.3em;
+}
+/* Route Display: Siteswap-X Toggle Checkbox and Alignment */
+.siteswap-x-toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 1em;
+    margin-top: 0.5em;
+}
+.siteswap-x-toggle-label {
+    display: flex;
+    align-items: center;
+    font-weight: normal;
+    gap: 0.4em;
+    font-size: 1em;
+}
+.siteswap-x-toggle-checkbox,
+.trick-checkbox {
+    width: 1.1em;
+    height: 1.1em;
+    vertical-align: middle;
+    accent-color: #0078d4;
+    margin-right: 0.3em;
+}
 
 /* CSS Variables */
 :root {
@@ -125,57 +746,102 @@ body {
 
 /* Trick Content Styles */
 .trick-content {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.5rem;
+    display: flex !important;
+    align-items: center !important;
     width: 100%;
     padding: 0.25rem 0;
+    white-space: nowrap !important;
 }
 
 .trick-main {
-    display: inline;
-    width: 100%;
-    white-space: normal;
-    word-break: break-word;
+    display: inline-flex !important;
+    align-items: center !important;
+    width: auto !important;
+    white-space: nowrap !important;
+    overflow: visible !important;
+    gap: 0.3rem !important;
 }
 
 .trick-number,
 .trick-name,
 .trick-comment {
-    display: inline;
     margin: 0;
-    white-space: normal;
-    word-break: break-word;
 }
 
 .trick-number {
-    flex: 0 0 auto;
-    font-weight: 600;
-    color: var(--light-text);
-    font-size: 0.9rem;
-    padding-top: 0.25rem;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-color);
+    font-family: inherit;
+    min-width: 2rem;
+    display: inline-block;
+    margin-right: 0.5rem;
+    flex-shrink: 0;
 }
 
 .trick-name {
-    flex: 1 1 0;
+    display: inline-block;
+    width: auto !important;
     min-width: 0;
     font-weight: 500;
     color: var(--text-color);
     font-size: 1rem;
-    display: inline;
+    font-family: inherit;
+    /* Don't force display - allow JavaScript to control visibility */
     margin: 0;
-    white-space: normal;
-    word-break: break-word;
+    /* keep name on one line and ellipsize if too long so comment stays adjacent */
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: nowrap !important;
+    flex-shrink: 0;
 }
 
 .trick-comment {
-    color: var(--light-text);
-    font-style: italic;
-    font-size: 0.9rem;
-    display: inline;
-    margin: 0;
-    white-space: normal;
-    word-break: break-word;
+    color: var(--light-text) !important;
+    font-style: italic !important;
+    font-size: 0.9rem !important;
+    display: inline-block !important;
+    margin: 0 0 0 0.3em !important;
+    padding: 0 !important;
+    white-space: nowrap !important;
+    vertical-align: middle !important;
+    width: auto !important;
+    position: static !important;
+    float: none !important;
+    border: none !important;
+    outline: none !important;
+    text-align: left !important;
+    max-width: none !important;
+    min-width: auto !important;
+    right: auto !important;
+    left: auto !important;
+    top: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+    transition: none !important;
+    animation: none !important;
+    flex-shrink: 0;
+}
+
+/* ABSOLUTE LOCK-DOWN for trick-main containers */
+* .trick-main,
+html body * .trick-main,
+body * .trick-main,
+.trick-main {
+    display: inline-flex !important;
+    text-align: left !important;
+    width: auto !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    position: static !important;
+    float: none !important;
+    /* Prevent any animations or transitions */
+    transition: none !important;
+    animation: none !important;
+    white-space: nowrap !important;
+    align-items: center !important;
+    gap: 0.3rem !important;
 }
 
 .remove-trick {
@@ -188,7 +854,9 @@ body {
     font-size: 0.9rem;
     transition: all 0.3s ease;
     margin-left: 0.5rem;
-    align-self: flex-start;
+    flex-shrink: 0;
+    display: inline-block;
+    vertical-align: middle;
 }
 
 /* Header Styles */
@@ -1036,27 +1704,27 @@ a.primary-button.live-event-button:hover {
     }
 
     .trick-name {
-        font-size: 0.85rem;
+
+        font-size: 1rem;
+        font-weight: 500;
+        color: var(--text-color);
+        font-family: inherit;
+        min-width: 2rem;
+        margin-right: 0.5rem;
     }
 
-    .trick-comment {
-        font-size: 0.75rem;
+    .trick-name {
+    .trick-name {
+        display: inline-block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-weight: 500;
+        color: var(--text-color);
+        font-size: 1rem;
+        font-family: inherit;
+        margin: 0;
     }
-
-    .remove-trick {
-        padding: 0.1rem 0.3rem;
-        font-size: 0.8rem;
-    }
-}
-
-/* Animations */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-
-    to {
         opacity: 1;
         transform: translateY(0);
     }
@@ -1070,7 +1738,9 @@ a.primary-button.live-event-button:hover {
 .route-page {
     width: 100%;
     max-width: 1200px;
-    margin: 0 auto;
+    margin: 0;
+    margin-left: 0;
+    margin-right: 0;
     padding: 1rem;
     box-sizing: border-box;
     margin-top: 0;
@@ -1103,8 +1773,40 @@ a.primary-button.live-event-button:hover {
     border-radius: 8px;
     box-shadow: 0 2px 4px var(--shadow-color);
     max-width: 1200px;
-    margin: 0 auto;
     width: 100%;
+}
+
+/* Force route display to stay left-aligned - targeted approach */
+.route-page .route-form,
+.route-page .route-container,
+.route-page .route-content,
+.route-page .form-section,
+.route-page .route-sections {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    text-align: left !important;
+}
+
+/* Additional specificity for route sections to prevent centering */
+.route-page .route-sections {
+    margin: 0 !important;
+    text-align: left !important;
+}
+
+/* Highest specificity override to prevent any dynamic centering */
+body .route-page,
+html body .route-page,
+html body main .route-page {
+    margin: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    text-align: left !important;
+}
+
+/* Prevent auto margins specifically on containers */
+.route-page .route-form {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
 }
 
 .form-section {
@@ -1323,13 +2025,11 @@ a.primary-button.live-event-button:hover {
     position: relative;
     width: 100%;
     max-width: 1200px;
-    margin: 0 auto;
 }
 
 .route-container {
     width: 100%;
     max-width: 1200px;
-    margin: 0 auto;
     padding: 1rem;
     box-sizing: border-box;
 }
@@ -1337,7 +2037,6 @@ a.primary-button.live-event-button:hover {
 .route-content {
     width: 100%;
     max-width: 1200px;
-    margin: 0 auto;
     box-sizing: border-box;
 }
 
@@ -1360,23 +2059,26 @@ a.primary-button.live-event-button:hover {
 .trick-item {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
     padding: 0.5rem 0.75rem;
     background: #fff;
     border: 1px solid #f0f0f0;
     border-radius: 4px;
+    gap: 0.5rem;
+}
+.trick-item .trick-container {
+    flex: 0 0 auto;
+    max-width: fit-content;
 }
 .prop-details-frame.trick-item {
     padding: 0.5rem 0.75rem;
 }
 .prop-details-frame.trick-item .trick-content {
-    display: flex;
-    align-items: center;
+    display: block !important;
     width: 100%;
-    gap: 0.5rem;
 }
 .prop-details-frame.trick-item .add-trick {
-    margin-left: auto;
+    margin-left: 0;
 }
 .trick-item-title { font-weight: 600; margin-bottom: 0.25rem; }
 .trick-item-meta { display: none; }
@@ -1422,13 +2124,30 @@ a.primary-button.live-event-button:hover {
     width: 100%;
 }
 
+/* Make available-trick rows compact: keep the main content inline so comments
+   stay adjacent to the name/siteswap-x instead of being pushed to the edge. */
+.trick-item .trick-main,
+.prop-details-frame .trick-main,
+.trick-details-frame .trick-main {
+    display: inline-flex !important;
+    width: auto !important;
+    align-items: baseline !important;
+}
+
+.trick-item .trick-name,
+.prop-details-frame .trick-name,
+.trick-details-frame .trick-name {
+    /* keep the name inline and only as wide as needed so the comment sits next to it */
+    display: inline-block;
+    width: auto !important;
+    max-width: 30ch;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .trick-details-container {
-    display: flex;
-    flex-direction: row;
-    gap: 10px;
-    align-items: center;
-    justify-content: flex-start;
-    flex: 1;
+    display: block;
     position: relative;
     padding: 5px 0;
     width: 100%;
@@ -1437,12 +2156,7 @@ a.primary-button.live-event-button:hover {
 .trick-details-frame {
     border-radius: 15px;
     padding: 4px 12px;
-    display: flex;
-    flex-direction: row;
-    gap: 8px;
-    align-items: center;
-    justify-content: flex-start;
-    flex: 0 0 auto;
+    display: inline-block;
     min-width: 200px;
     position: relative;
     width: auto;
@@ -1457,12 +2171,13 @@ a.primary-button.live-event-button:hover {
     line-height: 120%;
     font-weight: 700;
     position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: flex-start;
-    white-space: nowrap;
+    display: inline;
+    vertical-align: baseline;
+    white-space: normal;
     opacity: 0.8;
-    margin-left: 8px;
+    margin-left: 0;
+    margin-right: 0;
+    float: none;
 }
 
 .trick-comment-container {
@@ -1664,8 +2379,7 @@ a.primary-button.live-event-button:hover {
 
 .route-sections {
     width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
+    margin: 0;
     padding: 0 10px;
     box-sizing: border-box;
 }
@@ -1682,6 +2396,16 @@ a.primary-button.live-event-button:hover {
     overflow: hidden;
     width: 100%;
     margin-bottom: 0.5rem;
+}
+.prop-section .trick-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1em;
+    width: 100%;
+}
+.prop-details-frame {
+    width: 100%;
+    display: block;
 }
 
 .prop-color-bar {
@@ -1950,7 +2674,7 @@ a.primary-button.live-event-button:hover {
     position: absolute;
     width: 100%;
     z-index: 1;
-    box-shadow: 0 4px 8px var(--shadow-color);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     border-radius: 0 0 4px 4px;
     opacity: 0;
     visibility: hidden;
@@ -1965,9 +2689,6 @@ a.primary-button.live-event-button:hover {
 .checkbox-container {
     margin: 5px 0;
     padding-left: 20px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
 }
 
 .category-checkbox {
@@ -2052,19 +2773,7 @@ a.primary-button.live-event-button:hover {
     }
 }
 
-/* Trick Tooltip Styles */
-.trick-tooltip {
-    position: fixed;
-    background-color: var(--background-color);
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    padding: 8px 12px;
-    font-size: 14px;
-    box-shadow: 0 2px 4px var(--shadow-color);
-    z-index: 1000;
-    pointer-events: none;
-    white-space: nowrap;
-}
+/* Trick Tooltip Styles consolidated above (keep single definition near top of file) */
 
 /* Countdown Timer Styles */
 .countdown-timer {
@@ -2177,11 +2886,11 @@ a.primary-button.live-event-button:hover {
 }
 
 .trick-content {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.5rem;
+    display: flex !important;
+    align-items: center !important;
     width: 100%;
     padding: 0.25rem 0;
+    white-space: nowrap !important;
 }
 
 .trick-number,
@@ -2834,10 +3543,9 @@ a.primary-button.live-event-button:hover {
 }
 
 .live-event-page .route-content .trick-main {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    width: 100%;
+    display: inline !important;
+    align-items: baseline !important;
+    width: auto !important;
 }
 
 .live-event-page .route-content .prop-details-frame {
@@ -2984,8 +3692,25 @@ a.primary-button.live-event-button:hover {
     display: block;
 }
 
+/* Ensure show state cannot be overridden by other rules; make it part of document flow and visible */
+.max-throw-input-container.show {
+    display: block !important;
+    position: relative !important;
+    z-index: 5 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
 .max-throw-input-container.hide {
     display: none;
+}
+
+/* Force hide state to take precedence if applied */
+.max-throw-input-container.hide {
+    display: none !important;
+    position: static !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
 }
 
 /* Expand Database Page Styles */
@@ -3152,4 +3877,158 @@ a.primary-button.live-event-button:hover {
         font-size: 0.8rem;
         padding: 0.75rem;
     }
+}
+
+/* ===== Custom Trick Form Layout ===== */
+.custom-trick-form .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.custom-trick-form .form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Responsive: stack vertically on mobile */
+@media (max-width: 768px) {
+    .custom-trick-form .form-row {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+}
+
+/* ===== From templates/build_route.html - Force left alignment for route pages ===== */
+.route-page,
+html body .route-page,
+html body main .route-page,
+html body main .main-content .route-page,
+body .main-content .route-page {
+    margin: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    text-align: left !important;
+    padding-left: 1rem !important;
+    max-width: none !important;
+    width: 100% !important;
+}
+
+.route-sections,
+.route-container,
+.route-content,
+.route-form,
+.form-section,
+#route-sections {
+    margin: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    text-align: left !important;
+    max-width: none !important;
+    width: 100% !important;
+}
+
+/* Prevent any container from centering child content */
+.main-content {
+    text-align: left !important;
+    display: block !important;
+}
+
+
+
+
+/* Siteswap X Article Page Specific Styles */
+.siteswap-x-article .siteswap-x-digit-container {
+    font-size: 2rem !important; /* Double the base size */
+    margin: 1em 0.2em !important; /* Add vertical and horizontal margin */
+}
+
+.siteswap-x-article .siteswap-x-digit {
+    font-size: 1em !important; /* Inherit the 2rem size from the container */
+}
+
+.siteswap-x-article .siteswap-x-throw-mod {
+    top: -1.2em !important; /* Adjust position for larger font */
+}
+
+.siteswap-x-article .siteswap-x-catch-mod {
+    bottom: -1.2em !important; /* Adjust position for larger font */
+}
+
+/* Add vertical spacing to the list items */
+.siteswap-example-list li {
+    padding-top: 2em !important;
+    padding-bottom: 2em !important;
+}
+
+
+/* Siteswap X Article Page Styles */
+.siteswap-x-article .subsection {
+    margin-bottom: 3rem;
+}
+
+.siteswap-x-article .subsection-title {
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.siteswap-x-article .modifiers-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.siteswap-x-article .modifier-table h3 {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.siteswap-x-article .table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+}
+
+.siteswap-x-article .table th,
+.siteswap-x-article .table td {
+    border: 1px solid var(--border-color);
+    padding: 0.75rem;
+    text-align: left;
+}
+
+.siteswap-x-article .table thead {
+    background-color: var(--section-bg);
+}
+
+.siteswap-x-article .table-note {
+    font-size: 0.9rem;
+    color: var(--light-text);
+}
+
+.siteswap-x-article .siteswap-example-list li {
+    padding: 2.5em 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.siteswap-x-article .siteswap-example-list li:last-child {
+    border-bottom: none;
+}
+
+.siteswap-x-article .siteswap-x-digit-container {
+    font-size: 2rem !important;
+    margin: 1em 0.2em !important;
+}
+
+.siteswap-x-article .siteswap-x-digit {
+    font-size: 1em !important;
+}
+
+.siteswap-x-article .siteswap-x-throw-mod {
+    top: -1.2em !important;
+}
+
+.siteswap-x-article .siteswap-x-catch-mod {
+    bottom: -1.2em !important;
 }
