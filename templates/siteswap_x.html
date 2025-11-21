@@ -43,7 +43,7 @@
                             <tr><td>F</td><td>Flatfront</td></tr>
                         </tbody>
                     </table>
-                    <p class="table-note"><strong>Spin</strong> is written after the throw modifier, e.g., <code>B2</code> for a backcross with 2 spins.</p>
+                    <p class="table-note"><strong>Spin</strong> is written after the throw modifier, e.g. <code>B2</code> for a backcross with 2 spins.</p>
                 </div>
                 <div class="modifier-table">
                     <h3>Catch Modifiers</h3>
@@ -72,6 +72,7 @@
                 <li><div id="js-sx-demo-7"></div></li>
                 <li><div id="js-sx-demo-8"></div></li>
                 <li><div id="js-sx-demo-9"></div></li>
+				<li><div id="js-sx-demo-10"></div></li>
             </ul>
         </div>
     </div>
@@ -90,9 +91,10 @@ document.addEventListener('DOMContentLoaded', function() {
             { id: 'js-sx-demo-4', pattern: '53{UL}', label: '53, under the leg 3' },
             { id: 'js-sx-demo-5', pattern: '4{S}', label: '4 props shoulder throws' },
             { id: 'js-sx-demo-6', pattern: '53{B}4{/RS}', label: '534, backcross 3, Reverse shoulder 4' },
-            { id: 'js-sx-demo-7', pattern: '3{-1/L}', label: 'reverse spin singles caught as lazies' },
-            { id: 'js-sx-demo-8', pattern: '4{S1/L}23{0}', label: '423, shoulder caught as lazy 4 with single spin, flat 3' },
-            { id: 'js-sx-demo-9', pattern: '3{/RB}3{B}3{UL}', label: '<a href="https://www.instagram.com/reel/C7q4GuHM-t3/?igsh=ODN6MmEyd3kxaWZz" target="_blank">Video example</a>' }
+			{ id: 'js-sx-demo-7', pattern: '5{F0}5555', label: "cascade, every 5'th throw as flat flatfront" },
+            { id: 'js-sx-demo-8', pattern: '3{-1/L}', label: 'reverse spin singles caught as lazies' },
+            { id: 'js-sx-demo-9', pattern: '4{S1/L}23{0}', label: '423, shoulder caught as lazy 4 with single spin, flat 3' },
+            { id: 'js-sx-demo-10', pattern: '3{/RB}3{B}3{UL}', label: '<a href="https://www.instagram.com/reel/C7q4GuHM-t3/?igsh=ODN6MmEyd3kxaWZz" target="_blank">Video example</a>' }
         ];
         sxExamples.forEach(({ id, pattern, label }) => {
             const el = document.getElementById(id);
