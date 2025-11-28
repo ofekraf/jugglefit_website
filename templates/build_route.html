@@ -315,6 +315,11 @@ if (window.initialRoute && window.initialRoute.tricks) {
 
         // Wait for route helpers to be ready before initializing
         function initializeWhenReady() {
+            // If there's an initial route from the server, populate the form with it first.
+            if (window.initialRoute) {
+                initializeFromInitialRoute(window.initialRoute);
+            }
+
             const currentlySelectedProp = document.querySelector('input[name="prop"]:checked');
             if (currentlySelectedProp && typeof window.initializePropSelection === 'function') {
                 window.initializePropSelection();
