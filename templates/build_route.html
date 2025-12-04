@@ -43,11 +43,7 @@ if (window.initialRoute && window.initialRoute.tricks) {
         <div class="route-description">
             <p>Create a custom route by selecting tricks.</p>
         </div>
-        <div class="siteswap-x-toggle-row center-row">
-            <label class="siteswap-x-toggle-label">
-                <input type="checkbox" id="toggle-siteswap-x-checkbox" class="siteswap-x-toggle-checkbox"> Siteswap-X
-            </label>
-        </div>
+        {% include "macros/siteswap_x_toggle.html" %}
     </div>
 
     {% from 'macros/route_name_input.html' import route_name_input %}

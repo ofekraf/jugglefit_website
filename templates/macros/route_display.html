@@ -34,6 +34,10 @@
 <script>
 // Hook checkbox to shared toggle function
 document.addEventListener('DOMContentLoaded', function() {
+    // Prevent duplicate initialization when this macro is included multiple times
+    if (window._routeDisplayInitialized) return;
+    window._routeDisplayInitialized = true;
+
     // Upgrade any placeholder containers into live elements created by CreateTrickContainer
     // This needs to run regardless of the checkbox existence
     if (window.CreateTrickContainer) {
