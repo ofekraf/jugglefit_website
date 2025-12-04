@@ -268,6 +268,7 @@ export function initMaxThrowBindings() {
                         try { container.style.display = 'none'; container.style.visibility = 'hidden'; container.style.opacity = '0'; container.style.maxHeight = '0'; } catch(e){}
                         if (input) input.value = '';
                     }
+                    if (typeof window.updateSearchTricks === 'function') window.updateSearchTricks();
                 }
             } catch (e) { /* swallow */ }
         });
@@ -298,6 +299,7 @@ export function initMaxThrowBindings() {
                     const enabled = document.getElementById('max-throw-enabled');
                     if (valueEl) valueEl.textContent = t.value;
                     if (enabled && enabled.checked && input) input.value = t.value;
+                    if (typeof window.updateSearchTricks === 'function') window.updateSearchTricks();
                 }
             } catch (e) {}
         });

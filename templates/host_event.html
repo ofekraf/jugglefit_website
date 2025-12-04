@@ -35,25 +35,94 @@
             </div>
         </div>
 
- 
+        <!-- Resources Section -->
+        <div class="section-alt" style="margin-top: 4rem; padding: 2rem; border-radius: 8px;">
+            <h2 class="subsection-title" style="text-align: center;">Event Resources</h2>
+            <div class="about-features">
+                <div class="feature">
+                    <i class="fas fa-clipboard-list"></i>
+                    <h3>Checklist</h3>
+                    <p>Step-by-step guide to planning your event</p>
+                    <a href="{{ url_for('equipment_list') }}" class="primary-button" style="margin-top: 1rem;">View Checklist</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Section -->
+        <div class="section" style="margin-top: 2rem;">
+            <h2 class="subsection-title" style="text-align: center;">Get in Touch</h2>
+            <div class="about-content">
+                <p>Ready to host an event or have questions? Contact us!</p>
+                <div class="contact-info" style="margin-top: 1.5rem;">
+                    <a href="mailto:jugglefit.competition@gmail.com" class="primary-button">
                         <i class="fas fa-envelope"></i> jugglefit.competition@gmail.com
                     </a>
                 </div>
             </div>
         </div>
+
+        <!-- Team Section -->
+        {% if team %}
+        <div class="section-alt" style="margin-top: 4rem; padding: 2rem; border-radius: 8px;">
+            <h2 class="subsection-title" style="text-align: center;">Meet the Team</h2>
+            <div class="carousel-container" id="team-carousel">
+                <button class="carousel-prev"><i class="fas fa-chevron-left"></i></button>
+                <div class="carousel">
+                    {% for member in team %}
+                    <div class="carousel-item">
+                        <div class="carousel-item-image">
+                            <img src="{{ member.image_url }}" alt="{{ member.name }}">
+                        </div>
+                        <div class="carousel-item-content">
+                            <h3>{{ member.name }}</h3>
+                            <p>{{ member.role }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <button class="carousel-next"><i class="fas fa-chevron-right"></i></button>
+            </div>
+        </div>
+        {% endif %}
     </div>
 </div>
-    position: absolute;
-    </section>
-</main>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const carousel = document.querySelector('#team-carousel .carousel');
+    if (!carousel) return;
+
+    const items = document.querySelectorAll('#team-carousel .carousel-item');
+    const prevBtn = document.querySelector('#team-carousel .carousel-prev');
+    const nextBtn = document.querySelector('#team-carousel .carousel-next');
+    
+    if (items.length === 0) return;
+
+    let currentIndex = 0;
+    const itemWidth = 300; // Width + gap
+    const containerWidth = document.querySelector('.carousel-container').offsetWidth;
+    const itemsPerView = Math.floor(containerWidth / itemWidth) || 1;
+    
+    // Clone items for infinite scroll
+    items.forEach(item => {
         const clone = item.cloneNode(true);
         carousel.appendChild(clone);
     });
     
-    lastItems.forEach(item => {
+    // Clone again for smooth backward scroll
+    items.forEach(item => {
         const clone = item.cloneNode(true);
-        carousel.insertBefore(clone, items[0]);
+        carousel.insertBefore(clone, carousel.firstChild);
     });
+
+    // Set initial position
+    const initialOffset = -(items.length * itemWidth);
+    carousel.style.transform = `translateX(${initialOffset}px)`;
+    currentIndex = items.length;
+
+    let isAnimating = false;
 
     function updateCarousel(animate = true) {
         if (animate) {
@@ -61,21 +130,19 @@
         } else {
             carousel.style.transition = 'none';
         }
-        const offset = -(currentIndex + itemsToShow) * itemWidth;
+        const offset = -(currentIndex * itemWidth);
         carousel.style.transform = `translateX(${offset}px)`;
     }
 
     function handleTransitionEnd() {
-        // If we're at the clone of the last items, jump to the real items
-        if (currentIndex >= items.length) {
+        if (currentIndex >= items.length * 2) {
             carousel.style.transition = 'none';
-            currentIndex = 0;
+            currentIndex = items.length;
             updateCarousel(false);
         }
-        // If we're at the clone of the first items, jump to the real items
-        if (currentIndex < 0) {
+        if (currentIndex < items.length) {
             carousel.style.transition = 'none';
-            currentIndex = items.length - 1;
+            currentIndex = items.length * 2 - 1;
             updateCarousel(false);
         }
         isAnimating = false;
@@ -90,11 +157,16 @@
         updateCarousel();
     }
 
-    prevBtn.addEventListener('click', () => slide(-1));
-    nextBtn.addEventListener('click', () => slide(1));
+    if (prevBtn) prevBtn.addEventListener('click', () => slide(-1));
+    if (nextBtn) nextBtn.addEventListener('click', () => slide(1));
 
-    // Initialize carousel
-    updateCarousel(false);
+    // Auto slide
+    let autoSlideInterval = setInterval(() => slide(1), 5000);
+
+    carousel.addEventListener('mouseenter', () => clearInterval(autoSlideInterval));
+    carousel.addEventListener('mouseleave', () => {
+        autoSlideInterval = setInterval(() => slide(1), 5000);
+    });
 });
 </script>
 {% endblock %}

@@ -2,41 +2,68 @@
 
 {% block title %}Event Checklist{% endblock %}
 
-    </section>
-</main>
+{% block content %}
+<div class="section">
+    <div class="section-container">
+        <h1 class="section-title">Event Checklist</h1>
+        <p class="section-description">Everything you need to host a successful JuggleFit event.</p>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Load saved progress
-    const savedProgress = JSON.parse(localStorage.getItem('eventChecklist')) || {};
-    Object.keys(savedProgress).forEach(id => {
-        const checkbox = document.getElementById(id);
-        if (checkbox) {
-            checkbox.checked = savedProgress[id];
-        }
-    });
+        <div class="checklist-container">
+            <!-- Hosting Team Requirements -->
+            <div class="checklist-section">
+                <h3>From the Hosting Team</h3>
+                <ul class="checklist">
+                    <li>
+                        <label><strong>Jugglers!</strong></label>
+                    </li>
+                    <li>
+                        <label>Gym (1 hour for qualifications, 1 hour for finals)</label>
+                    </li>
+                    <li>
+                        <label>Microphone, speaker, and a Host for the finals</label>
+                    </li>
+                    <li>
+                        <label>Technical Host for the qualifications</label>
+                    </li>
+                </ul>
+            </div>
 
-    // Save progress
-    document.getElementById('saveProgress').addEventListener('click', function() {
-        const checkboxes = document.querySelectorAll('.checklist input[type="checkbox"]');
-        const progress = {};
-        checkboxes.forEach(checkbox => {
-            progress[checkbox.id] = checkbox.checked;
-        });
-        localStorage.setItem('eventChecklist', JSON.stringify(progress));
-        alert('Progress saved!');
-    });
+            <!-- JuggleFit Team Requirements -->
+            <div class="checklist-section">
+                <h3>From the JuggleFit Team</h3>
+                <ul class="checklist">
+                    <li>
+                        <label>JuggleFit T-shirts for the winners</label>
+                    </li>
+                </ul>
+            </div>
 
-    // Clear progress
-    document.getElementById('clearProgress').addEventListener('click', function() {
-        if (confirm('Are you sure you want to clear all checkboxes?')) {
-            const checkboxes = document.querySelectorAll('.checklist input[type="checkbox"]');
-            checkboxes.forEach(checkbox => {
-                checkbox.checked = false;
-            });
-            localStorage.removeItem('eventChecklist');
-        }
-    });
-});
-</script>
-{% endblock %} 
+            <!-- Joint Requirements -->
+            <div class="checklist-section">
+                <h3>Together</h3>
+                <ul class="checklist">
+                    <li>
+                        <label>Pre-made and printed routes</label>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Optional Extras -->
+            <div class="checklist-section">
+                <h3>Optional Extras</h3>
+                <ul class="checklist">
+                    <li>
+                        <label>Soundman and a fun-motivating playlist</label>
+                    </li>
+                    <li>
+                        <label>Screen and Projector (to display routes)</label>
+                    </li>
+                    <li>
+                        <label>Additional prizes (e.g., future convention tickets, juggling props)</label>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

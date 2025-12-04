@@ -1,8 +1,152 @@
 {% extends "macros/base.html" %}
-
+{% block title %}Home{% endblock %}
 {% block content %}
-    </section>
-</main>
+
+<section class="hero-section">
+    <div class="hero-content">
+        <h1 class="hero-title">JuggleFit</h1>
+        <p class="hero-subtitle">A sport-juggling competition that's motivating to practice, requires minimal preparation, and is fun to watch</p>
+        <div class="hero-buttons">
+            <a href="{{ url_for('generate_route') }}" class="primary-button">Generate Route</a>
+            <a href="#upcoming_events" class="secondary-button">Upcoming Events</a>
+        </div>
+    </div>
+</section>
+
+<section id="about" class="section">
+    <div class="section-container">
+        <h2 class="section-title">About JuggleFit</h2>
+        <div class="about-content">
+            <p>JuggleFit was founded to create a sport-juggling competition that's motivating to practice, requires minimal preparation, is fun and enjoyable to watch, and ensures the best juggler wins.</p>
+            <p>Inspired by CrossFit's challenge of defining athleticism, we set out to build a fair, exciting, and accessible juggling competition for everyone.</p>
+            <div class="about-features">
+                <div class="feature">
+                    <i class="fas fa-trophy"></i>
+                    <h3>Fair Competition</h3>
+                    <p>Ensures the best juggler wins through skill-based challenges</p>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-clock"></i>
+                    <h3>Minimal Prep</h3>
+                    <p>Quick setup and easy participation for all skill levels</p>
+                </div>
+                <div class="feature">
+                    <i class="fas fa-users"></i>
+                    <h3>Community Driven</h3>
+                    <p>Built for and by the juggling community</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Values Section -->
+<section id="values" class="section section-alt">
+    <div class="section-container">
+        <h2 class="section-title">Our Values</h2>
+        <div class="rules-grid">
+            <div class="rule-card">
+                <h3>Integrity and Fair Play</h3>
+                <p>Parts of the competition are self-judged, and we expect all participants to act with honesty and fairness at all times.</p>
+            </div>
+            <div class="rule-card">
+                <h3>Equality and Inclusion</h3>
+                <p>No discrimination of any kind, including but not limited to race, gender, sexual orientation, religion, or ability. Everyone is welcome.</p>
+            </div>
+            <div class="rule-card">
+                <h3>Passion and Perseverance</h3>
+                <p>We celebrate dedication, effort, and the love of juggling. Keep practicing, keep improving, and enjoy the journey!</p>
+            </div>
+            <div class="rule-card">
+                <h3>Community</h3>
+                <p>JuggleFit is built for and by the juggling community. We support, improve, and grow together.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="upcoming_events" class="section">
+    <div class="section-container">
+        <h2 class="section-title">Upcoming Events</h2>
+        {% if upcoming_events %}
+        <div class="carousel-container">
+            <button class="carousel-prev"><i class="fas fa-chevron-left"></i></button>
+            <div class="carousel">
+                {% for event in upcoming_events %}
+                <div class="carousel-item">
+                    <div class="event-content">
+                        <h3>{{ event.name }}</h3>
+                        <div class="event-details">
+                            <p><i class="far fa-calendar-alt"></i> {{ event.date.strftime('%d/%m/%Y') }}</p>
+                            <p><i class="fas fa-map-marker-alt"></i> {{ event.location }}</p>
+                        </div>
+                        {% if event.routes %}
+                        <div class="event-routes">
+                            <p><strong>Routes:</strong></p>
+                            <ul>
+                                {% for route in event.routes %}
+                                <li>{{ route }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+                        {% if event.url %}
+                        <a href="{{ event.url }}" target="_blank" class="event-link">Event Website</a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <button class="carousel-next"><i class="fas fa-chevron-right"></i></button>
+        </div>
+        {% else %}
+        <p class="text-center">No upcoming events scheduled at the moment.</p>
+        {% endif %}
+    </div>
+</section>
+
+<section id="last_events" class="section">
+    <div class="section-container">
+        <h2 class="section-title">Past Events</h2>
+        {% if last_events %}
+        <div class="carousel-container">
+            <button class="carousel-prev"><i class="fas fa-chevron-left"></i></button>
+            <div class="carousel">
+                {% for event in last_events[::-1] %}
+                <div class="carousel-item">
+                    <div class="event-content">
+                        <h3>{{ event.name }}</h3>
+                        {% if event.image_url %}
+                        <img src="{{ event.image_url }}" alt="{{ event.name }}" class="event-image">
+                        {% endif %}
+                        <div class="event-details">
+                            <p><i class="far fa-calendar-alt"></i> {{ event.date.strftime('%d/%m/%Y') }}</p>
+                            <p><i class="fas fa-map-marker-alt"></i> {{ event.location }}</p>
+                        </div>
+                        <a href="{{ url_for('past_events') }}#{{ event.name }}" class="event-link">View Results</a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <button class="carousel-next"><i class="fas fa-chevron-right"></i></button>
+        </div>
+        {% else %}
+        <p class="text-center">No past events to display.</p>
+        {% endif %}
+    </div>
+</section>
+
+<section class="cta-section">
+    <div class="section-container">
+        <h2 class="section-title" style="color: white;">Ready to Compete?</h2>
+        <p class="cta-text">Start practicing today with our route generator or learn more about hosting an event.</p>
+        <div class="cta-buttons">
+            <a href="{{ url_for('generate_route') }}" class="secondary-button">Generate Route</a>
+            <a href="{{ url_for('host_event') }}" class="secondary-button">Host Event</a>
+        </div>
+    </div>
+</section>
+
 {% endblock %}
 
 {% block scripts %}
@@ -13,32 +157,25 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!container) return;
         
         const carousel = container.querySelector('.carousel');
-        const items = carousel.querySelectorAll('.event-card');
-        const prevBtn = container.parentElement.querySelector('.prev-btn');
-        const nextBtn = container.parentElement.querySelector('.next-btn');
+        const items = container.querySelectorAll('.carousel-item');
+        const prevBtn = container.querySelector('.carousel-prev');
+        const nextBtn = container.querySelector('.carousel-next');
         
-        if (items.length <= 2) {
-            prevBtn.style.display = 'none';
-            nextBtn.style.display = 'none';
-            return;
-        }
-        
+        if (!carousel || items.length === 0) return;
+
         let currentIndex = 0;
         let isAnimating = false;
-        
+
         function getItemWidth() {
-            const item = items[0];
-            const style = window.getComputedStyle(item);
-            const marginRight = parseInt(style.marginRight);
-            return item.offsetWidth + marginRight;
+            // Item width + gap (20px)
+            return items[0].offsetWidth + 20;
         }
-        
+
         function updateCarousel(animate = true) {
-            if (!animate) {
+            if (animate) {
+                carousel.style.transition = 'transform 0.5s ease-in-out';
+            } else {
                 carousel.style.transition = 'none';
-                setTimeout(() => {
-                    carousel.style.transition = '';
-                }, 10);
             }
             const itemWidth = getItemWidth();
             const offset = -currentIndex * itemWidth;
@@ -47,7 +184,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         function updateButtons() {
             const itemsPerView = window.innerWidth <= 768 ? 1 : 2;
-            const maxIndex = items.length - itemsPerView;
+            const maxIndex = Math.max(0, items.length - itemsPerView);
             
             // Disable prev button at start
             prevBtn.style.opacity = currentIndex === 0 ? '0.5' : '1';
@@ -62,7 +199,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (isAnimating) return;
             
             const itemsPerView = window.innerWidth <= 768 ? 1 : 2;
-            const maxIndex = items.length - itemsPerView;
+            const maxIndex = Math.max(0, items.length - itemsPerView);
             const newIndex = currentIndex + direction;
             
             if (newIndex < 0 || newIndex > maxIndex) return;
@@ -77,8 +214,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 500);
         }
 
-        prevBtn.addEventListener('click', () => slide(-1));
-        nextBtn.addEventListener('click', () => slide(1));
+        if (prevBtn) prevBtn.addEventListener('click', () => slide(-1));
+        if (nextBtn) nextBtn.addEventListener('click', () => slide(1));
 
         // Handle window resize
         let resizeTimeout;
@@ -96,8 +233,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Initialize both carousels
-    initCarousel('#upcoming_events .carousel');
-    initCarousel('#last_events .carousel');
+    initCarousel('#upcoming_events');
+    initCarousel('#last_events');
 });
 </script>
 {% endblock %}
