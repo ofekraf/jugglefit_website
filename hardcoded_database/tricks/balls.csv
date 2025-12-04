@@ -161,7 +161,7 @@ name,props_count,difficulty,tags,comment,max_throw,siteswap_x
 "8c penguins",4,26,"special body throws",,8,"8c 4{P}"
 "20c laying on the back",4,25,"on the back|overheads",,4
 "overheads -> 4c overhead reverse shoulders -> 4c overhead shoulders -> overheads",4,49,"overheads|reverse shoulders|shoulders","The impossible trick",4,"4{OH} -> 4c 4{OH/RS} -> 4c 4{S} -> 4{OH}"
-"1 round 94444, shoulders 4's -> cascade",5,52,"shoulders|async siteswap",,9,"1 round 94{S}4{S}4{S}4{S} -> 5"
+"1 round 94444, shoulders 4's -> cascade",5,52,"shoulders|async siteswap",,9,"1 round 94{S}4{S}4{S}4{S} -> cascade"
 "6 rounds 645, shoulder 4",5,45,"shoulders|async siteswap",,6,"6 rounds 64{S}5"
 "4 rounds 744, shoulder first 4, reverse shoulder second 4",5,63,"shoulders|reverse shoulders|async siteswap",,7,"4 rounds 74{S}4{/RS}"
 "30c overheads",5,36,"overheads",,5

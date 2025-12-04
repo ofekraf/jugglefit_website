@@ -49,6 +49,7 @@ function initMaxThrowUI() {
                 maxThrowInput.value = '';
             }
             // maxThrowContainer state
+            if (typeof window.updateSearchTricks === 'function') window.updateSearchTricks();
         }
 
         // Avoid attaching handlers multiple times
@@ -101,6 +102,7 @@ document.addEventListener('change', function(e) {
                 try { container.style.display = 'none'; container.style.visibility = 'hidden'; container.style.opacity = '0'; container.style.maxHeight = '0'; } catch(e){}
                 if (input) input.value = '';
             }
+            if (typeof window.updateSearchTricks === 'function') window.updateSearchTricks();
         }
     } catch (e) { /* swallow */ }
 });

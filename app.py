@@ -166,9 +166,9 @@ def generate_route():
 def host_event():
 	return render_template('host_event.html', team=TEAM)
 
-@app.route('/equipment_list', methods=['GET'])
+@app.route('/event_checklist', methods=['GET'])
 def equipment_list():
-	return render_template('equipment_list.html')
+	return render_template('event_checklist.html')
 
 @app.route('/build_route')
 def build_route():
