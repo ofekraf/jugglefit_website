@@ -253,6 +253,11 @@
 
     // Print Route functionality
     async function printRoute() {
+        const printBtn = document.querySelector('button[onclick="printRoute()"]');
+        const originalText = printBtn.textContent;
+        printBtn.textContent = 'Generating QR...';
+        printBtn.disabled = true;
+
         // Remove any existing QR code containers and their contents
         const existingQRCodes = document.querySelectorAll('.qr-code');
         existingQRCodes.forEach(qr => {
@@ -294,6 +299,7 @@
                 showToast('Heavy QR generated due to server error');
             }
         } catch (error) {
+            console.error('QR Generation Error:', error);
             // Fallback: generate QR for the long URL if API fails
             new QRCode(qrContainer, {
                 text: longUrl,
@@ -304,6 +310,9 @@
                 correctLevel: QRCode.CorrectLevel.H
             });
             showToast('Heavy QR generated due to server error');
+        } finally {
+            printBtn.textContent = originalText;
+            printBtn.disabled = false;
         }
 
         // Add event listener for afterprint
@@ -317,7 +326,7 @@
         // Wait for QR code to be generated before printing
         setTimeout(() => {
             window.print();
-        }, 100);
+        }, 500); // Increased timeout to ensure QR renders
     }
 
     function printRouteWithoutQR() {
