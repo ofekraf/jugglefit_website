@@ -558,9 +558,15 @@ export function addTrickToRoute(trick) {
     if (normalized.siteswap_x === '') normalized.siteswap_x = null;
 
     // Check if a trick with the same name and props_count already exists
-    const isDuplicate = window.currentRoute.tricks.some(t => 
-        t.name === normalized.name && Number(t.props_count) === Number(normalized.props_count)
-    );
+    const isDuplicate = window.currentRoute.tricks.some(t => {
+        const propsMatch = Number(t.props_count) === Number(normalized.props_count);
+        if (!propsMatch) return false;
+
+        const nameMatch = t.name && normalized.name && t.name === normalized.name;
+        const siteswapMatch = t.siteswap_x && normalized.siteswap_x && t.siteswap_x === normalized.siteswap_x;
+
+        return nameMatch || siteswapMatch;
+    });
     
     if (isDuplicate) {
         if (typeof window.showToast === 'function') {
