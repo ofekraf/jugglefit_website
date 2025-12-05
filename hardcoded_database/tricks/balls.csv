@@ -3,7 +3,7 @@ name,props_count,difficulty,tags,comment,max_throw,siteswap_x
 "20c sync fountain -> 20c async fountain",4,12,"sync base pattern|async base pattern","Transition: (5x,4)",5
 "20c cascade",5,16,"async base pattern",,5
 "50c isolated cascade",5,27,"async base pattern|isolated",,5
-"30c reverse cascade",5,38,"async base pattern",,5,reverse cascade
+"30c reverse cascade",5,38,"async base pattern",,5
 "ANY",6,27,"any base pattern",,6
 "async fountain",6,30,"async base pattern",,6,async fountain
 "20c async fountain",6,33,"async base pattern",,6,async fountain
@@ -151,25 +151,25 @@ name,props_count,difficulty,tags,comment,max_throw,siteswap_x
 "10c neck throws",3,24,"necks",,3,"10c 3{N}"
 "8 rounds 423, backcross 3",3,19,"backcrosses|async siteswap",,4,"8 rounds 423{B}"
 "8 rounds 423, shoulder 4",3,19,"shoulders|async siteswap",,4,"8 rounds 4{S}23"
-"overheads -> 3c overhead caught as reverse shoulder -> 3c backcrosses -> overheads",3,33,"overheads|reverse shoulders|backcrosses","The impossible trick",3,"3{OH} -> 3c 3{OH/RS} -> 3c 3{B} -> 3{OH}"
+"overheads -> 3c overhead caught as reverse shoulder -> 3c backcrosses -> overheads",3,33,"overheads|reverse shoulders|backcrosses","The impossible trick",3,"3{Oh} -> 3c 3{OH/RS} -> 3c 3{B} -> 3{Oh}"
 "6c under the leg throws",3,19,"under legs",,6,"6c 3{Ul}"
 "1 round cc111111111, around the body 1's -> cascade",3,88,"special body throws","9 1's",12,"cc11{B}11{B}11{B}11{B}1 -> cascade"
 "2 rounds 44133, backcrosses 3's",3,18,"backcrosses|async siteswap",,4,"2 rounds 4413{B}3{B}"
 "reverse shoulders async fountain",4,42,"reverse shoulders|async siteswap",,6,"8c 4{/RS}"
 "4c ANY -> 1c ass catch -> ANY",4,41,"special body throws",,6
 "fountain -> 2c reverse shoulders -> 2c shoulders -> fountain",4,28,"reverse shoulders|shoulders",,6,"4 -> 2c 4{/RS} -> 2c 4{S} -> 4"
-"8c penguins",4,26,"special body throws",,8,"8c 4{P}"
+"8c penguins",4,26,"special body throws",,8,"8c 4{PE}"
 "20c laying on the back",4,25,"on the back|overheads",,4
-"overheads -> 4c overhead reverse shoulders -> 4c overhead shoulders -> overheads",4,49,"overheads|reverse shoulders|shoulders","The impossible trick",4,"4{OH} -> 4c 4{OH/RS} -> 4c 4{S} -> 4{OH}"
+"overheads -> 4c overhead reverse shoulders -> 4c overhead shoulders -> overheads",4,49,"overheads|reverse shoulders|shoulders","The impossible trick",4,"4{Oh} -> 4c 4{OH/RS} -> 4c 4{S} -> 4{Oh}"
 "1 round 94444, shoulders 4's -> cascade",5,52,"shoulders|async siteswap",,9,"1 round 94{S}4{S}4{S}4{S} -> cascade"
 "6 rounds 645, shoulder 4",5,45,"shoulders|async siteswap",,6,"6 rounds 64{S}5"
 "4 rounds 744, shoulder first 4, reverse shoulder second 4",5,63,"shoulders|reverse shoulders|async siteswap",,7,"4 rounds 74{S}4{/RS}"
 "30c overheads",5,36,"overheads",,5
-"overheads -> 2 rounds 744 overheads -> overheads",5,40,"overheads|async siteswap",,7,"5{OH} -> 2 rounds 7{OH}4{OH}4{OH} -> 5{OH}"
+"overheads -> 2 rounds 744 overheads -> overheads",5,40,"overheads|async siteswap",,7,"5{Oh} -> 2 rounds 7{Oh}4{Oh}4{Oh} -> 5{Oh}"
 "10c laying on the back",5,32,"on the back|overheads",,5
 "half shower -> overheads -> other side half shower",5,40,"overheads",,5
 "cascade -> 2 rounds 7733, neck throws 3's",5,82,"necks|async siteswap",,8,"cascade -> 2 rounds 773{N}3{N}"
 "4 rounds 756 -> 2 rounds 756, backcross 5 -> 4 rounds 756",6,66,"backcrosses|async siteswap",,7,"756 -> 2 rounds 75{B}6 -> 756"
-"6c async fountain -> 6c overheads async fountain -> 6c async fountain",6,45,"overheads",,6,"6c 6 -> 6c 6{OH} -> 6c 6"
+"6c async fountain -> 6c overheads async fountain -> 6c async fountain",6,45,"overheads",,6,"6c 6 -> 6c 6{Oh} -> 6c 6"
 "4 rounds 774 -> 4 rounds 774, shoulder 4",6,62,"shoulders|async siteswap",,7,"4 rounds 774 -> 4 rounds 774{S}"
 "cascade -> 7c backcrosses",7,74,"backcrosses",,7,"7 -> 7c 7{B}"

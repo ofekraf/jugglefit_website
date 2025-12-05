@@ -19,7 +19,7 @@ EJC2025 = PastEvent(
                     Trick(name="6 rounds 66161", props_count=4, comment="entrance: 5"),
                     Trick(name="5c cascade -> 3up 180 -> 5up 360 -> cascade", props_count=5),
                     Trick(name="reverse cascade -> 18c mills mess", props_count=5),
-                    Trick(name="cascade -> 1 round 94444, shoulders 4's -> overheads", props_count=5, siteswap_x="5 -> 1 round 94{S}4{S}4{S}4{S} -> 5{OH}"),
+                    Trick(name="cascade -> 1 round 94444, shoulders 4's -> overheads", props_count=5, siteswap_x="5 -> 1 round 94{S}4{S}4{S}4{S} -> 5{Oh}"),
                     Trick(name="3 rounds 9555855", props_count=6),
                     Trick(name="6c sync fountain -> 8c (c,c)(4,4)(4,4)(4,4) -> sync fountain", props_count=6),
                     Trick(name="6c async fountain -> 999522 4up 360 -> 756", props_count=6),
@@ -72,7 +72,7 @@ EJC2025 = PastEvent(
                     Trick(name="4c sync fountain -> (a,a)(4,4)(0,0)(2,2) 4up 2-stage 720 -> sync fountain", props_count=6, comment="2 high 2 low 2-stage 720"),
                     Trick(name="async fountain -> sync fountain -> async fountain", props_count=6),
                     Trick(name="any -> 1 ring pulldown + cascade -> fountain", props_count=6),
-                    Trick(name="6c 75 -> 4c 9555, pancakes 5's -> 6c any", props_count=6, siteswap_x="3 rounds 75 -> 1 round 95{P}5{P}5{P} -> 6c any"),
+                    Trick(name="6c 75 -> 4c 9555, pancakes 5's -> 6c any", props_count=6, siteswap_x="3 rounds 75 -> 1 round 95{Pc}5{Pc}5{Pc} -> 6c any"),
                     Trick(name="40c cascade -> pulldown", props_count=7),
                 ]
             ),
@@ -94,7 +94,7 @@ EJC2025 = PastEvent(
                     Trick(name="(6x,4)* -> shower", props_count=5, comment="transition: (8x,6)"),
                     Trick(name="async fountain -> sync fountain -> async fountain", props_count=6),
                     Trick(name="6c any -> 6c b97531 -> half shower", props_count=6),
-                    Trick(name="3c cascade -> 3c reverse shoulders -> 3c backrosses -> 3c overheads", props_count=3, siteswap_x="3c 3 -> 3c 3{/RB} -> 3c 3{B} -> 3c 3{OH}"),
+                    Trick(name="3c cascade -> 3c reverse shoulders -> 3c backrosses -> 3c overheads", props_count=3, siteswap_x="3c 3 -> 3c 3{/RB} -> 3c 3{B} -> 3c 3{Oh}"),
                     Trick(name="944005500 3up 2-stage -> cascade", props_count=3),
                     Trick(name="7c cascade -> 5c 99944 -> 7c cascade", props_count=7),
                     Trick(name="7c cascade -> 5up 360 -> cascade", props_count=7)
