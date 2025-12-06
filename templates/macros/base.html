@@ -31,7 +31,7 @@
     <div class="orientation-alert">
         <i class="fas fa-mobile-alt rotate-icon"></i>
         <span>Rotate your phone for better experience</span>
-        <button class="close-btn" onclick="this.parentElement.classList.remove('show')">
+        <button class="close-btn">
             <i class="fas fa-times"></i>
         </button>
     </div>
@@ -121,6 +121,11 @@
     <script>
         // Check device orientation
         function checkOrientation() {
+            // If user already dismissed the alert in this session, don't show it again
+            if (sessionStorage.getItem('orientationAlertDismissed') === 'true') {
+                return;
+            }
+
             const alert = document.querySelector('.orientation-alert');
             if (window.innerWidth <= 768 && window.innerHeight > window.innerWidth) {
                 alert.classList.add('show');
@@ -128,6 +133,12 @@
                 alert.classList.remove('show');
             }
         }
+
+        // Handle close button click
+        document.querySelector('.orientation-alert .close-btn').addEventListener('click', function() {
+            this.parentElement.classList.remove('show');
+            sessionStorage.setItem('orientationAlertDismissed', 'true');
+        });
 
         // Check orientation on load and resize
         window.addEventListener('load', checkOrientation);
