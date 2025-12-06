@@ -93,7 +93,7 @@ def shorten_url():
 		chars = string.ascii_letters + string.digits
 		max_retries = 5
 		for _ in range(max_retries):
-			code = ''.join(random.choice(chars) for _ in range(6))
+			code = ''.join(random.choice(chars) for _ in range(8))
 			# Save to database
 			if db_manager.create_short_url(code, long_url):
 				short_url = url_for('redirect_to_long_url', code=code, _external=True)
