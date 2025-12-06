@@ -418,7 +418,6 @@ export function updateRouteDisplay(route = null) {
     routeSections.innerHTML = '';
 
     if (!routeToUse.tricks || routeToUse.tricks.length === 0) {
-        console.log('No tricks to display');
         return;
     }
 
@@ -714,7 +713,6 @@ export function initializePropSelection() {
                 
                 // Clear tricks when prop changes (not during initialization)
                 if (window.currentRoute && window.currentRoute.prop && window.currentRoute.prop !== input.value) {
-                    console.log('Prop changed from', window.currentRoute.prop, 'to', input.value, '- clearing tricks');
                     window.currentRoute.tricks = [];
                 }
                 
@@ -822,13 +820,10 @@ export function initializePropSelection() {
  * @param {string} serializedRoute - The serialized route string from URL
  */
 export function loadRoute(serializedRoute, callback) {
-    try {
-        console.log('Loading route from serialized string:', serializedRoute.substring(0, 100) + '...');
-        
+    try {        
         // The route is zlib compressed then base64 encoded (Python: zlib.compress -> base64.b64encode)
         let routeData;
         try {
-            console.log('Deserializing route:', serializedRoute.substring(0, 50) + '...');
             
             // Check if pako library is available for decompression
             if (typeof pako === 'undefined') {
@@ -837,7 +832,6 @@ export function loadRoute(serializedRoute, callback) {
             
             // Decode from base64
             const compressedData = atob(serializedRoute);
-            console.log('Base64 decoded, compressed length:', compressedData.length);
             
             // Convert string to Uint8Array for pako
             const compressedBytes = new Uint8Array(compressedData.length);
@@ -847,11 +841,9 @@ export function loadRoute(serializedRoute, callback) {
             
             // Decompress using pako (zlib)
             const decompressed = pako.inflate(compressedBytes, { to: 'string' });
-            console.log('Decompressed JSON length:', decompressed.length);
             
             // Parse the JSON
             routeData = JSON.parse(decompressed);
-            console.log('Successfully deserialized route:', routeData.name);
             
         } catch (e) {
             console.error('Failed to deserialize route:', e);
@@ -869,9 +861,7 @@ export function loadRoute(serializedRoute, callback) {
             };
             showError('Failed to deserialize route data: ' + e.message);
         }
-        
-        console.log('Deserialized route data:', routeData);
-        
+                
         // Set up global route data
         window.currentRoute = {
             name: routeData.name || 'Untitled Route',
@@ -1076,10 +1066,8 @@ export function initRouteLoading(callback) {
     const routeParam = urlParams.get('route');
     
     if (routeParam) {
-        console.log('Found route parameter, loading route immediately...');
         loadRoute(routeParam, callback);
     } else {
-        console.log('No route parameter found in URL');
         // Set a default empty route
         window.currentRoute = {
             name: 'No Route Data',
