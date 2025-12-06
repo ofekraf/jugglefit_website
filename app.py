@@ -3,7 +3,7 @@ import string
 import random
 from urllib.parse import unquote
 from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, Blueprint, send_file
-from hardcoded_database.consts import get_trick_csv_path
+from hardcoded_database.consts import get_trick_csv_path, URL_RETENTION_MONTHS
 from hardcoded_database.events.past_events import ALL_PAST_EVENTS, FRONT_PAGE_PAST_EVENTS
 from hardcoded_database.events.upcoming_events import UPCOMING_EVENTS
 from hardcoded_database.organization.team import TEAM
@@ -272,8 +272,11 @@ if __name__ == '__main__':
 	# Initialize database
 	try:
 		db_manager.init_db()
+		db_manager.migrate_db()
+		# Clean up inactive URLs on startup
+		db_manager.delete_inactive_urls(URL_RETENTION_MONTHS)
 	except Exception as e:
-		print(f"Warning: Database initialization failed: {e}")
+		print(f"Warning: Database initialization/migration failed: {e}")
 
 	port = int(os.environ.get("PORT", 5001))
 	app.run(host='0.0.0.0', port=port, debug=True)
