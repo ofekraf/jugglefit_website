@@ -99,44 +99,14 @@
     let isRunning = false;
     let originalDuration = 600; // Default, will be updated when route loads
 
-    // Helper function to get shortened URL
-    async function getShortenedUrl(longUrl) {
-        try {
-            const response = await fetch('/api/shorten_url', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ long_url: longUrl })
-            });
-            const data = await response.json();
-            return data.short_url || null;
-        } catch (error) {
-            console.error('URL Shortening Error:', error);
-            return null;
-        }
-    }
-
     // Share Route functionality
-    async function shareRoute() {
-        const shareBtn = document.querySelector('button[onclick="shareRoute()"]');
-        const originalText = shareBtn.textContent;
-        shareBtn.textContent = 'Shortening...';
-        shareBtn.disabled = true;
-
-        const longUrl = window.location.href;
-        
-        try {
-            const shortUrl = await getShortenedUrl(longUrl);
-            const urlToShare = shortUrl || longUrl;
-            
-            await navigator.clipboard.writeText(urlToShare);
+    function shareRoute() {
+        navigator.clipboard.writeText(window.location.href).then(() => {
             showToast('Route URL copied to clipboard!');
-        } catch (err) {
+        }).catch(err => {
             console.error('Failed to copy URL: ', err);
             showToast('Failed to copy URL. Please try again.');
-        } finally {
-            shareBtn.textContent = originalText;
-            shareBtn.disabled = false;
-        }
+        });
     }
 
     // Toast notification function
@@ -283,11 +253,6 @@
 
     // Print Route functionality
     async function printRoute() {
-        const printBtn = document.querySelector('button[onclick="printRoute()"]');
-        const originalText = printBtn.textContent;
-        printBtn.textContent = 'Generating QR...';
-        printBtn.disabled = true;
-
         // Remove any existing QR code containers and their contents
         const existingQRCodes = document.querySelectorAll('.qr-code');
         existingQRCodes.forEach(qr => {
@@ -300,30 +265,35 @@
         qrContainer.className = 'qr-code print-only';
         
         // Append to the route content instead of body
-        const routeContent = document.querySelector('.route-sections');
+        const routeContent = document.querySelector('.route-content');
         routeContent.appendChild(qrContainer);
 
         // Get the current long URL
         const longUrl = window.location.href;
 
         try {
-            const shortUrl = await getShortenedUrl(longUrl);
-            const urlToUse = shortUrl || longUrl;
+            // Request a short URL from the API
+            const response = await fetch('/api/shorten_url', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ long_url: longUrl })
+            });
+            const data = await response.json();
+            const shortUrl = data.short_url || longUrl; // fallback to longUrl if error
 
             // Generate QR code for the short URL
             new QRCode(qrContainer, {
-                text: urlToUse,
+                text: shortUrl,
                 width: 280,
                 height: 280,
                 colorDark: "#000000",
                 colorLight: "#ffffff",
                 correctLevel: QRCode.CorrectLevel.H
             });
-            if (!shortUrl) {
+            if (!data.short_url) {
                 showToast('Heavy QR generated due to server error');
             }
         } catch (error) {
-            console.error('QR Generation Error:', error);
             // Fallback: generate QR for the long URL if API fails
             new QRCode(qrContainer, {
                 text: longUrl,
@@ -334,9 +304,6 @@
                 correctLevel: QRCode.CorrectLevel.H
             });
             showToast('Heavy QR generated due to server error');
-        } finally {
-            printBtn.textContent = originalText;
-            printBtn.disabled = false;
         }
 
         // Add event listener for afterprint
@@ -350,7 +317,7 @@
         // Wait for QR code to be generated before printing
         setTimeout(() => {
             window.print();
-        }, 500); // Increased timeout to ensure QR renders
+        }, 100);
     }
 
     function printRouteWithoutQR() {

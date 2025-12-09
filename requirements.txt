@@ -20,5 +20,3 @@ pytest==8.4.1
 pytest-docker==3.2.3
 docker==7.1.0
 pyyaml==6.0.2
-mysql-connector-python==8.3.0
-cryptography==42.0.5
