@@ -14,24 +14,4 @@ services:
     volumes:
       - .:/app
     command: python app.py
-    restart: unless-stopped
-    depends_on:
-      - db
-
-  db:
-    image: mysql:8.0
-    restart: always
-    environment:
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-    ports:
-      - "3306:3306"
-    volumes:
-      - db_data:/var/lib/mysql
-    env_file:
-      - ./.env
-
-volumes:
-  db_data:
+    restart: unless-stopped 

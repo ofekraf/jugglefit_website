@@ -1,6 +1,4 @@
 import os
-import string
-import random
 from urllib.parse import unquote
 from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, Blueprint, send_file
 from hardcoded_database.consts import get_trick_csv_path
@@ -10,7 +8,6 @@ from hardcoded_database.organization.team import TEAM
 
 from dotenv import load_dotenv
 
-from database.db_manager import db_manager
 from pylib.classes.prop import MAIN_PROPS, Prop
 from pylib.classes.route import Route
 from pylib.classes.tag import TAG_CATEGORY_MAP_JSON, Tag, TagCategory
@@ -78,44 +75,30 @@ def fetch_tricks():
 
 @api.route('/shorten_url', methods=['POST'])
 def shorten_url():
-	long_url = request.json.get('long_url')
-	if not long_url:
-		return jsonify({"error": "long_url is required"}), 400
-	
-	try:
-		# Check if URL already exists
-		existing_code = db_manager.get_short_code_by_long_url(long_url)
-		if existing_code:
-			short_url = url_for('redirect_to_long_url', code=existing_code, _external=True)
-			return jsonify({"short_url": short_url, "code": existing_code}), 200
-
-		# Generate a random short code
-		chars = string.ascii_letters + string.digits
-		max_retries = 5
-		for _ in range(max_retries):
-			code = ''.join(random.choice(chars) for _ in range(8))
-			# Save to database
-			if db_manager.create_short_url(code, long_url):
-				short_url = url_for('redirect_to_long_url', code=code, _external=True)
-				return jsonify({"short_url": short_url, "code": code}), 200
-		
-		return jsonify({"error": "Failed to create unique short URL"}), 500
-			
-	except Exception as e:
-		return jsonify({"error": str(e)}), 500
+	return "currently unsupported, in the process of building", 500
+	# long_url = request.json.get('long_url')
+	# if not long_url:
+	#     return jsonify({"error": "long_url is required"}), 400
+	# try:
+	#     code = get_or_create_short_url(long_url)
+	#     short_url = url_for('redirect_to_long_url', code=code, _external=True)
+	#     return jsonify({"short_url": short_url, "code": code}), 200
+	# except Exception as e:
+	#     return jsonify({"error": str(e)}), 500
 	
 @app.route('/shortener/<code>')
 def redirect_to_long_url(code):
-	try:
-		long_url = db_manager.get_long_url(code)
-		if long_url:
-			return redirect(long_url)
-		else:
-			flash('Short URL not found.', 'error')
-			return redirect(url_for('home'))
-	except Exception as e:
-		flash(f'Error retrieving URL: {str(e)}', 'error')
-		return redirect(url_for('home'))
+	return "currently unsupported, in the process of building"
+	# try:
+	#     long_url = get_long_url_and_refresh(code)
+	#     if long_url:
+	#         return redirect(long_url)
+	#     else:
+	#         flash('Short URL not found.', 'error')
+	#         return redirect(url_for('home'))
+	# except Exception as e:
+	#     flash(f'Error retrieving URL: {str(e)}', 'error')
+	#     return redirect(url_for('home'))
 
 
 # Register the API blueprint
@@ -269,11 +252,5 @@ def siteswap_x():
 		  return render_template('siteswap_x.html')
 
 if __name__ == '__main__':
-	# Initialize database
-	try:
-		db_manager.init_db()
-	except Exception as e:
-		print(f"Warning: Database initialization failed: {e}")
-
 	port = int(os.environ.get("PORT", 5001))
 	app.run(host='0.0.0.0', port=port, debug=True)
