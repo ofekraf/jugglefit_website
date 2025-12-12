@@ -96,19 +96,40 @@ def shorten_url():
 	# except Exception as e:
 	#     return jsonify({"error": str(e)}), 500
 	
+	try:
+		# Check if URL already exists
+		existing_code = db_manager.get_short_code_by_long_url(long_url)
+		if existing_code:
+			short_url = url_for('redirect_to_long_url', code=existing_code, _external=True)
+			return jsonify({"short_url": short_url, "code": existing_code}), 200
+
+		# Generate a random short code
+		chars = string.ascii_letters + string.digits
+		max_retries = 5
+		for _ in range(max_retries):
+			code = ''.join(random.choice(chars) for _ in range(8))
+			# Save to database
+			if db_manager.create_short_url(code, long_url):
+				short_url = url_for('redirect_to_long_url', code=code, _external=True)
+				return jsonify({"short_url": short_url, "code": code}), 200
+		
+		return jsonify({"error": "Failed to create unique short URL"}), 500
+			
+	except Exception as e:
+		return jsonify({"error": "Database unavailable"}), 503
+	
 @app.route('/shortener/<code>')
 def redirect_to_long_url(code):
-	return "currently unsupported, in the process of building"
-	# try:
-	#     long_url = get_long_url_and_refresh(code)
-	#     if long_url:
-	#         return redirect(long_url)
-	#     else:
-	#         flash('Short URL not found.', 'error')
-	#         return redirect(url_for('home'))
-	# except Exception as e:
-	#     flash(f'Error retrieving URL: {str(e)}', 'error')
-	#     return redirect(url_for('home'))
+	try:
+		long_url = db_manager.get_long_url(code)
+		if long_url:
+			return redirect(long_url)
+		else:
+			flash('Short URL not found.', 'error')
+			return redirect(url_for('home'))
+	except Exception as e:
+		flash('Service temporarily unavailable. Please try again later.', 'error')
+		return redirect(url_for('home'))
 
 
 # Register the API blueprint
@@ -349,7 +370,6 @@ if __name__ == '__main__':
 	# Initialize database
 	try:
 		db_manager.init_db()
-		db_manager.migrate_db()
 		# Clean up inactive URLs on startup
 		db_manager.delete_inactive_urls(URL_RETENTION_MONTHS)
 	except Exception as e:

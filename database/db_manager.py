@@ -1,8 +1,8 @@
 import os
 import mysql.connector
 from mysql.connector import Error
-import time
 from hardcoded_database.consts import URL_RETENTION_MONTHS
+from pylib.utils.network import resolve_host
 
 class DBManager:
     def __init__(self):
@@ -11,31 +11,32 @@ class DBManager:
         self.password = os.getenv('MYSQL_PASSWORD')
         self.database = os.getenv('MYSQL_DATABASE')
         self.port = int(os.getenv('MYSQL_PORT', 3306))
-        self.connection = None
+        self._connection = None
 
-    def get_connection(self):
-        if self.connection is None or not self.connection.is_connected():
-            try:
-                self.connection = mysql.connector.connect(
-                    host=self.host,
-                    user=self.user,
-                    password=self.password,
-                    database=self.database,
-                    port=self.port
-                )
-            except Error as e:
-                print(f"Error connecting to MySQL: {e}")
-                return None
-        return self.connection
+    @property
+    def connection(self):
+        if self._connection is None or not self._connection.is_connected():
+            # Resolve host manually with a short timeout to avoid long DNS delays
+            host_ip = resolve_host(self.host)
+
+            self._connection = mysql.connector.connect(
+                host=host_ip,
+                user=self.user,
+                password=self.password,
+                database=self.database,
+                port=self.port,
+                connection_timeout=1
+            )
+        return self._connection
 
     def close_connection(self):
-        if self.connection and self.connection.is_connected():
-            self.connection.close()
-            self.connection = None
+        if self._connection and self._connection.is_connected():
+            self._connection.close()
+            self._connection = None
 
     def init_db(self):
         """Initialize the database schema."""
-        conn = self.get_connection()
+        conn = self.connection
         if conn:
             try:
                 cursor = conn.cursor()
@@ -57,91 +58,49 @@ class DBManager:
         else:
             print("Failed to connect to database for initialization.")
 
-    def migrate_db(self):
-        """Migrate database schema to include new columns."""
-        conn = self.get_connection()
-        if conn:
-            try:
-                cursor = conn.cursor()
-                # Check if last_accessed_at column exists
-                cursor.execute("""
-                    SELECT COUNT(*)
-                    FROM information_schema.columns
-                    WHERE table_schema = %s
-                    AND table_name = 'url_mappings'
-                    AND column_name = 'last_accessed_at'
-                """, (self.database,))
-                
-                if cursor.fetchone()[0] == 0:
-                    print("Migrating database: Adding last_accessed_at column...")
-                    cursor.execute("""
-                        ALTER TABLE url_mappings
-                        ADD COLUMN last_accessed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                    """)
-                    conn.commit()
-                    print("Migration successful.")
-                
-                cursor.close()
-            except Error as e:
-                print(f"Error migrating database: {e}")
-
     def get_short_code_by_long_url(self, long_url):
-        conn = self.get_connection()
-        if conn:
-            try:
-                cursor = conn.cursor()
-                # Note: querying by TEXT/MEDIUMTEXT can be slow on large datasets
-                # but sufficient for this use case.
-                cursor.execute(
-                    "SELECT short_code FROM url_mappings WHERE long_url = %s LIMIT 1",
-                    (long_url,)
-                )
-                result = cursor.fetchone()
-                cursor.close()
-                if result:
-                    return result[0]
-            except Error as e:
-                print(f"Error retrieving short code: {e}")
+        conn = self.connection
+        cursor = conn.cursor()
+        # Note: querying by TEXT/MEDIUMTEXT can be slow on large datasets
+        # but sufficient for this use case.
+        cursor.execute(
+            "SELECT short_code FROM url_mappings WHERE long_url = %s LIMIT 1",
+            (long_url,)
+        )
+        result = cursor.fetchone()
+        cursor.close()
+        if result:
+            return result[0]
         return None
 
     def create_short_url(self, short_code, long_url):
-        conn = self.get_connection()
-        if conn:
-            try:
-                cursor = conn.cursor()
-                cursor.execute(
-                    "INSERT INTO url_mappings (short_code, long_url) VALUES (%s, %s)",
-                    (short_code, long_url)
-                )
-                conn.commit()
-                cursor.close()
-                return True
-            except Error as e:
-                print(f"Error creating short URL: {e}")
-                return False
-        return False
+        conn = self.connection
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT INTO url_mappings (short_code, long_url) VALUES (%s, %s)",
+            (short_code, long_url)
+        )
+        conn.commit()
+        cursor.close()
+        return True
 
     def get_long_url(self, short_code):
-        conn = self.get_connection()
-        if conn:
-            try:
-                cursor = conn.cursor()
-                cursor.execute(
-                    "SELECT long_url FROM url_mappings WHERE short_code = %s",
-                    (short_code,)
-                )
-                result = cursor.fetchone()
-                cursor.close()
-                if result:
-                    self.update_last_accessed(short_code)
-                    return result[0]
-            except Error as e:
-                print(f"Error retrieving long URL: {e}")
+        conn = self.connection
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT long_url FROM url_mappings WHERE short_code = %s",
+            (short_code,)
+        )
+        result = cursor.fetchone()
+        cursor.close()
+        if result:
+            self.update_last_accessed(short_code)
+            return result[0]
         return None
 
     def update_last_accessed(self, short_code):
         """Update the last_accessed_at timestamp for a given short code."""
-        conn = self.get_connection()
+        conn = self.connection
         if conn:
             try:
                 cursor = conn.cursor()
@@ -156,7 +115,7 @@ class DBManager:
 
     def delete_inactive_urls(self, months=URL_RETENTION_MONTHS):
         """Delete URLs that haven't been accessed for the specified number of months."""
-        conn = self.get_connection()
+        conn = self.connection
         deleted_count = 0
         if conn:
             try:
