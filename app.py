@@ -102,7 +102,7 @@ def shorten_url():
 		return jsonify({"error": "Failed to create unique short URL"}), 500
 			
 	except Exception as e:
-		return jsonify({"error": str(e)}), 500
+		return jsonify({"error": "Database unavailable"}), 503
 	
 @app.route('/shortener/<code>')
 def redirect_to_long_url(code):
@@ -114,7 +114,7 @@ def redirect_to_long_url(code):
 			flash('Short URL not found.', 'error')
 			return redirect(url_for('home'))
 	except Exception as e:
-		flash(f'Error retrieving URL: {str(e)}', 'error')
+		flash('Service temporarily unavailable. Please try again later.', 'error')
 		return redirect(url_for('home'))
 
 
@@ -272,7 +272,6 @@ if __name__ == '__main__':
 	# Initialize database
 	try:
 		db_manager.init_db()
-		db_manager.migrate_db()
 		# Clean up inactive URLs on startup
 		db_manager.delete_inactive_urls(URL_RETENTION_MONTHS)
 	except Exception as e:

@@ -129,10 +129,20 @@
             const urlToShare = shortUrl || longUrl;
             
             await navigator.clipboard.writeText(urlToShare);
-            showToast('Route URL copied to clipboard!');
+            if (shortUrl) {
+                showToast('URL copied to clipboard!');
+            } else {
+                showToast('Long URL copied (Shortener unavailable)');
+            }
         } catch (err) {
             console.error('Failed to copy URL: ', err);
-            showToast('Failed to copy URL. Please try again.');
+            // Fallback to long URL if anything goes wrong
+            try {
+                await navigator.clipboard.writeText(longUrl);
+                showToast('Long URL copied (Shortener failed)');
+            } catch (clipboardErr) {
+                showToast('Failed to copy URL. Please try again.');
+            }
         } finally {
             shareBtn.textContent = originalText;
             shareBtn.disabled = false;
