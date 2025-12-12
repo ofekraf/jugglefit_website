@@ -43,6 +43,8 @@ class Tag(ReverseLookupEnum):
     SpecialBodyThrows = "special body throws"
     Lazies = "lazies"
     ReverseShoulders = "reverse shoulders"
+    PullDown = "pulldown"
+    Pancakes = "pancakes"
 
     # Spin Control
     Flats = "flats"
@@ -99,12 +101,14 @@ TAG_CATEGORY_MAP = {
         Tag.SpecialBodyThrows,
         Tag.Lazies,
         Tag.ReverseShoulders,
+        Tag.PullDown
     },
 
     TagCategory.SpinControl: {
         Tag.Flats,
         Tag.SpinControl,
         Tag.FlatFront,
+        Tag.Pancakes
     },
     
     TagCategory.Siteswap: {
