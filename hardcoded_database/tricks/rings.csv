@@ -5,7 +5,7 @@ cascade,3,12,"async base pattern",,3
 "(6x,4)* -> (4x,6)*",5,30,"sync siteswap",,6
 "3up 360 -> 5up 360 -> cascade",5,54,"360 spin",,7
 "cascade -> 5c 88441 -> cascade",5,37,"async siteswap",,8
-"4c sync fountain -> (a,a)(4,4)(0,0)(2,2) 4up 2-stage 720 -> sync fountain",6,42,"multi stage|sync siteswap","2 high 2 low 2-stage 720",10,"(a,a)(4,4)(0,0)(2,2)"
+"4c sync fountain -> (a,a)(4,4)(0,0)(2,2) 4up 2-stage 720 -> sync fountain",6,42,"multi stage|sync siteswap","2 high 2 low 2-stage 720",10
 "any -> 1 ring pulldown + cascade -> fountain",6,53,"async base pattern|pulldown",,7
 "6c 75 -> 4c 9555, pancakes 5's -> 6c any",6,80,"async siteswap|pancakes",,9
 "async fountain -> sync fountain -> async fountain",6,58,"sync base pattern|async base pattern",,6

@@ -187,7 +187,7 @@ def build_route():
 			 tag_categories=list(TagCategory),
 				props_settings=ALL_PROPS_SETTINGS_JSON,
 				initial_route=initial_route,
-				main_props=[Prop.Balls.value, Prop.Clubs.value, Prop.Rings.value])
+				main_props=MAIN_PROPS)
 
 @app.route('/created_route', methods=['GET'])
 def created_route():

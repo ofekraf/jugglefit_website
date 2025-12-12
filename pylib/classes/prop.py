@@ -14,4 +14,8 @@ class Prop(ReverseLookupEnum):
         """Make the prop JSON serializable by returning its value."""
         return self.value
 
-MAIN_PROPS = {Prop.Balls, Prop.Clubs, Prop.Rings}
+MAIN_PROPS = [
+    Prop.Balls.value,
+    Prop.Clubs.value,
+    Prop.Rings.value
+]
