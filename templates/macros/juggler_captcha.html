@@ -1,0 +1,28 @@
+{% macro juggler_captcha() %}
+    {% if not session.get('captcha_solved') %}
+    <div class="form-row">
+        <div class="form-group full-width">
+            <div class="juggling-captcha" id="juggler_captcha_container">
+                <div class="captcha-content">
+                    <div class="captcha-checkbox-container">
+                        <input type="checkbox" id="captcha_checkbox" class="captcha-checkbox">
+                        <label for="captcha_checkbox" class="captcha-label">I am a juggler</label>
+                    </div>
+                    <div class="captcha-logo">
+                        <img src="https://www.gstatic.com/recaptcha/api2/logo_48.png" alt="Captcha Logo">
+                        <span>reCAPTCHA</span>
+                        <small>Privacy - Terms</small>
+                    </div>
+                </div>
+                <div id="captcha_challenge" class="captcha-challenge hidden">
+                    <div class="captcha-challenge-header">Security Check</div>
+                    <div class="captcha-challenge-body">
+                        <label for="captcha_answer" id="captcha_question_label">Loading question...</label>
+                        <input type="text" id="captcha_answer" class="captcha-input" placeholder="Answer">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+{% endmacro %}

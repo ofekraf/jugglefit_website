@@ -697,12 +697,13 @@ function handleSectionDragEnd(e) {
     }
 }
 
-export function initializePropSelection() {
+export function initializePropSelection(options = {}) {
     // Prevent redundant initialization calls
     if (window._propSelectionInitialized) {
         return;
     }
     
+    const naming = options.naming || 'available';
     const propOptions = document.querySelectorAll('.prop-option');
     const propInputs = document.querySelectorAll('.prop-option-input');
 
@@ -726,9 +727,9 @@ export function initializePropSelection() {
                 // Get prop settings for the selected prop
                 const propSettings = window.propsSettings && window.propsSettings[input.value];
                 if (propSettings) {
-                        // Update relevant tags for this prop (with 'available' suffix to match build_route naming)
+                        // Update relevant tags for this prop
                         if (typeof window.updateRelevantTags === 'function') {
-                            window.updateRelevantTags(propSettings.relevant_tags, 'available');
+                            window.updateRelevantTags(propSettings.relevant_tags, naming);
                         }
                         
                         // Update max throw settings for this prop

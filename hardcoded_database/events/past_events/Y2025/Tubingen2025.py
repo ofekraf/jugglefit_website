@@ -41,7 +41,7 @@ Tubingen2025 = PastEvent(
                 prop=Prop.Clubs,
                 duration_seconds=600,
                 tricks=[
-                    Trick(name="2 rounds 531, flatfront 5, reverse spin flatfront 3", props_count=3, siteswap_x="2 rounds 5{F}3{F-1}1"),
+                    Trick(name="2 rounds 531, flatfront 5, reverse spin flatfront 3", props_count=3),
                     Trick(name="reverse spin lazies", props_count=3, siteswap_x="3{-1/L}"),
                     Trick(name="20c (4,4) double and flat, alternating", props_count=4, siteswap_x="20c (4{2},4{0})*"),
                     Trick(name="4c any -> 2 rounds 75314, behind the back 1", props_count=4, siteswap_x="4c any -> 2 rounds 7531{B}4"),

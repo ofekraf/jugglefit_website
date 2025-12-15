@@ -1,18 +1,18 @@
-{% macro relevant_tags_macro(tag_category_map, naming='') %}
+{% macro relevant_tags_macro(tag_category_map, naming='', label='Exclude Tags', input_name_prefix='exclude_tags') %}
 <div class="form-section">
     <br>
-    <label class="form-label">Exclude Tags</label>
+    <label class="form-label">{{ label }}</label>
     <div class="tricks-container">
         <div class="tricks-column">
             {%- set suffix = ('-' ~ naming) if naming else '' -%}
             {%- set name_suffix = ('_' ~ naming) if naming else '' -%}
-            <div id="exclude_tags{{ name_suffix }}" class="tags-grid">
+            <div id="{{ input_name_prefix }}{{ name_suffix }}" class="tags-grid">
                 {% for category, tags in tag_category_map.items() %}
                     <div class="tag-category" data-category="{{ category }}">
                         <div class="tag-category-header">
-                            <input type="checkbox" 
-                                   id="category{{ suffix }}-{{ category }}" 
-                                   class="category-checkbox" 
+                            <input type="checkbox"
+                                   id="category{{ suffix }}-{{ category }}"
+                                   class="category-checkbox"
                                    data-category="{{ category }}"
                                    onchange="handleCategoryChange(this)">
                             <label for="category{{ suffix }}-{{ category }}" class="tag-category-title">
@@ -22,11 +22,11 @@
                         <div class="tag-category-content">
                             {% for tag in tags %}
                                 <div class="checkbox-container">
-                                    <input type="checkbox" 
-                                           id="tag{{ suffix }}-{{ tag }}" 
-                                           name="exclude_tags{{ name_suffix }}" 
-                                           value="{{ tag }}" 
-                                           class="tag-checkbox" 
+                                    <input type="checkbox"
+                                           id="tag{{ suffix }}-{{ tag }}"
+                                           name="{{ input_name_prefix }}{{ name_suffix }}"
+                                           value="{{ tag }}"
+                                           class="tag-checkbox"
                                            data-category="{{ category }}"
                                            onchange="handleTagChange(this)">
                                     <label for="tag{{ suffix }}-{{ tag }}">{{ tag|capitalize }}</label>
@@ -42,8 +42,9 @@
 
 <script>
 // Simple, direct approach - no complex initialization
-window.updateRelevantTags = window.updateRelevantTags || function(relevantTags, naming) {
+window.updateRelevantTags = window.updateRelevantTags || function(relevantTags, naming, inputNamePrefix) {
     naming = naming || '';
+    inputNamePrefix = inputNamePrefix || 'exclude_tags';
     const name_suffix = naming ? ('_' + naming) : '';
     
     // Normalize to array of lowercase strings
@@ -56,7 +57,7 @@ window.updateRelevantTags = window.updateRelevantTags || function(relevantTags, 
         tagsArray = [relevantTags.toLowerCase()];
     }
 
-    const containerId = 'exclude_tags' + name_suffix;
+    const containerId = inputNamePrefix + name_suffix;
     const container = document.getElementById(containerId);
     if (!container) return;
 

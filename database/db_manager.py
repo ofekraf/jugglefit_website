@@ -50,6 +50,22 @@ class DBManager:
                         last_accessed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                     )
                 """)
+                
+                # Create trick_suggestions table
+                cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS trick_suggestions (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        prop_type VARCHAR(50) NOT NULL,
+                        name VARCHAR(255),
+                        siteswap_x VARCHAR(255),
+                        props_count INT,
+                        difficulty INT,
+                        max_throw INT,
+                        tags TEXT,
+                        comment TEXT,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    )
+                """)
                 conn.commit()
                 cursor.close()
                 print("Database initialized successfully.")
@@ -131,6 +147,61 @@ class DBManager:
             except Error as e:
                 print(f"Error deleting inactive URLs: {e}")
         return deleted_count
+
+    def add_trick_suggestion(self, prop_type, name, siteswap_x, props_count, difficulty, max_throw, tags, comment):
+        conn = self.connection
+        if conn:
+            try:
+                cursor = conn.cursor()
+                cursor.execute(
+                    """
+                    INSERT INTO trick_suggestions
+                    (prop_type, name, siteswap_x, props_count, difficulty, max_throw, tags, comment)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                    """,
+                    (prop_type, name, siteswap_x, props_count, difficulty, max_throw, tags, comment)
+                )
+                conn.commit()
+                cursor.close()
+                return True
+            except Error as e:
+                print(f"Error adding trick suggestion: {e}")
+                return False
+        return False
+
+    def get_suggestions(self, prop_type):
+        conn = self.connection
+        suggestions = []
+        if conn:
+            try:
+                cursor = conn.cursor(dictionary=True)
+                cursor.execute(
+                    # Select columns in the exact order of balls.csv: name,props_count,difficulty,tags,comment,max_throw,siteswap_x
+                    "SELECT name, props_count, difficulty, tags, comment, max_throw, siteswap_x FROM trick_suggestions WHERE prop_type = %s ORDER BY created_at DESC",
+                    (prop_type,)
+                )
+                suggestions = cursor.fetchall()
+                cursor.close()
+            except Error as e:
+                print(f"Error fetching suggestions: {e}")
+        return suggestions
+
+    def delete_suggestions(self, prop_type):
+        conn = self.connection
+        if conn:
+            try:
+                cursor = conn.cursor()
+                cursor.execute(
+                    "DELETE FROM trick_suggestions WHERE prop_type = %s",
+                    (prop_type,)
+                )
+                conn.commit()
+                cursor.close()
+                return True
+            except Error as e:
+                print(f"Error deleting suggestions: {e}")
+                return False
+        return False
 
 # Global instance
 db_manager = DBManager()
