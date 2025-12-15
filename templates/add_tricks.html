@@ -1,0 +1,441 @@
+{% extends "macros/base.html" %}
+{% block title %}Add Tricks{% endblock %}
+
+{% block head %}
+<script>
+// Make props settings available globally for macros
+const propsSettings = {{ props_settings|tojson|safe }};
+window.propsSettings = propsSettings;
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="route-page">
+    <div class="route-header">
+        <h1 class="route-title">Add Tricks</h1>
+        <div class="route-description">
+            <p>Help us grow the JuggleFit trick database! Download the current tricks for a specific prop type, add your own tricks, and contribute them back to the community.</p>
+        </div>
+    </div>
+
+    <div class="route-form">
+        <div class="form-section">
+            <div class="contribution-section">
+                <h3>How to Contribute</h3>
+                <div class="contribution-methods">
+                    <div class="contribution-method">
+                        <h4>Option 1: Suggest a Trick</h4>
+                        <p>Fill out the form below to suggest a new trick. We'll review it and add it to the database.</p>
+                    </div>
+
+                    <div class="contribution-method">
+                        <h4>Option 2: GitHub Pull Request</h4>
+                        <p>Create a PR <a href="https://github.com/ofekraf/jugglefit_website/tree/main/hardcoded_database/tricks" target="_blank" class="github-link">here</a>.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% from 'macros/prop_selection_macro.html' import prop_selection_macro %}
+        {% from 'macros/relevant_tags_macro.html' import relevant_tags_macro %}
+        {% from 'macros/juggler_captcha.html' import juggler_captcha %}
+
+        {{ prop_selection_macro(props_settings, main_props) }}
+
+        {% if db_connected %}
+        <div class="form-section custom-trick-section">
+            <h4 class="subsection-title">Suggest a Trick</h4>
+            <div class="custom-trick-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="suggest_trick_name">Trick Name</label>
+                        <input type="text" id="suggest_trick_name" class="form-input" placeholder="Enter trick name">
+                    </div>
+                    <div class="form-group">
+                        <label for="suggest_trick_siteswap">Siteswap-X</label>
+                        <input type="text" id="suggest_trick_siteswap" class="form-input" placeholder="Enter siteswap-x notation">
+                        <small class="form-hint">See <a href="{{ url_for('siteswap_x') }}#raw-format" target="_blank">Raw Format</a> for syntax.</small>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        <small class="form-hint">* Please provide either a Trick Name or Siteswap-X notation (or both).</small>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="suggest_trick_props">Number of Props</label>
+                        <div class="slider-container">
+                            <div class="slider-wrapper">
+                                <input type="range" id="suggest_trick_props" class="custom-range" min="1" max="{{ MAX_TRICK_PROPS_COUNT }}" value="3">
+                                <span id="suggest_trick_props_value" class="slider-value">3</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="suggest_trick_difficulty">Difficulty (0-100)</label>
+                        <div class="slider-container">
+                            <div class="slider-wrapper">
+                                <input type="range" id="suggest_trick_difficulty" class="custom-range" min="0" max="100" value="30">
+                                <span id="suggest_trick_difficulty_value" class="slider-value">30</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="suggest_trick_max_throw">Max Throw</label>
+                        <div class="slider-container">
+                            <div class="slider-wrapper">
+                                <input type="range" id="suggest_trick_max_throw" class="custom-range" min="1" max="15" value="5">
+                                <span id="suggest_trick_max_throw_value" class="slider-value">5</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                {{ relevant_tags_macro(tag_category_map, 'suggest', 'Tags', 'exclude_tags') }}
+
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        <label for="suggest_trick_comment">Comment (Optional)</label>
+                        <textarea id="suggest_trick_comment" class="form-input" placeholder="Add a comment about the trick"></textarea>
+                    </div>
+                </div>
+                {{ juggler_captcha() }}
+                <button type="button" id="submit_suggestion" class="primary-button">Submit Suggestion</button>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="form-section">
+            <div class="download-section">
+                <h3>Download Current Tricks</h3>
+                <p>Download the current tricks for the selected prop type as a CSV file.</p>
+                <button type="button" id="download_csv" class="primary-button">Download Tricks CSV</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    try {
+        const { updateRelevantTags, updateCustomTrickPropsRange, initializePropSelection, fetchTricks, getRandomTrickForDifficulty } = await import("{{ url_for('static', filename='js/route_helpers.js') }}");
+        
+        // Make functions available globally
+        window.updateRelevantTags = updateRelevantTags;
+        window.fetchTricks = fetchTricks;
+        window.getRandomTrickForDifficulty = getRandomTrickForDifficulty;
+        
+        window.updateCustomTrickPropsRange = function(min, max) {
+            // Override to target suggest_trick_props instead of custom_trick_props
+            const slider = document.getElementById('suggest_trick_props');
+            const valueDisplay = document.getElementById('suggest_trick_props_value');
+            if (slider) {
+                slider.min = min;
+                slider.max = max;
+                if (parseInt(slider.value) < min) slider.value = min;
+                if (parseInt(slider.value) > max) slider.value = max;
+                if (valueDisplay) valueDisplay.textContent = slider.value;
+            }
+        };
+        window.initializePropSelection = initializePropSelection;
+        
+        // Initialize prop selection
+        if (typeof window.initializePropSelection === 'function') {
+            window.initializePropSelection({ naming: 'suggest' });
+        }
+
+    } catch (error) {
+        console.error("Failed to import route helpers", error);
+    }
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Download CSV functionality
+        document.getElementById('download_csv').addEventListener('click', function() {
+            const selectedPropInput = document.querySelector('.prop-option-input:checked');
+            if (!selectedPropInput) {
+                alert('Please select a prop type first.');
+                return;
+            }
+            const selectedProp = selectedPropInput.value;
+            
+            // Direct download link to the CSV file
+            const downloadUrl = `{{ url_for("download_tricks_csv", prop_type="PLACEHOLDER") }}`.replace('PLACEHOLDER', selectedProp);
+            window.location.href = downloadUrl;
+        });
+
+        // Props slider value update
+        const propsSlider = document.getElementById('suggest_trick_props');
+        const propsValue = document.getElementById('suggest_trick_props_value');
+        if (propsSlider && propsValue) {
+            propsSlider.addEventListener('input', () => {
+                propsValue.textContent = propsSlider.value;
+            });
+        }
+
+        // Store all tricks for the current prop type
+        window.allTricks = [];
+
+        function loadTricksForProp(propType) {
+            if (typeof window.fetchTricks === 'function') {
+                window.fetchTricks({ propType: propType })
+                    .then(tricks => {
+                        window.allTricks = tricks;
+                    })
+                    .catch(error => { console.error('Error fetching tricks:', error); });
+            }
+        }
+
+        // Prop selection change handler to update relevant tags and fetch tricks
+        document.querySelectorAll('input[name="prop"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                if (this.checked) {
+                    const propType = this.value;
+                    const propSettings = window.propsSettings && window.propsSettings[propType];
+                    if (propSettings) {
+                        if (typeof window.updateRelevantTags === 'function') {
+                            window.updateRelevantTags(propSettings.relevant_tags, 'suggest');
+                        }
+                        if (typeof window.updateCustomTrickPropsRange === 'function') {
+                            window.updateCustomTrickPropsRange(propSettings.min_props, propSettings.max_props);
+                        }
+                    }
+                    loadTricksForProp(propType);
+                }
+            });
+        });
+
+        // Initialize tags and tricks for initially selected prop
+        const initialProp = document.querySelector('input[name="prop"]:checked');
+        if (initialProp) {
+            const propType = initialProp.value;
+            const propSettings = window.propsSettings && window.propsSettings[propType];
+            if (propSettings) {
+                // Small timeout to ensure DOM is fully ready
+                setTimeout(() => {
+                    if (typeof window.updateRelevantTags === 'function') {
+                        window.updateRelevantTags(propSettings.relevant_tags, 'suggest');
+                    }
+                    if (typeof window.updateCustomTrickPropsRange === 'function') {
+                        window.updateCustomTrickPropsRange(propSettings.min_props, propSettings.max_props);
+                    }
+                    loadTricksForProp(propType);
+                }, 100);
+            }
+        }
+
+        // Function to show trick tooltip
+        function showTrickTooltip(event, difficulty) {
+            if (!window.allTricks || !Array.isArray(window.allTricks) || window.allTricks.length === 0) {
+                return;
+            }
+            
+            // Get current constraints from the form
+            const propsCount = parseInt(document.getElementById('suggest_trick_props').value);
+            const maxThrow = parseInt(document.getElementById('suggest_trick_max_throw').value);
+            
+            // Collect selected tags to exclude
+            const excludedTags = [];
+            document.querySelectorAll('input[name="exclude_tags_suggest"]:checked').forEach(cb => {
+                excludedTags.push(cb.value);
+            });
+            
+            const currentPropInput = document.querySelector('.prop-option-input:checked');
+            const currentProp = currentPropInput ? currentPropInput.value : null;
+
+            // Get a random trick for the current difficulty
+            let trick = null;
+            try {
+                if (typeof window.getRandomTrickForDifficulty === 'function') {
+                    // Use propsCount as both min and max since we want tricks with exactly that number of props
+                    trick = window.getRandomTrickForDifficulty(window.allTricks, difficulty, propsCount, propsCount, excludedTags, maxThrow);
+                }
+            } catch (e) { console.error(e); }
+
+            // Remove any existing tooltip
+            const existingTooltip = document.querySelector('.trick-tooltip');
+            if (existingTooltip) existingTooltip.remove();
+
+            if (!trick) {
+                return;
+            }
+
+            const tooltip = document.createElement('div');
+            tooltip.className = 'trick-tooltip';
+            
+            let tooltipText = `${trick.props_count || ''} ${currentProp || ''}: ${trick.name || ''}`;
+            if (!tooltipText || tooltipText.trim() === '' || tooltipText.match(/^\s*:\s*$/)) {
+                tooltipText = `${trick.props_count || ''} ${currentProp || ''}: ${trick.siteswap || trick.name || '(unknown trick)'}`;
+            }
+            tooltip.textContent = tooltipText;
+
+            // Determine coordinates
+            let x = (event && typeof event.clientX === 'number') ? event.clientX : null;
+            let y = (event && typeof event.clientY === 'number') ? event.clientY : null;
+            
+            if (x === null || y === null) {
+                const rect = diffSlider.getBoundingClientRect();
+                x = rect.left + (rect.width * (difficulty / 100));
+                y = rect.top;
+            }
+
+            // Position the tooltip
+            tooltip.style.left = (x + 10) + 'px';
+            tooltip.style.top = (y - 30) + 'px'; // Position above
+            
+            document.body.appendChild(tooltip);
+
+            // Auto-remove after 3 seconds
+            setTimeout(() => {
+                try { tooltip.remove(); } catch (e) {}
+            }, 3000);
+        }
+
+        // Difficulty slider value update and tooltip
+        const diffSlider = document.getElementById('suggest_trick_difficulty');
+        const diffValue = document.getElementById('suggest_trick_difficulty_value');
+        if (diffSlider && diffValue) {
+            diffSlider.addEventListener('input', (e) => {
+                const val = parseInt(diffSlider.value);
+                diffValue.textContent = val;
+                showTrickTooltip(e, val);
+            });
+            
+            diffSlider.addEventListener('mouseleave', () => {
+                const tooltip = document.querySelector('.trick-tooltip');
+                if (tooltip) tooltip.remove();
+            });
+        }
+
+        // Submit Suggestion functionality
+        const submitBtn = document.getElementById('submit_suggestion');
+        if (submitBtn) {
+            submitBtn.addEventListener('click', async function() {
+                const name = document.getElementById('suggest_trick_name').value.trim();
+                const siteswap = document.getElementById('suggest_trick_siteswap').value.trim();
+                const props = document.getElementById('suggest_trick_props').value;
+                const difficulty = document.getElementById('suggest_trick_difficulty').value;
+                const maxThrow = document.getElementById('suggest_trick_max_throw').value;
+                const comment = document.getElementById('suggest_trick_comment').value.trim();
+                
+                const selectedPropInput = document.querySelector('.prop-option-input:checked');
+                if (!selectedPropInput) {
+                    alert('Please select a prop type.');
+                    return;
+                }
+                const propType = selectedPropInput.value;
+
+                // Collect selected tags
+                const selectedTags = [];
+                document.querySelectorAll('input[name="exclude_tags_suggest"]:checked').forEach(cb => {
+                    selectedTags.push(cb.value);
+                });
+                const tagsStr = selectedTags.join('|');
+
+                if (!name && !siteswap) {
+                    alert('Please enter either a trick name or siteswap-x notation. At least one of them is required.');
+                    return;
+                }
+
+                if (selectedTags.length === 0) {
+                    alert('Please select at least one tag.');
+                    return;
+                }
+
+                let captchaAnswer = null;
+                const captchaCheckbox = document.getElementById('captcha_checkbox');
+                
+                if (captchaCheckbox) {
+                    if (!captchaCheckbox.checked) {
+                        alert('Please check the "I am a juggler" box.');
+                        return;
+                    }
+                    captchaAnswer = document.getElementById('captcha_answer').value.trim().toLowerCase();
+                    if (!captchaAnswer) {
+                        alert('Please answer the security question.');
+                        return;
+                    }
+                }
+
+                const payload = {
+                    prop_type: propType,
+                    name: name,
+                    siteswap_x: siteswap,
+                    props_count: parseInt(props),
+                    difficulty: parseInt(difficulty),
+                    max_throw: parseInt(maxThrow),
+                    tags: tagsStr,
+                    comment: comment,
+                    captcha_answer: captchaAnswer
+                };
+
+                try {
+                    const response = await fetch('/api/suggest_trick', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok) {
+                        alert('Trick suggestion submitted successfully!');
+                        // Refresh page and scroll to suggest trick section
+                        window.location.href = window.location.pathname + '#suggest_trick_name';
+                        window.location.reload();
+                    } else {
+                        alert('Error submitting suggestion: ' + (result.error || 'Unknown error'));
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Failed to submit suggestion. Please try again.');
+                }
+            });
+        }
+
+        // Max Throw slider value update
+        const maxThrowSlider = document.getElementById('suggest_trick_max_throw');
+        const maxThrowValue = document.getElementById('suggest_trick_max_throw_value');
+        if (maxThrowSlider && maxThrowValue) {
+            maxThrowSlider.addEventListener('input', () => {
+                maxThrowValue.textContent = maxThrowSlider.value;
+            });
+        }
+
+        // Captcha interaction
+        const captchaCheckbox = document.getElementById('captcha_checkbox');
+        const captchaChallenge = document.getElementById('captcha_challenge');
+        const captchaQuestionLabel = document.getElementById('captcha_question_label');
+        
+        if (captchaCheckbox) {
+            captchaCheckbox.addEventListener('change', function() {
+                if (this.checked) {
+                    captchaChallenge.classList.remove('hidden');
+                    // Fetch captcha question
+                    fetch('/api/get_captcha')
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.question) {
+                                captchaQuestionLabel.textContent = data.question;
+                            } else {
+                                captchaQuestionLabel.textContent = 'Error loading question.';
+                            }
+                        })
+                        .catch(err => {
+                            console.error(err);
+                            captchaQuestionLabel.textContent = 'Error loading question.';
+                        });
+                } else {
+                    captchaChallenge.classList.add('hidden');
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

@@ -8,9 +8,9 @@
 
 {% block content %}
 <div class="section siteswap-x-article">
-    <div class="section-container" style="max-width: 960px; margin: 0 auto;">
-        <h1 class="section-title" style="text-align: center;">Siteswap-X: Syntax Reference</h1>
-        <p class="lead" style="text-align: center; max-width: 800px; margin: 0 auto 3rem auto;">Siteswap X extends standard siteswap notation to clearly describe advanced juggling patterns.</p>
+    <div class="section-container">
+        <h1 class="section-title">Siteswap-X: Syntax Reference</h1>
+        <p class="lead">Siteswap X extends standard siteswap notation to clearly describe advanced juggling patterns.</p>
 
         <div class="subsection">
             <h2 class="subsection-title">1. Core Siteswap Syntax</h2>
@@ -20,7 +20,7 @@
         <div class="subsection">
             <h2 class="subsection-title">2. Throw and Catch Modifiers</h2>
             <p>Modifiers are written <strong>above</strong> and <strong>below</strong> each <strong>siteswap digit</strong>. The <strong>throw modifier</strong> (and optional spin) appears <strong>above</strong> the digit, and the <strong>catch modifier</strong> appears <strong>below</strong> the digit. The format is:</p>
-            <div style="padding: 3em 0; text-align: center;">
+            <div class="demo-container">
                 <span id="js-sx-demo-1"></span>
             </div>
             <ul>
@@ -75,6 +75,21 @@
 				<li><div id="js-sx-demo-10"></div></li>
             </ul>
         </div>
+
+        <div class="subsection" id="raw-format">
+            <h2 class="subsection-title">4. Raw Format</h2>
+            <p>When writing Siteswap-X as text, for example to add tricks <a href="{{ url_for('add_tricks') }}">here</a>, use the raw format with curly braces:</p>
+            <div class="code-block">
+                <code>throw{throw_modifier spin / catch_modifier}</code>
+            </div>
+            <p>Examples:</p>
+            <ul>
+                <li><code>3{B}</code> - Backcross</li>
+                <li><code>5{UL}</code> - Under the leg</li>
+                <li><code>3{B/P}</code> - Backcross caught as Penguin</li>
+                <li><code>53{B}4{/RS}</code> - 534 with Backcross 3 and Reverse Shoulder catch 4</li>
+            </ul>
+        </div>
     </div>
 </div>
 {% endblock %}
@@ -100,7 +115,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const el = document.getElementById(id);
             if (el) {
                 el.className = 'siteswap-x-row';
-                el.innerHTML = `<span>${formatSiteswapX(pattern)}</span> <span class="text-muted" style="margin-left: 10px;">(${label})</span>`;
+                el.innerHTML = `<span>${formatSiteswapX(pattern)}</span> <span class="text-muted">(${label})</span>`;
             }
         });
     }
