@@ -1,4 +1,5 @@
-<div id="route-sections" class="route-sections">
+{% set is_editable = editable if editable is defined else false %}
+<div class="route-sections" data-editable="{{ 'true' if is_editable else 'false' }}">
                 {% set trick_counter = namespace(count=0) %}
                 {% set current_props = namespace(count=none) %}
                 {% for trick in route.tricks %}
@@ -43,14 +44,17 @@ document.addEventListener('DOMContentLoaded', function() {
     if (window.CreateTrickContainer) {
         try {
             const placeholders = document.querySelectorAll('.trick-container[data-name]');
-            const createdRoute = !!document.querySelector('.created-route-page');
             placeholders.forEach(ph => {
                 try {
                     if (ph.classList.contains('trick-widget')) return;
                     const name = ph.dataset.name || '';
                     const comment = ph.dataset.comment || '';
                     const siteswap = ph.dataset.siteswapX || ph.dataset.siteswap || '';
-                    const opts = createdRoute ? { editable: false } : { addCheckbox: false };
+                    
+                    const wrapper = ph.closest('.route-sections');
+                    const isEditable = wrapper ? wrapper.dataset.editable === 'true' : true;
+                    
+                    const opts = { editable: isEditable, addCheckbox: false };
                     const newEl = window.CreateTrickContainer(name, comment, siteswap, opts);
                     ph.parentNode.replaceChild(newEl, ph);
                 } catch (e) {

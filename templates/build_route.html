@@ -67,7 +67,9 @@ if (window.initialRoute && window.initialRoute.tricks) {
                 <div class="route-content">
                     {% if initial_route %}
                         {% set route = initial_route %}
-                        {% include "macros/route_display.html" %}
+                        {% with editable=true %}
+                            {% include "macros/route_display.html" %}
+                        {% endwith %}
                     {% else %}
                         <div id="route-sections" class="route-sections"></div>
                     {% endif %}
