@@ -88,8 +88,8 @@ window.propsSettings = propsSettings;
                         <label for="suggest_trick_max_throw">Max Throw</label>
                         <div class="slider-container">
                             <div class="slider-wrapper">
-                                <input type="range" id="suggest_trick_max_throw" class="custom-range" min="1" max="15" value="5">
-                                <span id="suggest_trick_max_throw_value" class="slider-value">5</span>
+                                <input type="range" id="suggest_trick_max_throw" class="custom-range" min="1" max="15" value="15">
+                                <span id="suggest_trick_max_throw_value" class="slider-value">15</span>
                             </div>
                         </div>
                     </div>
@@ -274,8 +274,18 @@ window.propsSettings = propsSettings;
             tooltip.textContent = tooltipText;
 
             // Determine coordinates
-            let x = (event && typeof event.clientX === 'number') ? event.clientX : null;
-            let y = (event && typeof event.clientY === 'number') ? event.clientY : null;
+            let x = null;
+            let y = null;
+
+            if (event) {
+                if (event.touches && event.touches.length > 0) {
+                    x = event.touches[0].clientX;
+                    y = event.touches[0].clientY;
+                } else if (typeof event.clientX === 'number') {
+                    x = event.clientX;
+                    y = event.clientY;
+                }
+            }
             
             if (x === null || y === null) {
                 const rect = diffSlider.getBoundingClientRect();
@@ -299,15 +309,25 @@ window.propsSettings = propsSettings;
         const diffSlider = document.getElementById('suggest_trick_difficulty');
         const diffValue = document.getElementById('suggest_trick_difficulty_value');
         if (diffSlider && diffValue) {
-            diffSlider.addEventListener('input', (e) => {
+            const updateTooltip = (e) => {
                 const val = parseInt(diffSlider.value);
                 diffValue.textContent = val;
                 showTrickTooltip(e, val);
-            });
+            };
+
+            diffSlider.addEventListener('input', updateTooltip);
+            // Add touch event listener for mobile
+            diffSlider.addEventListener('touchmove', updateTooltip);
             
             diffSlider.addEventListener('mouseleave', () => {
                 const tooltip = document.querySelector('.trick-tooltip');
                 if (tooltip) tooltip.remove();
+            });
+            diffSlider.addEventListener('touchend', () => {
+                setTimeout(() => {
+                    const tooltip = document.querySelector('.trick-tooltip');
+                    if (tooltip) tooltip.remove();
+                }, 1000);
             });
         }
 
