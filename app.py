@@ -327,8 +327,10 @@ def software_contribution():
 def add_tricks():
 	db_connected = False
 	try:
-		if db_manager.connection and db_manager.connection.is_connected():
+		conn = db_manager.connection
+		if conn:
 			db_connected = True
+			conn.close()
 	except Exception:
 		pass
 

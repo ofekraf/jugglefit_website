@@ -164,23 +164,33 @@ function updateCategoryState(categoryContainer) {
     }
 }
 
-// Add click handler for category areas (excluding checkboxes and labels)
+// Add click handler for category headers to toggle expansion
 document.addEventListener('click', function(e) {
-    const categoryDiv = e.target.closest('.tag-category');
-    if (!categoryDiv) return;
+    const header = e.target.closest('.tag-category-header');
+    if (!header) return;
     
-    // Don't interfere with checkbox, label, or header clicks
-    if (e.target.type === 'checkbox' || 
-        e.target.tagName === 'LABEL' || 
-        e.target.closest('.checkbox-container') ||
-        e.target.closest('.tag-category-header')) {
+    // Don't toggle if clicking the checkbox directly
+    if (e.target.type === 'checkbox') {
         return;
     }
+
+    // Check if we are on mobile
+    const isMobile = window.innerWidth <= 768;
+
+    if (isMobile) {
+        // Prevent default label behavior (which toggles the checkbox)
+        // only if we are not clicking the checkbox itself
+        e.preventDefault();
+    }
     
-    // Click on empty category area toggles the category checkbox
-    const categoryCheckbox = categoryDiv.querySelector('.category-checkbox');
-    if (categoryCheckbox) {
-        categoryCheckbox.click();
+    const categoryDiv = header.closest('.tag-category');
+    if (categoryDiv) {
+        categoryDiv.classList.toggle('expanded');
+        // Also toggle the content visibility class
+        const content = categoryDiv.querySelector('.tag-category-content');
+        if (content) {
+            content.classList.toggle('expanded');
+        }
     }
 });
 
