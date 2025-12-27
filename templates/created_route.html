@@ -17,7 +17,10 @@
     <div class="countdown-timer" id="timer-container">
         <div class="timer-header">
             <span>Timer</span>
-            <button class="drag-handle">≡</button>
+            <div class="header-controls">
+                <button class="minimize-btn" id="minimizeBtn">−</button>
+                <button class="drag-handle">≡</button>
+            </div>
         </div>
         <div id="countdown"><span id="timer"></span></div>
         <div class="timer-controls">
@@ -213,6 +216,16 @@
     // Initialize timer display immediately
     resetTimer();
 
+    // Minimize functionality
+    const minimizeBtn = document.getElementById('minimizeBtn');
+    const timerContainer = document.getElementById('timer-container');
+    
+    minimizeBtn.addEventListener('click', function(e) {
+        e.stopPropagation(); // Prevent drag start
+        timerContainer.classList.toggle('minimized');
+        minimizeBtn.textContent = timerContainer.classList.contains('minimized') ? '+' : '−';
+    });
+
     // Timer drag functionality
     const timer = document.querySelector('.countdown-timer');
     const timerHeader = timer.querySelector('.timer-header');
@@ -233,7 +246,7 @@
             initialY = e.clientY - yOffset;
         }
 
-        if (e.target === timer || e.target === timerHeader || e.target.closest('.timer-header')) {
+        if ((e.target === timer || e.target === timerHeader || e.target.closest('.timer-header')) && !e.target.closest('.minimize-btn')) {
             isDragging = true;
         }
     }
