@@ -1,0 +1,37 @@
+{% extends "macros/base.html" %}
+{% block title %}Verify Human Juggler{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/verify.css') }}">
+{% endblock %}
+
+{% block content %}
+<section class="verify-section">
+    <div class="verify-container">
+        <h1 class="verify-title">🤹‍♀️verify you are human juggler️🤖</h1>
+        <p class="verify-subtitle">Select the more difficult Pattern</p>
+
+        <form method="POST" action="{{ url_for('verify_game') }}" id="verify-form">
+            <div class="trick-boxes">
+                <div class="trick-box" data-trick="left" tabindex="0" role="button" aria-label="Select {{ trick_left.name }}">
+                    <div class="trick-name">{{ trick_left.name | add_line_breaks | safe }}</div>
+                </div>
+
+                <div class="trick-box" data-trick="right" tabindex="0" role="button" aria-label="Select {{ trick_right.name }}">
+                    <div class="trick-name">{{ trick_right.name | add_line_breaks | safe }}</div>
+                </div>
+            </div>
+
+            <input type="hidden" name="selected_trick" id="selected-trick-input">
+
+            <button type="submit" class="submit-button primary-button" disabled>
+                Submit Answer
+            </button>
+        </form>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/verify.js') }}"></script>
+{% endblock %}

@@ -1,6 +1,8 @@
 import os
+import secrets
+import uuid
 from urllib.parse import unquote
-from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, Blueprint, send_file
+from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, Blueprint, send_file, session
 from hardcoded_database.consts import get_trick_csv_path
 from hardcoded_database.events.past_events import ALL_PAST_EVENTS, FRONT_PAGE_PAST_EVENTS
 from hardcoded_database.events.upcoming_events import UPCOMING_EVENTS
@@ -15,6 +17,9 @@ from hardcoded_database.tricks import ALL_PROPS_SETTINGS, ALL_PROPS_SETTINGS_JSO
 from pylib.route_generator.exceptions import NotEnoughTricksFoundException
 from pylib.route_generator.route_generator import RouteGenerator
 from pylib.utils.filter_tricks import filter_tricks
+from pylib.utils.verification_tricks import select_obvious_pair, select_random_pair, randomize_order
+from pylib.utils.verification_logger import log_verification_result
+from pylib.utils.general import add_line_breaks_to_trick_name
 from pylib.configuration.consts import (
 	MIN_TRICK_DIFFICULTY,
 	MAX_TRICK_DIFFICULTY,
@@ -26,6 +31,12 @@ load_dotenv()
 
 app = Flask(__name__)
 # Note: siteswap formatting is now handled client-side in static/js/siteswap_x.js
+
+# Register custom Jinja2 filter for adding line breaks to trick names
+app.jinja_env.filters['add_line_breaks'] = add_line_breaks_to_trick_name
+
+# Configure session for verification game
+app.secret_key = os.environ.get('SECRET_KEY', secrets.token_hex(32))
 
 # Create API blueprint
 api = Blueprint('api', __name__, url_prefix='/api')
@@ -250,6 +261,90 @@ def download_tricks_csv(prop_type):
 @app.route('/siteswap_x')
 def siteswap_x():
 		  return render_template('siteswap_x.html')
+
+@app.route('/verify', methods=['GET', 'POST'])
+def verify_game():
+	"""Two-round trick verification game."""
+
+	if request.method == 'GET':
+		# Initialize Round 1
+		session.clear()
+		session['verification_session_id'] = str(uuid.uuid4())
+		session['verification_round'] = 1
+		session['verification_prop'] = 'balls'
+
+		# Generate obvious pair (easy vs hard)
+		easy, hard = select_obvious_pair(Prop.Balls)
+		trick_left, trick_right, correct = randomize_order(easy, hard)
+
+		# Store in session
+		session['verification_trick_left'] = trick_left.to_dict()
+		session['verification_trick_right'] = trick_right.to_dict()
+		session['verification_correct_position'] = correct
+
+		return render_template(
+			'verify.html',
+			trick_left=trick_left,
+			trick_right=trick_right,
+			prop_type='balls',
+			round_number=1
+		)
+
+	elif request.method == 'POST':
+		selected = request.form.get('selected_trick')  # 'left' or 'right'
+		current_round = session.get('verification_round', 1)
+
+		if current_round == 1:
+			# Validate Round 1
+			correct_position = session.get('verification_correct_position')
+			round1_passed = (selected == correct_position)
+			session['verification_round1_passed'] = round1_passed
+
+			# Store Round 1 data for logging
+			session['verification_round1_data'] = {
+				'trick_left': session['verification_trick_left'],
+				'trick_right': session['verification_trick_right'],
+				'correct_position': correct_position,
+				'user_selected': selected
+			}
+
+			# Generate Round 2 pair (random)
+			trick1, trick2 = select_random_pair(Prop.Balls)
+			trick_left, trick_right, _ = randomize_order(trick1, trick2)
+
+			session['verification_trick_left'] = trick_left.to_dict()
+			session['verification_trick_right'] = trick_right.to_dict()
+			session['verification_round'] = 2
+
+			return render_template(
+				'verify.html',
+				trick_left=trick_left,
+				trick_right=trick_right,
+				prop_type='balls',
+				round_number=2
+			)
+
+		elif current_round == 2:
+			# Log Round 2 result
+			log_verification_result(
+				session_data={
+					'session_id': session.get('verification_session_id'),
+					'round1_passed': session.get('verification_round1_passed'),
+					'round1_data': session.get('verification_round1_data'),
+					'round2_data': {
+						'trick_left': session['verification_trick_left'],
+						'trick_right': session['verification_trick_right']
+					}
+				},
+				round2_choice=selected
+			)
+
+			# Clear session and redirect to home
+			session.clear()
+			return redirect(url_for('home'))
+
+	# Fallback: redirect to GET
+	return redirect(url_for('verify_game'))
 
 if __name__ == '__main__':
 	port = int(os.environ.get("PORT", 5001))

@@ -15,7 +15,7 @@ UPCOMING_EVENTS = [
         ]
     ),
     UpcomingEvent(
-        name="EJC 2025",
+        name="EJC 2026",
         date=date(2026, 8, 4),
         location="Ptuj, Slovenia",
         url="https://eja.net/event/ejc2026/",
