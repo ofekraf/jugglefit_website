@@ -1,0 +1,242 @@
+/* Verification Game Styling */
+
+/* Main container and layout */
+.verify-section {
+    min-height: calc(100vh - 200px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+}
+
+.verify-container {
+    max-width: 800px;
+    width: 100%;
+    background: white;
+    border-radius: 12px;
+    padding: 40px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+/* Typography */
+.verify-title {
+    font-size: 2rem;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 10px;
+    color: var(--primary-color);
+    text-transform: lowercase;
+}
+
+.verify-subtitle {
+    font-size: 1.2rem;
+    text-align: center;
+    margin-bottom: 40px;
+    color: #666;
+}
+
+/* Trick boxes container */
+.trick-boxes {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 30px;
+    justify-content: center;
+    align-items: stretch;
+}
+
+/* Individual trick box */
+.trick-box {
+    width: 300px;
+    max-width: 300px;
+    padding: 30px 20px;
+    border: 3px solid #ddd;
+    border-radius: 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #fafafa;
+    min-height: 150px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-sizing: border-box;
+}
+
+.trick-box:hover {
+    border-color: #999;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.trick-box:focus {
+    outline: 2px solid var(--secondary-color);
+    outline-offset: 2px;
+}
+
+/* Selected state - GREEN highlight */
+.trick-box.selected {
+    border-color: var(--secondary-color);
+    background: linear-gradient(135deg, #f0fff4 0%, #e6ffed 100%);
+    box-shadow: 0 0 0 3px rgba(8, 177, 15, 0.2);
+    transform: translateY(-2px);
+}
+
+/* Unselected state - GRAY text when other is selected */
+.trick-box.unselected {
+    color: #999;
+    border-color: #e0e0e0;
+    background: #f5f5f5;
+    opacity: 0.7;
+}
+
+.trick-box.unselected .trick-name {
+    color: #999;
+}
+
+.trick-box.unselected .trick-info {
+    color: #aaa;
+}
+
+/* Trick content */
+.trick-name {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    word-wrap: break-word;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    line-height: 1.5;
+    width: 100%;
+    padding: 0 5px;
+    white-space: normal;
+    box-sizing: border-box;
+    transition: font-size 0.2s ease;
+}
+
+.trick-info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 0.95rem;
+    color: #666;
+}
+
+.trick-props {
+    font-weight: 500;
+}
+
+.trick-siteswap {
+    font-family: 'Courier New', monospace;
+    color: #888;
+    font-size: 0.9rem;
+}
+
+/* Submit button */
+.submit-button {
+    width: 100%;
+    padding: 16px;
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+    border: none;
+    border-radius: 8px;
+    background-color: var(--secondary-color);
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+}
+
+.submit-button:hover:not(:disabled) {
+    background-color: #069c0d;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(8, 177, 15, 0.3);
+}
+
+.submit-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: #ccc;
+    transform: none;
+}
+
+/* Round indicator */
+.round-indicator {
+    text-align: center;
+    color: #888;
+    font-size: 0.9rem;
+    margin: 0;
+    font-weight: 500;
+}
+
+/* Mobile responsive - tablets */
+@media (max-width: 768px) {
+    .verify-container {
+        padding: 30px 20px;
+    }
+
+    .verify-title {
+        font-size: 1.5rem;
+    }
+
+    .verify-subtitle {
+        font-size: 1rem;
+    }
+
+    .trick-boxes {
+        flex-direction: column;
+        gap: 15px;
+        align-items: center;
+    }
+
+    .trick-box {
+        min-height: 120px;
+        width: 100%;
+        max-width: 400px;
+    }
+
+    .trick-name {
+        font-size: 1.1rem;
+    }
+}
+
+/* Mobile responsive - phones */
+@media (max-width: 480px) {
+    .verify-section {
+        padding: 20px 10px;
+    }
+
+    .verify-container {
+        padding: 20px 15px;
+        border-radius: 8px;
+    }
+
+    .verify-title {
+        font-size: 1.3rem;
+    }
+
+    .verify-subtitle {
+        font-size: 0.95rem;
+        margin-bottom: 30px;
+    }
+
+    .trick-boxes {
+        gap: 12px;
+    }
+
+    .trick-box {
+        padding: 20px 15px;
+        min-height: 100px;
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .trick-name {
+        font-size: 1rem;
+    }
+
+    .submit-button {
+        padding: 14px;
+        font-size: 1rem;
+    }
+}
