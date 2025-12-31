@@ -1,3 +1,4 @@
+import logging
 import os
 import secrets
 import uuid
@@ -52,7 +53,7 @@ def fetch_tricks():
 		except Exception as e:
 			allowed = [v.value for v in Prop]
 			msg = f"Invalid prop_type '{prop_type_value}'. Allowed values: {allowed}"
-			print(msg)
+			app.logger.error(msg)
 			return jsonify({'error': msg}), 400
 		min_props = int(data.get('min_props', ALL_PROPS_SETTINGS[prop_type].min_props))
 		max_props = int(data.get('max_props', ALL_PROPS_SETTINGS[prop_type].max_props))
@@ -78,9 +79,7 @@ def fetch_tricks():
 		tricks_dict = [trick.to_dict() for trick in filtered_tricks]
 		return jsonify(tricks_dict)
 	except Exception as e:
-		import traceback
-		print('Error in /api/fetch_tricks:', e)
-		traceback.print_exc()
+		app.logger.exception('Error in /api/fetch_tricks: %s', e)
 		return jsonify({'error': str(e)}), 400
 	
 
