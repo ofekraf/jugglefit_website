@@ -39,10 +39,10 @@ window.propsSettings = propsSettings;
         {% from 'macros/prop_selection_macro.html' import prop_selection_macro %}
         {% from 'macros/relevant_tags_macro.html' import relevant_tags_macro %}
         {% from 'macros/juggler_captcha.html' import juggler_captcha %}
+        {% from 'macros/limit_max_throw_macro.html' import limit_max_throw_macro %}
 
         {{ prop_selection_macro(props_settings, main_props) }}
 
-        {% if db_connected %}
         <div class="form-section custom-trick-section">
             <h4 class="subsection-title">Suggest a Trick</h4>
             <div class="custom-trick-form">
@@ -83,17 +83,7 @@ window.propsSettings = propsSettings;
                     </div>
                 </div>
 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="suggest_trick_max_throw">Max Throw</label>
-                        <div class="slider-container">
-                            <div class="slider-wrapper">
-                                <input type="range" id="suggest_trick_max_throw" class="custom-range" min="1" max="15" value="15">
-                                <span id="suggest_trick_max_throw_value" class="slider-value">15</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                {{ limit_max_throw_macro(props_settings) }}
                 
                 {{ relevant_tags_macro(tag_category_map, 'suggest', 'Tags', 'exclude_tags') }}
 
@@ -107,7 +97,6 @@ window.propsSettings = propsSettings;
                 <button type="button" id="submit_suggestion" class="primary-button">Submit Suggestion</button>
             </div>
         </div>
-        {% endif %}
 
         <div class="form-section">
             <div class="download-section">
@@ -121,12 +110,13 @@ window.propsSettings = propsSettings;
 
 <script type="module">
     try {
-        const { updateRelevantTags, updateCustomTrickPropsRange, initializePropSelection, fetchTricks, getRandomTrickForDifficulty } = await import("{{ url_for('static', filename='js/route_helpers.js') }}");
+        const { updateRelevantTags, updateCustomTrickPropsRange, initializePropSelection, fetchTricks, getRandomTrickForDifficulty, setMaxThrowForProp, initMaxThrowBindings } = await import("{{ url_for('static', filename='js/route_helpers.js') }}");
         
         // Make functions available globally
         window.updateRelevantTags = updateRelevantTags;
         window.fetchTricks = fetchTricks;
         window.getRandomTrickForDifficulty = getRandomTrickForDifficulty;
+        window.setMaxThrowForProp = setMaxThrowForProp;
         
         window.updateCustomTrickPropsRange = function(min, max) {
             // Override to target suggest_trick_props instead of custom_trick_props
@@ -146,6 +136,9 @@ window.propsSettings = propsSettings;
         if (typeof window.initializePropSelection === 'function') {
             window.initializePropSelection({ naming: 'suggest' });
         }
+
+        // Initialize max throw bindings
+        initMaxThrowBindings();
 
     } catch (error) {
         console.error("Failed to import route helpers", error);
@@ -339,7 +332,8 @@ window.propsSettings = propsSettings;
                 const siteswap = document.getElementById('suggest_trick_siteswap').value.trim();
                 const props = document.getElementById('suggest_trick_props').value;
                 const difficulty = document.getElementById('suggest_trick_difficulty').value;
-                const maxThrow = document.getElementById('suggest_trick_max_throw').value;
+                const maxThrowElem = document.getElementById('max-throw-enabled');
+                const maxThrow = maxThrowElem && maxThrowElem.checked ? document.getElementById('max-throw-input').value : null;
                 const comment = document.getElementById('suggest_trick_comment').value.trim();
                 
                 const selectedPropInput = document.querySelector('.prop-option-input:checked');
@@ -419,14 +413,6 @@ window.propsSettings = propsSettings;
             });
         }
 
-        // Max Throw slider value update
-        const maxThrowSlider = document.getElementById('suggest_trick_max_throw');
-        const maxThrowValue = document.getElementById('suggest_trick_max_throw_value');
-        if (maxThrowSlider && maxThrowValue) {
-            maxThrowSlider.addEventListener('input', () => {
-                maxThrowValue.textContent = maxThrowSlider.value;
-            });
-        }
 
         // Captcha interaction
         const captchaCheckbox = document.getElementById('captcha_checkbox');

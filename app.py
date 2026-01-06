@@ -2,6 +2,7 @@ import logging
 import os
 import secrets
 import uuid
+import random
 from urllib.parse import unquote
 from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, Blueprint, send_file, session, Response, stream_with_context
 from werkzeug.security import check_password_hash
@@ -11,6 +12,7 @@ from hardcoded_database.events.past_events import ALL_PAST_EVENTS, FRONT_PAGE_PA
 from hardcoded_database.events.upcoming_events import UPCOMING_EVENTS
 from hardcoded_database.organization.team import TEAM
 from hardcoded_database.captcha import CAPTCHA_QUESTIONS
+from database.db_manager import db_manager
 
 from dotenv import load_dotenv
 

@@ -15,10 +15,9 @@ class DBManager:
         # Ensure directory exists if running locally without docker volume mapping pre-creation
         if not os.path.exists(self.db_dir):
             try:
-                os.makedirs(self.db_dir)
-            except OSError:
-                # Might fail if permissions issue or if it's a file, but we'll try
-                pass
+                os.makedirs(self.db_dir, exist_ok=True)
+            except OSError as e:
+                print(f"Error creating database directory: {e}")
 
     def get_connection(self):
         """Create a database connection to the SQLite database specified by db_path"""
