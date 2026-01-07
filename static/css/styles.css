@@ -1538,6 +1538,21 @@ a.primary-button.live-event-button:hover {
         display: block !important;
     }
 
+    /* Force PC width for prop color bar in print */
+    .prop-color-bar {
+        width: 100px !important;
+        min-height: 40px !important;
+    }
+
+    .prop-color-bar::before {
+        width: 30px !important;
+        height: 30px !important;
+    }
+
+    .prop-count-text {
+        font-size: 2.5rem !important;
+    }
+
     /* Maintain colors in print */
     .prop-color-bar[data-props="3"] {
         background: #ff4733 !important;
@@ -3386,7 +3401,7 @@ html body main .route-page {
 }
 
 .competitor-name {
-    font-size: 1.3rem;
+    font-size: 1.8rem;
     font-weight: 600;
     color: #333;
     margin-bottom: 0.75rem;
@@ -3622,10 +3637,11 @@ html body main .route-page {
 }
 
 .competitor-display-name {
-    font-weight: 500;
+    font-weight: 600;
     color: var(--text-color);
     text-align: center;
     white-space: nowrap;
+    font-size: 1.3rem;
 }
 
 .advance-btn {
@@ -3677,6 +3693,7 @@ html body main .route-page {
     display: flex;
     align-items: center;
     position: relative;
+    flex-wrap: nowrap; /* Ensure single line */
 }
 
 /* Grey out tricks with no competitors */
@@ -3696,12 +3713,27 @@ html body main .route-page {
     font-weight: 600;
     color: var(--light-text);
     font-size: 1.1rem;
+    flex-shrink: 0; /* Prevent shrinking */
 }
 
 .live-event-page .route-content .trick-main {
-    display: inline !important;
-    align-items: baseline !important;
+    display: inline-flex !important;
+    align-items: center !important;
     width: auto !important;
+    flex-wrap: nowrap;
+}
+
+.live-event-page .route-content .trick-name {
+    white-space: normal !important; /* Allow wrapping if absolutely necessary, but prefer full text */
+    overflow: visible !important;
+    text-overflow: clip !important;
+    max-width: none !important;
+}
+
+.live-event-page .route-content .trick-siteswap-x {
+    overflow: visible !important;
+    text-overflow: clip !important;
+    max-width: none !important;
 }
 
 .live-event-page .route-content .prop-details-frame {
@@ -3721,10 +3753,6 @@ html body main .route-page {
 .live-event-page .route-content .trick-container {
     margin: 0;
     padding: 0;
-}
-
-.live-event-page .route-content .prop-color-bar {
-    display: none;
 }
 
 /* Responsive design for live event */
@@ -3813,24 +3841,26 @@ html body main .route-page {
 
     /* Improve route display on mobile */
     .live-event-page .route-content .trick-content {
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
         height: auto;
         min-height: auto;
         padding: 0.5rem 0;
+        align-items: center;
     }
 
     .live-event-page .route-content .trick-main {
-        white-space: normal !important;
-        display: flex !important;
-        flex-wrap: wrap;
-        width: 100% !important;
+        white-space: nowrap !important;
+        display: inline-flex !important;
+        flex-wrap: nowrap;
+        width: auto !important;
+        align-items: center !important;
     }
 
     .live-event-page .route-content .trick-name {
-        white-space: nowrap !important; /* Revert to nowrap to allow scrolling */
+        white-space: normal !important;
         overflow: visible !important;
         text-overflow: clip !important;
-        max-width: none; /* Allow to exceed width */
+        max-width: none;
     }
 
     /* Enable horizontal scrolling for route content on mobile */
