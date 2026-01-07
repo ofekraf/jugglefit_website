@@ -91,7 +91,7 @@ Required environment variables:
 
 ```bash
 # Build and start the application
-docker-compose -f docker-compose.prod.yml up -d
+docker-compose -f docker-compose.prod.yml up -d --build
 
 # Check application status
 docker-compose -f docker-compose.prod.yml ps
