@@ -1,18 +1,18 @@
-{% macro relevant_tags_macro(tag_category_map, naming='') %}
+{% macro relevant_tags_macro(tag_category_map, naming='', label='Exclude Tags', input_name_prefix='exclude_tags') %}
 <div class="form-section">
     <br>
-    <label class="form-label">Exclude Tags</label>
+    <label class="form-label">{{ label }}</label>
     <div class="tricks-container">
         <div class="tricks-column">
             {%- set suffix = ('-' ~ naming) if naming else '' -%}
             {%- set name_suffix = ('_' ~ naming) if naming else '' -%}
-            <div id="exclude_tags{{ name_suffix }}" class="tags-grid">
+            <div id="{{ input_name_prefix }}{{ name_suffix }}" class="tags-grid">
                 {% for category, tags in tag_category_map.items() %}
                     <div class="tag-category" data-category="{{ category }}">
                         <div class="tag-category-header">
-                            <input type="checkbox" 
-                                   id="category{{ suffix }}-{{ category }}" 
-                                   class="category-checkbox" 
+                            <input type="checkbox"
+                                   id="category{{ suffix }}-{{ category }}"
+                                   class="category-checkbox"
                                    data-category="{{ category }}"
                                    onchange="handleCategoryChange(this)">
                             <label for="category{{ suffix }}-{{ category }}" class="tag-category-title">
@@ -22,11 +22,11 @@
                         <div class="tag-category-content">
                             {% for tag in tags %}
                                 <div class="checkbox-container">
-                                    <input type="checkbox" 
-                                           id="tag{{ suffix }}-{{ tag }}" 
-                                           name="exclude_tags{{ name_suffix }}" 
-                                           value="{{ tag }}" 
-                                           class="tag-checkbox" 
+                                    <input type="checkbox"
+                                           id="tag{{ suffix }}-{{ tag }}"
+                                           name="{{ input_name_prefix }}{{ name_suffix }}"
+                                           value="{{ tag }}"
+                                           class="tag-checkbox"
                                            data-category="{{ category }}"
                                            onchange="handleTagChange(this)">
                                     <label for="tag{{ suffix }}-{{ tag }}">{{ tag|capitalize }}</label>
@@ -42,8 +42,9 @@
 
 <script>
 // Simple, direct approach - no complex initialization
-window.updateRelevantTags = window.updateRelevantTags || function(relevantTags, naming) {
+window.updateRelevantTags = window.updateRelevantTags || function(relevantTags, naming, inputNamePrefix) {
     naming = naming || '';
+    inputNamePrefix = inputNamePrefix || 'exclude_tags';
     const name_suffix = naming ? ('_' + naming) : '';
     
     // Normalize to array of lowercase strings
@@ -56,7 +57,7 @@ window.updateRelevantTags = window.updateRelevantTags || function(relevantTags, 
         tagsArray = [relevantTags.toLowerCase()];
     }
 
-    const containerId = 'exclude_tags' + name_suffix;
+    const containerId = inputNamePrefix + name_suffix;
     const container = document.getElementById(containerId);
     if (!container) return;
 
@@ -163,23 +164,48 @@ function updateCategoryState(categoryContainer) {
     }
 }
 
-// Add click handler for category areas (excluding checkboxes and labels)
+// Add click handler for category headers to toggle expansion (Mobile only)
 document.addEventListener('click', function(e) {
-    const categoryDiv = e.target.closest('.tag-category');
-    if (!categoryDiv) return;
+    const header = e.target.closest('.tag-category-header');
+    if (!header) return;
     
-    // Don't interfere with checkbox, label, or header clicks
-    if (e.target.type === 'checkbox' || 
-        e.target.tagName === 'LABEL' || 
-        e.target.closest('.checkbox-container') ||
-        e.target.closest('.tag-category-header')) {
+    // Don't toggle if clicking the checkbox directly
+    if (e.target.type === 'checkbox') {
         return;
     }
-    
-    // Click on empty category area toggles the category checkbox
-    const categoryCheckbox = categoryDiv.querySelector('.category-checkbox');
-    if (categoryCheckbox) {
-        categoryCheckbox.click();
+
+    // Check if device is touch/mobile
+    const isTouch = window.matchMedia('(pointer: coarse)').matches || window.matchMedia('(hover: none)').matches;
+
+    // If touch device, treat as click-to-toggle
+    if (isTouch) {
+        // Prevent default label behavior (which toggles the checkbox)
+        // only if we are not clicking the checkbox itself
+        e.preventDefault();
+        
+        const categoryDiv = header.closest('.tag-category');
+        if (categoryDiv) {
+            const isExpanded = categoryDiv.classList.contains('expanded');
+            
+            // Close all other categories first (optional, but good for accordion behavior)
+            document.querySelectorAll('.tag-category.expanded').forEach(cat => {
+                if (cat !== categoryDiv) {
+                    cat.classList.remove('expanded');
+                    const c = cat.querySelector('.tag-category-content');
+                    if (c) c.classList.remove('expanded');
+                }
+            });
+
+            if (isExpanded) {
+                categoryDiv.classList.remove('expanded');
+                const content = categoryDiv.querySelector('.tag-category-content');
+                if (content) content.classList.remove('expanded');
+            } else {
+                categoryDiv.classList.add('expanded');
+                const content = categoryDiv.querySelector('.tag-category-content');
+                if (content) content.classList.add('expanded');
+            }
+        }
     }
 });
 

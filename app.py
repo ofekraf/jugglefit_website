@@ -2,12 +2,18 @@ import logging
 import os
 import secrets
 import uuid
+import random
+import string
 from urllib.parse import unquote
-from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, Blueprint, send_file, session
-from hardcoded_database.consts import get_trick_csv_path
+from datetime import timedelta
+from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, Blueprint, send_file, session, Response, stream_with_context
+from functools import wraps
+from hardcoded_database.consts import get_trick_csv_path, URL_RETENTION_MONTHS
 from hardcoded_database.events.past_events import ALL_PAST_EVENTS, FRONT_PAGE_PAST_EVENTS
 from hardcoded_database.events.upcoming_events import UPCOMING_EVENTS
 from hardcoded_database.organization.team import TEAM
+from hardcoded_database.captcha import CAPTCHA_QUESTIONS
+from database.db_manager import db_manager
 
 from dotenv import load_dotenv
 
@@ -31,6 +37,8 @@ load_dotenv()
 
 
 app = Flask(__name__)
+app.secret_key = os.environ.get('SECRET_KEY', 'dev_key_for_jugglefit') # Should be set in .env for prod
+app.permanent_session_lifetime = timedelta(minutes=5)
 # Note: siteswap formatting is now handled client-side in static/js/siteswap_x.js
 
 # Register custom Jinja2 filter for adding line breaks to trick names
@@ -83,32 +91,114 @@ def fetch_tricks():
 		return jsonify({'error': str(e)}), 400
 	
 
+@api.route('/get_captcha', methods=['GET'])
+def get_captcha():
+	try:
+		session.permanent = True
+		question_index = random.randint(0, len(CAPTCHA_QUESTIONS) - 1)
+		question_data = CAPTCHA_QUESTIONS[question_index]
+		session['captcha_index'] = question_index
+		return jsonify({'question': question_data['question']})
+	except Exception as e:
+		return jsonify({'error': str(e)}), 500
+
+@api.route('/suggest_trick', methods=['POST'])
+def suggest_trick():
+	try:
+		data = request.get_json()
+		prop_type = data.get('prop_type')
+		name = data.get('name')
+		siteswap_x = data.get('siteswap_x')
+		props_count = data.get('props_count')
+		difficulty = data.get('difficulty')
+		max_throw = data.get('max_throw')
+		tags = data.get('tags')
+		comment = data.get('comment')
+		captcha_answer = data.get('captcha_answer')
+
+		if not prop_type:
+			return jsonify({'error': 'Prop type is required'}), 400
+		
+		if not name and not siteswap_x:
+			return jsonify({'error': 'Either name or siteswap_x is required'}), 400
+
+		# Verify Captcha if not already solved
+		if not session.get('captcha_solved'):
+			captcha_index = session.get('captcha_index')
+			if captcha_index is None or captcha_index < 0 or captcha_index >= len(CAPTCHA_QUESTIONS):
+				return jsonify({'error': 'Captcha session expired. Please refresh.'}), 400
+			
+			from hardcoded_database.captcha import is_correct_answer
+			if not is_correct_answer(captcha_index, captcha_answer):
+				return jsonify({'error': 'Incorrect security answer'}), 400
+
+			# Mark captcha as solved for this session
+			session['captcha_solved'] = True
+			session.pop('captcha_index', None)
+
+		success = db_manager.add_trick_suggestion(
+			prop_type=prop_type,
+			name=name,
+			siteswap_x=siteswap_x,
+			props_count=props_count,
+			difficulty=difficulty,
+			max_throw=max_throw,
+			tags=tags,
+			comment=comment
+		)
+
+		if success:
+			return jsonify({'message': 'Trick suggestion added successfully'}), 200
+		else:
+			return jsonify({'error': 'Failed to add trick suggestion'}), 500
+
+	except Exception as e:
+		print('Error in /api/suggest_trick:', e)
+		return jsonify({'error': str(e)}), 500
+
 @api.route('/shorten_url', methods=['POST'])
 def shorten_url():
-	return "currently unsupported, in the process of building", 500
-	# long_url = request.json.get('long_url')
-	# if not long_url:
-	#     return jsonify({"error": "long_url is required"}), 400
-	# try:
-	#     code = get_or_create_short_url(long_url)
-	#     short_url = url_for('redirect_to_long_url', code=code, _external=True)
-	#     return jsonify({"short_url": short_url, "code": code}), 200
-	# except Exception as e:
-	#     return jsonify({"error": str(e)}), 500
+	try:
+		long_url = request.json.get('long_url')
+		if not long_url:
+			app.logger.error("shorten_url: long_url is required")
+			return jsonify({"error": "long_url is required"}), 400
+
+		# Check if URL already exists
+		existing_code = db_manager.get_short_code_by_long_url(long_url)
+		if existing_code:
+			short_url = url_for('redirect_to_long_url', code=existing_code, _external=True)
+			return jsonify({"short_url": short_url, "code": existing_code}), 200
+
+		# Generate a random short code
+		chars = string.ascii_letters + string.digits
+		max_retries = 5
+		for _ in range(max_retries):
+			code = ''.join(random.choice(chars) for _ in range(8))
+			# Save to database
+			if db_manager.create_short_url(code, long_url):
+				short_url = url_for('redirect_to_long_url', code=code, _external=True)
+				return jsonify({"short_url": short_url, "code": code}), 200
+		
+		app.logger.error("shorten_url: Failed to create unique short URL")
+		return jsonify({"error": "Failed to create unique short URL"}), 500
+			
+	except Exception as e:
+		app.logger.exception(f"shorten_url: Error: {e}")
+		return jsonify({"error": f"Server error: {str(e)}"}), 500
 	
 @app.route('/shortener/<code>')
 def redirect_to_long_url(code):
-	return "currently unsupported, in the process of building"
-	# try:
-	#     long_url = get_long_url_and_refresh(code)
-	#     if long_url:
-	#         return redirect(long_url)
-	#     else:
-	#         flash('Short URL not found.', 'error')
-	#         return redirect(url_for('home'))
-	# except Exception as e:
-	#     flash(f'Error retrieving URL: {str(e)}', 'error')
-	#     return redirect(url_for('home'))
+	try:
+		long_url = db_manager.get_long_url(code)
+		if long_url:
+			return redirect(long_url)
+		else:
+			flash('Short URL not found.', 'error')
+			return redirect(url_for('home'))
+	except Exception as e:
+		flash('Service temporarily unavailable. Please try again later.', 'error')
+		return redirect(url_for('home'))
 
 
 # Register the API blueprint
@@ -234,10 +324,25 @@ def donate():
 def software_contribution():
 	return render_template('software_contribution.html')
 
-@app.route('/contribute/expand_database')
-def expand_database():
-	return render_template('expand_database.html', 
-						 prop_options=list(Prop))
+@app.route('/contribute/add_tricks')
+def add_tricks():
+	db_connected = False
+	try:
+		conn = db_manager.connection
+		if conn:
+			db_connected = True
+			conn.close()
+	except Exception:
+		pass
+
+	return render_template('add_tricks.html',
+						 prop_options=list(Prop),
+						 tag_category_map=TAG_CATEGORY_MAP_JSON,
+						 tag_categories=list(TagCategory),
+						 props_settings=ALL_PROPS_SETTINGS_JSON,
+						 main_props=MAIN_PROPS,
+						 MAX_TRICK_PROPS_COUNT=13,
+						 db_connected=db_connected)
 
 @app.route('/contribute/download_tricks_csv/<prop_type>')
 def download_tricks_csv(prop_type):
@@ -256,6 +361,84 @@ def download_tricks_csv(prop_type):
 		
 	except Exception as e:
 		return f"Error serving CSV: {str(e)}", 500
+
+# Admin Routes
+ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD')
+
+def login_required(f):
+	@wraps(f)
+	def decorated_function(*args, **kwargs):
+		if not session.get('logged_in'):
+			return redirect(url_for('admin_login', next=request.url))
+		return f(*args, **kwargs)
+	return decorated_function
+
+@app.route('/admin/login', methods=['GET', 'POST'])
+def admin_login():
+	if request.method == 'POST':
+		password = request.form.get('password')
+		if ADMIN_PASSWORD and password == ADMIN_PASSWORD:
+			session['logged_in'] = True
+			next_url = request.args.get('next')
+			return redirect(next_url or url_for('admin_suggestions'))
+		else:
+			flash('Invalid password', 'error')
+	return render_template('admin/login.html')
+
+@app.route('/admin/logout')
+def admin_logout():
+	session.pop('logged_in', None)
+	return redirect(url_for('home'))
+
+@app.route('/admin/suggestions')
+@login_required
+def admin_suggestions():
+	return render_template('admin/suggestions.html',
+						 prop_options=list(Prop),
+						 main_props=MAIN_PROPS,
+						 props_settings=ALL_PROPS_SETTINGS_JSON)
+
+@app.route('/admin/api/suggestions/<prop_type>')
+@login_required
+def get_suggestions(prop_type):
+	suggestions = db_manager.get_suggestions(prop_type)
+	return jsonify(suggestions)
+
+@app.route('/admin/api/export_suggestions/<prop_type>')
+@login_required
+def export_suggestions(prop_type):
+	import csv
+	import io
+	
+	suggestions = db_manager.get_suggestions(prop_type)
+	
+	output = io.StringIO()
+	writer = csv.writer(output)
+	writer.writerow(['name', 'props_count', 'difficulty', 'tags', 'comment', 'max_throw', 'siteswap_x'])
+	
+	for s in suggestions:
+		writer.writerow([s['name'], s['props_count'], s['difficulty'], s['tags'], s['comment'], s['max_throw'], s['siteswap_x']])
+		
+	output.seek(0)
+	return Response(
+		output,
+		mimetype="text/csv",
+		headers={"Content-Disposition": f"attachment;filename=suggestions_{prop_type}.csv"}
+	)
+
+@app.route('/admin/api/delete_suggestions/<prop_type>', methods=['POST'])
+@login_required
+def delete_suggestions(prop_type):
+	password = request.json.get('password')
+	if not (ADMIN_PASSWORD and password == ADMIN_PASSWORD):
+		return jsonify({'error': 'Invalid password'}), 403
+		
+	success = db_manager.delete_suggestions(prop_type)
+	if success:
+		return jsonify({'message': 'Suggestions deleted successfully'})
+	else:
+		return jsonify({'error': 'Failed to delete suggestions'}), 500
+
 
 @app.route('/siteswap_x')
 def siteswap_x():
@@ -346,5 +529,13 @@ def verify_game():
 	return redirect(url_for('verify_game'))
 
 if __name__ == '__main__':
+	# Initialize database
+	try:
+		db_manager.init_db()
+		# Clean up inactive URLs on startup
+		db_manager.delete_inactive_urls(URL_RETENTION_MONTHS)
+	except Exception as e:
+		print(f"Warning: Database initialization/migration failed: {e}")
+
 	port = int(os.environ.get("PORT", 5001))
 	app.run(host='0.0.0.0', port=port, debug=True)

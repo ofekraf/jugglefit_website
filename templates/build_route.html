@@ -24,7 +24,7 @@ window.initialRoute = null;
 {% endif %}
 
 // Initialize currentRoute from initial_route if available
-if (window.initialRoute && window.initialRoute.tricks) {
+if (window.initialRoute) {
     window.currentRoute = {
         name: window.initialRoute.name || '',
         duration_seconds: window.initialRoute.duration_seconds || 600,
@@ -67,7 +67,9 @@ if (window.initialRoute && window.initialRoute.tricks) {
                 <div class="route-content">
                     {% if initial_route %}
                         {% set route = initial_route %}
-                        {% include "macros/route_display.html" %}
+                        {% with editable=true %}
+                            {% include "macros/route_display.html" %}
+                        {% endwith %}
                     {% else %}
                         <div id="route-sections" class="route-sections"></div>
                     {% endif %}
@@ -92,6 +94,7 @@ if (window.initialRoute && window.initialRoute.tricks) {
                     <div class="form-group">
                         <label for="custom_trick_siteswap">Siteswap-X</label>
                         <input type="text" id="custom_trick_siteswap" class="form-input" placeholder="Enter siteswap-x notation">
+                        <small class="form-hint">See <a href="{{ url_for('siteswap_x') }}#raw-format" target="_blank">Raw Format</a> for syntax.</small>
                     </div>
                 </div>
                 <div class="form-row">
@@ -238,13 +241,13 @@ if (window.initialRoute && window.initialRoute.tricks) {
             
             // Update route display after setting tricks
             if (typeof window.updateRouteDisplay === 'function') {
-                window.updateRouteDisplay();
+                window.updateRouteDisplay(window.currentRoute, { editable: true });
             }
         } else {
             // Set tricks if no prop input found
             window.currentRoute.tricks = initialRoute.tricks || [];
             if (typeof window.updateRouteDisplay === 'function') {
-                window.updateRouteDisplay();
+                window.updateRouteDisplay(window.currentRoute, { editable: true });
             }
         }
     }
@@ -259,7 +262,7 @@ if (window.initialRoute && window.initialRoute.tricks) {
                     window.currentRoute.name = e.target.value;
                     // Only refresh route display, not all GUI (avoid cursor jumping)
                     if (typeof window.updateRouteDisplay === 'function') {
-                        window.updateRouteDisplay();
+                        window.updateRouteDisplay(window.currentRoute, { editable: true });
                     }
                 }
             });
@@ -274,7 +277,7 @@ if (window.initialRoute && window.initialRoute.tricks) {
                 if (window.currentRoute) {
                     window.currentRoute.duration_seconds = minutes * 60;
                     if (typeof window.refreshFromRoute === 'function') {
-                        window.refreshFromRoute();
+                        window.refreshFromRoute(null, { editable: true });
                     }
                 }
             });
@@ -421,8 +424,8 @@ if (window.initialRoute && window.initialRoute.tricks) {
                         window.currentRoute = { name: '', duration_seconds: 600, prop: '', tricks: [] };
                     }
                     window.currentRoute.tricks.push(customTrick);
-                    if (typeof window.refreshFromRoute === 'function') {
-                        window.refreshFromRoute();
+                    if (typeof window.updateRouteDisplay === 'function') {
+                        window.updateRouteDisplay(window.currentRoute, { editable: true });
                     }
                 }
 

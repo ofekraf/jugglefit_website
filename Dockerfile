@@ -23,17 +23,14 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the app
 COPY . .
 
-# Create non-root user
+# Create non-root user and database directory with correct permissions
 RUN adduser --disabled-password --gecos '' --uid 1001 appuser && \
+    mkdir -p /app/database_data && \
     chown -R appuser:appuser /app
 USER appuser
 
 # Expose Flask port
 EXPOSE 5001
-
-# Add health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:5001/health || exit 1
 
 # Set entry point
 CMD ["python", "app.py"]

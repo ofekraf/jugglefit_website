@@ -1,0 +1,133 @@
+{% extends "macros/base.html" %}
+{% block title %}Trick Suggestions{% endblock %}
+
+{% block head %}
+<script>
+// Make props settings available globally for macros
+const propsSettings = {{ props_settings|tojson|safe }};
+window.propsSettings = propsSettings;
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="route-page">
+    <div class="route-header">
+        <h1 class="route-title">Trick Suggestions</h1>
+        <a href="{{ url_for('admin_logout') }}" class="secondary-button float-right">Logout</a>
+    </div>
+
+    <div class="route-form">
+        {% from 'macros/prop_selection_macro.html' import prop_selection_macro %}
+        {{ prop_selection_macro(props_settings, main_props) }}
+
+        <div class="form-section">
+            <div class="actions-bar">
+                <button id="export_btn" class="primary-button">Export Suggestions</button>
+                <button id="delete_btn" class="primary-button delete-btn">Delete All for Prop</button>
+            </div>
+            
+            <div id="suggestions_container">
+                <p>Select a prop to view suggestions.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const suggestionsContainer = document.getElementById('suggestions_container');
+        const exportBtn = document.getElementById('export_btn');
+        const deleteBtn = document.getElementById('delete_btn');
+        
+        function getSelectedProp() {
+            const selected = document.querySelector('input[name="prop"]:checked');
+            return selected ? selected.value : null;
+        }
+
+        function loadSuggestions(propType) {
+            if (!propType) return;
+            
+            suggestionsContainer.innerHTML = '<p>Loading...</p>';
+            
+            fetch(`/admin/api/suggestions/${propType}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length === 0) {
+                        suggestionsContainer.innerHTML = '<p>No suggestions found for this prop.</p>';
+                        return;
+                    }
+                    
+                    suggestionsContainer.innerHTML = `<p>Found ${data.length} suggestions for ${propType}.</p>`;
+                })
+                .catch(err => {
+                    console.error(err);
+                    suggestionsContainer.innerHTML = '<p>Error loading suggestions.</p>';
+                });
+        }
+
+        // Prop selection change
+        document.querySelectorAll('input[name="prop"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                loadSuggestions(this.value);
+            });
+        });
+
+        // Initial load if prop selected
+        const initialProp = getSelectedProp();
+        if (initialProp) {
+            loadSuggestions(initialProp);
+        }
+
+        // Export
+        exportBtn.addEventListener('click', function() {
+            const propType = getSelectedProp();
+            if (!propType) {
+                alert('Please select a prop type.');
+                return;
+            }
+            window.location.href = `/admin/api/export_suggestions/${propType}`;
+        });
+
+        // Delete
+        deleteBtn.addEventListener('click', async function() {
+            const propType = getSelectedProp();
+            if (!propType) {
+                alert('Please select a prop type.');
+                return;
+            }
+            
+            if (!confirm(`Are you sure you want to delete ALL suggestions for ${propType}? This cannot be undone.`)) {
+                return;
+            }
+            
+            const password = prompt("Please enter admin password to confirm deletion:");
+            if (!password) return;
+            
+            // Log password prompt action as requested (interpreted as console alert)
+            console.log("Password prompt triggered for deletion confirmation");
+
+            try {
+                const response = await fetch(`/admin/api/delete_suggestions/${propType}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ password: password })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    alert(result.message);
+                    loadSuggestions(propType);
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Failed to delete suggestions.');
+            }
+        });
+    });
+</script>
+{% endblock %}

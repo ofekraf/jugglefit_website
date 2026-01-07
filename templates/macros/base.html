@@ -50,6 +50,11 @@
             <a href="{{ url_for('home') }}" class="logo-link">
                 <img src="{{ url_for('static', filename='images/jugglefit_logo.png') }}" alt="JuggleFit Logo" class="logo-image">
             </a>
+            <button class="mobile-menu-btn" aria-label="Toggle navigation">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
             <nav class="main-nav">
                 <ul class="nav-list">
                     <li class="nav-item">
@@ -78,7 +83,7 @@
                         <ul class="dropdown-menu">
                             <li><a href="{{ url_for('donate') }}">Donate Money</a></li>
                             <li><a href="{{ url_for('software_contribution') }}">Software</a></li>
-                            <li><a href="{{ url_for('expand_database') }}">Expand Trick Database</a></li>
+                            <li><a href="{{ url_for('add_tricks') }}">Add Tricks</a></li>
                         </ul>
                     </li>
                     <li class="nav-item dropdown">Siteswap
@@ -97,6 +102,12 @@
                                     Animator + Generator <i class="fas fa-external-link-alt" style="font-size:0.9em;"></i>
                                 </a>
                             </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">Admin
+                        <span class="dropdown-arrow">▼</span>
+                        <ul class="dropdown-menu">
+                            <li><a href="{{ url_for('admin_suggestions') }}">Trick Suggestions</a></li>
                         </ul>
                     </li>
                 </ul>

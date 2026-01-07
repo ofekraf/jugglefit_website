@@ -7,7 +7,10 @@
         <div class="countdown-timer" id="timer-container">
             <div class="timer-header">
                 <span>Event Timer</span>
-                <button class="drag-handle">≡</button>
+                <div class="header-controls">
+                    <button class="minimize-btn" id="minimizeBtn">−</button>
+                    <button class="drag-handle">≡</button>
+                </div>
             </div>
             <div id="countdown"><span id="timer"></span></div>
             <div class="timer-controls">
@@ -19,6 +22,7 @@
     </div>
 
     <!-- Main Content -->
+    {% include "macros/siteswap_x_toggle.html" %}
     <div class="live-event-layout">
         <!-- Left Side - Competitor Tracking -->
         <div class="competitor-section">
@@ -68,6 +72,7 @@
     </div>
 </div>
 
+<script src="{{ url_for('static', filename='js/siteswap_x.js') }}"></script>
 <script>
     // Initialize countdown timer
     let finalTime = null;
@@ -194,15 +199,17 @@
         if (!competitor) return;
         
         if (competitor.currentTrick === routeLength) {
-            // Check if this is the first competitor to finish
-            const finishedCompetitors = competitors.filter(c => c.finishTime !== null);
-            if (finishedCompetitors.length === 0) {
-                // First to finish - record finish time and move to podium
-                competitor.finishTime = new Date().getTime();
+            // Competitor finished
+            competitor.finishTime = new Date().getTime();
+            
+            // Check how many have already finished
+            const finishedCompetitors = competitors.filter(c => c.finishTime !== null && c !== competitor);
+            
+            if (finishedCompetitors.length < 3) {
+                // One of the first 3 to finish - move to podium
                 moveToPodium(competitor);
             } else {
-                // Not first - record finish time but keep in array for final sorting
-                competitor.finishTime = new Date().getTime();
+                // Not in top 3 - keep in array for final sorting
                 competitor.reachedCurrentTrickTime = new Date().getTime(); // Update time for final sorting
                 updateCompetitorDisplay();
             }
@@ -215,24 +222,35 @@
     }
 
     function showPodium() {
-        const podiumSection = document.getElementById('podium-section');
-        podiumSection.style.display = 'block';
-        podiumSection.style.position = 'fixed';
-        podiumSection.style.top = '50%';
-        podiumSection.style.left = '50%';
-        podiumSection.style.transform = 'translate(-50%, -50%)';
-        podiumSection.style.zIndex = '9999';
-        podiumSection.style.backgroundColor = 'rgba(255, 255, 255, 0.95)';
-        podiumSection.style.borderRadius = '15px';
-        podiumSection.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.3)';
-        podiumSection.style.padding = '2rem';
-        podiumSection.style.maxWidth = '90vw';
-        podiumSection.style.maxHeight = '90vh';
-        podiumSection.style.overflow = 'auto';
+        try {
+            const podiumSection = document.getElementById('podium-section');
+            if (!podiumSection) {
+                console.error('Podium section not found');
+                return;
+            }
+            podiumSection.classList.remove('hidden');
+            podiumSection.style.display = 'block';
+            podiumSection.style.position = 'fixed';
+            podiumSection.style.top = '50%';
+            podiumSection.style.left = '50%';
+            podiumSection.style.transform = 'translate(-50%, -50%)';
+            podiumSection.style.zIndex = '9999';
+            podiumSection.style.backgroundColor = 'rgba(255, 255, 255, 0.95)';
+            podiumSection.style.borderRadius = '15px';
+            podiumSection.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.3)';
+            podiumSection.style.padding = '2rem';
+            podiumSection.style.maxWidth = '90vw';
+            podiumSection.style.maxHeight = '90vh';
+            podiumSection.style.overflow = 'auto';
+        } catch (e) {
+            console.error('Error showing podium:', e);
+            showToast('Error showing podium');
+        }
     }
 
     function hidePodium() {
         const podiumSection = document.getElementById('podium-section');
+        podiumSection.classList.add('hidden');
         podiumSection.style.display = 'none';
         podiumSection.style.position = '';
         podiumSection.style.top = '';
@@ -265,41 +283,50 @@
     }
 
     function moveToPodium(competitor, showTemporary = true) {
-        // Find next available podium position
-        let podiumPosition = 1;
-        while (podiumPosition <= 3 && document.getElementById(`podium-name-${podiumPosition}`).textContent !== '-') {
-            podiumPosition++;
-        }
-        
-        if (podiumPosition <= 3) {
-            const nameElement = document.getElementById(`podium-name-${podiumPosition}`);
-            const resultElement = document.getElementById(`podium-result-${podiumPosition}`);
+        try {
+            // Find next available podium position
+            let podiumPosition = 1;
+            while (podiumPosition <= 3) {
+                const el = document.getElementById(`podium-name-${podiumPosition}`);
+                if (el && el.textContent === '-') {
+                    break;
+                }
+                podiumPosition++;
+            }
             
-            if (competitor.finishTime && competitor.startTime && competitor.finishTime >= competitor.startTime) {
-                // Completed the route - show time taken
-                const timeTaken = Math.max(0, Math.floor((competitor.finishTime - competitor.startTime) / 1000));
-                const timeMinutes = Math.floor(timeTaken / 60);
-                const timeSeconds = timeTaken % 60;
-                const timeText = `${timeMinutes}:${timeSeconds.toString().padStart(2, '0')}`;
+            if (podiumPosition <= 3) {
+                const nameElement = document.getElementById(`podium-name-${podiumPosition}`);
+                const resultElement = document.getElementById(`podium-result-${podiumPosition}`);
                 
-                nameElement.textContent = `${competitor.name} (${timeText})`;
-                resultElement.textContent = `Completed`;
-            } else {
-                // Didn't finish or missing/invalid timing data, show tricks completed
-                nameElement.textContent = competitor.name;
-                resultElement.textContent = `${competitor.tricksCompleted}/${routeLength}`;
+                if (competitor.finishTime && competitor.startTime && competitor.finishTime >= competitor.startTime) {
+                    // Completed the route - show time taken
+                    const timeTaken = Math.max(0, Math.floor((competitor.finishTime - competitor.startTime) / 1000));
+                    const timeMinutes = Math.floor(timeTaken / 60);
+                    const timeSeconds = timeTaken % 60;
+                    const timeText = `${timeMinutes}:${timeSeconds.toString().padStart(2, '0')}`;
+                    
+                    nameElement.textContent = `${competitor.name} (${timeText})`;
+                    resultElement.textContent = `Completed`;
+                } else {
+                    // Didn't finish or missing/invalid timing data, show tricks completed
+                    nameElement.textContent = competitor.name;
+                    resultElement.textContent = `${competitor.tricksCompleted}/${routeLength}`;
+                }
+                
+                // Remove from competitors list (only if not called from handleTimeUp)
+                if (showTemporary) {
+                    competitors = competitors.filter(c => c.name !== competitor.name);
+                    updateCompetitorDisplay();
+                }
+                
+                // Show podium for 3 seconds when competitor finishes (only if showTemporary is true)
+                if (showTemporary) {
+                    showPodiumTemporarily(3000);
+                }
             }
-            
-            // Remove from competitors list (only if not called from handleTimeUp)
-            if (showTemporary) {
-                competitors = competitors.filter(c => c.name !== competitor.name);
-                updateCompetitorDisplay();
-            }
-            
-            // Show podium for 5 seconds when competitor finishes (only if showTemporary is true)
-            if (showTemporary) {
-                showPodiumTemporarily(5000);
-            }
+        } catch (e) {
+            console.error('Error moving to podium:', e);
+            showToast('Error updating podium');
         }
     }
 
@@ -435,6 +462,16 @@
     document.getElementById('stopBtn').addEventListener('click', stopTimer);
     document.getElementById('resetBtn').addEventListener('click', resetTimer);
 
+    // Minimize functionality
+    const minimizeBtn = document.getElementById('minimizeBtn');
+    const timerContainer = document.getElementById('timer-container');
+    
+    minimizeBtn.addEventListener('click', function(e) {
+        e.stopPropagation(); // Prevent drag start
+        timerContainer.classList.toggle('minimized');
+        minimizeBtn.textContent = timerContainer.classList.contains('minimized') ? '+' : '−';
+    });
+
     // Timer drag functionality
     const timer = document.querySelector('.countdown-timer');
     const timerHeader = timer.querySelector('.timer-header');
@@ -455,7 +492,7 @@
             initialY = e.clientY - yOffset;
         }
 
-        if (e.target === timer || e.target === timerHeader || e.target.closest('.timer-header')) {
+        if ((e.target === timer || e.target === timerHeader || e.target.closest('.timer-header')) && !e.target.closest('.minimize-btn')) {
             isDragging = true;
         }
     }

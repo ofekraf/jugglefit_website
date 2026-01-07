@@ -17,7 +17,10 @@
     <div class="countdown-timer" id="timer-container">
         <div class="timer-header">
             <span>Timer</span>
-            <button class="drag-handle">≡</button>
+            <div class="header-controls">
+                <button class="minimize-btn" id="minimizeBtn">−</button>
+                <button class="drag-handle">≡</button>
+            </div>
         </div>
         <div id="countdown"><span id="timer"></span></div>
         <div class="timer-controls">
@@ -42,13 +45,14 @@
 
 <script type="module">
     // Import route loading functions
-    const { loadRoute, initRouteLoading } = await import("{{ url_for('static', filename='js/route_helpers.js') }}");
+    const { loadRoute, initRouteLoading, updateRouteDisplay } = await import("{{ url_for('static', filename='js/route_helpers.js') }}");
     
     // Make functions available globally
     window.loadRoute = loadRoute;
     window.initRouteLoading = initRouteLoading;
+    window.updateRouteDisplay = updateRouteDisplay;
     
-    // Initialize route loading immediately 
+    // Initialize route loading immediately
     initRouteLoading(updateUIWithRoute);
     
     // Update UI elements after route loads
@@ -89,6 +93,11 @@
                 editRouteLink.href = editUrl;
             }
         }
+
+        // Ensure route display is updated
+        if (typeof window.updateRouteDisplay === 'function') {
+            window.updateRouteDisplay(null, { editable: false });
+        }
     }
 </script>
 
@@ -100,13 +109,44 @@
     let originalDuration = 600; // Default, will be updated when route loads
 
     // Share Route functionality
-    function shareRoute() {
-        navigator.clipboard.writeText(window.location.href).then(() => {
-            showToast('Route URL copied to clipboard!');
-        }).catch(err => {
+    async function shareRoute() {
+        const shareBtn = document.querySelector('button[onclick="shareRoute()"]');
+        const originalText = shareBtn.textContent;
+        shareBtn.textContent = 'Shortening...';
+        shareBtn.disabled = true;
+
+        const longUrl = window.location.href;
+        
+        try {
+            // Request a short URL from the API
+            const response = await fetch('/api/shorten_url', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ long_url: longUrl })
+            });
+            const data = await response.json();
+            const shortUrl = data.short_url;
+            const urlToShare = shortUrl || longUrl;
+            
+            await navigator.clipboard.writeText(urlToShare);
+            if (shortUrl) {
+                showToast('URL copied to clipboard!');
+            } else {
+                showToast('Long URL copied (Shortener unavailable)');
+            }
+        } catch (err) {
             console.error('Failed to copy URL: ', err);
-            showToast('Failed to copy URL. Please try again.');
-        });
+            // Fallback to long URL if anything goes wrong
+            try {
+                await navigator.clipboard.writeText(longUrl);
+                showToast('Long URL copied (Shortener failed)');
+            } catch (clipboardErr) {
+                showToast('Failed to copy URL. Please try again.');
+            }
+        } finally {
+            shareBtn.textContent = originalText;
+            shareBtn.disabled = false;
+        }
     }
 
     // Toast notification function
@@ -189,6 +229,16 @@
     // Initialize timer display immediately
     resetTimer();
 
+    // Minimize functionality
+    const minimizeBtn = document.getElementById('minimizeBtn');
+    const timerContainer = document.getElementById('timer-container');
+    
+    minimizeBtn.addEventListener('click', function(e) {
+        e.stopPropagation(); // Prevent drag start
+        timerContainer.classList.toggle('minimized');
+        minimizeBtn.textContent = timerContainer.classList.contains('minimized') ? '+' : '−';
+    });
+
     // Timer drag functionality
     const timer = document.querySelector('.countdown-timer');
     const timerHeader = timer.querySelector('.timer-header');
@@ -209,7 +259,7 @@
             initialY = e.clientY - yOffset;
         }
 
-        if (e.target === timer || e.target === timerHeader || e.target.closest('.timer-header')) {
+        if ((e.target === timer || e.target === timerHeader || e.target.closest('.timer-header')) && !e.target.closest('.minimize-btn')) {
             isDragging = true;
         }
     }
@@ -264,9 +314,19 @@
         let qrContainer = document.createElement('div');
         qrContainer.className = 'qr-code print-only';
         
-        // Append to the route content instead of body
-        const routeContent = document.querySelector('.route-content');
-        routeContent.appendChild(qrContainer);
+        // Append to the route sections container
+        const routeSections = document.querySelector('.route-sections');
+        if (routeSections) {
+            routeSections.appendChild(qrContainer);
+        } else {
+            // Fallback to route-page if route-sections not found
+            const routePage = document.querySelector('.route-page');
+            if (routePage) {
+                routePage.appendChild(qrContainer);
+            } else {
+                document.body.appendChild(qrContainer);
+            }
+        }
 
         // Get the current long URL
         const longUrl = window.location.href;
@@ -279,7 +339,7 @@
                 body: JSON.stringify({ long_url: longUrl })
             });
             const data = await response.json();
-            const shortUrl = data.short_url || longUrl; // fallback to longUrl if error
+            const shortUrl = data.short_url;
 
             // Generate QR code for the short URL
             new QRCode(qrContainer, {
@@ -316,8 +376,13 @@
 
         // Wait for QR code to be generated before printing
         setTimeout(() => {
-            window.print();
-        }, 100);
+            try {
+                window.print();
+            } catch (e) {
+                console.error("Printing failed:", e);
+                showToast("Printing failed. Please try again.");
+            }
+        }, 1000);
     }
 
     function printRouteWithoutQR() {
