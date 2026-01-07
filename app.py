@@ -5,8 +5,8 @@ import uuid
 import random
 import string
 from urllib.parse import unquote
+from datetime import timedelta
 from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, Blueprint, send_file, session, Response, stream_with_context
-from werkzeug.security import check_password_hash
 from functools import wraps
 from hardcoded_database.consts import get_trick_csv_path, URL_RETENTION_MONTHS
 from hardcoded_database.events.past_events import ALL_PAST_EVENTS, FRONT_PAGE_PAST_EVENTS
@@ -38,6 +38,7 @@ load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'dev_key_for_jugglefit') # Should be set in .env for prod
+app.permanent_session_lifetime = timedelta(minutes=5)
 # Note: siteswap formatting is now handled client-side in static/js/siteswap_x.js
 
 # Register custom Jinja2 filter for adding line breaks to trick names
@@ -93,6 +94,7 @@ def fetch_tricks():
 @api.route('/get_captcha', methods=['GET'])
 def get_captcha():
 	try:
+		session.permanent = True
 		question_index = random.randint(0, len(CAPTCHA_QUESTIONS) - 1)
 		question_data = CAPTCHA_QUESTIONS[question_index]
 		session['captcha_index'] = question_index
@@ -361,7 +363,7 @@ def download_tricks_csv(prop_type):
 		return f"Error serving CSV: {str(e)}", 500
 
 # Admin Routes
-ADMIN_PASSWORD_HASH = 'scrypt:32768:8:1$poumJf7ovURR4H2f$59e5a0ce5fea62a77c97e77e7e8383e0fb7f60c14044ecc6082a1d96deebb0d84a657b9bd4da9fa7bb5e8cd932061e5b6e3c247521671e65b89b634e43080fb3'
+ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD')
 
 def login_required(f):
 	@wraps(f)
@@ -375,7 +377,7 @@ def login_required(f):
 def admin_login():
 	if request.method == 'POST':
 		password = request.form.get('password')
-		if check_password_hash(ADMIN_PASSWORD_HASH, password):
+		if ADMIN_PASSWORD and password == ADMIN_PASSWORD:
 			session['logged_in'] = True
 			next_url = request.args.get('next')
 			return redirect(next_url or url_for('admin_suggestions'))
@@ -428,7 +430,7 @@ def export_suggestions(prop_type):
 @login_required
 def delete_suggestions(prop_type):
 	password = request.json.get('password')
-	if not check_password_hash(ADMIN_PASSWORD_HASH, password):
+	if not (ADMIN_PASSWORD and password == ADMIN_PASSWORD):
 		return jsonify({'error': 'Invalid password'}), 403
 		
 	success = db_manager.delete_suggestions(prop_type)

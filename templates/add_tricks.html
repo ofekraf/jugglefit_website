@@ -39,7 +39,6 @@ window.propsSettings = propsSettings;
         {% from 'macros/prop_selection_macro.html' import prop_selection_macro %}
         {% from 'macros/relevant_tags_macro.html' import relevant_tags_macro %}
         {% from 'macros/juggler_captcha.html' import juggler_captcha %}
-        {% from 'macros/limit_max_throw_macro.html' import limit_max_throw_macro %}
 
         {{ prop_selection_macro(props_settings, main_props) }}
 
@@ -83,7 +82,12 @@ window.propsSettings = propsSettings;
                     </div>
                 </div>
 
-                {{ limit_max_throw_macro(props_settings) }}
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="suggest_trick_max_throw">Max Throw Height (Optional)</label>
+                        <input type="number" id="suggest_trick_max_throw" class="form-input" placeholder="Enter max throw height" min="0">
+                    </div>
+                </div>
                 
                 {{ relevant_tags_macro(tag_category_map, 'suggest', 'Tags', 'exclude_tags') }}
 
@@ -136,9 +140,6 @@ window.propsSettings = propsSettings;
         if (typeof window.initializePropSelection === 'function') {
             window.initializePropSelection({ naming: 'suggest' });
         }
-
-        // Initialize max throw bindings
-        initMaxThrowBindings();
 
     } catch (error) {
         console.error("Failed to import route helpers", error);
@@ -311,6 +312,14 @@ window.propsSettings = propsSettings;
             diffSlider.addEventListener('input', updateTooltip);
             // Add touch event listener for mobile
             diffSlider.addEventListener('touchmove', updateTooltip);
+            // Show tooltip on hover
+            diffSlider.addEventListener('mouseenter', updateTooltip);
+            diffSlider.addEventListener('mousemove', (e) => {
+                // Only update position if tooltip exists
+                if (document.querySelector('.trick-tooltip')) {
+                    showTrickTooltip(e, parseInt(diffSlider.value));
+                }
+            });
             
             diffSlider.addEventListener('mouseleave', () => {
                 const tooltip = document.querySelector('.trick-tooltip');
@@ -332,8 +341,8 @@ window.propsSettings = propsSettings;
                 const siteswap = document.getElementById('suggest_trick_siteswap').value.trim();
                 const props = document.getElementById('suggest_trick_props').value;
                 const difficulty = document.getElementById('suggest_trick_difficulty').value;
-                const maxThrowElem = document.getElementById('max-throw-enabled');
-                const maxThrow = maxThrowElem && maxThrowElem.checked ? document.getElementById('max-throw-input').value : null;
+                const maxThrowInput = document.getElementById('suggest_trick_max_throw');
+                const maxThrow = maxThrowInput.value ? maxThrowInput.value : null;
                 const comment = document.getElementById('suggest_trick_comment').value.trim();
                 
                 const selectedPropInput = document.querySelector('.prop-option-input:checked');
