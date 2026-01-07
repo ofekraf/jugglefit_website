@@ -23,12 +23,13 @@ class DBManager:
         """Create a database connection to the SQLite database specified by db_path"""
         conn = None
         try:
+            print(f"Connecting to database at: {self.db_path}")
             conn = sqlite3.connect(self.db_path)
             # Enable dictionary access for rows
             conn.row_factory = sqlite3.Row
             return conn
         except Error as e:
-            print(f"Error connecting to database: {e}")
+            print(f"Error connecting to database at {self.db_path}: {e}")
         return conn
 
     @property
@@ -82,6 +83,7 @@ class DBManager:
     def get_short_code_by_long_url(self, long_url):
         conn = self.get_connection()
         if not conn:
+            print("get_short_code_by_long_url: No connection")
             return None
         try:
             cursor = conn.cursor()
@@ -93,12 +95,16 @@ class DBManager:
             if result:
                 return result['short_code']
             return None
+        except Error as e:
+            print(f"Error getting short code: {e}")
+            return None
         finally:
             conn.close()
 
     def create_short_url(self, short_code, long_url):
         conn = self.get_connection()
         if not conn:
+            print("create_short_url: No connection")
             return False
         try:
             cursor = conn.cursor()

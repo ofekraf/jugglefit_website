@@ -3,6 +3,7 @@ import os
 import secrets
 import uuid
 import random
+import string
 from urllib.parse import unquote
 from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, Blueprint, send_file, session, Response, stream_with_context
 from werkzeug.security import check_password_hash
@@ -155,18 +156,12 @@ def suggest_trick():
 
 @api.route('/shorten_url', methods=['POST'])
 def shorten_url():
-	return "currently unsupported, in the process of building", 500
-	# long_url = request.json.get('long_url')
-	# if not long_url:
-	#     return jsonify({"error": "long_url is required"}), 400
-	# try:
-	#     code = get_or_create_short_url(long_url)
-	#     short_url = url_for('redirect_to_long_url', code=code, _external=True)
-	#     return jsonify({"short_url": short_url, "code": code}), 200
-	# except Exception as e:
-	#     return jsonify({"error": str(e)}), 500
-	
 	try:
+		long_url = request.json.get('long_url')
+		if not long_url:
+			app.logger.error("shorten_url: long_url is required")
+			return jsonify({"error": "long_url is required"}), 400
+
 		# Check if URL already exists
 		existing_code = db_manager.get_short_code_by_long_url(long_url)
 		if existing_code:
@@ -183,10 +178,12 @@ def shorten_url():
 				short_url = url_for('redirect_to_long_url', code=code, _external=True)
 				return jsonify({"short_url": short_url, "code": code}), 200
 		
+		app.logger.error("shorten_url: Failed to create unique short URL")
 		return jsonify({"error": "Failed to create unique short URL"}), 500
 			
 	except Exception as e:
-		return jsonify({"error": "Database unavailable"}), 503
+		app.logger.exception(f"shorten_url: Error: {e}")
+		return jsonify({"error": f"Server error: {str(e)}"}), 500
 	
 @app.route('/shortener/<code>')
 def redirect_to_long_url(code):

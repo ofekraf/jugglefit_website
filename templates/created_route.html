@@ -45,13 +45,14 @@
 
 <script type="module">
     // Import route loading functions
-    const { loadRoute, initRouteLoading } = await import("{{ url_for('static', filename='js/route_helpers.js') }}");
+    const { loadRoute, initRouteLoading, updateRouteDisplay } = await import("{{ url_for('static', filename='js/route_helpers.js') }}");
     
     // Make functions available globally
     window.loadRoute = loadRoute;
     window.initRouteLoading = initRouteLoading;
+    window.updateRouteDisplay = updateRouteDisplay;
     
-    // Initialize route loading immediately 
+    // Initialize route loading immediately
     initRouteLoading(updateUIWithRoute);
     
     // Update UI elements after route loads
@@ -92,6 +93,11 @@
                 editRouteLink.href = editUrl;
             }
         }
+
+        // Ensure route display is updated
+        if (typeof window.updateRouteDisplay === 'function') {
+            window.updateRouteDisplay(null, { editable: false });
+        }
     }
 </script>
 
@@ -112,7 +118,14 @@
         const longUrl = window.location.href;
         
         try {
-            const shortUrl = await getShortenedUrl(longUrl);
+            // Request a short URL from the API
+            const response = await fetch('/api/shorten_url', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ long_url: longUrl })
+            });
+            const data = await response.json();
+            const shortUrl = data.short_url;
             const urlToShare = shortUrl || longUrl;
             
             await navigator.clipboard.writeText(urlToShare);
@@ -301,9 +314,19 @@
         let qrContainer = document.createElement('div');
         qrContainer.className = 'qr-code print-only';
         
-        // Append to the route content instead of body
-        const routeContent = document.querySelector('.route-content');
-        routeContent.appendChild(qrContainer);
+        // Append to the route sections container
+        const routeSections = document.querySelector('.route-sections');
+        if (routeSections) {
+            routeSections.appendChild(qrContainer);
+        } else {
+            // Fallback to route-page if route-sections not found
+            const routePage = document.querySelector('.route-page');
+            if (routePage) {
+                routePage.appendChild(qrContainer);
+            } else {
+                document.body.appendChild(qrContainer);
+            }
+        }
 
         // Get the current long URL
         const longUrl = window.location.href;
@@ -316,7 +339,7 @@
                 body: JSON.stringify({ long_url: longUrl })
             });
             const data = await response.json();
-            const shortUrl = data.short_url || longUrl; // fallback to longUrl if error
+            const shortUrl = data.short_url;
 
             // Generate QR code for the short URL
             new QRCode(qrContainer, {
@@ -353,8 +376,13 @@
 
         // Wait for QR code to be generated before printing
         setTimeout(() => {
-            window.print();
-        }, 100);
+            try {
+                window.print();
+            } catch (e) {
+                console.error("Printing failed:", e);
+                showToast("Printing failed. Please try again.");
+            }
+        }, 1000);
     }
 
     function printRouteWithoutQR() {

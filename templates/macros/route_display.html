@@ -1,5 +1,5 @@
 {% set is_editable = editable if editable is defined else false %}
-<div class="route-sections" data-editable="{{ 'true' if is_editable else 'false' }}">
+<div id="route-sections" class="route-sections" data-editable="{{ 'true' if is_editable else 'false' }}">
                 {% set trick_counter = namespace(count=0) %}
                 {% set current_props = namespace(count=none) %}
                 {% for trick in route.tricks %}

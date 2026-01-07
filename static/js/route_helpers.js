@@ -334,7 +334,7 @@ try {
  */
 // Prop selection functionality
 // Centralized refresh function that updates all GUI elements from a route object
-export function refreshFromRoute(route = null) {
+export function refreshFromRoute(route = null, options = {}) {
     const routeToUse = route || window.currentRoute;
     if (!routeToUse) return;
     
@@ -395,7 +395,7 @@ export function refreshFromRoute(route = null) {
     }
     
     // Update route display
-    updateRouteDisplay(routeToUse);
+    updateRouteDisplay(routeToUse, options);
     
     // Check and apply siteswap-x toggle state
     const siteswapToggle = document.getElementById('toggle-siteswap-x-checkbox');
@@ -405,15 +405,18 @@ export function refreshFromRoute(route = null) {
 }
 
 // Route display functionality (updated to accept route parameter)
-export function updateRouteDisplay(route = null) {
+export function updateRouteDisplay(route = null, options = {}) {
+    // If route is not provided, try to use window.currentRoute
     const routeToUse = route || window.currentRoute;
+    
     const routeSections = document.getElementById('route-sections');
     if (!routeSections || !routeToUse) {
         return;
     }
 
     // Determine context: build page (editable) vs. created_route page (read-only)
-    const isBuildPage = document.querySelector('.route-form') !== null;
+    // Default to checking for build page elements if not specified
+    const isBuildPage = typeof options.editable !== 'undefined' ? options.editable : (document.getElementById('add_custom_trick') !== null);
 
     routeSections.innerHTML = '';
 
@@ -509,7 +512,10 @@ export function updateRouteDisplay(route = null) {
             const removeButton = document.createElement('button');
             removeButton.className = 'remove-trick';
             removeButton.textContent = '×';
-            removeButton.onclick = () => removeTrick(trick);
+            // Use a closure to capture the current trick object correctly
+            removeButton.onclick = (function(t) {
+                return function() { removeTrick(t); };
+            })(trick);
             trickContent.appendChild(removeButton);
 
             frame.addEventListener('dragstart', handleDragStart);
@@ -577,14 +583,27 @@ export function addTrickToRoute(trick) {
     
     // Add the trick to the route and refresh display
     window.currentRoute.tricks.push(Object.assign({}, normalized));
-    refreshFromRoute();
+    refreshFromRoute(null, { editable: true });
 }
 
 export function removeTrick(trick) {
     if (!window.currentRoute) return;
     
-    window.currentRoute.tricks = window.currentRoute.tricks.filter(t => t.name !== trick.name);
-    refreshFromRoute();
+    // Find and remove the trick by matching name, siteswap_x, and props_count
+    // This handles cases where tricks have the same name but different props_count
+    window.currentRoute.tricks = window.currentRoute.tricks.filter(t => {
+        // If both have names, compare names and props_count
+        if (t.name && trick.name) {
+            return !(t.name === trick.name && t.props_count === trick.props_count);
+        }
+        // If both have siteswap_x (and no names), compare siteswap_x and props_count
+        if (t.siteswap_x && trick.siteswap_x && !t.name && !trick.name) {
+            return !(t.siteswap_x === trick.siteswap_x && t.props_count === trick.props_count);
+        }
+        // If one has name and other has siteswap_x, they're different
+        return true;
+    });
+    refreshFromRoute(null, { editable: true });
 }
 
 // Drag and drop functionality for route tricks
@@ -637,7 +656,7 @@ function handleDragEnd(e) {
     });
     
     window.currentRoute.tricks = newTricks;
-    refreshFromRoute();
+    refreshFromRoute(null, { editable: true });
 }
 
 function handleSectionDragStart(e) {
@@ -689,7 +708,7 @@ function handleSectionDragEnd(e) {
     window.currentRoute.tricks = newTricks;
     
     // Update the route display to reflect the new order and numbers
-    refreshFromRoute();
+    refreshFromRoute(null, { editable: true });
     
     // Update the tricks list to reflect the new order
     if (typeof window.updateSearchTricks === 'function') {
