@@ -164,7 +164,7 @@ function updateCategoryState(categoryContainer) {
     }
 }
 
-// Add click handler for category headers to toggle expansion
+// Add click handler for category headers to toggle expansion (Mobile only)
 document.addEventListener('click', function(e) {
     const header = e.target.closest('.tag-category-header');
     if (!header) return;
@@ -174,22 +174,37 @@ document.addEventListener('click', function(e) {
         return;
     }
 
-    // Check if we are on mobile
-    const isMobile = window.innerWidth <= 768;
+    // Check if device is touch/mobile
+    const isTouch = window.matchMedia('(pointer: coarse)').matches || window.matchMedia('(hover: none)').matches;
 
-    if (isMobile) {
+    // If touch device, treat as click-to-toggle
+    if (isTouch) {
         // Prevent default label behavior (which toggles the checkbox)
         // only if we are not clicking the checkbox itself
         e.preventDefault();
-    }
-    
-    const categoryDiv = header.closest('.tag-category');
-    if (categoryDiv) {
-        categoryDiv.classList.toggle('expanded');
-        // Also toggle the content visibility class
-        const content = categoryDiv.querySelector('.tag-category-content');
-        if (content) {
-            content.classList.toggle('expanded');
+        
+        const categoryDiv = header.closest('.tag-category');
+        if (categoryDiv) {
+            const isExpanded = categoryDiv.classList.contains('expanded');
+            
+            // Close all other categories first (optional, but good for accordion behavior)
+            document.querySelectorAll('.tag-category.expanded').forEach(cat => {
+                if (cat !== categoryDiv) {
+                    cat.classList.remove('expanded');
+                    const c = cat.querySelector('.tag-category-content');
+                    if (c) c.classList.remove('expanded');
+                }
+            });
+
+            if (isExpanded) {
+                categoryDiv.classList.remove('expanded');
+                const content = categoryDiv.querySelector('.tag-category-content');
+                if (content) content.classList.remove('expanded');
+            } else {
+                categoryDiv.classList.add('expanded');
+                const content = categoryDiv.querySelector('.tag-category-content');
+                if (content) content.classList.add('expanded');
+            }
         }
     }
 });

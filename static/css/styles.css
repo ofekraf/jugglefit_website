@@ -542,11 +542,13 @@ body .route-content .trick-main .trick-name {
     visibility: hidden;
 }
 
-.tag-category-available:hover .tag-category-content-available,
-.tag-category:hover .tag-category-content {
-    max-height: 1000px;
-    opacity: 1;
-    visibility: visible;
+@media (hover: hover) {
+    .tag-category-available:hover .tag-category-content-available,
+    .tag-category:hover .tag-category-content {
+        max-height: 1000px;
+        opacity: 1;
+        visibility: visible;
+    }
 }
 
 /* When JS adds the 'expanded' class, show the dropdown content like hover */
@@ -555,7 +557,7 @@ body .route-content .trick-main .trick-name {
     max-height: 1000px !important;
     opacity: 1 !important;
     visibility: visible !important;
-    position: relative !important; /* Make it flow in document when expanded */
+    z-index: 100 !important; /* Ensure it floats above other content */
 }
 
 .checkbox-container {
