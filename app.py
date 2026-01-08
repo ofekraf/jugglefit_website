@@ -44,9 +44,6 @@ app.permanent_session_lifetime = timedelta(minutes=5)
 # Register custom Jinja2 filter for adding line breaks to trick names
 app.jinja_env.filters['add_line_breaks'] = add_line_breaks_to_trick_name
 
-# Configure session for verification game
-app.secret_key = os.environ.get('SECRET_KEY', secrets.token_hex(32))
-
 # Create API blueprint
 api = Blueprint('api', __name__, url_prefix='/api')
 
