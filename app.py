@@ -1,12 +1,10 @@
-import logging
 import os
-import secrets
 import uuid
 import random
 import string
 from urllib.parse import unquote
 from datetime import timedelta
-from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, Blueprint, send_file, session, Response, stream_with_context
+from flask import Flask, render_template, request, jsonify, redirect, url_for, flash, Blueprint, send_file, session, Response
 from functools import wraps
 from hardcoded_database.consts import get_trick_csv_path, URL_RETENTION_MONTHS
 from hardcoded_database.events.past_events import ALL_PAST_EVENTS, FRONT_PAGE_PAST_EVENTS
@@ -21,6 +19,7 @@ from pylib.classes.prop import MAIN_PROPS, Prop
 from pylib.classes.route import Route
 from pylib.classes.tag import TAG_CATEGORY_MAP_JSON, Tag, TagCategory
 from hardcoded_database.tricks import ALL_PROPS_SETTINGS, ALL_PROPS_SETTINGS_JSON
+from pylib.classes.siteswap_x_modifiers import ThrowModifier, CatchModifier
 from pylib.route_generator.exceptions import NotEnoughTricksFoundException
 from pylib.route_generator.route_generator import RouteGenerator
 from pylib.utils.filter_tricks import filter_tricks
@@ -439,7 +438,11 @@ def delete_suggestions(prop_type):
 
 @app.route('/siteswap_x')
 def siteswap_x():
-		  return render_template('siteswap_x.html')
+		  return render_template('siteswap_x.html', ThrowModifier=ThrowModifier, CatchModifier=CatchModifier)
+
+@app.route('/siteswap_x/print')
+def siteswap_x_print():
+		  return render_template('siteswap_modifiers_printed_page.html', ThrowModifier=ThrowModifier, CatchModifier=CatchModifier)
 
 @app.route('/verify', methods=['GET', 'POST'])
 def verify_game():
