@@ -3,8 +3,10 @@ from pylib.utils.reverse_lookup_enum import ReverseLookupEnum
 
 class ThrowModifier(ReverseLookupEnum):
     BACKCROSS = "B"
-    UNDER_THE_LEG = "Ul"
     SHOULDER = "S"
+    OUTSIDE = "Ou"
+    INSIDE = "In"
+    UNDER_THE_LEG = "Ul"
     NECK = "N"
     OVERHEAD = "Oh"
     FLATFRONT = "F"
@@ -13,7 +15,7 @@ class ThrowModifier(ReverseLookupEnum):
 
 class CatchModifier(ReverseLookupEnum):
     PENGUIN = "Pe"
-    LAZY = "L"
     REVERSE_BACKCROSS = "Rb"
     REVERSE_SHOULDER = "Rs"
+    LAZY = "L"
     UNDER_THE_LEG = "Ul"

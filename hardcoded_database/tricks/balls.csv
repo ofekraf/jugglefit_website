@@ -5,9 +5,9 @@ name,props_count,difficulty,tags,comment,max_throw,siteswap_x
 "50c isolated cascade",5,27,"async base pattern|isolated",,5
 "30c reverse cascade",5,38,"async base pattern",,5
 "ANY",6,27,"any base pattern",,6
-"async fountain",6,30,"async base pattern",,6,async fountain
-"20c async fountain",6,33,"async base pattern",,6,async fountain
-"isolated sync fountain",6,39,"sync base pattern|isolated",,6,sync fountain
+"async fountain",6,30,"async base pattern",,6
+"20c async fountain",6,33,"async base pattern",,6
+"isolated sync fountain",6,39,"sync base pattern|isolated",,6
 "sync fountain -> async fountain",6,37,"sync base pattern|async base pattern","transition: (7x,6)(7x,6)",7
 "async fountain -> sync fountain",6,38,"async base pattern|sync base pattern","transition: 7x67x6",7
 "ANY on the knees",6,33,"any base pattern|on the knees",,6

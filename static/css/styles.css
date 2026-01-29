@@ -290,15 +290,16 @@ body .route-content .trick-main .trick-name {
 }
 .siteswap-x-throw-mod {
     color: #d32f2f;
-    font-size: 0.68em; /* Slightly smaller to reduce spacing */
+    font-size: 0.75em; /* Larger on PC for better readability */
     position: absolute;
     top: -0.9em; /* pull closer to digit so container stays short */
     left: 50%;
     transform: translateX(-50%);
-    font-weight: bold;
+    font-weight: 600; /* Semi-bold for better readability */
     pointer-events: none;
     white-space: nowrap;
-    font-family: inherit;
+    font-family: 'Arial Narrow', 'Helvetica Condensed', sans-serif-condensed, sans-serif; /* Narrower font */
+    letter-spacing: -0.05em; /* Tighter letter spacing for compactness */
 }
 .siteswap-x-digit {
     /* Base digit styling should match normal trick text */
@@ -311,15 +312,16 @@ body .route-content .trick-main .trick-name {
 }
 .siteswap-x-catch-mod {
     color: #1976d2;
-    font-size: 0.68em; /* Slightly smaller to reduce spacing */
+    font-size: 0.75em; /* Larger on PC for better readability */
     position: absolute;
     bottom: -0.9em; /* pull closer to digit so container stays short */
     left: 50%;
     transform: translateX(-50%);
-    font-weight: bold;
+    font-weight: 600; /* Semi-bold for better readability */
     pointer-events: none;
     white-space: nowrap;
-    font-family: inherit;
+    font-family: 'Arial Narrow', 'Helvetica Condensed', sans-serif-condensed, sans-serif; /* Narrower font */
+    letter-spacing: -0.05em; /* Tighter letter spacing for compactness */
 }
 /* Unify tag filtering styles for build_route and generate_route */
 .tag-category-title-available,
@@ -416,8 +418,10 @@ body .route-content .trick-main .trick-name {
     pointer-events: none;
     white-space: nowrap;
     z-index: 5; /* sit above other elements */
-    font-size: 0.72em;
-    font-weight: 600;
+    font-size: 0.75em; /* Larger on PC for better readability */
+    font-weight: 600; /* Semi-bold for better readability */
+    font-family: 'Arial Narrow', 'Helvetica Condensed', sans-serif-condensed, sans-serif; /* Narrower font */
+    letter-spacing: -0.05em; /* Tighter letter spacing for compactness */
 }
 
 .siteswap-x-throw-mod {
@@ -1830,6 +1834,12 @@ a.primary-button.live-event-button:hover {
     }
         opacity: 1;
         transform: translateY(0);
+    }
+    
+    /* Smaller modifiers on mobile */
+    .siteswap-x-throw-mod,
+    .siteswap-x-catch-mod {
+        font-size: 0.6em;
     }
 }
 
