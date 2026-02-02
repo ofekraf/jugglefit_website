@@ -173,7 +173,11 @@ function createSiteswapXElement(siteswapString) {
             catchEl.textContent = catchMod;
             digitContainer.appendChild(catchEl);
         }
+        
+        // Add a non-breaking space after the digit container to create a gap
+        // This ensures spacing between digits even when font size scales up
         container.appendChild(digitContainer);
+        // container.appendChild(document.createTextNode('\u00A0')); // Removed: caused too much spacing
 
         lastIndex = tokenRe.lastIndex;
     }

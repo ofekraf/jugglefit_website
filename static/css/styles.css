@@ -911,6 +911,69 @@ body * .trick-main,
     z-index: 1001;
 }
 
+/* Force mobile menu button to show on smaller screens if it's not appearing */
+@media (max-width: 1024px) {
+    .mobile-menu-btn {
+        display: flex;
+    }
+    
+    .main-nav {
+        position: fixed;
+        top: 72px;
+        left: 0;
+        width: 100%;
+        height: calc(100vh - 72px);
+        background-color: white;
+        transform: translateX(100%);
+        transition: transform 0.3s ease-in-out;
+        overflow-y: auto;
+        padding: 1rem;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        display: block;
+        border: none;
+    }
+
+    .main-nav.active {
+        transform: translateX(0);
+    }
+
+    .nav-list {
+        flex-direction: column;
+        align-items: flex-start;
+        width: 100%;
+        gap: 0;
+    }
+
+    .nav-item {
+        width: 100%;
+        display: block;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .nav-item a {
+        padding: 1rem 0;
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .dropdown-menu {
+        position: static;
+        box-shadow: none;
+        padding-left: 1rem;
+        display: none;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        width: 100%;
+        background-color: var(--section-bg);
+        min-width: auto;
+    }
+
+    .dropdown.active .dropdown-menu {
+        display: block;
+    }
+}
+
 .hamburger-line {
     width: 100%;
     height: 3px;
@@ -4256,6 +4319,28 @@ body .main-content .route-page {
 
 .siteswap-x-article .siteswap-x-catch-mod {
     bottom: -1.2em !important; /* Adjust position for larger font */
+}
+
+/* Formatter Page Specific Styles */
+#formatted-output .siteswap-x-digit-container,
+#static-example-output .siteswap-x-digit-container {
+    font-size: inherit !important;
+    margin: 0.5em 0.1em !important;
+}
+
+#formatted-output .siteswap-x-digit,
+#static-example-output .siteswap-x-digit {
+    font-size: inherit !important;
+}
+
+#formatted-output .siteswap-x-throw-mod,
+#static-example-output .siteswap-x-throw-mod {
+    top: -0.8em !important;
+}
+
+#formatted-output .siteswap-x-catch-mod,
+#static-example-output .siteswap-x-catch-mod {
+    bottom: -0.8em !important;
 }
 
 /* Add vertical spacing to the list items */

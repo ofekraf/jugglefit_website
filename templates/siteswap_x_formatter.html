@@ -2,6 +2,10 @@
 
 {% block title %}Siteswap X Formatter{% endblock %}
 
+{% block head %}
+{{ super() }}
+{% endblock %}
+
 {% block content %}
 <div class="section">
     <div class="section-container">
@@ -10,14 +14,32 @@
         
         <div class="form-group">
             <label for="siteswap-input">Raw Siteswap X:</label>
-            <input type="text" id="siteswap-input" class="form-control" placeholder="e.g. 3{B/Pe}" autocomplete="off" style="font-size: 1.2em; padding: 10px;">
+            <input type="text" id="siteswap-input" class="form-control" placeholder="e.g. 4{/Rs}23{B}" autocomplete="off" style="font-size: 1.2em; padding: 10px;">
         </div>
 
         <div class="mt-4">
             <h3>Formatted Result:</h3>
             <div class="trick-container trick-widget" style="display: inline-block; padding: 20px;">
                 <div class="trick-main">
-                    <span id="formatted-output" class="trick-siteswap-x" style="font-size: 2em;"></span>
+                    <span id="formatted-output" class="trick-siteswap-x" style="font-size: 3em;"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-5 pt-5 border-top" style="margin-top: 100px !important;">
+            <h3>Example:</h3>
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Raw:</strong></p>
+                    <p><code style="font-size: 1.2em;">4{/Rs}23{B}</code></p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Formatted:</strong></p>
+                    <div class="trick-container trick-widget" style="display: inline-block; padding: 10px;">
+                        <div class="trick-main">
+                            <span id="static-example-output" class="trick-siteswap-x" style="font-size: 2em;"></span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -31,17 +53,21 @@
 <script>
     const input = document.getElementById('siteswap-input');
     const output = document.getElementById('formatted-output');
+    const staticExampleOutput = document.getElementById('static-example-output');
 
     function updateFormat() {
         const raw = input.value;
         output.innerHTML = formatSiteswapX(raw);
-        // Ensure the element is visible if it has content, though formatSiteswapX returns HTML string, 
-        // the container styling might need attention if empty.
     }
 
     input.addEventListener('input', updateFormat);
     
     // Initial call
     updateFormat();
+
+    // Render static example
+    if (staticExampleOutput) {
+        staticExampleOutput.innerHTML = formatSiteswapX('4{/Rs}23{B}');
+    }
 </script>
 {% endblock %}
