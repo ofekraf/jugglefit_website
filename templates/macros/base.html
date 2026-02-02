@@ -140,6 +140,14 @@
                 return;
             }
 
+            // Only show on specific pages that display routes
+            const restrictedEndpoints = ['created_route', 'build_route', 'live_event', 'past_events'];
+            const currentEndpoint = '{{ request.endpoint }}';
+
+            if (!restrictedEndpoints.includes(currentEndpoint)) {
+                return;
+            }
+
             const alert = document.querySelector('.orientation-alert');
             if (window.innerWidth <= 768 && window.innerHeight > window.innerWidth) {
                 alert.classList.add('show');
