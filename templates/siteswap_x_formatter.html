@@ -1,0 +1,47 @@
+{% extends "macros/base.html" %}
+
+{% block title %}Siteswap X Formatter{% endblock %}
+
+{% block content %}
+<div class="section">
+    <div class="section-container">
+        <h1 class="section-title">Siteswap X Formatter</h1>
+        <p class="lead">Type a siteswap-x string to see it formatted.</p>
+        
+        <div class="form-group">
+            <label for="siteswap-input">Raw Siteswap X:</label>
+            <input type="text" id="siteswap-input" class="form-control" placeholder="e.g. 3{B/Pe}" autocomplete="off" style="font-size: 1.2em; padding: 10px;">
+        </div>
+
+        <div class="mt-4">
+            <h3>Formatted Result:</h3>
+            <div class="trick-container trick-widget" style="display: inline-block; padding: 20px;">
+                <div class="trick-main">
+                    <span id="formatted-output" class="trick-siteswap-x" style="font-size: 2em;"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/siteswap_x.js') }}"></script>
+<script>
+    const input = document.getElementById('siteswap-input');
+    const output = document.getElementById('formatted-output');
+
+    function updateFormat() {
+        const raw = input.value;
+        output.innerHTML = formatSiteswapX(raw);
+        // Ensure the element is visible if it has content, though formatSiteswapX returns HTML string, 
+        // the container styling might need attention if empty.
+    }
+
+    input.addEventListener('input', updateFormat);
+    
+    // Initial call
+    updateFormat();
+</script>
+{% endblock %}

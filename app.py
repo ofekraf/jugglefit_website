@@ -444,6 +444,10 @@ def siteswap_x():
 def siteswap_x_print():
 		  return render_template('siteswap_modifiers_printed_page.html', ThrowModifier=ThrowModifier, CatchModifier=CatchModifier)
 
+@app.route('/siteswap_x/formatter')
+def siteswap_x_formatter():
+	return render_template('siteswap_x_formatter.html')
+
 @app.route('/verify', methods=['GET', 'POST'])
 def verify_game():
 	"""Two-round trick verification game."""
