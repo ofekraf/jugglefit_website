@@ -16,11 +16,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Install dependencies
+# Install Python dependencies first (changes least frequently)
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the app
+# Copy application code (changes most frequently)
+# This layer will be invalidated on any code change, but dependencies above will be cached
 COPY . .
 
 # Create non-root user and database directory with correct permissions
