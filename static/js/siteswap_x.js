@@ -93,22 +93,19 @@ function formatSiteswapX(siteswapString) {
     const escapeHtml = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     const escaped = escapeHtml(siteswapString).replace(/-&gt;|->/g, '→');
 
-    // New parsing logic: find either a modified digit or a block of plain text.
-    // This avoids regex greediness issues with consecutive modifiers.
+    // Use String.replace() with callback for better mobile browser compatibility
+    // This avoids regex.exec() lastIndex issues on iOS Safari/Chrome
     const tokenRe = /([0-9a-z→])(?:\{([^{}\/]*)?(?:\/([^{}]*))?\})|([0-9a-z→])/gi;
-    let out = '';
     let lastIndex = 0;
-    let match;
-    while ((match = tokenRe.exec(escaped))) {
+    let out = '';
+    
+    escaped.replace(tokenRe, function(fullMatch, digit1, throwMod, catchMod, digit2, offset) {
         // Add any text between the last match and this one
-        if (match.index > lastIndex) {
-            out += '<span>' + escaped.slice(lastIndex, match.index) + '</span>';
+        if (offset > lastIndex) {
+            out += '<span>' + escaped.slice(lastIndex, offset) + '</span>';
         }
 
-        const mainDigit = match[1] || match[4];
-        const throwMod = match[2];
-        const catchMod = match[3];
-
+        const mainDigit = digit1 || digit2;
         let html = '<span class="siteswap-x-digit-container">';
         if (throwMod) html += '<span class="siteswap-x-throw-mod">' + throwMod + '</span>';
         html += '<span class="siteswap-x-digit">' + mainDigit + '</span>';
@@ -116,8 +113,10 @@ function formatSiteswapX(siteswapString) {
         html += '</span>';
         out += html;
 
-        lastIndex = tokenRe.lastIndex;
-    }
+        lastIndex = offset + fullMatch.length;
+        return fullMatch; // Return value doesn't matter, we're building 'out' manually
+    });
+    
     // Add any remaining text after the last match
     if (lastIndex < escaped.length) {
         out += '<span>' + escaped.slice(lastIndex) + '</span>';
@@ -137,21 +136,18 @@ function createSiteswapXElement(siteswapString) {
     container.className = 'trick-siteswap-x';
     container.style.display = 'none';
 
-    // Use the same robust parsing logic as formatSiteswapX
+    // Use String.replace() with callback for better mobile browser compatibility
     const tokenRe = /([0-9a-z→])(?:\{([^{}\/]*)?(?:\/([^{}]*))?\})|([0-9a-z→])/gi;
     let lastIndex = 0;
-    let match;
-    while ((match = tokenRe.exec(normalized))) {
-        if (match.index > lastIndex) {
+    
+    normalized.replace(tokenRe, function(fullMatch, digit1, throwMod, catchMod, digit2, offset) {
+        if (offset > lastIndex) {
             const textSpan = document.createElement('span');
-            textSpan.textContent = normalized.slice(lastIndex, match.index);
+            textSpan.textContent = normalized.slice(lastIndex, offset);
             container.appendChild(textSpan);
         }
 
-        const mainDigit = match[1] || match[4];
-        const throwMod = match[2];
-        const catchMod = match[3];
-
+        const mainDigit = digit1 || digit2;
         const digitContainer = document.createElement('span');
         digitContainer.className = 'siteswap-x-digit-container';
 
@@ -179,8 +175,10 @@ function createSiteswapXElement(siteswapString) {
         container.appendChild(digitContainer);
         // container.appendChild(document.createTextNode('\u00A0')); // Removed: caused too much spacing
 
-        lastIndex = tokenRe.lastIndex;
-    }
+        lastIndex = offset + fullMatch.length;
+        return fullMatch; // Return value doesn't matter, we're building DOM manually
+    });
+    
     if (lastIndex < normalized.length) {
         const textSpan = document.createElement('span');
         textSpan.textContent = normalized.slice(lastIndex);
