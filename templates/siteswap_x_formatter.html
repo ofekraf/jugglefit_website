@@ -71,8 +71,17 @@
         const urlParams = new URLSearchParams(window.location.search);
         const pattern = urlParams.get('pattern');
         if (pattern) {
-            input.value = decodeURIComponent(pattern);
-            updateFormat();
+            try {
+                // Decode from base64
+                const decoded = atob(pattern);
+                input.value = decoded;
+                updateFormat();
+            } catch (e) {
+                console.error('Failed to decode pattern:', e);
+                // Fallback to treating it as regular URL-encoded string
+                input.value = decodeURIComponent(pattern);
+                updateFormat();
+            }
         }
     }
 
@@ -80,40 +89,20 @@
     async function sharePattern() {
         const shareBtn = document.querySelector('button[onclick="sharePattern()"]');
         const originalText = shareBtn.textContent;
-        shareBtn.textContent = 'Shortening...';
+        shareBtn.textContent = 'Copying...';
         shareBtn.disabled = true;
 
-        // Build URL with pattern parameter
-        const pattern = encodeURIComponent(input.value);
-        const baseUrl = window.location.origin + window.location.pathname;
-        const longUrl = `${baseUrl}?pattern=${pattern}`;
-        
         try {
-            // Request a short URL from the API
-            const response = await fetch('/api/shorten_url', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ long_url: longUrl })
-            });
-            const data = await response.json();
-            const shortUrl = data.short_url;
-            const urlToShare = shortUrl || longUrl;
+            // Encode pattern as base64
+            const pattern = btoa(input.value);
+            const baseUrl = window.location.origin + window.location.pathname;
+            const urlToShare = `${baseUrl}?pattern=${pattern}`;
             
             await navigator.clipboard.writeText(urlToShare);
-            if (shortUrl) {
-                showToast('URL copied to clipboard!');
-            } else {
-                showToast('Long URL copied (Shortener unavailable)');
-            }
+            showToast('URL copied to clipboard!');
         } catch (err) {
             console.error('Failed to copy URL: ', err);
-            // Fallback to long URL if anything goes wrong
-            try {
-                await navigator.clipboard.writeText(longUrl);
-                showToast('Long URL copied (Shortener failed)');
-            } catch (clipboardErr) {
-                showToast('Failed to copy URL. Please try again.');
-            }
+            showToast('Failed to copy URL. Please try again.');
         } finally {
             shareBtn.textContent = originalText;
             shareBtn.disabled = false;
