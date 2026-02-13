@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const dropdowns = document.querySelectorAll('.dropdown');
     const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
     const mainNav = document.querySelector('.main-nav');
-    let isMobile = window.innerWidth <= 768;
+    let isMobile = window.innerWidth <= 1024;
 
     // Toggle mobile menu
     if (mobileMenuBtn) {
@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Handle window resize
     window.addEventListener('resize', () => {
-        const newIsMobile = window.innerWidth <= 768;
+        const newIsMobile = window.innerWidth <= 1024;
         if (newIsMobile !== isMobile) {
             isMobile = newIsMobile;
             // Reset all dropdowns when switching between mobile and desktop

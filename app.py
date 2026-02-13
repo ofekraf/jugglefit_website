@@ -1,4 +1,5 @@
 import os
+import time
 import uuid
 import random
 import string
@@ -42,6 +43,13 @@ app.permanent_session_lifetime = timedelta(minutes=5)
 
 # Register custom Jinja2 filter for adding line breaks to trick names
 app.jinja_env.filters['add_line_breaks'] = add_line_breaks_to_trick_name
+
+# Cache-busting version: changes on each app restart so browsers fetch fresh static files
+APP_START_TIME = str(int(time.time()))
+
+@app.context_processor
+def inject_cache_version():
+    return {'cache_version': APP_START_TIME}
 
 # Create API blueprint
 api = Blueprint('api', __name__, url_prefix='/api')

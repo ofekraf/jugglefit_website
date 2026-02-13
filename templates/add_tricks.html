@@ -114,7 +114,7 @@ window.propsSettings = propsSettings;
 
 <script type="module">
     try {
-        const { updateRelevantTags, updateCustomTrickPropsRange, initializePropSelection, fetchTricks, getRandomTrickForDifficulty, setMaxThrowForProp, initMaxThrowBindings } = await import("{{ url_for('static', filename='js/route_helpers.js') }}");
+        const { updateRelevantTags, updateCustomTrickPropsRange, initializePropSelection, fetchTricks, getRandomTrickForDifficulty, setMaxThrowForProp, initMaxThrowBindings } = await import("{{ url_for('static', filename='js/route_helpers.js') }}?v={{ cache_version }}");
         
         // Make functions available globally
         window.updateRelevantTags = updateRelevantTags;

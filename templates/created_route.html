@@ -40,12 +40,12 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
-<script src="{{ url_for('static', filename='js/general.js') }}"></script>
-<script src="{{ url_for('static', filename='js/siteswap_x.js') }}"></script>
+<script src="{{ url_for('static', filename='js/general.js') }}?v={{ cache_version }}"></script>
+<script src="{{ url_for('static', filename='js/siteswap_x.js') }}?v={{ cache_version }}"></script>
 
 <script type="module">
     // Import route loading functions
-    const { loadRoute, initRouteLoading, updateRouteDisplay } = await import("{{ url_for('static', filename='js/route_helpers.js') }}");
+    const { loadRoute, initRouteLoading, updateRouteDisplay } = await import("{{ url_for('static', filename='js/route_helpers.js') }}?v={{ cache_version }}");
     
     // Make functions available globally
     window.loadRoute = loadRoute;

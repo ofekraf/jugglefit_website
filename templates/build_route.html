@@ -137,12 +137,12 @@ if (window.initialRoute) {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
-<script src="{{ url_for('static', filename='js/general.js') }}"></script>
-<script src="{{ url_for('static', filename='js/siteswap_x.js') }}"></script>
+<script src="{{ url_for('static', filename='js/general.js') }}?v={{ cache_version }}"></script>
+<script src="{{ url_for('static', filename='js/siteswap_x.js') }}?v={{ cache_version }}"></script>
 
 <script type="module">
     try {
-        const { fetchTricks, updatePropsSliderRange, updateRelevantTags, setMaxThrowForProp, initMaxThrowBindings, initializePropSelection, refreshFromRoute, updateRouteDisplay, addTrickToRoute, removeTrick, updateCustomTrickPropsRange } = await import("{{ url_for('static', filename='js/route_helpers.js') }}");
+        const { fetchTricks, updatePropsSliderRange, updateRelevantTags, setMaxThrowForProp, initMaxThrowBindings, initializePropSelection, refreshFromRoute, updateRouteDisplay, addTrickToRoute, removeTrick, updateCustomTrickPropsRange } = await import("{{ url_for('static', filename='js/route_helpers.js') }}?v={{ cache_version }}");
         
         // Make functions available globally for non-module scripts and macros
         window.fetchTricks = fetchTricks;

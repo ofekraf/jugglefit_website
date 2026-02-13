@@ -911,6 +911,21 @@ body * .trick-main,
     z-index: 1001;
 }
 
+/* Main Navigation */
+.main-nav {
+    display: flex;
+    align-items: center;
+    position: relative;
+    width: auto;
+    overflow: visible;
+    padding: 0;
+    z-index: 1000;
+}
+
+.main-nav::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+}
+
 /* Force mobile menu button to show on smaller screens if it's not appearing */
 @media (max-width: 1024px) {
     .mobile-menu-btn {
@@ -993,21 +1008,6 @@ body * .trick-main,
 
 .mobile-menu-btn.active .hamburger-line:nth-child(3) {
     transform: translateY(-9px) rotate(-45deg);
-}
-
-/* Main Navigation */
-.main-nav {
-    display: flex;
-    align-items: center;
-    position: relative;
-    width: auto;
-    overflow: visible;
-    padding: 0;
-    z-index: 1000;
-}
-
-.main-nav::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, Opera */
 }
 
 .nav-list {
@@ -1874,17 +1874,6 @@ a.primary-button.live-event-button:hover {
     }
 
     .trick-name {
-
-        font-size: 1rem;
-        font-weight: 500;
-        color: var(--text-color);
-        font-family: inherit;
-        min-width: 2rem;
-        margin-right: 0.5rem;
-    }
-
-    .trick-name {
-    .trick-name {
         display: inline-block;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -1894,7 +1883,8 @@ a.primary-button.live-event-button:hover {
         font-size: 1rem;
         font-family: inherit;
         margin: 0;
-    }
+        min-width: 2rem;
+        margin-right: 0.5rem;
         opacity: 1;
         transform: translateY(0);
     }

@@ -1,7 +1,7 @@
 {% extends "macros/base.html" %}
 {% block title %}Past Events{% endblock %}
 {% block scripts %}
-<script src="{{ url_for('static', filename='js/siteswap_x.js') }}"></script>
+<script src="{{ url_for('static', filename='js/siteswap_x.js') }}?v={{ cache_version }}"></script>
 {% endblock %}
 {% block content %}
 

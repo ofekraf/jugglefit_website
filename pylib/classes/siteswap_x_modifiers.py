@@ -8,7 +8,6 @@ class ThrowModifier(ReverseLookupEnum):
     INSIDE = "In"
     UNDER_THE_LEG = "Ul"
     NECK = "N"
-    INVERTED = "I"
     OVERHEAD = "Oh"
     FLATFRONT = "F"
     PANCAKE = "Pc"
