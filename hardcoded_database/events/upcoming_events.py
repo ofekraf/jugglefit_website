@@ -15,6 +15,17 @@ UPCOMING_EVENTS = [
         ]
     ),
     UpcomingEvent(
+        name="NJF 2026",
+        date=date(2026, 5, 15),
+        location="Wijk bij Duurrstede, the Netherlands",
+        url="https://nederlandsjongleerfestival.nl/",
+        routes=[
+            "Balls Open",
+            "Clubs Open",
+            "Balls U18",
+        ]
+    ),
+    UpcomingEvent(
         name="EJC 2026",
         date=date(2026, 8, 4),
         location="Ptuj, Slovenia",
