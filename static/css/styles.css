@@ -2191,6 +2191,7 @@ html body main .route-page {
     position: relative;
     width: 100%;
     max-width: 1200px;
+    z-index: 1;
 }
 
 .route-container {
@@ -2198,12 +2199,16 @@ html body main .route-page {
     max-width: 1200px;
     padding: 1rem;
     box-sizing: border-box;
+    position: relative;
+    z-index: 1;
 }
 
 .route-content {
     width: 100%;
     max-width: 1200px;
     box-sizing: border-box;
+    position: relative;
+    z-index: 1;
 }
 
 /* Available tricks styling */
@@ -2401,6 +2406,8 @@ html body main .route-page {
     gap: 1rem;
     margin-top: 2rem;
     align-items: center;
+    position: relative;
+    z-index: 10;
 }
 
 .route-buttons {
@@ -2408,6 +2415,8 @@ html body main .route-page {
     gap: 1rem;
     justify-content: center;
     margin-top: 1rem;
+    position: relative;
+    z-index: 10;
 }
 
 .route-buttons .primary-button {

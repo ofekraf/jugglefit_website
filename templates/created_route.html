@@ -31,6 +31,7 @@
     </div>
     <div class="route-buttons">
         <button class="primary-button" onclick="shareRoute()">Share</button>
+        <a id="run-route-link" href="#" class="primary-button">Run Route</a>
         <a id="live-event-link" href="#" class="primary-button live-event-button">Live Event</a>
         <a id="edit-route-link" href="#" class="primary-button">Edit</a>
         <button class="primary-button print-button" onclick="printRoute()">Print with QR</button>
@@ -77,9 +78,19 @@
         const routeParam = urlParams.get('route');
         if (routeParam) {
             const encodedRoute = encodeURIComponent(routeParam);
+            const runRouteLink = document.getElementById('run-route-link');
             const liveEventLink = document.getElementById('live-event-link');
             const editRouteLink = document.getElementById('edit-route-link');
             
+            if (runRouteLink) {
+                const siteswapToggleForRun = document.getElementById('toggle-siteswap-x-checkbox');
+                const siteswapXForRun = siteswapToggleForRun && siteswapToggleForRun.checked;
+                let runUrl = `/run_route?route=${encodedRoute}`;
+                if (siteswapXForRun) {
+                    runUrl += '&siteswapx=1';
+                }
+                runRouteLink.href = runUrl;
+            }
             if (liveEventLink) {
                 liveEventLink.href = `/live_event?route=${encodedRoute}`;
             }

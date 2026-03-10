@@ -1,0 +1,96 @@
+{% extends "macros/base.html" %}
+{% block title %}Run Route - {{ route.name }}{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/run_route.css') }}?v={{ cache_version }}">
+{% endblock %}
+{% block content %}
+<div class="run-route-page">
+    <!-- Progress bar -->
+    <div class="run-route-progress">
+        <div class="run-route-progress-bar" id="progressBar"></div>
+    </div>
+    <div class="run-route-progress-text" id="progressText">1 / {{ route.tricks | length }}</div>
+
+    <!-- Route title -->
+    <h1 class="run-route-title">{{ route.name }}</h1>
+
+    <!-- Card stack -->
+    <div class="ticket-viewport" id="ticketViewport">
+        {% for trick in route.tricks %}
+        <div class="ticket-card" data-index="{{ loop.index0 }}"{% if trick.siteswap_x %} data-siteswap-x="{{ trick.siteswap_x }}"{% endif %}>
+            <!-- Prop section: icon + count -->
+            <div class="ticket-prop-section" data-props="{{ trick.props_count }}" data-prop-type="{{ route.prop }}">
+                <div class="ticket-prop-icon" data-prop-type="{{ route.prop }}"></div>
+                <div class="ticket-prop-count">× {{ trick.props_count }}</div>
+            </div>
+
+            <!-- Trick info -->
+            <div class="ticket-trick-info">
+                <div class="ticket-trick-number">#{{ loop.index }}</div>
+                <div class="ticket-trick-name">{{ trick.name or trick.siteswap_x or 'Unnamed' }}</div>
+                {% if trick.siteswap_x and trick.name %}
+                <div class="ticket-trick-siteswap" style="display:none;">{{ trick.siteswap_x }}</div>
+                {% endif %}
+                {% if trick.comment %}
+                <div class="ticket-trick-comment">{{ trick.comment }}</div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Navigation hints -->
+    <div class="ticket-nav-hints" id="navHints">
+        <span class="nav-hint nav-hint-left" id="navHintLeft">‹ Prev</span>
+        <span class="nav-hint nav-hint-right" id="navHintRight">Next ›</span>
+    </div>
+
+    <!-- Dot indicators -->
+    <div class="ticket-dots" id="ticketDots">
+        {% for trick in route.tricks %}
+        <span class="ticket-dot{% if loop.first %} active{% endif %}" data-index="{{ loop.index0 }}"></span>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Route complete popup -->
+<div class="run-route-popup-overlay" id="routeCompleteOverlay">
+    <div class="run-route-popup">
+        <div class="run-route-popup-icon">🏆</div>
+        <div class="run-route-popup-title">Route Complete!</div>
+        <div class="run-route-popup-stats">{{ route.tricks | length }} tricks</div>
+        <button class="run-route-popup-btn" id="popupRestartBtn">Restart</button>
+        <button class="run-route-popup-btn run-route-popup-btn-secondary" id="popupCloseBtn">Close</button>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/siteswap_x.js') }}?v={{ cache_version }}"></script>
+<script>
+    // Check for siteswapx=1 GET param — if set, replace trick names with formatted siteswap-x
+    (function() {
+        var params = new URLSearchParams(window.location.search);
+        if (params.get('siteswapx') !== '1') return;
+
+        var cards = document.querySelectorAll('.ticket-card[data-siteswap-x]');
+        cards.forEach(function(card) {
+            var siteswapRaw = card.getAttribute('data-siteswap-x');
+            if (!siteswapRaw) return;
+
+            var nameEl = card.querySelector('.ticket-trick-name');
+            if (!nameEl) return;
+
+            // Use formatSiteswapX from siteswap_x.js to get formatted HTML
+            if (typeof formatSiteswapX === 'function') {
+                nameEl.innerHTML = formatSiteswapX(siteswapRaw);
+            } else {
+                nameEl.textContent = siteswapRaw;
+            }
+
+            // Hide the plain siteswap line since we're showing it formatted as the name
+            var siteswapEl = card.querySelector('.ticket-trick-siteswap');
+            if (siteswapEl) siteswapEl.style.display = 'none';
+        });
+    })();
+</script>
+<script src="{{ url_for('static', filename='js/run_route.js') }}?v={{ cache_version }}"></script>
+{% endblock %}
