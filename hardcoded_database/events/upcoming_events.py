@@ -25,4 +25,16 @@ UPCOMING_EVENTS = [
             "Clubs Open",
         ]
     ),
+    UpcomingEvent(
+        name="IJC 2027",
+        date=date(2027, 4, 23),
+        location="Israel",
+        url="https://www.ijc.co.il/",
+        routes=[
+            "Balls Open",
+            "Clubs Open",
+            "Balls U18",
+            "Clubs U18",
+        ]
+    ),
 ]
