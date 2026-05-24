@@ -34,7 +34,6 @@ UPCOMING_EVENTS = [
             "Balls Open",
             "Clubs Open",
             "Balls U18",
-            "Clubs U18",
         ]
     ),
 ]

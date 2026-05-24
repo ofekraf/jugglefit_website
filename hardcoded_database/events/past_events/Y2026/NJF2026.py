@@ -12,20 +12,20 @@ NJF2026 = PastEvent(
     results=[
         RouteResult(
             route=Route(
-                name="NJF 2026 - Balls open",
+                name="NJF 2026 - Balls Open",
                 prop=Prop.Balls,
                 duration_seconds=600,
                 tricks=[
-                    Trick(name="3 backcrosses -> 1up 360 in backcross -> cascade", props_count=3),
-                    Trick(name="8c 3 in one hand", props_count=3),
-                    Trick(name="6c 3 in the other hand", props_count=3),
-                    Trick(name="2 rounds 7531 -> 1 round 7531, 1 under the leg", props_count=4),
-                    Trick(name="sync fountain -> 1 round (6,6)(2,2), penguin 2's -> sync", props_count=4),
-                    Trick(name="40c any", props_count=6),
-                    Trick(name="cascade -> 2 rounds 88441 -> cascade", props_count=5),
-                    Trick(name="shower -> 2 rounds high low shower", props_count=5, comment="siteswap: b171"),
+                    Trick(name="overheads -> 3 rounds 531 overheads", props_count=3),
+                    Trick(name="4 rounds 5561551", props_count=4),
+                    Trick(name="4 rounds (4x,4x) alternating backcross", props_count=4, comment="scissors"),
+                    Trick(name="shower -> 4up 360 in shower -> shower", props_count=4),
+                    Trick(name="cold start 5up 360 in multiplexes -> cascade", props_count=5),
+                    Trick(name="cascade -> 2 rounds b444444 -> cascade", props_count=5),
                     Trick(name="half shower", props_count=7),
-                    Trick(name="7c cascade -> 1 round b6666 -> 7c cascade", props_count=7),
+                    Trick(name="60c sync fountain", props_count=6),
+                    Trick(name="async fountain -> 1 round 8844, shoulder 4's -> async fountain", props_count=6),
+                    Trick(name="any -> 1 round b97531, 1 up the back -> any", props_count=6),
                 ]
             ),
             competitors={
@@ -35,20 +35,20 @@ NJF2026 = PastEvent(
         ),
         RouteResult(
             route=Route(
-                name="NJF 2026 - Clubs open",
+                name="NJF 2026 - Clubs Open",
                 prop=Prop.Clubs,
                 duration_seconds=600,
                 tricks=[
-                    Trick(name="cascade -> 1up 360 in flat -> cascade", props_count=3),
-                    Trick(name="cascade -> 3c backcrosses -> 3c flatfront flats", props_count=3),
-                    Trick(name="2 rounds 55113, second 1 behind the back", props_count=3),
-                    Trick(name="sync fountain -> async fountain", props_count=4),
-                    Trick(name="async fountain -> 1 round 6631 -> any", props_count=4),
-                    Trick(name="4 rounds 53 -> 1 round 7531 -> 4 rounds 534", props_count=4),
-                    Trick(name="12c double-double-flat", props_count=4),
-                    Trick(name="cascade on the knees", props_count=5),
-                    Trick(name="5c singles -> 5c doubles -> 5c triples", props_count=5),
-                    Trick(name="cascade -> 1 round 94444 -> cascade", props_count=5),
+                    Trick(name="overhead doubles", props_count=3),
+                    Trick(name="6 sides box flats", props_count=3, comment="siteswap: (2x,4)*"),
+                    Trick(name="cascade -> 2 rounds 55113, second 1 behind the back", props_count=3),
+                    Trick(name="4 rounds 53 -> 1 round 633-> 4 rounds 53", props_count=4),
+                    Trick(name="4 sides 561, single 5, single 6", props_count=4),
+                    Trick(name="12c flat-double-double", props_count=4),
+                    Trick(name="any -> 2up 180 -> 2up 360 -> any", props_count=4),
+                    Trick(name="singles -> triples -> singles", props_count=5),
+                    Trick(name="cascade -> 3 rounds 75751 -> cascade", props_count=5),
+                    Trick(name="cascade -> 1 round 7733, backcrosses 3's -> cascade", props_count=5),
                 ]
             ),
             competitors={
