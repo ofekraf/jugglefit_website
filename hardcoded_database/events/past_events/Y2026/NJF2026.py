@@ -18,13 +18,13 @@ NJF2026 = PastEvent(
                 tricks=[
                     Trick(name="overheads -> 3 rounds 531 overheads", props_count=3),
                     Trick(name="4 rounds 5561551", props_count=4),
-                    Trick(name="4 rounds (4x,4x) alternating backcross", props_count=4, comment="scissors"),
+                    Trick(name="4 rounds (4x,4x) alternating backcross", props_count=4, comment="scissors", siteswap_x="4 rounds (4{B}x,4x)*"),
                     Trick(name="shower -> 4up 360 in shower -> shower", props_count=4),
                     Trick(name="cold start 5up 360 in multiplexes -> cascade", props_count=5),
                     Trick(name="cascade -> 2 rounds b444444 -> cascade", props_count=5),
                     Trick(name="half shower", props_count=7),
                     Trick(name="60c sync fountain", props_count=6),
-                    Trick(name="async fountain -> 1 round 8844, shoulder 4's -> async fountain", props_count=6),
+                    Trick(name="async fountain -> 1 round 8844, shoulder 4's -> async fountain", props_count=6, siteswap_x="6 -> 1 round 884{S}4{S} -> 6"),
                     Trick(name="any -> 1 round b97531, 1 up the back -> any", props_count=6),
                 ]
             ),
@@ -41,14 +41,14 @@ NJF2026 = PastEvent(
                 tricks=[
                     Trick(name="overhead doubles", props_count=3),
                     Trick(name="6 sides box flats", props_count=3, comment="siteswap: (2x,4)*"),
-                    Trick(name="cascade -> 2 rounds 55113, second 1 behind the back", props_count=3),
+                    Trick(name="cascade -> 2 rounds 55113, second 1 behind the back", props_count=3, siteswap_x="2 rounds 5511{B}3"),
                     Trick(name="4 rounds 53 -> 1 round 633-> 4 rounds 53", props_count=4),
-                    Trick(name="4 sides 561, single 5, single 6", props_count=4),
-                    Trick(name="12c flat-double-double", props_count=4),
+                    Trick(name="4 sides 561, single 5, single 6", props_count=4, siteswap_x="4 sides 5{1}6{1}1"),
+                    Trick(name="12c flat-double-double", props_count=4, siteswap_x="4 round 4{0}4{2}4{2}"),
                     Trick(name="any -> 2up 180 -> 2up 360 -> any", props_count=4),
                     Trick(name="singles -> triples -> singles", props_count=5),
                     Trick(name="cascade -> 3 rounds 75751 -> cascade", props_count=5),
-                    Trick(name="cascade -> 1 round 7733, backcrosses 3's -> cascade", props_count=5),
+                    Trick(name="cascade -> 1 round 7733, backcrosses 3's -> cascade", props_count=5, siteswap_x="cascade -> 1 round 773{B}3{B} -> cascade"),
                 ]
             ),
             competitors={
