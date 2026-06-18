@@ -1,635 +1,9 @@
 /* Import Google Fonts - must be at the top of the stylesheet */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-.trick-main {
-    box-sizing: border-box;
-}
-
-/* ===== Inline styles moved from templates ===== */
-/* From templates/generate_route.html */
-.trick-tooltip {
-    position: fixed;
-    background: rgba(3, 138, 128, 0.95);
-    color: #fff;
-    padding: 8px 10px;
-    border-radius: 6px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    z-index: 2147483647;
-    pointer-events: none;
-    white-space: nowrap;
-    font-size: 13px;
-}
-
-/* From templates/index.html */
-.carousel-container {
-    position: relative;
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-    overflow: hidden;
-    padding: 0 40px;
-}
-
-.carousel {
-    display: flex;
-    transition: transform 0.5s ease-in-out;
-    gap: 20px;
-    padding: 20px 0;
-    will-change: transform;
-}
-
-.carousel-item {
-    flex: 0 0 calc(50% - 10px);
-    background: white;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease;
-    backface-visibility: hidden;
-    transform: translateZ(0);
-}
-
-@media (max-width: 1024px) {
-    .carousel-item { flex: 0 0 calc(50% - 10px); }
-}
-@media (max-width: 768px) {
-    .carousel-container { padding: 0 30px; }
-    .carousel-item { flex: 0 0 calc(100% - 20px); }
-    .carousel-control { width: 35px; height: 35px; }
-    .event-content { padding: 15px; }
-    .event-content h3 { font-size: 1.2em; }
-    .event-details p { font-size: 0.9em; }
-    .event-image, .event-image-link { height: 250px; }
-}
-
-.event-content { padding: 20px; }
-.event-content h3 { margin: 0 0 15px; font-size: 1.4em; color: #333; }
-.event-details { margin-bottom: 20px; }
-.event-details p { margin: 8px 0; font-size: 1em; color: #666; }
-
-/* From templates/host_event.html (carousel variant) */
-.carousel-item { flex: 0 0 280px; }
-.carousel-item:hover { transform: translateY(-5px); }
-.carousel-item-image { width: 100%; height: 280px; overflow: hidden; }
-.carousel-item-image img { width: 100%; height: 100%; object-fit: cover; }
-.carousel-item-content { padding: 15px; }
-.carousel-item-content h3 { margin: 0 0 8px; font-size: 1.1em; }
-.carousel-item-content p { margin: 0; font-size: 0.9em; color: #666; }
-.carousel-controls { position: absolute; top: 50%; left: 0; right: 0; transform: translateY(-50%); display: flex; justify-content: space-between; pointer-events: none; z-index: 2; }
-.carousel-control { background: white; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display:flex; align-items:center; justify-content:center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); pointer-events: auto; transition: transform 0.3s ease; }
-.carousel-control:hover { transform: scale(1.1); }
-
-/* From templates/event_checklist.html */
-.checklist-container { display: grid; gap: 30px; margin-top: 20px; }
-.checklist-section { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); }
-.checklist { list-style: none; padding: 0; margin: 0; }
-.checklist li { display: flex; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; }
-.checklist li:last-child { border-bottom: none; }
-.checklist input[type="checkbox"] { margin-right: 15px; width: 20px; height: 20px; cursor: pointer; }
-.checklist label { cursor: pointer; font-size: 1.1em; color: #333; }
-.save-progress-container { text-align: center; padding: 40px 0; }
-.button { display: inline-block; padding: 15px 30px; background-color: #4CAF50; color: white; text-decoration: none; border: none; border-radius: 5px; font-weight: bold; margin: 0 10px; cursor: pointer; transition: background-color 0.3s ease; }
-.button:hover { background-color: #45a049; }
-.button.secondary { background-color: #f44336; }
-.button.secondary:hover { background-color: #da190b; }
-.section-alt { margin-bottom: 60px; }
-.section-alt:last-of-type { margin-bottom: 0; }
-
-/* From templates/equipment_list.html */
-.section-alt { margin-bottom: 60px; }
-.section-alt:last-of-type { margin-bottom: 0; }
-.rules-grid { gap: 30px; }
-.checklist-container { margin-top: 15px; }
-.checklist { list-style: none; padding: 0; margin: 0; }
-.checklist li { display: flex; align-items: center; padding: 8px 0; border-bottom: 1px solid #eee; }
-.checklist li:last-child { border-bottom: none; }
-.checklist input[type="checkbox"] { margin-right: 15px; width: 18px; height: 18px; cursor: pointer; }
-.checklist label { cursor: pointer; font-size: 1em; color: #333; }
-.link { color: #4CAF50; text-decoration: none; transition: color 0.3s ease; }
-.link:hover { color: #45a049; text-decoration: underline; }
-.checklist-section { margin-bottom: 20px; padding: 15px; background: #f9f9f9; border-radius: 8px; }
-.checklist-section:last-child { margin-bottom: 0; }
-.checklist-section h4 { margin: 0 0 15px 0; color: #333; font-size: 1.1em; font-weight: 600; }
-
-/* End moved styles */
-
-/* ===== Additional inline styles moved from templates (appended) ===== */
-/* From templates/index.html (carousel & event styles) */
-.carousel-container {
-    position: relative;
-    width: 100%;
-    max-width: 1200px;
-    margin: 0 auto;
-    overflow: hidden;
-    padding: 0 40px;
-}
-
-.carousel {
-    display: flex;
-    transition: transform 0.5s ease-in-out;
-    gap: 20px;
-    padding: 20px 0;
-    will-change: transform;
-}
-
-.carousel-item {
-    flex: 0 0 calc(50% - 10px);
-    background: white;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease;
-    backface-visibility: hidden;
-    transform: translateZ(0);
-}
-
-@media (max-width: 1024px) {
-    .carousel-item { flex: 0 0 calc(50% - 10px); }
-}
-
-@media (max-width: 768px) {
-    .carousel-container { padding: 0 30px; }
-    .carousel-item { flex: 0 0 calc(100% - 20px); }
-    .carousel-control { width: 35px; height: 35px; }
-}
-
-.event-content { padding: 20px; }
-.event-content h3 { margin: 0 0 15px; font-size: 1.4em; color: #333; }
-.event-details { margin-bottom: 20px; }
-.event-details p { margin: 8px 0; font-size: 1em; color: #666; }
-
-/* From templates/host_event.html (carousel variant) */
-.carousel-item { flex: 0 0 280px; }
-.carousel-item:hover { transform: translateY(-5px); }
-.carousel-item-image { width: 100%; height: 280px; overflow: hidden; }
-.carousel-item-image img { width: 100%; height: 100%; object-fit: cover; }
-.carousel-item-content { padding: 15px; }
-.carousel-item-content h3 { margin: 0 0 8px; font-size: 1.1em; }
-.carousel-item-content p { margin: 0; font-size: 0.9em; color: #666; }
-
-/* From templates/event_checklist.html (checklist styles) */
-.checklist-container { display: grid; gap: 30px; margin-top: 20px; }
-.checklist-section { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-.checklist { list-style: none; padding: 0; margin: 0; }
-.checklist li { display: flex; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; }
-.checklist li:last-child { border-bottom: none; }
-.checklist input[type="checkbox"] { margin-right: 15px; width: 20px; height: 20px; cursor: pointer; }
-.checklist label { cursor: pointer; font-size: 1.1em; color: #333; }
-.save-progress-container { text-align: center; padding: 40px 0; }
-.button { display: inline-block; padding: 15px 30px; background-color: #4CAF50; color: white; text-decoration: none; border: none; border-radius: 5px; font-weight: bold; margin: 0 10px; cursor: pointer; transition: background-color 0.3s ease; }
-.button:hover { background-color: #45a049; }
-.button.secondary { background-color: #f44336; }
-.button.secondary:hover { background-color: #da190b; }
-.section-alt { margin-bottom: 60px; }
-.section-alt:last-of-type { margin-bottom: 0; }
-
-/* From templates/equipment_list.html (checklist/equipment styles) */
-.section-alt { margin-bottom: 60px; }
-.section-alt:last-of-type { margin-bottom: 0; }
-.rules-grid { gap: 30px; }
-.checklist-container { margin-top: 15px; }
-.checklist { list-style: none; padding: 0; margin: 0; }
-.checklist li { display: flex; align-items: center; padding: 8px 0; border-bottom: 1px solid #eee; }
-.checklist li:last-child { border-bottom: none; }
-.checklist input[type="checkbox"] { margin-right: 15px; width: 18px; height: 18px; cursor: pointer; }
-.checklist label { cursor: pointer; font-size: 1em; color: #333; }
-.link { color: #4CAF50; text-decoration: none; transition: color 0.3s ease; }
-.link:hover { color: #45a049; text-decoration: underline; }
-.checklist-section { margin-bottom: 20px; padding: 15px; background: #f9f9f9; }
-.checklist-section:last-child { margin-bottom: 0; }
-.checklist-section h4 { margin: 0 0 15px 0; color: #333; font-size: 1.1em; font-weight: 600; }
-
-/* End additional moved styles */
-.trick-name, .trick-siteswap-x {
-    font-family: inherit;
-    /* Use the same base text sizing/weight as regular trick names */
-    font-size: 1rem;
-    font-weight: 500;
-    color: var(--text-color);
-    margin: 0;
-    white-space: normal;
-    word-break: break-word;
-}
-.trick-name.linethrough, .trick-siteswap-x.linethrough {
-    text-decoration: line-through !important;
-    border-bottom: none !important;
-}
-/* Ensure trick-container is tall enough for siteswap-x with modifiers */
-.trick-container, .trick-main {
-    /* Much smaller vertical footprint to make trick rows compact */
-    min-height: 1.4em;
-    display: flex;
-    padding-top: 0.15em;
-    padding-bottom: 0.15em;
-    margin: 0; /* remove extra margins that add height */
-}
-
-/* Route display: let the trick-main row take full width so name and siteswap
-   have room before wrapping. The siteswap keeps a sensible max-width while the
-   name element can shrink or wrap as needed. */
-.route-page .trick-main {
-    display: inline-flex !important;
-    width: auto !important;
-    white-space: nowrap !important;
-    align-items: center !important;
-    gap: 0.3rem !important;
-}
-.route-page .trick-main .trick-name {
-    display: inline-block;
-    width: auto !important;
-    min-width: 0; /* allow items to shrink properly */
-    white-space: normal;
-    overflow: visible;
-    text-overflow: clip;
-}
-
-/* Extra strong override for created route pages */
-body .route-page .trick-main .trick-name,
-body .trick-content .trick-main .trick-name,
-body .route-content .trick-main .trick-name {
-    display: inline-block;
-    width: auto !important;
-}
-.route-page .trick-main .trick-siteswap-x {
-    display: inline-flex;
-    max-width: 45%; /* allow siteswap to take reasonable space */
-}
-.trick-siteswap-x {
-    /* Keep siteswap-x compact as well */
-    min-height: 1.2em;
-    display: inline-flex;
-    align-items: center;
-    padding-top: 0;
-    padding-bottom: 0;
-    /* base siteswap-x should match normal trick text; modifiers keep special styling */
-    font-family: inherit;
-    font-size: 1rem;
-    font-weight: 500;
-    color: var(--text-color);
-    margin-left: 0.4em; /* ensure separation from trick name/number */
-    vertical-align: middle;
-    max-width: 30%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    flex-shrink: 0;
-    white-space: pre !important;
-}
-/* Siteswap-X Modifiers Styling */
-.siteswap-x-digit-container {
-    display: inline-flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative;
-    margin: 0;
-    min-width: 0;
-    width: auto;
-    /* ensure layout but use base text styling */
-    font-size: 1rem;
-    font-family: inherit;
-    font-weight: 500;
-}
-.siteswap-x-throw-mod {
-    color: #d32f2f;
-    font-size: 0.75em; /* Larger on PC for better readability */
-    position: absolute;
-    top: -0.9em; /* pull closer to digit so container stays short */
-    left: 50%;
-    transform: translateX(-50%);
-    font-weight: 600; /* Semi-bold for better readability */
-    pointer-events: none;
-    white-space: nowrap;
-    font-family: 'Arial Narrow', 'Helvetica Condensed', sans-serif-condensed, sans-serif; /* Narrower font */
-    letter-spacing: -0.05em; /* Tighter letter spacing for compactness */
-}
-.siteswap-x-digit {
-    /* Base digit styling should match normal trick text */
-    font-size: 1rem;
-    font-weight: 500;
-    line-height: 1.1em;
-    white-space: pre;
-    font-family: inherit;
-    color: var(--text-color);
-}
-.siteswap-x-catch-mod {
-    color: #1976d2;
-    font-size: 0.75em; /* Larger on PC for better readability */
-    position: absolute;
-    bottom: -0.9em; /* pull closer to digit so container stays short */
-    left: 50%;
-    transform: translateX(-50%);
-    font-weight: 600; /* Semi-bold for better readability */
-    pointer-events: none;
-    white-space: nowrap;
-    font-family: 'Arial Narrow', 'Helvetica Condensed', sans-serif-condensed, sans-serif; /* Narrower font */
-    letter-spacing: -0.05em; /* Tighter letter spacing for compactness */
-}
-/* Unify tag filtering styles for build_route and generate_route */
-.tag-category-title-available,
-.tag-category-title {
-    margin: 0;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    flex-grow: 1;
-    color: var(--text-color);
-    font-size: 1rem;
-}
-
-.tag-checkbox-available,
-.tag-checkbox {
-    cursor: pointer;
-    font-size: 1.2rem;
-    font-family: inherit;
-    color: var(--text-color);
-}
-
-.category-checkbox-available,
-.category-checkbox {
-    margin-right: 8px;
-    cursor: pointer;
-}
-
-/* Strong overrides to ensure trick rows render as a single full-width line */
-.route-content .trick-main,
-.trick-content .trick-main,
-.trick-container .trick-main {
-    display: inline-flex !important;
-    width: auto !important;
-    white-space: nowrap !important;
-    /* allow visible overflow so throw/catch modifiers are not clipped */
-    overflow: visible !important;
-    line-height: 1.4em;
-    align-items: center !important;
-    gap: 0.3rem !important;
-}
-
-.trick-container .trick-number {
-    flex: 0 0 auto !important;
-    min-width: 2rem !important;
-    margin-right: 0.5rem !important;
-}
-
-.trick-container .trick-name {
-    /* keep name inline and don't let it grow */
-    display: inline-block;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    white-space: nowrap !important;
-}
-
-.trick-container .trick-siteswap-x {
-    /* layout digit containers horizontally next to the name */
-    display: inline-flex;
-    align-items: center;
-    gap: 0;
-    flex: 0 0 auto;
-    margin-left: 0.12rem;
-    overflow: visible;
-    position: relative;
-    /* ensure the siteswap digits don't wrap into multiple lines */
-    flex-wrap: nowrap;
-    white-space: pre;
-    max-width: none;
-}
-
-/* Siteswap-X digit container: ensure digits are compact but modifiers can be positioned above/below */
-.siteswap-x-digit-container {
-    /* each digit container stacks throw-mod, digit, catch-mod vertically */
-    display: inline-flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative;
-    /*min-width: 1.4em; even wider digit spacing for modifier clearance */
-    margin: 0; /* more margin for better modifier visibility */
-    overflow: visible !important;
-}
-
-/* ensure the last digit in a siteswap string doesn't add extra trailing gap */
-.siteswap-x-digit-container:last-child {
-    margin-right: 0;
-}
-
-.siteswap-x-throw-mod,
-.siteswap-x-catch-mod {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    pointer-events: none;
-    white-space: nowrap;
-    z-index: 5; /* sit above other elements */
-    font-size: 0.75em; /* Larger on PC for better readability */
-    font-weight: 600; /* Semi-bold for better readability */
-    font-family: 'Arial Narrow', 'Helvetica Condensed', sans-serif-condensed, sans-serif; /* Narrower font */
-    letter-spacing: -0.05em; /* Tighter letter spacing for compactness */
-}
-
-.siteswap-x-throw-mod {
-    top: -1.1em; /* move further above the digit for better visibility */
-}
-
-.siteswap-x-catch-mod {
-    bottom: -1.1em; /* move further below the digit for better visibility */
-}
-
-/* High-specificity overrides for route display: ensure trick names and
-   siteswap aren't clipped with ellipsis on the route display pages. These
-   override earlier global rules that intentionally use ellipsis elsewhere. */
-.route-page .route-content .trick-main,
-.route-page .trick-main,
-.route-page .trick-container .trick-main {
-    white-space: normal !important;
-}
-.route-page .route-content .trick-container .trick-name,
-.route-page .trick-main .trick-name,
-.route-page .trick-container .trick-name {
-    overflow: visible !important;
-    white-space: normal !important;
-    text-overflow: clip !important;
-}
-.route-page .route-content .trick-container .trick-siteswap-x,
-.route-page .trick-main .trick-siteswap-x,
-.route-page .trick-container .trick-siteswap-x {
-    overflow: visible !important;
-    text-overflow: clip !important;
-    max-width: none !important;
-}
-
-/* Final override placed at end of stylesheet to defeat earlier !important rules
-   that force ellipsis/nowrap. This targets only pages whose root contains
-   `.route-page` so other compact views remain unchanged. */
-.route-page .route-container .route-content .trick-main,
-.route-page .route-content .trick-main,
-.route-page .trick-container .trick-main,
-.route-page .trick-main {
-    white-space: normal !important;
-    overflow: visible !important;
-}
-.route-page .route-container .route-content .trick-name,
-.route-page .route-content .trick-name,
-.route-page .trick-container .trick-name,
-.route-page .trick-name {
-    white-space: normal !important;
-    overflow: visible !important;
-    text-overflow: clip !important;
-    max-width: none !important;
-    display: inline-block;
-    width: auto !important;
-    min-width: 0 !important;
-}
-.route-page .route-container .route-content .trick-siteswap-x,
-.route-page .route-content .trick-siteswap-x,
-.route-page .trick-container .trick-siteswap-x,
-.route-page .trick-siteswap-x {
-    white-space: pre-wrap !important;
-    overflow: visible !important;
-    text-overflow: clip !important;
-    max-width: none !important;
-    display: inline-flex;
-}
-
-    /* Force pixel-precise checkbox sizing to avoid scaling differences when
-        other inline elements (like siteswap) are hidden/shown. Targets both the
-        route display checkbox and general trick checkbox class. */
-    .trick-checkbox,
-    .siteswap-x-toggle-checkbox,
-    input.trick-checkbox[type="checkbox"] {
-         width: 16px !important;
-         height: 16px !important;
-         min-width: 16px !important;
-         min-height: 16px !important;
-         box-sizing: content-box !important;
-         vertical-align: middle !important;
-         margin-right: 8px !important;
-         transform: none !important;
-    }
-
-.tags-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
-    margin-bottom: 2rem;
-}
-
-.tag-category-available,
-.tag-category {
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    position: relative;
-    background-color: var(--section-bg);
-    width: 100%;
-}
-
-.tag-category-header-available,
-.tag-category-header {
-    padding: 10px;
-    background-color: var(--section-bg);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.tag-category-content-available,
-.tag-category-content {
-    padding: 10px;
-    background-color: var(--background-color);
-    max-height: 0;
-    overflow: hidden;
-    transition: all 0.3s ease-out;
-    position: absolute;
-    width: 100%;
-    z-index: 1;
-    box-shadow: 0 4px 8px var(--shadow-color);
-    border-radius: 0 0 4px 4px;
-    opacity: 0;
-    visibility: hidden;
-}
-
-@media (hover: hover) {
-    .tag-category-available:hover .tag-category-content-available,
-    .tag-category:hover .tag-category-content {
-        max-height: 1000px;
-        opacity: 1;
-        visibility: visible;
-    }
-}
-
-/* When JS adds the 'expanded' class, show the dropdown content like hover */
-.tag-category-content.expanded,
-.tag-category-content-available.expanded {
-    max-height: 1000px !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    z-index: 100 !important; /* Ensure it floats above other content */
-}
-
-.checkbox-container {
-    margin: 5px 0;
-    padding-left: 20px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-/* Center the siteswap-x toggle row */
-.center-row {
-    justify-content: center;
-}
-.trick-number-and-name {
-    display: flex;
-    align-items: center;
-    gap: 0.4em;
-}
-/* Utility class for hiding elements (replaces inline style="display:none;") */
-.hidden {
-    display: none !important;
-}
-/* Route Display: Siteswap-X Toggle Checkbox and Alignment (shared for build_route, etc.) */
-.siteswap-x-toggle-row {
-    display: flex;
-    align-items: center;
-    gap: 1em;
-    margin-top: 0.5em;
-}
-.siteswap-x-toggle-label {
-    display: flex;
-    align-items: center;
-    font-weight: normal;
-    gap: 0.4em;
-    font-size: 1em;
-}
-.siteswap-x-toggle-checkbox,
-.trick-checkbox {
-    width: 1.1em;
-    height: 1.1em;
-    vertical-align: middle;
-    accent-color: #0078d4;
-    margin-right: 0.3em;
-}
-/* Route Display: Siteswap-X Toggle Checkbox and Alignment */
-.siteswap-x-toggle-row {
-    display: flex;
-    align-items: center;
-    gap: 1em;
-    margin-top: 0.5em;
-}
-.siteswap-x-toggle-label {
-    display: flex;
-    align-items: center;
-    font-weight: normal;
-    gap: 0.4em;
-    font-size: 1em;
-}
-.siteswap-x-toggle-checkbox,
-.trick-checkbox {
-    width: 1.1em;
-    height: 1.1em;
-    vertical-align: middle;
-    accent-color: #0078d4;
-    margin-right: 0.3em;
-}
-
-/* CSS Variables */
+/* ============================================================
+   CSS Variables
+   ============================================================ */
 :root {
     --primary-color: #000000;
     --secondary-color: #08B10F;
@@ -646,7 +20,9 @@ body .route-content .trick-main .trick-name {
     --danger-color: #AE0101;
 }
 
-/* Base Styles */
+/* ============================================================
+   Base
+   ============================================================ */
 * {
     margin: 0;
     padding: 0;
@@ -663,52 +39,22 @@ body {
     z-index: 1;
 }
 
-/* Orientation alert (moved from templates/utils/base.html) */
-.orientation-alert {
-    display: none;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: #fff;
-    padding: 20px 25px;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-    z-index: 1000;
-    align-items: center;
-    gap: 15px;
-    animation: fadeIn 0.3s ease-out;
-    max-width: 90%;
+/* Utility class for hiding elements (replaces inline style="display:none;") */
+.hidden {
+    display: none !important;
+}
+
+.text-center {
     text-align: center;
 }
 
-.orientation-alert.show {
-    display: flex;
+.float-right {
+    float: right;
 }
 
-.orientation-alert .close-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 5px;
-    margin-left: 10px;
-    color: #666;
-    position: absolute;
-    top: 10px;
-    right: 10px;
-}
-
-.orientation-alert .rotate-icon {
-    animation: rotate 2s infinite linear;
-    color: #666;
-    font-size: 24px;
-}
-
-.orientation-alert span {
-    font-size: 16px;
-    color: #333;
-}
-
+/* ============================================================
+   Animations / Keyframes
+   ============================================================ */
 @keyframes rotate {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
@@ -725,148 +71,13 @@ body {
     }
 }
 
-/* Donation page styles (moved from templates/utils/base.html) */
-.text-center {
-    text-align: center;
+.fade-in {
+    animation: fadeIn 0.6s ease-out forwards;
 }
 
-.accounting-info {
-    margin-top: 2rem;
-    text-align: center;
-    padding: 1rem;
-    border-top: 1px solid #eee;
-}
-
-.accounting-info p {
-    margin: 0;
-    color: #666;
-}
-
-.accounting-info a {
-    color: #007bff;
-    text-decoration: none;
-}
-
-.accounting-info a:hover {
-    text-decoration: underline;
-}
-
-/* Trick Content Styles */
-.trick-content {
-    display: flex !important;
-    align-items: center !important;
-    width: 100%;
-    padding: 0.25rem 0;
-    white-space: nowrap !important;
-}
-
-.trick-main {
-    display: inline-flex !important;
-    align-items: center !important;
-    width: auto !important;
-    white-space: nowrap !important;
-    overflow: visible !important;
-    gap: 0.3rem !important;
-}
-
-.trick-number,
-.trick-name,
-.trick-comment {
-    margin: 0;
-}
-
-.trick-number {
-    font-size: 1rem;
-    font-weight: 500;
-    color: var(--text-color);
-    font-family: inherit;
-    min-width: 2rem;
-    display: inline-block;
-    margin-right: 0.5rem;
-    flex-shrink: 0;
-}
-
-.trick-name {
-    display: inline-block;
-    width: auto !important;
-    min-width: 0;
-    font-weight: 500;
-    color: var(--text-color);
-    font-size: 1rem;
-    font-family: inherit;
-    /* Don't force display - allow JavaScript to control visibility */
-    margin: 0;
-    /* keep name on one line and ellipsize if too long so comment stays adjacent */
-    overflow: visible !important;
-    text-overflow: clip !important;
-    white-space: nowrap !important;
-    flex-shrink: 0;
-}
-
-.trick-comment {
-    color: var(--light-text) !important;
-    font-style: italic !important;
-    font-size: 0.9rem !important;
-    display: inline-block !important;
-    margin: 0 0 0 0.3em !important;
-    padding: 0 !important;
-    white-space: nowrap !important;
-    vertical-align: middle !important;
-    width: auto !important;
-    position: static !important;
-    float: none !important;
-    border: none !important;
-    outline: none !important;
-    text-align: left !important;
-    max-width: none !important;
-    min-width: auto !important;
-    right: auto !important;
-    left: auto !important;
-    top: auto !important;
-    bottom: auto !important;
-    transform: none !important;
-    transition: none !important;
-    animation: none !important;
-    flex-shrink: 0;
-}
-
-/* ABSOLUTE LOCK-DOWN for trick-main containers */
-* .trick-main,
-html body * .trick-main,
-body * .trick-main,
-.trick-main {
-    display: inline-flex !important;
-    text-align: left !important;
-    width: auto !important;
-    max-width: none !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    position: static !important;
-    float: none !important;
-    /* Prevent any animations or transitions */
-    transition: none !important;
-    animation: none !important;
-    white-space: nowrap !important;
-    align-items: center !important;
-    gap: 0.3rem !important;
-}
-
-.remove-trick {
-    background-color: var(--danger-color);
-    color: white;
-    border: none;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: all 0.3s ease;
-    margin-left: 0.5rem;
-    flex-shrink: 0;
-    display: inline-block;
-    vertical-align: middle;
-}
-
-/* Header Styles */
+/* ============================================================
+   Header / Navigation
+   ============================================================ */
 .main-header {
     background-color: var(--background-color);
     box-shadow: 0 2px 4px var(--shadow-color);
@@ -874,7 +85,7 @@ body * .trick-main,
     width: 100%;
     top: 0;
     z-index: 1000;
-    height: 72px; /* Fixed height for desktop */
+    height: 72px;
 }
 
 .header-container {
@@ -897,7 +108,6 @@ body * .trick-main,
     width: auto;
 }
 
-/* Mobile Menu Button */
 .mobile-menu-btn {
     display: none;
     flex-direction: column;
@@ -911,7 +121,26 @@ body * .trick-main,
     z-index: 1001;
 }
 
-/* Main Navigation */
+.hamburger-line {
+    width: 100%;
+    height: 3px;
+    background-color: var(--text-color);
+    border-radius: 3px;
+    transition: all 0.3s ease;
+}
+
+.mobile-menu-btn.active .hamburger-line:nth-child(1) {
+    transform: translateY(9px) rotate(45deg);
+}
+
+.mobile-menu-btn.active .hamburger-line:nth-child(2) {
+    opacity: 0;
+}
+
+.mobile-menu-btn.active .hamburger-line:nth-child(3) {
+    transform: translateY(-9px) rotate(-45deg);
+}
+
 .main-nav {
     display: flex;
     align-items: center;
@@ -923,91 +152,7 @@ body * .trick-main,
 }
 
 .main-nav::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, Opera */
-}
-
-/* Force mobile menu button to show on smaller screens if it's not appearing */
-@media (max-width: 1024px) {
-    .mobile-menu-btn {
-        display: flex;
-    }
-    
-    .main-nav {
-        position: fixed;
-        top: 72px;
-        left: 0;
-        width: 100%;
-        height: calc(100vh - 72px);
-        background-color: white;
-        transform: translateX(100%);
-        transition: transform 0.3s ease-in-out;
-        overflow-y: auto;
-        padding: 1rem;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        display: block;
-        border: none;
-    }
-
-    .main-nav.active {
-        transform: translateX(0);
-    }
-
-    .nav-list {
-        flex-direction: column;
-        align-items: flex-start;
-        width: 100%;
-        gap: 0;
-    }
-
-    .nav-item {
-        width: 100%;
-        display: block;
-        border-bottom: 1px solid var(--border-color);
-    }
-
-    .nav-item a {
-        padding: 1rem 0;
-        width: 100%;
-        justify-content: space-between;
-    }
-
-    .dropdown-menu {
-        position: static;
-        box-shadow: none;
-        padding-left: 1rem;
-        display: none;
-        opacity: 1;
-        visibility: visible;
-        transform: none;
-        width: 100%;
-        background-color: var(--section-bg);
-        min-width: auto;
-    }
-
-    .dropdown.active .dropdown-menu {
-        display: block;
-    }
-}
-
-.hamburger-line {
-    width: 100%;
-    height: 3px;
-    background-color: var(--text-color);
-    border-radius: 3px;
-    transition: all 0.3s ease;
-}
-
-/* Mobile Menu Active State */
-.mobile-menu-btn.active .hamburger-line:nth-child(1) {
-    transform: translateY(9px) rotate(45deg);
-}
-
-.mobile-menu-btn.active .hamburger-line:nth-child(2) {
-    opacity: 0;
-}
-
-.mobile-menu-btn.active .hamburger-line:nth-child(3) {
-    transform: translateY(-9px) rotate(-45deg);
+    display: none;
 }
 
 .nav-list {
@@ -1045,19 +190,18 @@ body * .trick-main,
     margin-left: 0.25rem;
 }
 
-.dropdown:hover .nav-item a::after {
-    transform: rotate(180deg);
-}
-
 .nav-item a:hover,
 .nav-item a.active {
     color: var(--primary-color);
 }
 
-/* Dropdown Menu */
 .dropdown {
     position: relative;
     overflow: visible;
+}
+
+.dropdown:hover .nav-item a::after {
+    transform: rotate(180deg);
 }
 
 .dropdown-menu {
@@ -1108,7 +252,9 @@ body * .trick-main,
     color: var(--primary-color);
 }
 
-/* Main Content */
+/* ============================================================
+   Main Content / Section Layout
+   ============================================================ */
 .main-content {
     width: 100%;
     max-width: none;
@@ -1118,11 +264,10 @@ body * .trick-main,
     position: relative;
     z-index: 1;
     overflow: visible;
-    padding-top: 72px; /* Match header height */
-    min-height: calc(100vh - 72px); /* Ensure full viewport height minus header */
+    padding-top: 72px;
+    min-height: calc(100vh - 72px);
 }
 
-/* Section Styles */
 .section {
     padding: 4rem 2rem;
     width: 100%;
@@ -1133,20 +278,27 @@ body * .trick-main,
 
 .section-alt {
     background-color: var(--section-bg);
+    margin-bottom: 60px;
+}
+
+.section-alt:last-of-type {
+    margin-bottom: 0;
 }
 
 .section-container {
     width: 100%;
     max-width: none;
     margin: 0;
+    text-align: center;
+    margin-bottom: 3rem;
 }
 
 .section-title {
-    font-size: 3rem;
+    font-size: 2rem;
     font-weight: 700;
-    color: black;
+    color: #333;
     text-align: center;
-    margin-bottom: 3rem;
+    margin-bottom: 1rem;
     scroll-margin-top: 0;
 }
 
@@ -1158,7 +310,25 @@ body * .trick-main,
     scroll-margin-top: 0;
 }
 
-/* Form Section Styles */
+.section-description {
+    text-align: center;
+    color: #666;
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.centered-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+/* ============================================================
+   Form Section
+   ============================================================ */
 .form-section .section-title {
     font-size: 0.9rem;
     font-weight: 500;
@@ -1175,7 +345,39 @@ body * .trick-main,
     margin-bottom: 1rem;
 }
 
-/* Hero Section */
+.form-section {
+    margin-bottom: 2rem;
+}
+
+.form-label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--text-color);
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.form-hint {
+    color: #888;
+    font-style: italic;
+}
+
+/* ============================================================
+   Hero / CTA / About
+   ============================================================ */
 .hero-section {
     background-color: var(--primary-color);
     color: white;
@@ -1208,56 +410,27 @@ body * .trick-main,
     flex-wrap: wrap;
 }
 
-/* Button Styles */
-.primary-button,
-.secondary-button {
-    display: inline-block;
-    padding: 1rem 2rem;
-    border-radius: 4px;
-    font-weight: 600;
-    text-decoration: none;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    border: none;
-}
-
-.primary-button {
-    background-color: var(--accent-color);
+.cta-section {
+    text-align: center;
+    background-color: var(--primary-color);
     color: white;
+    padding: 4rem 1rem;
 }
 
-/* Edit, Print, and Live Event button styles */
-a.primary-button[href*="build_route"],
-button.print-button,
-a.primary-button.live-event-button {
-    background-color: transparent;
-    color: var(--accent-color);
-    padding: 0.75rem 1.5rem;
-    border: 2px solid var(--accent-color);
+.cta-text {
+    font-size: 1.25rem;
+    margin-bottom: 2rem;
+    opacity: 0.9;
+    line-height: 1.5;
 }
 
-a.primary-button[href*="build_route"]:hover,
-button.print-button:hover,
-a.primary-button.live-event-button:hover {
-    background-color: transparent;
-    color: var(--accent-color);
-    opacity: 0.8;
-    transform: translateY(-2px);
-    border-color: var(--accent-color);
+.cta-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
 }
 
-.secondary-button {
-    background-color: transparent;
-    color: white;
-    border: 2px solid white;
-}
-
-.primary-button:hover,
-.secondary-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px var(--shadow-color);
-}
-
-/* About Section */
 .about-content {
     max-width: 800px;
     margin: 0 auto;
@@ -1291,7 +464,80 @@ a.primary-button.live-event-button:hover {
     color: var(--primary-color);
 }
 
-/* Rules Section */
+/* ============================================================
+   Buttons
+   ============================================================ */
+.primary-button,
+.secondary-button {
+    display: inline-block;
+    padding: 1rem 2rem;
+    border-radius: 4px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border: none;
+}
+
+.primary-button {
+    background: var(--accent-color);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.primary-button:hover {
+    background: #d63a3a;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px var(--shadow-color);
+}
+
+.secondary-button {
+    background-color: transparent;
+    color: white;
+    border: 2px solid white;
+}
+
+.secondary-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px var(--shadow-color);
+}
+
+.primary-button.outline {
+    background: transparent;
+    border: 2px solid var(--accent-color);
+    color: var(--accent-color);
+}
+
+.primary-button.outline:hover {
+    background: var(--accent-color);
+    color: white;
+}
+
+/* Edit, Print, and Live Event button styles */
+a.primary-button[href*="build_route"],
+button.print-button,
+a.primary-button.live-event-button {
+    background-color: transparent;
+    color: var(--accent-color);
+    padding: 0.75rem 1.5rem;
+    border: 2px solid var(--accent-color);
+}
+
+a.primary-button[href*="build_route"]:hover,
+button.print-button:hover,
+a.primary-button.live-event-button:hover {
+    background-color: transparent;
+    color: var(--accent-color);
+    opacity: 0.8;
+    transform: translateY(-2px);
+    border-color: var(--accent-color);
+}
+
+/* ============================================================
+   Rules / Cards
+   ============================================================ */
 .rules-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -1317,46 +563,76 @@ a.primary-button.live-event-button:hover {
     line-height: 1.6;
 }
 
-.rule-card-button-container {
-    margin-top: 1.5rem;
-    text-align: center;
-}
-
-/* Events Section */
-.events-carousel {
+/* ============================================================
+   Events / Carousel (index)
+   ============================================================ */
+.carousel-container {
     position: relative;
-    max-width: 1000px;
+    width: 100%;
+    max-width: 1200px;
     margin: 0 auto;
     overflow: hidden;
-    padding: 0 1rem;
+    padding: 0 40px;
 }
 
-.carousel-inner {
+.carousel {
     display: flex;
+    transition: transform 0.5s ease-in-out;
+    gap: 20px;
+    padding: 20px 0;
+    will-change: transform;
+}
+
+.carousel-item {
+    flex: 0 0 calc(50% - 10px);
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease;
+    backface-visibility: hidden;
+    transform: translateZ(0);
 }
 
-.event-card {
-    flex: 0 0 100%;
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px var(--shadow-color);
-    padding: 1.5rem;
-    margin: 0 0.5rem;
+/* Carousel navigation arrows (prev/next buttons) */
+.carousel-prev,
+.carousel-next {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.25rem;
     display: flex;
-    flex-direction: column;
     align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    z-index: 10;
+    padding: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-.event-card.active {
-    display: block;
+.carousel-prev { left: 0; }
+.carousel-next { right: 0; }
+
+.carousel-prev:hover,
+.carousel-next:hover {
+    background-color: var(--accent-color);
+    transform: translateY(-50%) scale(1.05);
 }
 
-.event-card:not(.active) {
-    display: none;
+.carousel-prev i,
+.carousel-next i {
+    line-height: 1;
 }
 
 .event-content {
+    padding: 20px;
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -1366,7 +642,7 @@ a.primary-button.live-event-button:hover {
 
 .event-content h3 {
     color: var(--primary-color);
-    margin-bottom: 1rem;
+    margin: 0 0 15px;
     font-size: 1.5rem;
 }
 
@@ -1381,6 +657,7 @@ a.primary-button.live-event-button:hover {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    font-size: 1em;
 }
 
 .event-details i {
@@ -1418,16 +695,13 @@ a.primary-button.live-event-button:hover {
 }
 
 .event-winners-image {
-    width: auto;
-    height: 250px;
-    object-fit: contain;
-    border-radius: 8px;
+    max-width: 100%;
+    height: auto;
+    border-radius: 5px;
     margin-bottom: 1rem;
     display: block;
     margin-left: auto;
     margin-right: auto;
-    background-color: var(--section-bg);
-    padding: 0.5rem;
 }
 
 .event-image-container {
@@ -1435,59 +709,9 @@ a.primary-button.live-event-button:hover {
     text-align: center;
 }
 
-.carousel-prev,
-.carousel-next {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 1.25rem;
-    transition: background-color 0.3s ease;
-    z-index: 10;
-}
-
-.carousel-prev {
-    left: 0;
-}
-
-.carousel-next {
-    right: 0;
-}
-
-.carousel-prev:hover,
-.carousel-next:hover {
-    background-color: var(--accent-color);
-}
-
-/* CTA Section */
-.cta-section {
-    text-align: center;
-    background-color: var(--primary-color);
-    color: white;
-    padding: 4rem 1rem;
-}
-
-.cta-text {
-    font-size: 1.25rem;
-    margin-bottom: 2rem;
-    opacity: 0.9;
-    line-height: 1.5;
-}
-
-.cta-buttons {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    flex-wrap: wrap;
-}
-
-/* Footer */
+/* ============================================================
+   Footer
+   ============================================================ */
 .main-footer {
     background-color: var(--secondary-color);
     color: white;
@@ -1522,35 +746,530 @@ a.primary-button.live-event-button:hover {
     color: var(--accent-color);
 }
 
-/* Landscape Orientation Message */
-.orientation-message {
+/* ============================================================
+   Orientation alert (base.html)
+   ============================================================ */
+.orientation-alert {
     display: none;
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: var(--primary-color);
-    color: white;
-    z-index: 9999;
-    flex-direction: column;
-    justify-content: center;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #fff;
+    padding: 20px 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    z-index: 1000;
     align-items: center;
+    gap: 15px;
+    animation: fadeIn 0.3s ease-out;
+    max-width: 90%;
     text-align: center;
-    padding: 2rem;
 }
 
-.orientation-message i {
-    font-size: 3rem;
-    margin-bottom: 1rem;
+.orientation-alert.show {
+    display: flex;
 }
 
-.orientation-message p {
+.orientation-alert .close-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    margin-left: 10px;
+    color: #666;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+.orientation-alert .rotate-icon {
+    animation: rotate 2s infinite linear;
+    color: #666;
+    font-size: 24px;
+}
+
+.orientation-alert span {
+    font-size: 16px;
+    color: #333;
+}
+
+/* ============================================================
+   Trick Tooltip (generate_route)
+   ============================================================ */
+.trick-tooltip {
+    position: fixed;
+    background: rgba(3, 138, 128, 0.95);
+    color: #fff;
+    padding: 8px 10px;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    z-index: 2147483647;
+    pointer-events: none;
+    white-space: nowrap;
+    font-size: 13px;
+}
+
+/* ============================================================
+   Trick / Route content
+   ============================================================ */
+.trick-content {
+    display: flex !important;
+    align-items: center !important;
+    width: 100%;
+    padding: 0.25rem 0;
+    white-space: nowrap !important;
+}
+
+/* ABSOLUTE LOCK-DOWN for trick-main containers */
+* .trick-main,
+html body * .trick-main,
+body * .trick-main,
+.trick-main {
+    display: inline-flex !important;
+    text-align: left !important;
+    width: auto !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    position: static !important;
+    float: none !important;
+    transition: none !important;
+    animation: none !important;
+    white-space: nowrap !important;
+    align-items: center !important;
+    gap: 0.3rem !important;
+    box-sizing: border-box;
+}
+
+.trick-container,
+.trick-main {
+    min-height: 1.4em;
+    display: flex;
+    padding-top: 0.15em;
+    padding-bottom: 0.15em;
+    margin: 0;
+}
+
+.trick-number,
+.trick-name,
+.trick-comment {
+    margin: 0;
+    transition: text-decoration 0.3s ease;
+}
+
+.trick-number {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-color);
+    font-family: inherit;
+    min-width: 2rem;
+    display: inline-block;
+    margin-right: 0.5rem;
+    flex-shrink: 0;
+}
+
+.trick-name {
+    display: inline-block;
+    width: auto !important;
+    min-width: 0;
+    font-weight: 500;
+    color: var(--text-color);
+    font-size: 1rem;
+    font-family: inherit;
+    line-height: 1.1em;
+    letter-spacing: normal;
+    margin: 0;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: nowrap !important;
+    flex-shrink: 0;
+}
+
+.trick-name.linethrough,
+.trick-siteswap-x.linethrough {
+    text-decoration: line-through !important;
+    border-bottom: none !important;
+}
+
+.trick-comment {
+    color: var(--text-color);
+    text-align: left;
+    font-family: "Inter", sans-serif;
+    font-size: 12px;
+    line-height: 120%;
+    font-weight: 700;
+    position: relative;
+    display: inline-block !important;
+    vertical-align: middle !important;
+    white-space: nowrap !important;
+    opacity: 0.8;
+    margin: 0 0 0 0.3em !important;
+    padding: 0 !important;
+    width: auto !important;
+    float: none !important;
+    border: none !important;
+    outline: none !important;
+    max-width: none !important;
+    min-width: auto !important;
+    right: auto !important;
+    left: auto !important;
+    top: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+    transition: none !important;
+    animation: none !important;
+    flex-shrink: 0;
+    font-style: italic !important;
+    font-size: 0.9rem !important;
+    color: var(--light-text) !important;
+    text-align: left !important;
+    position: static !important;
+}
+
+.trick-siteswap-x {
+    /* Base typography MUST match .trick-name exactly; modifiers differ */
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 500;
+    line-height: 1.1em;
+    letter-spacing: normal;
+    color: var(--text-color);
+    margin: 0;
+    min-height: 1.2em;
+    display: inline-flex;
+    align-items: center;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-left: 0.4em;
+    vertical-align: middle;
+    max-width: 30%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-shrink: 0;
+    white-space: pre !important;
+}
+
+.remove-trick {
+    background-color: var(--danger-color);
+    color: white;
+    border: none;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    margin-left: 0.5rem;
+    flex-shrink: 0;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* Strong overrides to ensure trick rows render as a single full-width line */
+.route-content .trick-main,
+.trick-content .trick-main,
+.trick-container .trick-main {
+    display: inline-flex !important;
+    width: auto !important;
+    white-space: nowrap !important;
+    overflow: visible !important;
+    line-height: 1.4em;
+    align-items: center !important;
+    gap: 0.3rem !important;
+}
+
+.trick-container .trick-number {
+    flex: 0 0 auto !important;
+    min-width: 2rem !important;
+    margin-right: 0.5rem !important;
+}
+
+.trick-container .trick-name {
+    display: inline-block;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+.trick-container .trick-siteswap-x {
+    display: inline-flex;
+    align-items: center;
+    gap: 0;
+    flex: 0 0 auto;
+    margin-left: 0.12rem;
+    overflow: visible;
+    position: relative;
+    flex-wrap: nowrap;
+    white-space: pre;
+    max-width: none;
+}
+
+/* Route page overrides */
+.route-page .trick-main {
+    display: inline-flex !important;
+    width: auto !important;
+    white-space: nowrap !important;
+    align-items: center !important;
+    gap: 0.3rem !important;
+}
+
+.route-page .trick-main .trick-name,
+body .route-page .trick-main .trick-name,
+body .trick-content .trick-main .trick-name,
+body .route-content .trick-main .trick-name {
+    display: inline-block;
+    width: auto !important;
+    min-width: 0;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+}
+
+.route-page .trick-main .trick-siteswap-x {
+    display: inline-flex;
+    max-width: 45%;
+}
+
+/* Final route-page overrides */
+.route-page .route-container .route-content .trick-main,
+.route-page .route-content .trick-main,
+.route-page .trick-container .trick-main,
+.route-page .trick-main {
+    white-space: normal !important;
+    overflow: visible !important;
+}
+
+.route-page .route-container .route-content .trick-name,
+.route-page .route-content .trick-name,
+.route-page .trick-container .trick-name,
+.route-page .trick-name {
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    max-width: none !important;
+    display: inline-block;
+    width: auto !important;
+    min-width: 0 !important;
+}
+
+.route-page .route-container .route-content .trick-siteswap-x,
+.route-page .route-content .trick-siteswap-x,
+.route-page .trick-container .trick-siteswap-x,
+.route-page .trick-siteswap-x {
+    white-space: pre-wrap !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    max-width: none !important;
+    display: inline-flex;
+}
+
+/* ============================================================
+   Siteswap-X (digit modifiers)
+   ============================================================ */
+.siteswap-x-digit-container {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    margin: 0;
+    min-width: 0;
+    width: auto;
+    /* Match .trick-name base typography exactly */
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 500;
+    line-height: 1.1em;
+    letter-spacing: normal;
+    color: var(--text-color);
+    overflow: visible !important;
+}
+
+.siteswap-x-digit-container:last-child {
+    margin-right: 0;
+}
+
+.siteswap-x-digit {
+    /* Base digit must look identical to .trick-name; only modifiers differ */
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 500;
+    line-height: 1.1em;
+    letter-spacing: normal;
+    color: var(--text-color);
+    white-space: pre;
+}
+
+.siteswap-x-throw-mod,
+.siteswap-x-catch-mod {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 5;
+    font-size: 0.75em;
+    font-weight: 600;
+    font-family: 'Arial Narrow', 'Helvetica Condensed', sans-serif-condensed, sans-serif;
+    letter-spacing: -0.05em;
+}
+
+.siteswap-x-throw-mod {
+    color: #d32f2f;
+    top: -1.1em;
+}
+
+.siteswap-x-catch-mod {
+    color: #1976d2;
+    bottom: -1.1em;
+}
+
+/* Center the siteswap-x toggle row */
+.center-row {
+    justify-content: center;
+}
+
+.siteswap-x-toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 1em;
+    margin-top: 0.5em;
+}
+
+.siteswap-x-toggle-label {
+    display: flex;
+    align-items: center;
+    font-weight: normal;
+    gap: 0.4em;
+    font-size: 1em;
+}
+
+.siteswap-x-toggle-checkbox,
+.trick-checkbox {
+    width: 1.1em;
+    height: 1.1em;
+    vertical-align: middle;
+    accent-color: #0078d4;
+    margin-right: 0.3em;
+}
+
+/* Force pixel-precise checkbox sizing */
+.trick-checkbox,
+.siteswap-x-toggle-checkbox,
+input.trick-checkbox[type="checkbox"] {
+    width: 16px !important;
+    height: 16px !important;
+    min-width: 16px !important;
+    min-height: 16px !important;
+    box-sizing: content-box !important;
+    vertical-align: middle !important;
+    margin-right: 8px !important;
+    transform: none !important;
+}
+
+/* Trick Checkbox specific overrides */
+.trick-checkbox {
+    margin-right: 10px;
+    cursor: pointer;
+    accent-color: var(--success-color);
+    position: relative;
+    top: 2px;
+}
+
+/* ============================================================
+   Tag categories (build_route / generate_route)
+   ============================================================ */
+.tags-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.tag-category {
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    position: relative;
+    background-color: var(--section-bg);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.tag-category-header {
+    padding: 10px;
+    background-color: var(--section-bg);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.tag-category-title {
+    margin: 0;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    flex-grow: 1;
+    color: var(--text-color);
+    font-size: 1rem;
+}
+
+.tag-category-content {
+    padding: 10px;
+    background-color: var(--background-color);
+    max-height: 0;
+    overflow: hidden;
+    transition: all 0.3s ease-out;
+    position: absolute;
+    width: 100%;
+    z-index: 1;
+    box-shadow: 0 4px 8px var(--shadow-color);
+    border-radius: 0 0 4px 4px;
+    opacity: 0;
+    visibility: hidden;
+}
+
+@media (hover: hover) {
+    .tag-category:hover .tag-category-content {
+        max-height: 1000px;
+        opacity: 1;
+        visibility: visible;
+    }
+}
+
+/* When JS adds the 'expanded' class, show the dropdown content like hover */
+.tag-category-content.expanded {
+    max-height: 1000px !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    z-index: 100 !important;
+}
+
+.checkbox-container {
+    margin: 5px 0;
+    padding-left: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.category-checkbox {
+    margin-right: 8px;
+    cursor: pointer;
+}
+
+.tag-checkbox {
+    cursor: pointer;
     font-size: 1.2rem;
-    margin-bottom: 1rem;
+    font-family: inherit;
+    color: var(--text-color);
 }
 
-/* Print Styles */
+/* ============================================================
+   Print Styles
+   ============================================================ */
 @media print {
     body {
         background-color: white;
@@ -1576,11 +1295,7 @@ a.primary-button.live-event-button:hover {
         padding: 0;
     }
 
-    .trick-item {
-        page-break-inside: avoid;
-        break-inside: avoid;
-    }
-
+    .trick-item,
     .prop-section {
         page-break-inside: avoid;
         break-inside: avoid;
@@ -1623,52 +1338,20 @@ a.primary-button.live-event-button:hover {
     }
 
     /* Maintain colors in print */
-    .prop-color-bar[data-props="3"] {
-        background: #ff4733 !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
+    .prop-color-bar[data-props="3"] { background: #ff4733 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .prop-color-bar[data-props="4"] { background: #c0f564 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .prop-color-bar[data-props="5"] { background: #2601f6 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .prop-color-bar[data-props="6"] { background: #ff8c00 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .prop-color-bar[data-props="7"] { background: #f238a7 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .prop-color-bar[data-props="8"] { background: #00ced1 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .prop-color-bar[data-props="9"] { background: #8a2be2 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+    .trick-checkbox {
+        display: none;
     }
 
-    .prop-color-bar[data-props="4"] {
-        background: #c0f564 !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-    }
-
-    .prop-color-bar[data-props="5"] {
-        background: #2601f6 !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-    }
-
-    .prop-color-bar[data-props="6"] {
-        background: #ff8c00 !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-    }
-
-    .prop-color-bar[data-props="7"] {
-        background: #f238a7 !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-    }
-
-    .prop-color-bar[data-props="8"] {
-        background: #00ced1 !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-    }
-
-    .prop-color-bar[data-props="9"] {
-        background: #8a2be2 !important;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-    }
-
-    @media print {
-        .toast-notification {
-            display: none !important;
-        }
+    .toast-notification {
+        display: none !important;
     }
 
     @page {
@@ -1677,236 +1360,24 @@ a.primary-button.live-event-button:hover {
     }
 }
 
-/* Hide QR code by default */
+/* Hide QR code by default; only show in print preview */
 .qr-code {
     display: none;
 }
 
-/* Only show QR code in print preview */
 @media screen {
     .qr-code.print-only {
         display: none !important;
     }
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-    .main-header {
-        height: auto;
-        min-height: 60px;
-    }
-
-    .header-container {
-        padding: 0.5rem 1rem;
-        justify-content: space-between;
-    }
-
-    .mobile-menu-btn {
-        display: flex;
-    }
-
-    .main-nav {
-        position: fixed;
-        top: 60px;
-        left: 0;
-        width: 100%;
-        height: calc(100vh - 60px);
-        background-color: white;
-        transform: translateX(100%);
-        transition: transform 0.3s ease-in-out;
-        overflow-y: auto;
-        padding: 1rem;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        display: block;
-        border: none;
-    }
-
-    .main-nav.active {
-        transform: translateX(0);
-    }
-
-    .nav-list {
-        flex-direction: column;
-        align-items: flex-start;
-        width: 100%;
-        gap: 0;
-    }
-
-    .nav-item {
-        width: 100%;
-        display: block;
-        border-bottom: 1px solid var(--border-color);
-    }
-
-    .nav-item a {
-        padding: 1rem 0;
-        width: 100%;
-        justify-content: space-between;
-    }
-
-    .dropdown-menu {
-        position: static;
-        box-shadow: none;
-        padding-left: 1rem;
-        display: none;
-        opacity: 1;
-        visibility: visible;
-        transform: none;
-        width: 100%;
-        background-color: var(--section-bg);
-        min-width: auto;
-    }
-
-    .dropdown.active .dropdown-menu {
-        display: block;
-    }
-
-    .main-content {
-        padding-top: 80px; /* Adjusted for header height */
-    }
-
-    .route-form {
-        padding: 1rem;
-    }
-
-    .route-container {
-        padding: 0.5rem;
-    }
-
-    .route-sections {
-        padding: 0 5px;
-    }
-
-    .trick-content {
-        gap: 0.25rem;
-    }
-
-    .trick-number {
-        font-size: 0.8rem;
-        min-width: 1.25rem;
-    }
-
-    .trick-name {
-        font-size: 0.9rem;
-    }
-
-    .trick-comment {
-        font-size: 0.8rem;
-    }
-
-    .prop-count-text {
-        font-size: 1.8rem;
-    }
-
-    .route-title {
-        font-size: 1.5rem;
-    }
-
-    .form-section {
-        margin-bottom: 1.5rem;
-    }
-
-    .form-label {
-        font-size: 0.9rem;
-    }
-
-    .form-input {
-        font-size: 0.9rem;
-        padding: 0.5rem;
-    }
-
-    .prop-section {
-        margin-bottom: 0.25rem;
-    }
-
-    .prop-color-bar {
-        width: 80px;
-        min-height: 35px;
-    }
-
-    .prop-details-frame {
-        padding: 3px 8px;
-    }
-
-    .remove-trick {
-        padding: 0.15rem 0.4rem;
-        font-size: 0.9rem;
-    }
-
-    .add-trick {
-        padding: 0.4rem 0.8rem;
-        font-size: 0.8rem;
-    }
-
-    .route-actions {
-        gap: 0.5rem;
-    }
-
-    .primary-button {
-        padding: 0.75rem 1.5rem;
-        font-size: 0.9rem;
-    }
-
-    /* Hide Live Event button in responsive */
-    .live-event-button {
-        display: none !important;
-    }
-
-    @media (orientation: portrait) {
-        .orientation-message {
-            display: flex;
-        }
-    }
-}
-
-@media (max-width: 480px) {
-    .route-form {
-        padding: 0.75rem;
-    }
-
-    .trick-content {
-        gap: 0.2rem;
-    }
-
-    .trick-number {
-        font-size: 0.75rem;
-        min-width: 1.1rem;
-    }
-
-    .trick-name {
-        display: inline-block;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        font-weight: 500;
-        color: var(--text-color);
-        font-size: 1rem;
-        font-family: inherit;
-        margin: 0;
-        min-width: 2rem;
-        margin-right: 0.5rem;
-        opacity: 1;
-        transform: translateY(0);
-    }
-    
-    /* Smaller modifiers on mobile */
-    .siteswap-x-throw-mod,
-    .siteswap-x-catch-mod {
-        font-size: 0.6em;
-    }
-}
-
-.fade-in {
-    animation: fadeIn 0.6s ease-out forwards;
-}
-
-/* Route Page Styles */
+/* ============================================================
+   Route Page
+   ============================================================ */
 .route-page {
     width: 100%;
     max-width: 1200px;
     margin: 0;
-    margin-left: 0;
-    margin-right: 0;
     padding: 1rem;
     box-sizing: border-box;
     margin-top: 0;
@@ -1932,8 +1403,7 @@ a.primary-button.live-event-button:hover {
     margin: 0 auto;
 }
 
-.route-form,
-.contact-form {
+.route-form {
     background-color: white;
     padding: 2rem;
     border-radius: 8px;
@@ -1942,7 +1412,101 @@ a.primary-button.live-event-button:hover {
     width: 100%;
 }
 
-/* Force route display to stay left-aligned - targeted approach */
+.route-layout {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+    position: relative;
+    width: 100%;
+    max-width: 1200px;
+    z-index: 1;
+}
+
+.route-container {
+    width: 100%;
+    max-width: 1200px;
+    padding: 1rem;
+    box-sizing: border-box;
+    position: relative;
+    z-index: 1;
+    margin-top: 1rem;
+    background: white;
+    border-radius: 5px;
+}
+
+.route-content {
+    width: 100%;
+    max-width: 1200px;
+    box-sizing: border-box;
+    position: relative;
+    z-index: 1;
+    max-height: 500px;
+    padding: 0 0 0 1.5rem;
+}
+
+.route-sections {
+    width: 100%;
+    margin: 0;
+    padding: 0 10px;
+    box-sizing: border-box;
+}
+
+.route-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 2rem;
+    align-items: center;
+    position: relative;
+    z-index: 10;
+}
+
+.route-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1rem;
+    position: relative;
+    z-index: 10;
+}
+
+.route-buttons .primary-button {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    min-width: 120px;
+    text-align: center;
+}
+
+.route-buttons .secondary-button {
+    min-width: 150px;
+    text-align: center;
+}
+
+.route-buttons .print-button,
+.route-buttons .live-event-button {
+    width: auto !important;
+    min-width: 120px;
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    text-align: center;
+}
+
+/* Force route display to stay left-aligned */
+.route-page,
+html body .route-page,
+html body main .route-page,
+html body main .main-content .route-page,
+body .main-content .route-page {
+    margin: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    text-align: left !important;
+    padding-left: 1rem !important;
+    max-width: none !important;
+    width: 100% !important;
+}
+
 .route-page .route-form,
 .route-page .route-container,
 .route-page .route-content,
@@ -1953,53 +1517,228 @@ a.primary-button.live-event-button:hover {
     text-align: left !important;
 }
 
-/* Additional specificity for route sections to prevent centering */
 .route-page .route-sections {
     margin: 0 !important;
     text-align: left !important;
 }
 
-/* Highest specificity override to prevent any dynamic centering */
-body .route-page,
-html body .route-page,
-html body main .route-page {
+.route-sections,
+.route-container,
+.route-content,
+.route-form,
+.form-section,
+#route-sections {
     margin: 0 !important;
     margin-left: 0 !important;
     margin-right: 0 !important;
     text-align: left !important;
+    max-width: none !important;
+    width: 100% !important;
 }
 
-/* Prevent auto margins specifically on containers */
-.route-page .route-form {
-    margin-left: 0 !important;
-    margin-right: 0 !important;
+.main-content {
+    text-align: left !important;
+    display: block !important;
 }
 
-.form-section {
-    margin-bottom: 2rem;
+/* ============================================================
+   Tricks list / Available tricks
+   ============================================================ */
+.tricks-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 }
 
-.form-label {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-    color: var(--text-color);
-}
-
-.form-input {
-    width: 100%;
-    padding: 0.75rem;
-    border: 1px solid var(--border-color);
+.trick-item {
+    background: white;
+    padding: 0.5rem 1rem;
     border-radius: 4px;
-    font-size: 1rem;
-    transition: border-color 0.3s ease;
+    border: 1px solid var(--border-color);
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.5rem;
 }
 
-.form-input:focus {
-    outline: none;
-    border-color: var(--primary-color);
+.trick-item .trick-container {
+    flex: 0 0 auto;
+    max-width: fit-content;
 }
 
+.prop-details-frame.trick-item {
+    padding: 0.5rem 0.75rem;
+}
+
+.prop-details-frame.trick-item .trick-content {
+    display: block !important;
+    width: 100%;
+}
+
+.prop-details-frame.trick-item .add-trick {
+    margin-left: 0;
+}
+
+/* Make available-trick rows compact */
+.trick-item .trick-main,
+.prop-details-frame .trick-main {
+    display: inline-flex !important;
+    width: auto !important;
+    align-items: baseline !important;
+}
+
+.trick-item .trick-name,
+.prop-details-frame .trick-name {
+    display: inline-block;
+    width: auto !important;
+    max-width: 30ch;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ============================================================
+   Prop sections / color bars
+   ============================================================ */
+.prop-section {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: flex-start;
+    justify-content: flex-start;
+    align-self: stretch;
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    margin-bottom: 0.5rem;
+}
+
+.prop-section .trick-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1em;
+    width: 100%;
+}
+
+.prop-details-frame {
+    width: 100%;
+    display: block;
+}
+
+.prop-color-bar {
+    background: #ff4733;
+    border-radius: 15px;
+    align-self: stretch;
+    flex-shrink: 0;
+    width: 100px;
+    min-height: 40px;
+    position: relative;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.prop-color-bar * {
+    box-sizing: border-box;
+}
+
+.prop-color-bar::before {
+    content: '';
+    position: relative;
+    width: 30px;
+    height: 30px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 1;
+    margin-right: 0;
+}
+
+.prop-color-bar[data-prop-type="clubs"]::before,
+.prop-color-bar[data-prop-type="club_passing"]::before {
+    background-image: url('/static/images/juggling_club.svg');
+}
+
+.prop-color-bar[data-prop-type="balls"]::before {
+    background-image: url('/static/images/juggling_balls.png');
+}
+
+.prop-color-bar[data-prop-type="rings"]::before {
+    background-image: url('/static/images/juggling_rings.png');
+}
+
+.prop-count {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    height: 100%;
+}
+
+.prop-count-text {
+    color: #ffffff;
+    text-align: center;
+    font-family: "Inter-ExtraBold", sans-serif;
+    font-size: 2.5rem;
+    line-height: 1;
+    font-weight: 800;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+}
+
+/* Color variations for different prop counts */
+.prop-color-bar[data-props="3"]::before,
+.prop-color-bar[data-props="5"]::before,
+.prop-color-bar[data-props="7"]::before,
+.prop-color-bar[data-props="9"]::before,
+.prop-color-bar[data-props="11"]::before,
+.prop-color-bar[data-props="12"]::before,
+.prop-color-bar[data-props="13"]::before {
+    filter: brightness(0) invert(1);
+}
+
+.prop-color-bar[data-props="3"]  { background: #ff4733; }
+.prop-color-bar[data-props="4"]  { background: #c0f564; }
+.prop-color-bar[data-props="5"]  { background: #2601f6; }
+.prop-color-bar[data-props="6"]  { background: #ff8c00; }
+.prop-color-bar[data-props="7"]  { background: #f238a7; }
+.prop-color-bar[data-props="8"]  { background: #00ced1; }
+.prop-color-bar[data-props="9"]  { background: #8a2be2; }
+.prop-color-bar[data-props="10"] { background: #ffd700; }
+.prop-color-bar[data-props="11"] { background: #006400; }
+.prop-color-bar[data-props="12"] { background: #ff1493; }
+.prop-color-bar[data-props="13"] { background: #1e90ff; }
+
+.prop-color-bar[data-props="3"] .prop-count-text,
+.prop-color-bar[data-props="5"] .prop-count-text,
+.prop-color-bar[data-props="7"] .prop-count-text,
+.prop-color-bar[data-props="9"] .prop-count-text,
+.prop-color-bar[data-props="11"] .prop-count-text,
+.prop-color-bar[data-props="12"] .prop-count-text,
+.prop-color-bar[data-props="13"] .prop-count-text {
+    color: white;
+}
+
+.prop-color-bar[data-props="4"] .prop-count-text,
+.prop-color-bar[data-props="6"] .prop-count-text,
+.prop-color-bar[data-props="8"] .prop-count-text,
+.prop-color-bar[data-props="10"] .prop-count-text {
+    color: black;
+}
+
+/* ============================================================
+   Prop selection (form)
+   ============================================================ */
 .prop-group {
     display: flex;
     gap: 1rem;
@@ -2055,68 +1794,9 @@ html body main .route-page {
     background-position: center;
 }
 
-.selected-indicator {
-    position: absolute;
-    top: -8px;
-    right: -8px;
-    width: 24px;
-    height: 24px;
-    background-color: var(--primary-color);
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    opacity: 0;
-    transform: scale(0.8);
-    transition: all 0.3s ease;
-}
-
-.prop-option.selected .selected-indicator {
-    opacity: 1;
-    transform: scale(1);
-}
-
-/* Additional props dropdown */
-.prop-dropdown {
-    position: relative;
-    display: inline-block;
-}
-
-.prop-dropdown-label {
-    padding: 0.75rem 1rem;
-    border: 2px solid var(--border-color);
-    border-radius: 8px;
-    background: white;
-    cursor: pointer;
-    margin-left: 0.5rem;
-}
-
-.prop-dropdown-menu {
-    display: none;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    background: white;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 0.5rem;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    z-index: 1000;
-    min-width: 200px;
-}
-
-.prop-dropdown:hover .prop-dropdown-menu {
-    display: block;
-}
-
-.prop-dropdown .prop-option {
-    display: block;
-    margin: 0 0 0.25rem 0;
-}
-
-/* Slider styles */
+/* ============================================================
+   Sliders
+   ============================================================ */
 .slider-container {
     margin-top: 0.5rem;
     padding: 0 1rem;
@@ -2127,20 +1807,6 @@ html body main .route-page {
     height: 4px;
     background: #e0e0e0;
     border-radius: 2px;
-}
-
-.slider-values {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 0.5rem;
-    color: #666;
-    font-size: 0.9rem;
-}
-
-.slider-value {
-    font-weight: bold;
-    color: var(--primary-color);
 }
 
 /* noUiSlider Customization */
@@ -2183,292 +1849,14 @@ html body main .route-page {
     border-radius: 2px;
 }
 
-/* Route Layout */
-.route-layout {
-    display: flex;
-    gap: 2rem;
-    align-items: flex-start;
-    position: relative;
-    width: 100%;
-    max-width: 1200px;
-    z-index: 1;
-}
-
-.route-container {
-    width: 100%;
-    max-width: 1200px;
-    padding: 1rem;
+/* ============================================================
+   Past events
+   ============================================================ */
+.past-events-page {
+    max-width: 950px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
     box-sizing: border-box;
-    position: relative;
-    z-index: 1;
-}
-
-.route-content {
-    width: 100%;
-    max-width: 1200px;
-    box-sizing: border-box;
-    position: relative;
-    z-index: 1;
-}
-
-/* Available tricks styling */
-.trick-group {
-    margin-bottom: 1rem;
-    border: 1px solid #eee;
-    padding: 0.5rem;
-    border-radius: 4px;
-}
-.trick-group-header {
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-}
-.trick-group-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-}
-.trick-item {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    padding: 0.5rem 0.75rem;
-    background: #fff;
-    border: 1px solid #f0f0f0;
-    border-radius: 4px;
-    gap: 0.5rem;
-}
-.trick-item .trick-container {
-    flex: 0 0 auto;
-    max-width: fit-content;
-}
-.prop-details-frame.trick-item {
-    padding: 0.5rem 0.75rem;
-}
-.prop-details-frame.trick-item .trick-content {
-    display: block !important;
-    width: 100%;
-}
-.prop-details-frame.trick-item .add-trick {
-    margin-left: 0;
-}
-.trick-item-title { font-weight: 600; margin-bottom: 0.25rem; }
-.trick-item-meta { display: none; }
-.trick-item-actions { margin-left: 1rem; }
-.add-trick.small { padding: 6px 10px; font-size: 0.95rem; }
-
-.route-details {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-    margin-bottom: 2rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.detail-item {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.detail-label {
-    color: var(--light-text);
-    font-size: 0.9rem;
-}
-
-.detail-value {
-    font-weight: 600;
-    color: var(--text-color);
-}
-
-.tricks-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.trick-item {
-    background: white;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    border: 1px solid var(--border-color);
-    width: 100%;
-}
-
-/* Make available-trick rows compact: keep the main content inline so comments
-   stay adjacent to the name/siteswap-x instead of being pushed to the edge. */
-.trick-item .trick-main,
-.prop-details-frame .trick-main,
-.trick-details-frame .trick-main {
-    display: inline-flex !important;
-    width: auto !important;
-    align-items: baseline !important;
-}
-
-.trick-item .trick-name,
-.prop-details-frame .trick-name,
-.trick-details-frame .trick-name {
-    /* keep the name inline and only as wide as needed so the comment sits next to it */
-    display: inline-block;
-    width: auto !important;
-    max-width: 30ch;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.trick-details-container {
-    display: block;
-    position: relative;
-    padding: 5px 0;
-    width: 100%;
-}
-
-.trick-details-frame {
-    border-radius: 15px;
-    padding: 4px 12px;
-    display: inline-block;
-    min-width: 200px;
-    position: relative;
-    width: auto;
-    white-space: nowrap;
-}
-
-.trick-comment {
-    color: var(--text-color);
-    text-align: left;
-    font-family: "Inter", sans-serif;
-    font-size: 12px;
-    line-height: 120%;
-    font-weight: 700;
-    position: relative;
-    display: inline;
-    vertical-align: baseline;
-    white-space: normal;
-    opacity: 0.8;
-    margin-left: 0;
-    margin-right: 0;
-    float: none;
-}
-
-.trick-comment-container {
-    position: relative;
-    cursor: help;
-}
-
-.trick-comment-container:hover .trick-comment {
-    opacity: 1;
-    visibility: visible;
-}
-
-.trick-status {
-    display: flex;
-    align-items: center;
-}
-
-.trick-checkbox {
-    margin-right: 10px;
-    width: 18px;
-    height: 18px;
-    cursor: pointer;
-    accent-color: var(--success-color);
-    position: relative;
-    top: 2px;
-}
-
-.trick-checkbox-label {
-    width: 24px;
-    height: 24px;
-    border: 2px solid var(--border-color);
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.trick-checkbox:checked+.trick-checkbox-label {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
-}
-
-.trick-checkbox:checked+.trick-checkbox-label::after {
-    content: '✓';
-    color: white;
-    font-size: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-}
-
-.route-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    margin-top: 2rem;
-    align-items: center;
-    position: relative;
-    z-index: 10;
-}
-
-.route-buttons {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    margin-top: 1rem;
-    position: relative;
-    z-index: 10;
-}
-
-.route-buttons .primary-button {
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
-    min-width: 120px;
-    text-align: center;
-}
-
-.route-buttons .secondary-button {
-    min-width: 150px;
-    text-align: center;
-}
-
-.route-buttons .print-button,
-.route-buttons .live-event-button {
-    width: auto !important;
-    min-width: 120px;
-    display: inline-block;
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
-    text-align: center;
-}
-
-@media (max-width: 768px) {
-    .route-layout {
-        flex-direction: column;
-    }
-
-    .route-details {
-        grid-template-columns: 1fr;
-    }
-
-    .trick-item {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .trick-comment {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
-    }
-
-    .route-actions {
-        flex-direction: column;
-    }
-
-    .route-actions .primary-button,
-    .route-actions .secondary-button {
-        width: 100%;
-    }
 }
 
 .past-event-button-container {
@@ -2477,38 +1865,44 @@ html body main .route-page {
 }
 
 .past-event-button {
-    background-color: var(--accent-color);
+    background: var(--accent-color);
     color: white;
     border: none;
     padding: 1rem 2rem;
-    border-radius: 8px;
-    cursor: pointer;
+    border-radius: 5px;
     font-size: 1.1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
     font-weight: 600;
-    transition: all 0.3s ease;
     width: 100%;
     max-width: 600px;
     margin: 0 auto;
 }
 
 .past-event-button:hover {
-    background-color: var(--accent-color);
+    background: #d63a3a;
     transform: translateY(-2px);
     box-shadow: 0 4px 8px var(--shadow-color);
 }
 
 .past-event-container {
-    max-width: 1000px;
-    margin: 0 auto;
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    margin: 1rem auto;
+    max-width: 800px;
+    box-sizing: border-box;
 }
 
 .past-event-container ul {
     list-style: none;
     padding: 0;
+    margin: 0;
 }
 
 .past-event-container li {
-    margin-bottom: 0.5rem;
+    margin-bottom: 1rem;
     padding: 0.5rem;
     background-color: var(--section-bg);
     border-radius: 8px;
@@ -2534,737 +1928,13 @@ html body main .route-page {
     justify-content: center;
 }
 
-.route-button {
-    background-color: var(--accent-color);
-    color: white;
-    border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 1rem;
-    font-weight: 500;
-    transition: all 0.3s ease;
-}
-
-.route-button:hover {
-    background-color: var(--primary-color);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px var(--shadow-color);
-}
-
-.route-sections {
-    width: 100%;
-    margin: 0;
-    padding: 0 10px;
-    box-sizing: border-box;
-}
-
-.prop-section {
-    display: flex;
-    flex-direction: row;
-    gap: 10px;
-    align-items: flex-start;
-    justify-content: flex-start;
-    align-self: stretch;
-    flex-shrink: 0;
-    position: relative;
-    overflow: hidden;
-    width: 100%;
-    margin-bottom: 0.5rem;
-}
-.prop-section .trick-container {
-    display: flex;
-    flex-direction: column;
-    gap: 0.1em;
-    width: 100%;
-}
-.prop-details-frame {
-    width: 100%;
-    display: block;
-}
-
-.prop-color-bar {
-    background: #ff4733;
-    border-radius: 15px;
-    align-self: stretch;
-    flex-shrink: 0;
-    width: 100px;
-    min-height: 40px;
-    position: relative;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-}
-
-.prop-color-bar * {
-    box-sizing: border-box;
-}
-
-/* Prop icons for route display */
-.prop-color-bar::before {
-    content: '';
-    position: relative;
-    width: 30px;
-    height: 30px;
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-    opacity: 1;
-    margin-right: 0;
-}
-
-.prop-color-bar[data-prop-type="clubs"]::before {
-    background-image: url('/static/images/juggling_club.svg');
-}
-
-.prop-color-bar[data-prop-type="balls"]::before {
-    background-image: url('/static/images/juggling_balls.png');
-}
-
-.prop-color-bar[data-prop-type="rings"]::before {
-    background-image: url('/static/images/juggling_rings.png');
-}
-
-.prop-color-bar[data-prop-type="club_passing"]::before {
-    background-image: url('/static/images/juggling_club.svg');
-}
-
-/* Ensure white text for all prop counts */
-.prop-count-text {
-    color: #ffffff;
-    text-align: center;
-    font-family: "Inter-ExtraBold", sans-serif;
-    font-size: 26px;
-    line-height: 1;
-    font-weight: 800;
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    white-space: nowrap;
-}
-
-.prop-count {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    width: 100%;
-    height: 100%;
-}
-
-.prop-count-text {
-    font-size: 2.5rem;
-    font-weight: 800;
-    text-align: center;
-    line-height: 1;
-    white-space: nowrap;
-}
-
-/* Color variations for different prop counts */
-
-.prop-color-bar[data-props="3"]::before,
-.prop-color-bar[data-props="5"]::before,
-.prop-color-bar[data-props="7"]::before,
-.prop-color-bar[data-props="9"]::before,
-.prop-color-bar[data-props="11"]::before,
-.prop-color-bar[data-props="12"]::before,
-.prop-color-bar[data-props="13"]::before {
-    /* Invert icons for darker backgrounds so white icons remain visible */
-    filter: brightness(0) invert(1);
-}
-
-.prop-color-bar[data-props="3"] {
-    background: #ff4733;
-}
-
-.prop-color-bar[data-props="4"] {
-    background: #c0f564;
-}
-
-.prop-color-bar[data-props="5"] {
-    background: #2601f6;
-}
-
-.prop-color-bar[data-props="6"] {
-    background: #ff8c00;
-}
-
-.prop-color-bar[data-props="7"] {
-    background: #f238a7;
-}
-
-.prop-color-bar[data-props="8"] {
-    background: #00ced1;
-}
-
-.prop-color-bar[data-props="9"] {
-    background: #8a2be2;
-}
-
-.prop-color-bar[data-props="10"] {
-    background: #ffd700; /* gold */
-}
-
-.prop-color-bar[data-props="11"] {
-    background: #006400; /* dark green */
-}
-
-.prop-color-bar[data-props="12"] {
-    background: #ff1493; /* deep pink */
-}
-
-.prop-color-bar[data-props="13"] {
-    background: #1e90ff; /* dodger blue */
-}
-
-/* Ensure white text for 3,5,7,9 and black for 4,6,8 */
-.prop-color-bar[data-props="3"] .prop-count-text,
-.prop-color-bar[data-props="5"] .prop-count-text,
-.prop-color-bar[data-props="7"] .prop-count-text,
-.prop-color-bar[data-props="9"] .prop-count-text,
-.prop-color-bar[data-props="11"] .prop-count-text,
-.prop-color-bar[data-props="12"] .prop-count-text,
-.prop-color-bar[data-props="13"] .prop-count-text {
-    color: white;
-}
-
-.prop-color-bar[data-props="4"] .prop-count-text,
-.prop-color-bar[data-props="6"] .prop-count-text,
-.prop-color-bar[data-props="8"] .prop-count-text,
-.prop-color-bar[data-props="10"] .prop-count-text {
-    color: black;
-}
-
-/* Past Events Page */
-.centered-content {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2rem;
-}
-
-.section-description {
-    text-align: center;
-    color: var(--light-text);
-    margin-bottom: 2rem;
-    max-width: 800px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.past-event-container ul {
-    list-style: none;
-    padding: 0;
-}
-
-.past-event-container li {
-    margin-bottom: 0.5rem;
-    padding: 0.5rem;
-    background-color: var(--section-bg);
-    border-radius: 8px;
-}
-
-.past-event-container li button {
-    margin-left: 1rem;
-    display: inline-block;
-    vertical-align: middle;
-}
-
-.past-event-container strong {
-    color: var(--primary-color);
-    font-weight: 600;
-}
-
-.route-result-item {
-    margin-bottom: 20px;
-}
-
-.route-result-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 20px;
-}
-
-.route-result-info {
-    flex: 1;
-}
-
-.primary-button.outline {
-    background: transparent;
-    border: 2px solid var(--accent-color);
-    color: var(--accent-color);
-}
-
-.primary-button.outline:hover {
-    background: var(--accent-color);
-    color: white;
-}
-
-/* Tag Categories Styles */
-.tags-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
-    margin-bottom: 2rem;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-@media (max-width: 768px) {
-    .tags-grid {
-        grid-template-columns: 1fr; /* Stack vertically on mobile */
-        width: 100%;
-        box-sizing: border-box;
-    }
-}
-
-.tag-category {
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    position: relative;
-    background-color: var(--section-bg);
-    width: 100%;
-    box-sizing: border-box;
-}
-
-.tag-category-header {
-    padding: 10px;
-    background-color: var(--section-bg);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.tag-category-title {
-    margin: 0;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    flex-grow: 1;
-    color: var(--text-color);
-}
-
-.tag-category-content {
-    padding: 10px;
-    background-color: var(--background-color);
-    max-height: 0;
-    overflow: hidden;
-    transition: all 0.3s ease-out;
-    position: absolute;
-    width: 100%;
-    z-index: 1;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    border-radius: 0 0 4px 4px;
-    opacity: 0;
-    visibility: hidden;
-}
-
-.tag-category:hover .tag-category-content {
-    max-height: 1000px;
-    opacity: 1;
-    visibility: visible;
-}
-
-.checkbox-container {
-    margin: 5px 0;
-    padding-left: 20px;
-}
-
-.category-checkbox {
-    margin-right: 8px;
-    cursor: pointer;
-}
-
-.tag-checkbox {
-    cursor: pointer;
-    font-size: 1.2rem;
-}
-
-/* Build Route Page Specific Styles */
-.tag-category {
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    position: relative;
-}
-
-.tag-category-header {
-    padding: 10px;
-    background-color: #f5f5f5;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-}
-
-.tag-category-title {
-    margin: 0;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    flex-grow: 1;
-}
-
-.tag-category-content {
-    padding: 10px;
-    background-color: white;
-    max-height: 0;
-    overflow: hidden;
-    transition: all 0.3s ease-out;
-    position: absolute;
-    width: 100%;
-    z-index: 1;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    border-radius: 0 0 4px 4px;
-    opacity: 0;
-    visibility: hidden;
-}
-
-.tag-category:hover .tag-category-content {
-    max-height: 1000px;
-    opacity: 1;
-    visibility: visible;
-}
-
-.checkbox-container {
-    margin: 5px 0;
-    padding-left: 20px;
-}
-
-.category-checkbox {
-    margin-right: 8px;
-    cursor: pointer;
-}
-
-.tag-category-title {
-    cursor: pointer;
-}
-
-/* Responsive adjustments for tag categories */
-@media (max-width: 768px) {
-    /* Removed conflicting tags-grid definition to allow vertical stacking */
-    
-    .tag-category {
-        width: 100%;
-        box-sizing: border-box;
-        min-width: 0;
-        max-width: none;
-    }
-}
-
-/* Trick Tooltip Styles consolidated above (keep single definition near top of file) */
-
-/* Countdown Timer Styles */
-.countdown-timer {
-    position: fixed;
-    top: 90px;
-    right: 20px;
-    background-color: white;
-    color: var(--text-color);
-    padding: 0;
-    border-radius: 8px;
-    font-size: 1.2rem;
-    font-weight: 600;
-    box-shadow: 0 2px 4px var(--shadow-color);
-    cursor: move;
-    z-index: 2000;
-    user-select: none;
-    width: 300px;
-}
-
-.timer-header {
-    background-color: var(--danger-color);
-    color: white;
-    padding: 15px 20px;
-    border-radius: 8px 8px 0 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.header-controls {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.minimize-btn {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 1.5rem;
-    cursor: pointer;
-    padding: 0 5px;
-    line-height: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.minimize-btn:hover {
-    opacity: 0.8;
-}
-
-.timer-header .drag-handle {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 1.8rem;
-    cursor: move;
-    padding: 0;
-}
-
-.countdown-timer.minimized {
-    width: auto;
-    min-width: 150px;
-}
-
-.countdown-timer.minimized #countdown,
-.countdown-timer.minimized .timer-controls {
-    display: none;
-}
-
-#countdown {
-    padding: 20px;
-    text-align: center;
-    border-bottom: 1px solid var(--border-color);
-    font-size: 1.3rem;
-}
-
-#countdown #timer {
-    font-size: 5rem;
-    font-weight: 700;
-    color: var(--text-color);
-    display: block;
-    margin-top: 5px;
-}
-
-.timer-controls {
-    padding: 15px;
-    display: flex;
-    justify-content: space-around;
-    gap: 8px;
-}
-
-.timer-btn {
-    padding: 8px 15px;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    background-color: white;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: 1rem;
-}
-
-.timer-btn:hover {
-    background-color: var(--section-bg);
-}
-
-.timer-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.countdown-timer.running .timer-header {
-    background-color: var(--success-color);
-}
-
-.countdown-timer.paused .timer-header {
-    background-color: var(--warning-color);
-}
-
-.countdown-timer.finished .timer-header {
-    background-color: var(--danger-color);
-}
-
-/* Responsive adjustments for timer */
-@media (max-width: 768px) {
-    .countdown-timer {
-        top: 80px;
-        right: 10px;
-        width: 180px;
-    }
-
-    #countdown #timer {
-        font-size: 2.5rem;
-    }
-
-    .timer-header {
-        padding: 8px 12px;
-        font-size: 1rem;
-    }
-
-    #countdown {
-        padding: 10px;
-    }
-
-    .timer-controls {
-        padding: 10px;
-        gap: 5px;
-    }
-
-    .timer-btn {
-        padding: 5px 8px;
-        font-size: 0.85rem;
-    }
-    
-    .minimize-btn {
-        font-size: 1.2rem;
-    }
-}
-
-/* Trick Checkbox Styles */
-.trick-checkbox {
-    margin-right: 10px;
-    width: 18px;
-    height: 18px;
-    cursor: pointer;
-    accent-color: var(--success-color);
-    position: relative;
-    top: 2px;
-}
-
-.trick-content {
-    display: flex !important;
-    align-items: center !important;
-    width: 100%;
-    padding: 0.25rem 0;
-    white-space: nowrap !important;
-}
-
-.trick-number,
-.trick-name,
-.trick-comment {
-    transition: text-decoration 0.3s ease;
-}
-
-/* Print Styles */
-@media print {
-    .trick-checkbox {
-        display: none;
-    }
-}
-
-/* Add button styles */
-.add-trick {
-    background-color: var(--success-color);
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: all 0.3s ease;
-}
-
-.add-trick:hover {
-    background-color: #06a00c;
-    transform: translateY(-2px);
-    box-shadow: 0 2px 4px var(--shadow-color);
-}
-
-
-
-/* Toast Notification */
-.toast-notification {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%) translateY(100px);
-    background-color: var(--primary-color);
-    color: white;
-    padding: 12px 24px;
-    border-radius: 4px;
-    font-size: 14px;
-    font-weight: 500;
-    z-index: 9999;
-    opacity: 0;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 8px var(--shadow-color);
-}
-
-.toast-notification.show {
-    transform: translateX(-50%) translateY(0);
-    opacity: 1;
-}
-
-/* Past Events Page Layout */
-.past-events-page {
-    max-width: 950px;
-    margin: 0 auto;
-    padding: 2rem 1.5rem;
-    box-sizing: border-box;
-}
-.section-container {
-    text-align: center;
-    margin-bottom: 3rem;
-}
-.section-title {
-    font-size: 2rem;
-    color: #333;
-    margin-bottom: 1rem;
-}
-.section-description {
-    font-size: 1.1rem;
-    color: #666;
-    max-width: 700px;
-    margin: 0 auto;
-}
-.past-event-button-container {
-    text-align: center;
-    margin: 1rem 0;
-}
-.past-event-button {
-    background: var(--accent-color);
-    color: white;
-    border: none;
-    padding: 1rem 2rem;
-    border-radius: 5px;
-    font-size: 1.1rem;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-.past-event-button:hover {
-    background: #d63a3a;
-}
-.past-event-container {
-    background: white;
-    padding: 2rem;
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    margin: 1rem auto;
-    max-width: 800px;
-    box-sizing: border-box;
-}
-.past-event-container ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-.past-event-container li {
-    margin-bottom: 1rem;
-}
-.event-image-container {
-    margin: 1rem 0;
-    text-align: center;
-}
-.event-winners-image {
-    max-width: 100%;
-    height: auto;
-    border-radius: 5px;
-}
 .route-result-item {
     background: #f9f9f9;
     padding: 1rem;
     border-radius: 5px;
     margin-bottom: 1rem;
 }
+
 .route-result-header {
     display: flex;
     justify-content: space-between;
@@ -3272,70 +1942,15 @@ html body main .route-page {
     flex-wrap: wrap;
     gap: 1rem;
 }
+
 .route-result-info {
     flex: 1;
     min-width: 200px;
 }
-.route-container {
-    margin-top: 1rem;
-    padding: 1rem;
-    background: white;
-    border-radius: 5px;
-}
-.primary-button {
-    background: var(--accent-color);
-    color: white;
-    border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 5px;
-    cursor: pointer;
-    text-decoration: none;
-    display: inline-block;
-    transition: background-color 0.3s ease;
-}
-.primary-button:hover {
-    background: #d63a3a;
-}
-.primary-button.outline {
-    background: transparent;
-    border: 2px solid var(--accent-color);
-    color: var(--accent-color);
-}
-.primary-button.outline:hover {
-    background: var(--accent-color);
-    color: white;
-}
-@media (max-width: 900px) {
-    .past-events-page {
-        max-width: 100vw;
-        padding: 1rem 0.5rem;
-    }
-    .past-event-container {
-        max-width: 100vw;
-        padding: 1rem 0.5rem;
-    }
-}
-@media (max-width: 600px) {
-    .section-title {
-        font-size: 1.3rem;
-    }
-    .section-description {
-        font-size: 1rem;
-    }
-    .route-result-header {
-        flex-direction: column;
-        align-items: stretch;
-    }
-    .route-result-info {
-        margin-bottom: 1rem;
-    }
-    .primary-button {
-        width: 100%;
-        text-align: center;
-    }
-}
 
-/* Donation Page Styles */
+/* ============================================================
+   Donation page
+   ============================================================ */
 .donation-page {
     max-width: 800px;
     margin: 2rem auto;
@@ -3398,19 +2013,9 @@ html body main .route-page {
     margin-right: 0.5rem;
 }
 
-@media (max-width: 600px) {
-    .donation-options {
-        grid-template-columns: 1fr;
-    }
-    
-    .donation-option {
-        padding: 1.5rem;
-    }
-}
-
-
-
-/* Live Event Page Styles */
+/* ============================================================
+   Live event page
+   ============================================================ */
 .live-event-page {
     padding: 1rem;
     max-width: 1400px;
@@ -3506,7 +2111,6 @@ html body main .route-page {
 
 .live-event-layout {
     display: grid;
-    /* enforce exact 50/50 split */
     grid-template-columns: 50% 50%;
     gap: 0;
     min-height: 600px;
@@ -3704,12 +2308,6 @@ html body main .route-page {
     justify-content: center;
 }
 
-.competitor-buttons {
-    display: flex;
-    gap: 0.25rem;
-    align-items: center;
-}
-
 .competitor-display-name {
     font-weight: 600;
     color: var(--text-color);
@@ -3753,11 +2351,6 @@ html body main .route-page {
     font-size: 1.5rem;
 }
 
-.route-content {
-    max-height: 500px;
-    padding: 0 0 0 1.5rem;
-}
-
 /* Live Event Route Display Styling */
 .live-event-page .route-content .trick-content {
     border-bottom: 1px solid var(--border-color);
@@ -3767,10 +2360,9 @@ html body main .route-page {
     display: flex;
     align-items: center;
     position: relative;
-    flex-wrap: nowrap; /* Ensure single line */
+    flex-wrap: nowrap;
 }
 
-/* Grey out tricks with no competitors */
 .live-event-page .route-content .trick-content.no-competitors {
     opacity: 0.4;
 }
@@ -3787,7 +2379,7 @@ html body main .route-page {
     font-weight: 600;
     color: var(--light-text);
     font-size: 1.1rem;
-    flex-shrink: 0; /* Prevent shrinking */
+    flex-shrink: 0;
 }
 
 .live-event-page .route-content .trick-main {
@@ -3798,7 +2390,7 @@ html body main .route-page {
 }
 
 .live-event-page .route-content .trick-name {
-    white-space: normal !important; /* Allow wrapping if absolutely necessary, but prefer full text */
+    white-space: normal !important;
     overflow: visible !important;
     text-overflow: clip !important;
     max-width: none !important;
@@ -3818,189 +2410,173 @@ html body main .route-page {
     width: 100%;
 }
 
-/* Remove extra spacing from prop sections in live event */
-.live-event-page .route-content .prop-section {
-    margin: 0;
-    padding: 0;
-}
-
+.live-event-page .route-content .prop-section,
 .live-event-page .route-content .trick-container {
     margin: 0;
     padding: 0;
 }
 
-/* Responsive design for live event */
-@media (max-width: 1200px) {
-    .live-event-layout {
-        /* keep exact 50/50 even on narrower screens */
-        grid-template-columns: 50% 50%;
-        gap: 0;
-    }
-
-    /* Keep podium horizontal on narrower screens; allow horizontal scroll if needed */
-    .podium-container {
-        flex-direction: row;
-        align-items: flex-end;
-        gap: 1rem;
-        flex-wrap: nowrap;
-    }
-    
-
+/* ============================================================
+   Countdown Timer
+   ============================================================ */
+.countdown-timer {
+    position: fixed;
+    top: 90px;
+    right: 20px;
+    background-color: white;
+    color: var(--text-color);
+    padding: 0;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    box-shadow: 0 2px 4px var(--shadow-color);
+    cursor: move;
+    z-index: 2000;
+    user-select: none;
+    width: 300px;
 }
 
-@media (max-width: 768px) {
-    .live-event-page {
-        padding: 0.5rem;
-    }
-    
-    .podium-section {
-        padding: 1.5rem;
-        border-radius: 15px;
-        margin-top: 1rem;
-    }
-    
-    .podium-section h2 {
-        font-size: 2.5rem;
-    }
-    
-    .competitor-header {
-        flex-direction: column;
-        align-items: stretch;
-    }
-    
-    .add-competitor {
-        flex-direction: column;
-    }
-    
-    .add-competitor input {
-        min-width: auto;
-        width: 100%;
-    }
-    
-    .live-timer-section .countdown-timer {
-        transform: scale(1);
-    }
-    
-    .podium-place {
-        padding: 1.5rem;
-        min-width: 150px;
-    }
-    
-    .competitor-section {
-        border-radius: 10px 10px 0 0;
-        padding: 1rem 0 1rem 1rem;
-    }
-    
-    .route-section {
-        border-radius: 0 0 10px 10px;
-        padding: 1rem 1rem 1rem 0;
-    }
-    
-    .competitor-table-container {
-        padding-right: 1rem;
-        padding-left: 0;
-    }
-    
-    .route-content {
-        padding: 0 0 0 0.5rem;
-    }
-    
-    .competitor-row {
-        padding: 0.5rem 0 0.5rem 0.5rem;
-    }
-    
-    .competitor-row:has(.competitor-list:empty) {
-        padding: 0.25rem 0 0.25rem 0.5rem;
-    }
-
-    /* Improve route display on mobile */
-    .live-event-page .route-content .trick-content {
-        flex-wrap: nowrap;
-        height: auto;
-        min-height: auto;
-        padding: 0.5rem 0;
-        align-items: center;
-    }
-
-    .live-event-page .route-content .trick-main {
-        white-space: nowrap !important;
-        display: inline-flex !important;
-        flex-wrap: nowrap;
-        width: auto !important;
-        align-items: center !important;
-    }
-
-    .live-event-page .route-content .trick-name {
-        white-space: normal !important;
-        overflow: visible !important;
-        text-overflow: clip !important;
-        max-width: none;
-    }
-
-    /* Enable horizontal scrolling for route content on mobile */
-    .live-event-page .route-content {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        padding-bottom: 10px; /* Space for scrollbar */
-    }
-
-    .live-event-page .route-content .trick-content {
-        flex-wrap: nowrap; /* Prevent wrapping to force horizontal scroll */
-        width: max-content; /* Allow content to determine width */
-        min-width: 100%;
-    }
-
-    .live-event-page .route-content .trick-main {
-        display: inline-flex !important;
-        flex-wrap: nowrap;
-        width: auto !important;
-    }
-
-    /* Reduce width of prop count and trick index on mobile */
-    .prop-color-bar {
-        width: 40px;
-        min-height: 30px;
-    }
-
-    .prop-color-bar::before {
-        width: 20px;
-        height: 20px;
-    }
-
-    .prop-count-text {
-        font-size: 1.2rem;
-    }
-
-    .trick-number {
-        min-width: 1.5rem;
-        font-size: 0.9rem;
-        margin-right: 0.2rem;
-    }
-
-    .live-event-page .route-content .trick-number {
-        min-width: 1.5rem;
-        font-size: 0.9rem;
-    }
+.timer-header {
+    background-color: var(--danger-color);
+    color: white;
+    padding: 15px 20px;
+    border-radius: 8px 8px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-/* Restore prop count width in landscape mode on mobile */
-@media (max-width: 768px) and (orientation: landscape) {
-    .prop-color-bar {
-        width: 80px;
-        min-height: 35px;
-    }
-
-    .prop-color-bar::before {
-        width: 30px;
-        height: 30px;
-    }
-
-    .prop-count-text {
-        font-size: 1.8rem;
-    }
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
-/* Max Throw Optional Interface Styles */
+.minimize-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0 5px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.minimize-btn:hover {
+    opacity: 0.8;
+}
+
+.timer-header .drag-handle {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.8rem;
+    cursor: move;
+    padding: 0;
+}
+
+.countdown-timer.minimized {
+    width: auto;
+    min-width: 150px;
+}
+
+.countdown-timer.minimized #countdown,
+.countdown-timer.minimized .timer-controls {
+    display: none;
+}
+
+#countdown {
+    padding: 20px;
+    text-align: center;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 1.3rem;
+}
+
+#countdown #timer {
+    font-size: 5rem;
+    font-weight: 700;
+    color: var(--text-color);
+    display: block;
+    margin-top: 5px;
+}
+
+.timer-controls {
+    padding: 15px;
+    display: flex;
+    justify-content: space-around;
+    gap: 8px;
+}
+
+.timer-btn {
+    padding: 8px 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background-color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+}
+
+.timer-btn:hover {
+    background-color: var(--section-bg);
+}
+
+.timer-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ============================================================
+   Toast notification
+   ============================================================ */
+.toast-notification {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background-color: var(--primary-color);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    z-index: 9999;
+    opacity: 0;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px var(--shadow-color);
+}
+
+.toast-notification.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+}
+
+/* ============================================================
+   Add trick button
+   ============================================================ */
+.add-trick {
+    background-color: var(--success-color);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.add-trick:hover {
+    background-color: #06a00c;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 4px var(--shadow-color);
+}
+
+/* ============================================================
+   Max Throw Optional Interface
+   ============================================================ */
 .max-throw-container {
     display: flex;
     flex-direction: column;
@@ -4033,11 +2609,6 @@ html body main .route-page {
 }
 
 .max-throw-input-container.show {
-    display: block;
-}
-
-/* Ensure show state cannot be overridden by other rules; make it part of document flow and visible */
-.max-throw-input-container.show {
     display: block !important;
     position: relative !important;
     z-index: 5 !important;
@@ -4046,21 +2617,17 @@ html body main .route-page {
 }
 
 .max-throw-input-container.hide {
-    display: none;
-}
-
-/* Force hide state to take precedence if applied */
-.max-throw-input-container.hide {
     display: none !important;
     position: static !important;
     opacity: 0 !important;
     visibility: hidden !important;
 }
 
-/* Expand Database Page Styles */
+/* ============================================================
+   Expand Database / Contribution
+   ============================================================ */
 .download-section,
-.contribution-section,
-.csv-format-section {
+.contribution-section {
     background: white;
     padding: 1.5rem;
     border-radius: 8px;
@@ -4069,8 +2636,7 @@ html body main .route-page {
 }
 
 .download-section h3,
-.contribution-section h3,
-.csv-format-section h3 {
+.contribution-section h3 {
     color: var(--primary-color);
     margin-bottom: 1rem;
     font-size: 1.3rem;
@@ -4108,122 +2674,19 @@ html body main .route-page {
     line-height: 1.5;
 }
 
-.email-info,
-.github-info {
-    background: white;
-    padding: 1rem;
-    border-radius: 6px;
-    margin: 1rem 0;
-    border: 1px solid var(--border-color);
-}
-
-.email-link,
 .github-link {
     color: var(--secondary-color);
     text-decoration: none;
     font-weight: 500;
 }
 
-.email-link:hover,
 .github-link:hover {
     text-decoration: underline;
 }
 
-.email-instructions,
-.github-instructions {
-    font-weight: 600;
-    color: var(--text-color);
-    margin: 1rem 0 0.5rem 0;
-}
-
-.email-instructions-list,
-.github-instructions-list {
-    margin-left: 1.5rem;
-    color: var(--light-text);
-    line-height: 1.6;
-}
-
-.email-instructions-list li,
-.github-instructions-list li {
-    margin-bottom: 0.5rem;
-}
-
-.contribution-steps {
-    margin: 1rem 0;
-    padding-left: 1.5rem;
-    color: var(--light-text);
-    line-height: 1.6;
-}
-
-.contribution-steps li {
-    margin-bottom: 0.5rem;
-}
-
-.csv-columns {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-    margin: 1rem 0;
-}
-
-.csv-column {
-    background: var(--section-bg);
-    padding: 1rem;
-    border-radius: 6px;
-    border-left: 3px solid var(--secondary-color);
-}
-
-.csv-column strong {
-    color: var(--primary-color);
-    display: block;
-    margin-bottom: 0.25rem;
-}
-
-.csv-example {
-    background: var(--section-bg);
-    padding: 1.5rem;
-    border-radius: 8px;
-    margin-top: 1rem;
-}
-
-.csv-example h4 {
-    color: var(--primary-color);
-    margin-bottom: 1rem;
-    font-size: 1.1rem;
-}
-
-.csv-example pre {
-    background: white;
-    padding: 1rem;
-    border-radius: 6px;
-    overflow-x: auto;
-    font-family: 'Courier New', monospace;
-    font-size: 0.9rem;
-    line-height: 1.4;
-    border: 1px solid var(--border-color);
-}
-
-@media (max-width: 768px) {
-    .contribution-methods {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-    }
-    
-    .csv-columns {
-        grid-template-columns: 1fr;
-    }
-    
-    .contribution-method {
-        padding: 1rem;
-    }
-    
-    .csv-example pre {
-        font-size: 0.8rem;
-        padding: 0.75rem;
-    }
-}
-
-/* ===== Custom Trick Form Layout ===== */
+/* ============================================================
+   Custom Trick Form Layout
+   ============================================================ */
 .custom-trick-form .form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -4236,53 +2699,9 @@ html body main .route-page {
     flex-direction: column;
 }
 
-/* Responsive: stack vertically on mobile */
-@media (max-width: 768px) {
-    .custom-trick-form .form-row {
-        grid-template-columns: 1fr;
-        gap: 0.5rem;
-    }
-}
-
-/* ===== From templates/build_route.html - Force left alignment for route pages ===== */
-.route-page,
-html body .route-page,
-html body main .route-page,
-html body main .main-content .route-page,
-body .main-content .route-page {
-    margin: 0 !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-    text-align: left !important;
-    padding-left: 1rem !important;
-    max-width: none !important;
-    width: 100% !important;
-}
-
-.route-sections,
-.route-container,
-.route-content,
-.route-form,
-.form-section,
-#route-sections {
-    margin: 0 !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-    text-align: left !important;
-    max-width: none !important;
-    width: 100% !important;
-}
-
-/* Prevent any container from centering child content */
-.main-content {
-    text-align: left !important;
-    display: block !important;
-}
-
-
-
-
-/* Siteswap X Article Page Specific Styles */
+/* ============================================================
+   Siteswap-X Article Page
+   ============================================================ */
 .siteswap-x-article .section-container {
     max-width: 960px;
     margin: 0 auto;
@@ -4303,53 +2722,6 @@ body .main-content .route-page {
     text-align: center;
 }
 
-.siteswap-x-article .siteswap-x-digit-container {
-    font-size: 2rem !important; /* Double the base size */
-    margin: 1em 0.2em !important; /* Add vertical and horizontal margin */
-}
-
-.siteswap-x-article .siteswap-x-digit {
-    font-size: 1em !important; /* Inherit the 2rem size from the container */
-}
-
-.siteswap-x-article .siteswap-x-throw-mod {
-    top: -1.2em !important; /* Adjust position for larger font */
-}
-
-.siteswap-x-article .siteswap-x-catch-mod {
-    bottom: -1.2em !important; /* Adjust position for larger font */
-}
-
-/* Formatter Page Specific Styles */
-#formatted-output .siteswap-x-digit-container,
-#static-example-output .siteswap-x-digit-container {
-    font-size: inherit !important;
-    margin: 0.5em 0.1em !important;
-}
-
-#formatted-output .siteswap-x-digit,
-#static-example-output .siteswap-x-digit {
-    font-size: inherit !important;
-}
-
-#formatted-output .siteswap-x-throw-mod,
-#static-example-output .siteswap-x-throw-mod {
-    top: -0.8em !important;
-}
-
-#formatted-output .siteswap-x-catch-mod,
-#static-example-output .siteswap-x-catch-mod {
-    bottom: -0.8em !important;
-}
-
-/* Add vertical spacing to the list items */
-.siteswap-example-list li {
-    padding-top: 2em !important;
-    padding-bottom: 2em !important;
-}
-
-
-/* Siteswap X Article Page Styles */
 .siteswap-x-article .subsection {
     margin-bottom: 3rem;
 }
@@ -4423,52 +2795,50 @@ body .main-content .route-page {
     margin-left: 10px;
 }
 
-/* Form Hint Style */
-.form-hint {
-    color: #888;
-    font-style: italic;
+/* Formatter Page Specific Styles */
+#formatted-output .siteswap-x-digit-container,
+#static-example-output .siteswap-x-digit-container {
+    font-size: inherit !important;
+    margin: 0.5em 0.1em !important;
 }
 
-/* Admin Pages Styles */
+#formatted-output .siteswap-x-digit,
+#static-example-output .siteswap-x-digit {
+    font-size: inherit !important;
+}
 
-/* From templates/admin/suggestions.html */
-.suggestions-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-    font-size: 0.9em;
+#formatted-output .siteswap-x-throw-mod,
+#static-example-output .siteswap-x-throw-mod {
+    top: -0.8em !important;
 }
-.suggestions-table th, .suggestions-table td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
+
+#formatted-output .siteswap-x-catch-mod,
+#static-example-output .siteswap-x-catch-mod {
+    bottom: -0.8em !important;
 }
-.suggestions-table th {
-    background-color: #f2f2f2;
-}
-.suggestions-table tr:nth-child(even) {
-    background-color: #f9f9f9;
-}
+
+/* ============================================================
+   Admin pages (suggestions)
+   ============================================================ */
 .actions-bar {
     display: flex;
     gap: 10px;
     margin-top: 20px;
     align-items: center;
 }
+
 .delete-btn {
     background-color: #dc3545;
     color: white;
 }
+
 .delete-btn:hover {
     background-color: #c82333;
 }
 
-
-.float-right {
-    float: right;
-}
-
-/* Juggling Captcha Styles */
+/* ============================================================
+   Juggling Captcha
+   ============================================================ */
 .juggling-captcha {
     background: #f9f9f9;
     border: 1px solid #d3d3d3;
@@ -4568,3 +2938,489 @@ body .main-content .route-page {
     font-size: 13px;
 }
 
+/* ============================================================
+   Responsive
+   ============================================================ */
+@media (max-width: 1200px) {
+    .live-event-layout {
+        grid-template-columns: 50% 50%;
+        gap: 0;
+    }
+
+    .podium-container {
+        flex-direction: row;
+        align-items: flex-end;
+        gap: 1rem;
+        flex-wrap: nowrap;
+    }
+}
+
+@media (max-width: 1024px) {
+    .mobile-menu-btn {
+        display: flex;
+    }
+
+    .main-nav {
+        position: fixed;
+        top: 72px;
+        left: 0;
+        width: 100%;
+        height: calc(100vh - 72px);
+        background-color: white;
+        transform: translateX(100%);
+        transition: transform 0.3s ease-in-out;
+        overflow-y: auto;
+        padding: 1rem;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        display: block;
+        border: none;
+    }
+
+    .main-nav.active {
+        transform: translateX(0);
+    }
+
+    .nav-list {
+        flex-direction: column;
+        align-items: flex-start;
+        width: 100%;
+        gap: 0;
+    }
+
+    .nav-item {
+        width: 100%;
+        display: block;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .nav-item a {
+        padding: 1rem 0;
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .dropdown-menu {
+        position: static;
+        box-shadow: none;
+        padding-left: 1rem;
+        display: none;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        width: 100%;
+        background-color: var(--section-bg);
+        min-width: auto;
+    }
+
+    .dropdown.active .dropdown-menu {
+        display: block;
+    }
+}
+
+@media (max-width: 900px) {
+    .past-events-page {
+        max-width: 100vw;
+        padding: 1rem 0.5rem;
+    }
+    .past-event-container {
+        max-width: 100vw;
+        padding: 1rem 0.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .main-header {
+        height: auto;
+        min-height: 60px;
+    }
+
+    .header-container {
+        padding: 0.5rem 1rem;
+        justify-content: space-between;
+    }
+
+    .mobile-menu-btn {
+        display: flex;
+    }
+
+    .main-nav {
+        position: fixed;
+        top: 60px;
+        left: 0;
+        width: 100%;
+        height: calc(100vh - 60px);
+        background-color: white;
+        transform: translateX(100%);
+        transition: transform 0.3s ease-in-out;
+        overflow-y: auto;
+        padding: 1rem;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        display: block;
+        border: none;
+    }
+
+    .main-content {
+        padding-top: 80px;
+    }
+
+    .route-form {
+        padding: 1rem;
+    }
+
+    .route-container {
+        padding: 0.5rem;
+    }
+
+    .route-sections {
+        padding: 0 5px;
+    }
+
+    .trick-content {
+        gap: 0.25rem;
+    }
+
+    .trick-number {
+        font-size: 0.8rem;
+        min-width: 1.25rem;
+    }
+
+    .trick-name {
+        font-size: 0.9rem;
+    }
+
+    .trick-comment {
+        font-size: 0.8rem;
+    }
+
+    .prop-count-text {
+        font-size: 1.2rem;
+    }
+
+    .route-title {
+        font-size: 1.5rem;
+    }
+
+    .form-section {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        font-size: 0.9rem;
+    }
+
+    .form-input {
+        font-size: 0.9rem;
+        padding: 0.5rem;
+    }
+
+    .prop-section {
+        margin-bottom: 0.25rem;
+    }
+
+    .prop-color-bar {
+        width: 40px;
+        min-height: 30px;
+    }
+
+    .prop-color-bar::before {
+        width: 20px;
+        height: 20px;
+    }
+
+    .prop-details-frame {
+        padding: 3px 8px;
+    }
+
+    .remove-trick {
+        padding: 0.15rem 0.4rem;
+        font-size: 0.9rem;
+    }
+
+    .add-trick {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+    }
+
+    .route-actions {
+        gap: 0.5rem;
+        flex-direction: column;
+    }
+
+    .primary-button {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.9rem;
+    }
+
+    /* Hide Live Event button in responsive */
+    .live-event-button {
+        display: none !important;
+    }
+
+    /* Tag categories: stack vertically on mobile */
+    .tags-grid {
+        grid-template-columns: 1fr;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .tag-category {
+        width: 100%;
+        box-sizing: border-box;
+        min-width: 0;
+        max-width: none;
+    }
+
+    /* Route layout collapses */
+    .route-layout {
+        flex-direction: column;
+    }
+
+    .trick-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .trick-comment {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .route-actions .primary-button,
+    .route-actions .secondary-button {
+        width: 100%;
+    }
+
+    /* Custom trick form: stack vertically */
+    .custom-trick-form .form-row {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+
+    /* Contribution methods: stack vertically */
+    .contribution-methods {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .contribution-method {
+        padding: 1rem;
+    }
+
+    /* Countdown timer on mobile */
+    .countdown-timer {
+        top: 80px;
+        right: 10px;
+        width: 180px;
+    }
+
+    #countdown #timer {
+        font-size: 2.5rem;
+    }
+
+    .timer-header {
+        padding: 8px 12px;
+        font-size: 1rem;
+    }
+
+    #countdown {
+        padding: 10px;
+    }
+
+    .timer-controls {
+        padding: 10px;
+        gap: 5px;
+    }
+
+    .timer-btn {
+        padding: 5px 8px;
+        font-size: 0.85rem;
+    }
+
+    .minimize-btn {
+        font-size: 1.2rem;
+    }
+
+    /* Live event mobile */
+    .live-event-page {
+        padding: 0.5rem;
+    }
+
+    .podium-section {
+        padding: 1.5rem;
+        margin-top: 1rem;
+    }
+
+    .podium-section h2 {
+        font-size: 2.5rem;
+    }
+
+    .competitor-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .add-competitor {
+        flex-direction: column;
+    }
+
+    .add-competitor input {
+        min-width: auto;
+        width: 100%;
+    }
+
+    .live-timer-section .countdown-timer {
+        transform: scale(1);
+    }
+
+    .podium-place {
+        padding: 1.5rem;
+        min-width: 150px;
+    }
+
+    .competitor-section {
+        border-radius: 10px 10px 0 0;
+        padding: 1rem 0 1rem 1rem;
+    }
+
+    .route-section {
+        border-radius: 0 0 10px 10px;
+        padding: 1rem 1rem 1rem 0;
+    }
+
+    .competitor-table-container {
+        padding-right: 1rem;
+        padding-left: 0;
+    }
+
+    .route-content {
+        padding: 0 0 0 0.5rem;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 10px;
+    }
+
+    .competitor-row {
+        padding: 0.5rem 0 0.5rem 0.5rem;
+    }
+
+    .competitor-row:has(.competitor-list:empty) {
+        padding: 0.25rem 0 0.25rem 0.5rem;
+    }
+
+    .live-event-page .route-content .trick-content {
+        flex-wrap: nowrap;
+        height: auto;
+        min-height: auto;
+        padding: 0.5rem 0;
+        align-items: center;
+        width: max-content;
+        min-width: 100%;
+    }
+
+    .live-event-page .route-content .trick-main {
+        white-space: nowrap !important;
+        display: inline-flex !important;
+        flex-wrap: nowrap;
+        width: auto !important;
+        align-items: center !important;
+    }
+
+    .live-event-page .route-content .trick-name {
+        white-space: normal !important;
+        overflow: visible !important;
+        text-overflow: clip !important;
+        max-width: none;
+    }
+
+    .trick-number {
+        min-width: 1.5rem;
+        font-size: 0.9rem;
+        margin-right: 0.2rem;
+    }
+
+    .live-event-page .route-content .trick-number {
+        min-width: 1.5rem;
+        font-size: 0.9rem;
+    }
+}
+
+/* Restore prop count width in landscape mode on mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+    .prop-color-bar {
+        width: 80px;
+        min-height: 35px;
+    }
+
+    .prop-color-bar::before {
+        width: 30px;
+        height: 30px;
+    }
+
+    .prop-count-text {
+        font-size: 1.8rem;
+    }
+}
+
+@media (max-width: 600px) {
+    .section-title {
+        font-size: 1.3rem;
+    }
+    .section-description {
+        font-size: 1rem;
+    }
+    .route-result-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .route-result-info {
+        margin-bottom: 1rem;
+    }
+    .primary-button {
+        width: 100%;
+        text-align: center;
+    }
+    .donation-options {
+        grid-template-columns: 1fr;
+    }
+    .donation-option {
+        padding: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .route-form {
+        padding: 0.75rem;
+    }
+
+    .trick-content {
+        gap: 0.2rem;
+    }
+
+    .trick-number {
+        font-size: 0.75rem;
+        min-width: 1.1rem;
+    }
+
+    .trick-name {
+        display: inline-block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-weight: 500;
+        color: var(--text-color);
+        font-size: 1rem;
+        font-family: inherit;
+        margin: 0;
+        min-width: 2rem;
+        margin-right: 0.5rem;
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    /* Smaller modifiers on mobile */
+    .siteswap-x-throw-mod,
+    .siteswap-x-catch-mod {
+        font-size: 0.6em;
+    }
+}

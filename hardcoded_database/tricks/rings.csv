@@ -11,3 +11,4 @@ cascade,3,12,"async base pattern",,3
 "async fountain -> sync fountain -> async fountain",6,58,"sync base pattern|async base pattern",,6
 "40c cascade -> pulldown",7,70,"async base pattern|pulldown",,9
 "cascade -> half shower -> cascade",7,83,"async base pattern",,8
+"9c cascade -> pulldown",9,80,"async base pattern|pulldown",,9

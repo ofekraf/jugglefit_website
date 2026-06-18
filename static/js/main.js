@@ -55,30 +55,6 @@ function initMainJS() {
         });
     }
 
-    const heightSlider = document.getElementById('height-slider');
-    if (heightSlider && !heightSlider.noUiSlider) {  // Check if slider exists and not already initialized
-        const maxHeightInput = document.getElementById('max_height');
-        const maxHeightValue = document.getElementById('max-height-value');
-
-        noUiSlider.create(heightSlider, {
-            start: [3],
-            range: {
-                'min': 3,
-                'max': 15
-            },
-            step: 1,
-            behaviour: 'drag-tap'
-        });
-
-        heightSlider.noUiSlider.on('update', function(values) {
-            const value = Math.round(values[0]);
-            maxHeightInput.value = value;
-            if (maxHeightValue) {
-                maxHeightValue.textContent = value;
-            }
-        });
-    }
-
     // Mutually exclusive checkboxes for Include/Exclude tricks
     const includeCheckboxes = document.querySelectorAll('input[name="include_tricks"]');
     const excludeCheckboxes = document.querySelectorAll('input[name="exclude_tricks"]');
@@ -102,16 +78,6 @@ function initMainJS() {
     excludeCheckboxes.forEach(checkbox => {
         checkbox.addEventListener('change', () => updateCheckboxState(checkbox, includeCheckboxes));
     });
-
-    // Toggle Route Visibility
-    function toggle_route(container_id) {
-        const container = document.getElementById(container_id);
-        if (container.style.display === 'none' || container.style.display === '') {
-            container.style.display = 'block';
-        } else {
-            container.style.display = 'none';
-        }
-    }
 
     // Prop selection handling
     const propOptions = document.querySelectorAll('.prop-option');

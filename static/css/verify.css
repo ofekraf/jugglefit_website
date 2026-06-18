@@ -94,10 +94,6 @@
     color: #999;
 }
 
-.trick-box.unselected .trick-info {
-    color: #aaa;
-}
-
 /* Trick content */
 .trick-name {
     font-size: 1.3rem;
@@ -112,24 +108,6 @@
     white-space: normal;
     box-sizing: border-box;
     transition: font-size 0.2s ease;
-}
-
-.trick-info {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    font-size: 0.95rem;
-    color: #666;
-}
-
-.trick-props {
-    font-weight: 500;
-}
-
-.trick-siteswap {
-    font-family: 'Courier New', monospace;
-    color: #888;
-    font-size: 0.9rem;
 }
 
 /* Submit button */
@@ -158,15 +136,6 @@
     cursor: not-allowed;
     background-color: #ccc;
     transform: none;
-}
-
-/* Round indicator */
-.round-indicator {
-    text-align: center;
-    color: #888;
-    font-size: 0.9rem;
-    margin: 0;
-    font-weight: 500;
 }
 
 /* Mobile responsive - tablets */
