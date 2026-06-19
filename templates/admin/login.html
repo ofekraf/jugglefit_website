@@ -1,23 +1,58 @@
 {% extends "macros/base.html" %}
 {% block title %}Admin Login{% endblock %}
 
-{% block content %}
-<div class="route-page">
-    <div class="route-header">
-        <h1 class="route-title">Admin Login</h1>
-    </div>
+{% block head %}
+{{ super() }}
+<style>
+    .admin-mobile-block {
+        display: none;
+        text-align: center;
+        padding: 3rem 2rem;
+        color: var(--light-text);
+    }
+    .admin-mobile-block h2 {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        color: var(--text-color);
+    }
+    .admin-mobile-block p {
+        font-size: 1rem;
+        line-height: 1.6;
+    }
+    .admin-desktop-only {
+        display: block;
+    }
+    @media (max-width: 768px) {
+        .admin-mobile-block { display: block; }
+        .admin-desktop-only { display: none; }
+    }
+</style>
+{% endblock %}
 
-    <div class="route-form">
-        <div class="form-section">
-            <form method="POST" class="custom-trick-form">
-                <div class="form-row">
-                    <div class="form-group full-width">
-                        <label for="password">Password</label>
-                        <input type="password" id="password" name="password" class="form-input" required>
+{% block content %}
+<div class="admin-mobile-block">
+    <h2>Desktop Only</h2>
+    <p>The admin panel is only accessible from a desktop browser.</p>
+</div>
+
+<div class="admin-desktop-only">
+    <div class="route-page">
+        <div class="route-header">
+            <h1 class="route-title">Admin Login</h1>
+        </div>
+
+        <div class="route-form">
+            <div class="form-section">
+                <form method="POST" class="custom-trick-form">
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" name="password" class="form-input" required>
+                        </div>
                     </div>
-                </div>
-                <button type="submit" class="primary-button">Login</button>
-            </form>
+                    <button type="submit" class="primary-button">Login</button>
+                </form>
+            </div>
         </div>
     </div>
 </div>

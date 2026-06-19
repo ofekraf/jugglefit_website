@@ -114,10 +114,63 @@
 
 <script>
     // Initialize countdown timer
-    let finalTime = null;
+    let finalTime = null;       // wall-clock deadline (ms) while running
+    let timeLeftMs = null;      // remaining ms when paused — used to resume without jumping
     let timerInterval = null;
+    let blinkInterval = null;
     let isRunning = false;
+    let hasStarted = false;     // true once timer has been started at least once
     let originalDuration = 600; // Default, will be updated when route loads
+
+    // Declare DOM refs at top so all functions can reference them safely
+    const timerContainer = document.getElementById('timer-container');
+    const minimizeBtn = document.getElementById('minimizeBtn');
+
+    // Web Audio context — created on first user interaction to satisfy browser autoplay policy
+    let audioCtx = null;
+
+    function getAudioCtx() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        return audioCtx;
+    }
+
+    function playBeep(frequency, duration, volume) {
+        try {
+            const ctx = getAudioCtx();
+            const oscillator = ctx.createOscillator();
+            const gainNode = ctx.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(ctx.destination);
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(frequency, ctx.currentTime);
+            gainNode.gain.setValueAtTime(volume, ctx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+            oscillator.start(ctx.currentTime);
+            oscillator.stop(ctx.currentTime + duration);
+        } catch (e) {
+            // Audio not supported — silently ignore
+        }
+    }
+
+    function playFinishSound() {
+        // Three rising beeps — classic "times up" signal
+        playBeep(523, 0.2, 0.6); // C5
+        setTimeout(() => playBeep(659, 0.2, 0.6), 220); // E5
+        setTimeout(() => playBeep(784, 0.5, 0.8), 440); // G5
+    }
+
+    function timerFinished() {
+        timerContainer.classList.add('finished');
+        document.getElementById('countdown').textContent = "Time's up!";
+        document.getElementById('startBtn').disabled = true;
+        playFinishSound();
+    }
+
+    function stopBlink() {
+        timerContainer.classList.remove('finished');
+    }
 
     // Share Route functionality
     async function shareRoute() {
@@ -181,59 +234,77 @@
         }, 3000);
     }
 
+    function formatTime(ms) {
+        const totalSecs = Math.max(0, Math.floor(ms / 1000));
+        const minutes = Math.floor(totalSecs / 60);
+        const seconds = totalSecs % 60;
+        return minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
+    }
+
+    function updateStartBtn() {
+        const btn = document.getElementById('startBtn');
+        btn.textContent = hasStarted ? 'Continue' : 'Start';
+    }
+
     function updateTimer() {
         if (!finalTime) return;
-        
-        const now = new Date().getTime();
-        const timeLeft = Math.max(0, Math.floor((finalTime - now) / 1000));
-        
-        const minutes = Math.floor(timeLeft / 60);
-        const seconds = timeLeft % 60;
-        document.getElementById('timer').textContent = 
-            minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
-        
-        if (timeLeft <= 0) {
+
+        const remaining = finalTime - new Date().getTime();
+
+        if (remaining <= 0) {
             stopTimer();
-            document.getElementById('countdown').textContent = "Time's up!";
+            timerFinished();
+            return;
         }
+
+        document.getElementById('timer').textContent = formatTime(remaining);
     }
 
     function startTimer() {
-        if (!isRunning) {
-            isRunning = true;
-            // Only set finalTime if it's not already set (i.e., not resuming)
-            if (!finalTime) {
-                finalTime = new Date().getTime() + (originalDuration * 1000);
-            }
-            timerInterval = setInterval(updateTimer, 100); // Update more frequently for smoother display
-            document.getElementById('startBtn').disabled = true;
-            document.getElementById('stopBtn').disabled = false;
-            updateTimer(); // Update immediately
-        }
+        if (isRunning) return;
+        isRunning = true;
+        hasStarted = true;
+        stopBlink(); // Clear finished state if restarting after time's up
+
+        // Resume from where we paused; first start uses full duration
+        const resumeMs = (timeLeftMs !== null) ? timeLeftMs : (originalDuration * 1000);
+        finalTime = new Date().getTime() + resumeMs;
+        timeLeftMs = null; // clear — will be captured on next stop
+
+        timerInterval = setInterval(updateTimer, 100);
+        document.getElementById('startBtn').disabled = true;
+        document.getElementById('stopBtn').disabled = false;
+        updateTimer();
     }
 
     function stopTimer() {
-        if (isRunning) {
-            isRunning = false;
-            clearInterval(timerInterval);
-            // Don't reset finalTime when stopping, so we can resume from the same point
-            document.getElementById('startBtn').disabled = false;
-            document.getElementById('stopBtn').disabled = true;
-        }
+        if (!isRunning) return;
+        isRunning = false;
+        clearInterval(timerInterval);
+
+        // Capture exactly how much time is left so resume is seamless
+        timeLeftMs = Math.max(0, finalTime - new Date().getTime());
+        finalTime = null;
+
+        document.getElementById('startBtn').disabled = false;
+        document.getElementById('stopBtn').disabled = true;
+        updateStartBtn();
     }
 
     function resetTimer() {
         stopTimer();
-        finalTime = null; // Only reset finalTime when explicitly resetting
+        stopBlink();
+        finalTime = null;
+        timeLeftMs = null;
+        hasStarted = false;
         document.getElementById('countdown').innerHTML = 'Time remaining: <span id="timer"></span>';
-        const minutes = Math.floor(originalDuration / 60);
-        const seconds = originalDuration % 60;
-        document.getElementById('timer').textContent = 
-            minutes.toString().padStart(2, '0') + ':' + seconds.toString().padStart(2, '0');
+        document.getElementById('timer').textContent = formatTime(originalDuration * 1000);
+        updateStartBtn();
     }
 
     // Add event listeners for buttons
-    document.getElementById('startBtn').addEventListener('click', startTimer);
+    // Prime AudioContext on first user interaction (browser autoplay policy)
+    document.getElementById('startBtn').addEventListener('click', () => { getAudioCtx(); startTimer(); });
     document.getElementById('stopBtn').addEventListener('click', stopTimer);
     document.getElementById('resetBtn').addEventListener('click', resetTimer);
 
@@ -241,13 +312,22 @@
     resetTimer();
 
     // Minimize functionality
-    const minimizeBtn = document.getElementById('minimizeBtn');
-    const timerContainer = document.getElementById('timer-container');
-    
+    function setMinimized(minimized) {
+        if (minimized) {
+            timerContainer.classList.add('minimized');
+            minimizeBtn.textContent = '+';
+        } else {
+            timerContainer.classList.remove('minimized');
+            minimizeBtn.textContent = '−';
+        }
+    }
+
+    // Auto-minimize on mobile
+    setMinimized(window.innerWidth <= 768);
+
     minimizeBtn.addEventListener('click', function(e) {
         e.stopPropagation(); // Prevent drag start
-        timerContainer.classList.toggle('minimized');
-        minimizeBtn.textContent = timerContainer.classList.contains('minimized') ? '+' : '−';
+        setMinimized(!timerContainer.classList.contains('minimized'));
     });
 
     // Timer drag functionality
