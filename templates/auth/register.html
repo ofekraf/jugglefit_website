@@ -1,0 +1,51 @@
+{% extends "macros/base.html" %}
+{% block title %}Create account{% endblock %}
+
+{% block content %}
+<div class="route-page">
+    <div class="route-header">
+        <h1 class="route-title">Create account</h1>
+    </div>
+
+    <div class="route-form">
+        <div class="form-section">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% for category, msg in messages %}
+                    <p class="flash flash-{{ category }}">{{ msg }}</p>
+                {% endfor %}
+            {% endwith %}
+            <form method="POST" class="custom-trick-form">
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        <label for="display_name">Display name</label>
+                        <input type="text" id="display_name" name="display_name"
+                               class="form-input" value="{{ display_name }}"
+                               autocomplete="username" minlength="3" maxlength="24" required autofocus>
+                        <small>3–24 characters. Letters, numbers, spaces, underscores. Shown on leaderboards.</small>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password"
+                               class="form-input" autocomplete="new-password" minlength="6" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group full-width">
+                        <label for="password2">Repeat password</label>
+                        <input type="password" id="password2" name="password2"
+                               class="form-input" autocomplete="new-password" minlength="6" required>
+                    </div>
+                </div>
+                <button type="submit" class="primary-button">Create account</button>
+            </form>
+            <p style="margin-top:1rem;">
+                Already have an account?
+                <a href="{{ url_for('auth.login', next=request.args.get('next')) }}">Log in</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

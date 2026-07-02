@@ -1,0 +1,140 @@
+{% extends "macros/base.html" %}
+{% block title %}Games{% endblock %}
+
+{% block head %}
+<script>
+window.propsSettings = {{ props_settings|tojson|safe }};
+</script>
+<style>
+    .game-grid { display:grid; gap:1rem; margin-top:1rem;
+        grid-template-columns:repeat(2,1fr); grid-auto-rows:minmax(130px,auto); }
+    .game-card { border:none; border-radius:14px; padding:1.2rem; display:flex; flex-direction:column;
+        gap:.5rem; position:relative; cursor:pointer; color:#fff; overflow:hidden;
+        transition:transform .15s ease, box-shadow .15s ease; box-shadow:0 4px 14px rgba(0,0,0,.12); }
+    .game-card:hover { transform:translateY(-4px) scale(1.01); box-shadow:0 10px 28px rgba(0,0,0,.2); }
+    .game-card:active { transform:scale(.98); }
+    .game-card.unavailable { opacity:.5; cursor:default; }
+    .game-card.hero { grid-column:1/-1; min-height:200px; padding:1.6rem; }
+    .game-card.hero h3 { font-size:1.8rem; }
+    .game-card h3 { margin:0; font-size:1.25rem; display:flex; align-items:center; gap:.5rem; }
+    .game-card .emoji { font-size:1.6em; line-height:1; }
+    .game-card .blurb { font-size:.92rem; opacity:.92; }
+    .game-card .backlog { font-size:.85rem; opacity:.9; margin-top:auto; }
+    .game-card .ribbon { position:absolute; top:12px; right:12px; background:rgba(255,255,255,.25);
+        color:#fff; font-size:.7rem; font-weight:700; padding:3px 10px; border-radius:999px;
+        letter-spacing:.06em; backdrop-filter:blur(2px); }
+    .game-card .play-hint { font-size:.8rem; opacity:.85; }
+    .game-card .heat { position:absolute; left:0; bottom:0; height:5px; background:rgba(255,255,255,.6); }
+    .g-harder  { background:linear-gradient(135deg,#ff7a59,#ff3d6e); }
+    .g-tagging { background:linear-gradient(135deg,#5b8def,#7a5cff); }
+    .g-throw   { background:linear-gradient(135deg,#2dbd9b,#18a06f); }
+    .impact-strip { margin-top:1.5rem; padding:.8rem 1rem; border-top:1px solid #eee; font-size:.9rem; color:#555; }
+    .empty-banner { padding:1.2rem; border:1px dashed #ccc; border-radius:12px; text-align:center; }
+    @media (max-width:640px){ .game-grid{ grid-template-columns:1fr; } .game-card.hero{ min-height:170px; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="route-page">
+    <div class="route-header">
+        <h1 class="route-title">Games</h1>
+        <div class="route-description">
+            <p>Play to help calibrate the trick database. Cards are ordered by where help is needed most.</p>
+        </div>
+    </div>
+
+    <div class="route-form">
+        {% from 'macros/prop_selection_macro.html' import prop_selection_macro %}
+        {{ prop_selection_macro(props_settings, main_props, selected_prop) }}
+
+        <div class="form-section">
+            <div id="games_grid" class="game-grid">
+                <p>Loading…</p>
+            </div>
+            <div id="impact" class="impact-strip"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    const grid   = document.getElementById('games_grid');
+    const impact = document.getElementById('impact');
+    const gameUrls = {
+        harder:  "{{ url_for('games.harder') }}",
+        tagging: "{{ url_for('games.tagging') }}",
+        throw:   "{{ url_for('games.throw') }}"
+    };
+    const gameEmoji = { harder:'⚖️', tagging:'🏷️', throw:'⬆️' };
+
+    function selectedProp() {
+        const el = document.querySelector('.prop-option-input:checked');
+        return el ? el.value : 'balls';
+    }
+
+    function renderCards(data) {
+        if (!data.games.length) { grid.innerHTML = '<p>No games configured.</p>'; return; }
+        const maxScore = Math.max(1, ...data.games.map(g => g.score));
+        const totalBacklog = data.games.reduce((s,g)=>s+g.backlog,0);
+
+        grid.innerHTML = data.games.map((g, i) => {
+            const url = g.available ? `${gameUrls[g.game]}?prop=${encodeURIComponent(data.prop)}` : null;
+            const hero = i === 0 ? 'hero' : '';
+            const ribbon = (i === 0 && g.score > 0 && g.available)
+                ? '<span class="ribbon">MOST NEEDED</span>' : '';
+            const heat = Math.round((g.score / maxScore) * 100);
+            const backlogLine = g.backlog > 0
+                ? `<span class="backlog"><strong>${g.backlog}</strong> trick${g.backlog===1?'':'s'} waiting · tap to play</span>`
+                : `<span class="backlog">All caught up — play to sharpen your reliability</span>`;
+            const tag = g.available ? 'a' : 'div';
+            const href = g.available ? `href="${url}"` : '';
+            return `<${tag} ${href} class="game-card g-${g.game} ${hero} ${g.available?'':'unavailable'}">
+                ${ribbon}
+                <h3><span class="emoji">${gameEmoji[g.game]||''}</span>${g.title}</h3>
+                <span class="blurb">${g.blurb}</span>
+                ${backlogLine}
+                ${i===0 ? '<span class="play-hint">▶ Play now</span>' : ''}
+                <span class="heat" style="width:${heat}%"></span>
+            </${tag}>`;
+        }).join('');
+
+        if (totalBacklog === 0) {
+            grid.insertAdjacentHTML('afterbegin',
+                `<div class="empty-banner" style="grid-column:1/-1">
+                    We're all caught up for <strong>${data.prop}</strong> —
+                    <a href="{{ url_for('add_tricks') }}">add a trick</a> to give us something to rate!
+                    Games stay open so you can build reliability.
+                </div>`);
+        }
+    }
+
+    function loadNeeds() {
+        grid.innerHTML = '<p>Loading…</p>';
+        fetch(`/api/games/needs?prop=${encodeURIComponent(selectedProp())}`)
+            .then(r => r.json()).then(renderCards)
+            .catch(() => { grid.innerHTML = '<p>Failed to load.</p>'; });
+    }
+
+    function loadImpact() {
+        fetch('/api/games/me').then(r=>r.json()).then(d => {
+            if (!d.logged_in) {
+                impact.innerHTML = `<a href="{{ url_for('auth.login', next=request.path) }}">Log in</a>
+                    or <a href="{{ url_for('auth.register_view', next=request.path) }}">create an account</a>
+                    to play — it takes 10 seconds.`;
+                return;
+            }
+            const rel = Math.round(d.reliability*100);
+            impact.innerHTML = `Your impact: <strong>${d.n_harder + d.n_tagging + d.n_throw}</strong> answers
+                · reliability <strong>${rel}%</strong>
+                · <strong>${d.n_tricks_promoted}</strong> tricks promoted
+                · <a href="{{ url_for('leaderboard') }}">leaderboards</a>`;
+        });
+    }
+
+    document.querySelectorAll('input[name="prop"]').forEach(r =>
+        r.addEventListener('change', loadNeeds));
+    loadNeeds();
+    loadImpact();
+})();
+</script>
+{% endblock %}

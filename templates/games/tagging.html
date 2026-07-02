@@ -1,0 +1,59 @@
+{% extends "games/_game_base.html" %}
+{% block title %}Tagging{% endblock %}
+{% block game_title %}Tagging{% endblock %}
+{% block game_blurb %}<p>Tap every tag that describes the trick. Hit Submit, or "None" / "Don't know".</p>{% endblock %}
+
+{% block game_css %}
+    .tag-trick { text-align:center; margin-bottom:.6rem; }
+    .tag-trick .pc { font-size:.8rem; color:#888; }
+    .tag-trick .label { font-size:1.15rem; font-weight:600; word-break:break-word; }
+    .tag-cat { text-align:center; font-size:.8rem; color:#888; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.8rem; }
+    .tag-chips { display:flex; flex-wrap:wrap; gap:.5rem; justify-content:center; }
+    .tag-chip { border:1px solid #ccc; border-radius:999px; padding:.35rem .9rem; cursor:pointer; user-select:none; background:#fff; }
+    .tag-chip.on { background:var(--primary-color,#2a7); border-color:var(--primary-color,#2a7); color:#fff; }
+    .tag-buttons { display:flex; gap:.6rem; justify-content:center; margin-top:1.2rem; flex-wrap:wrap; }
+{% endblock %}
+
+{% block game_init %}
+<script>
+GameEngine.start({
+    game: 'tagging',
+    loggedIn: {{ 'true' if current_user else 'false' }},
+    renderCard: function (task, answer) {
+        const el = document.createElement('div');
+        el.innerHTML = `
+            <div class="tag-trick">
+                <div class="pc">${task.trick.props_count} prop${task.trick.props_count===1?'':'s'}</div>
+                <div class="label">${GameEngine.renderTrick(task.trick)}</div>
+            </div>
+            <div class="tag-cat">${GameEngine.esc(task.category)}</div>
+            <div class="tag-chips">
+                ${task.tags.map(t =>
+                    `<span class="tag-chip" data-tag="${GameEngine.esc(t)}">${GameEngine.esc(t)}</span>`
+                ).join('')}
+            </div>
+            <div class="tag-buttons">
+                <button class="primary-button" data-act="submit">Submit</button>
+                <button class="secondary-button" data-act="none">None of these</button>
+                <button class="secondary-button" data-act="skip">Don't know</button>
+            </div>`;
+        const selected = new Set();
+        el.querySelectorAll('.tag-chip').forEach(chip =>
+            chip.addEventListener('click', () => {
+                const t = chip.dataset.tag;
+                if (selected.has(t)) { selected.delete(t); chip.classList.remove('on'); }
+                else { selected.add(t); chip.classList.add('on'); }
+            }));
+        el.querySelectorAll('[data-act]').forEach(b =>
+            b.addEventListener('click', () => {
+                const act = b.dataset.act;
+                if (act === 'skip')   return answer({ dont_know: true });
+                if (act === 'none')   return answer({ selected_tags: [] });
+                return answer({ selected_tags: Array.from(selected) });
+            }));
+        return el;
+    },
+    keymap: { 'Enter': null }  // no global keymap; chips are click-only
+});
+</script>
+{% endblock %}

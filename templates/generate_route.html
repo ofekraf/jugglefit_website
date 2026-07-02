@@ -19,6 +19,7 @@
     {% from 'macros/relevant_tags_macro.html' import relevant_tags_macro %}
 
     <form method="POST" action="{{ url_for('generate_route') }}" class="route-form">
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
         {{ route_name_input() }}
         {{ prop_selection_macro(props_settings, main_props) }}
         {{ number_of_props_macro() }}

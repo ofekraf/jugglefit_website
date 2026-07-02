@@ -197,7 +197,8 @@ class TestContainerProductionReadiness:
             detach=True,
             ports={'5001/tcp': 5004},
             environment={
-                'FLASK_ENV': 'production'
+                'FLASK_ENV': 'production',
+                'SECRET_KEY': 'test-secret-key',
             }
         )
         
@@ -228,7 +229,8 @@ class TestContainerProductionReadiness:
         container = docker_client.containers.run(
             "jugglefit-shutdown-test:latest",
             detach=True,
-            ports={'5001/tcp': None}
+            ports={'5001/tcp': None},
+            environment={'SECRET_KEY': 'test-secret-key'},
         )
         
         try:
@@ -262,7 +264,8 @@ class TestContainerProductionReadiness:
             "jugglefit-resource-test:latest",
             detach=True,
             mem_limit='256m',  # 256MB RAM limit
-            ports={'5001/tcp': None}
+            ports={'5001/tcp': None},
+            environment={'SECRET_KEY': 'test-secret-key'},
         )
         
         try:

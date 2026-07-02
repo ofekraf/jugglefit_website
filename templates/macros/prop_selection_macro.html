@@ -1,28 +1,27 @@
 {% macro prop_selection_macro(props_settings, main_props, selected_prop=None) %}
+{% set extra_selected = selected_prop and selected_prop not in main_props %}
 <div class="form-section">
-    <label class="form-label">Select Prop</label>
+    <label class="form-label">Prop</label>
     <div class="prop-group">
-        {# Render main props according to server-provided main_props (single source of truth) #}
         {% for prop in props_settings.keys() %}
             {% if prop in main_props %}
                 <label class="prop-option" data-prop-type="{{ prop }}">
-                    <input type="radio" name="prop" class="prop-option-input" value="{{ prop }}" 
-                        {% if selected_prop and selected_prop == prop %}checked{% elif not selected_prop and loop.first %}checked{% endif %}> 
+                    <input type="radio" name="prop" class="prop-option-input" value="{{ prop }}"
+                        {% if selected_prop == prop %}checked{% elif not selected_prop and loop.first %}checked{% endif %}>
                     <span class="prop-option-name">{{ prop|replace('_',' ')|capitalize }}</span>
                     <div class="prop-icon"></div>
                 </label>
             {% endif %}
         {% endfor %}
 
-        {# Additional props dropdown (opens on hover) placed to the right of main props #}
-        <div class="prop-dropdown">
-            <div class="prop-dropdown-label">Additional Props ▾</div>
+        <div class="prop-dropdown{% if extra_selected %} open has-selection{% endif %}">
+            <button type="button" class="prop-dropdown-label">More ▾</button>
             <div class="prop-dropdown-menu">
                 {% for prop in props_settings.keys() %}
                     {% if prop not in main_props %}
                         <label class="prop-option" data-prop-type="{{ prop }}">
-                            <input type="radio" name="prop" class="prop-option-input" value="{{ prop }}" 
-                                {% if selected_prop and selected_prop == prop %}checked{% endif %}> 
+                            <input type="radio" name="prop" class="prop-option-input" value="{{ prop }}"
+                                {% if selected_prop == prop %}checked{% endif %}>
                             <span class="prop-option-name">{{ prop|replace('_',' ')|capitalize }}</span>
                             <div class="prop-icon"></div>
                         </label>
@@ -32,4 +31,34 @@
         </div>
     </div>
 </div>
+<script>
+(function(){
+    document.querySelectorAll('.prop-dropdown').forEach(function(dd){
+        var btn = dd.querySelector('.prop-dropdown-label');
+        if(!btn) return;
+        btn.addEventListener('click', function(e){
+            e.preventDefault(); e.stopPropagation();
+            dd.classList.toggle('open');
+        });
+        dd.querySelectorAll('.prop-option-input').forEach(function(inp){
+            inp.addEventListener('change', function(){
+                dd.classList.add('has-selection');
+                dd.classList.remove('open');
+            });
+        });
+    });
+    document.querySelectorAll('.prop-group > .prop-option .prop-option-input').forEach(function(inp){
+        inp.addEventListener('change', function(){
+            document.querySelectorAll('.prop-dropdown').forEach(function(dd){
+                dd.classList.remove('has-selection');
+            });
+        });
+    });
+    document.addEventListener('click', function(e){
+        document.querySelectorAll('.prop-dropdown.open').forEach(function(dd){
+            if(!dd.contains(e.target)) dd.classList.remove('open');
+        });
+    });
+})();
+</script>
 {% endmacro %}

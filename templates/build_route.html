@@ -391,35 +391,10 @@ if (window.initialRoute) {
         // Custom trick functionality
         const addCustomTrickBtn = document.getElementById('add_custom_trick');
         if (addCustomTrickBtn) {
-            addCustomTrickBtn.addEventListener('click', function() {
-                const name = document.getElementById('custom_trick_name').value.trim();
-                const siteswapX = document.getElementById('custom_trick_siteswap').value.trim();
-                const propsCount = parseInt(document.getElementById('custom_trick_props').value);
-                const comment = document.getElementById('custom_trick_comment').value.trim();
-
-
-                // Validation: must have at least name or siteswap-x
-                if (!name && !siteswapX) {
-                    if (typeof window.showToast === 'function') {
-                        window.showToast('Please enter either a trick name or siteswap-x notation', 'custom_trick_name');
-                    }
-                    return;
-                }
-
-                const customTrick = {
-                    name: name || null,  // Keep name as null if not provided, don't default to 'Custom Trick'
-                    siteswap_x: siteswapX || null,
-                    props_count: propsCount,
-                    difficulty: 30,
-                    tags: [],
-                    comment: comment || null
-                };
-
-
+            const doAdd = function (customTrick) {
                 if (typeof window.addTrickToRoute === 'function') {
                     window.addTrickToRoute(customTrick);
                 } else {
-                    // Fallback to direct addition
                     if (!window.currentRoute) {
                         window.currentRoute = { name: '', duration_seconds: 600, prop: '', tricks: [] };
                     }
@@ -428,11 +403,80 @@ if (window.initialRoute) {
                         window.updateRouteDisplay(window.currentRoute, { editable: true });
                     }
                 }
-
-                // Clear the input fields
+                // Clear inputs only on a *successful, non-duplicate* add.
                 document.getElementById('custom_trick_name').value = '';
                 document.getElementById('custom_trick_siteswap').value = '';
                 document.getElementById('custom_trick_comment').value = '';
+            };
+
+            addCustomTrickBtn.addEventListener('click', async function() {
+                const name = document.getElementById('custom_trick_name').value.trim();
+                const siteswapX = document.getElementById('custom_trick_siteswap').value.trim();
+                const propsCount = parseInt(document.getElementById('custom_trick_props').value);
+                const comment = document.getElementById('custom_trick_comment').value.trim();
+
+                if (!name && !siteswapX) {
+                    if (typeof window.showToast === 'function') {
+                        window.showToast('Please enter either a trick name or siteswap-x notation', 'custom_trick_name');
+                    }
+                    return;
+                }
+
+                const customTrick = {
+                    name: name || null,
+                    siteswap_x: siteswapX || null,
+                    props_count: propsCount,
+                    difficulty: 30,
+                    tags: [],
+                    comment: comment || null
+                };
+
+                // Dup-check against DB. If found, alert and KEEP the fields
+                // so the user can adjust. They can click again to add anyway.
+                const propEl = document.querySelector('.prop-option-input:checked');
+                const propType = propEl ? propEl.value : null;
+                if (propType && !addCustomTrickBtn.dataset.forceAdd) {
+                    try {
+                        const resp = await fetch('/api/trick_exists', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                prop_type: propType, props_count: propsCount,
+                                name: name || null, siteswap_x: siteswapX || null,
+                            }),
+                        });
+                        const d = await resp.json();
+                        if (d.exists) {
+                            const m = d.match || {};
+                            const where = d.where === 'master'
+                                ? 'already in the database'
+                                : 'already in the rating pool';
+                            const lbl = (m.name || m.siteswap_x || '') +
+                                        ' (' + m.props_count + ' props' +
+                                        (m.difficulty != null ? ', difficulty ' + m.difficulty : '') +
+                                        (m.suggested_by ? ', added by ' + m.suggested_by : '') + ')';
+                            const msg = 'This trick is ' + where + ': ' + lbl +
+                                        '. Click "Add" again to add it anyway.';
+                            if (typeof window.showToast === 'function') {
+                                window.showToast(msg, 'custom_trick_name');
+                            } else {
+                                alert(msg);
+                            }
+                            // Arm one-shot override; disarm on any field edit.
+                            addCustomTrickBtn.dataset.forceAdd = '1';
+                            ['custom_trick_name','custom_trick_siteswap','custom_trick_props']
+                                .forEach(id => document.getElementById(id)
+                                    .addEventListener('input',
+                                        () => delete addCustomTrickBtn.dataset.forceAdd,
+                                        { once: true }));
+                            return; // do NOT clear fields
+                        }
+                    } catch (e) {
+                        // network error: fall through and add locally
+                    }
+                }
+                delete addCustomTrickBtn.dataset.forceAdd;
+                doAdd(customTrick);
             });
         }
 

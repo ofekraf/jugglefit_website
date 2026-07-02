@@ -1,0 +1,60 @@
+{% extends "games/_game_base.html" %}
+{% block title %}Highest Throw{% endblock %}
+{% block game_title %}Highest Throw{% endblock %}
+{% block game_blurb %}<p>What's the highest throw (siteswap height) in this trick?</p>{% endblock %}
+
+{% block game_css %}
+    .throw-trick { text-align:center; margin-bottom:1rem; }
+    .throw-trick .pc { font-size:.8rem; color:#888; }
+    .throw-trick .label { font-size:1.15rem; font-weight:600; word-break:break-word; }
+    .stepper { display:flex; align-items:center; justify-content:center; gap:1rem; margin:.6rem 0 1.2rem; }
+    .stepper button { width:44px; height:44px; font-size:1.4rem; border-radius:8px; border:1px solid #ccc; background:#fff; cursor:pointer; }
+    .stepper .val { font-size:1.8rem; font-weight:700; min-width:2.2em; text-align:center; }
+    .throw-buttons { display:flex; gap:.6rem; justify-content:center; flex-wrap:wrap; }
+{% endblock %}
+
+{% block game_init %}
+<script>
+GameEngine.start({
+    game: 'throw',
+    loggedIn: {{ 'true' if current_user else 'false' }},
+    renderCard: function (task, answer) {
+        let v = Math.max(task.min, Math.min(task.max, task.default || task.min));
+        const el = document.createElement('div');
+        el.innerHTML = `
+            <div class="throw-trick">
+                <div class="pc">${task.trick.props_count} prop${task.trick.props_count===1?'':'s'}</div>
+                <div class="label">${GameEngine.renderTrick(task.trick)}</div>
+            </div>
+            <div class="stepper">
+                <button type="button" data-d="-1">−</button>
+                <span class="val" id="tv">${v}</span>
+                <button type="button" data-d="+1">+</button>
+            </div>
+            <div class="throw-buttons">
+                <button class="primary-button" data-act="submit">Submit</button>
+                <button class="secondary-button" data-act="na">N/A</button>
+                <button class="secondary-button" data-act="skip">Don't know</button>
+            </div>`;
+        const tv = el.querySelector('#tv');
+        el.querySelectorAll('[data-d]').forEach(b =>
+            b.addEventListener('click', () => {
+                v = Math.max(task.min, Math.min(task.max, v + parseInt(b.dataset.d, 10)));
+                tv.textContent = v;
+            }));
+        el.querySelectorAll('[data-act]').forEach(b =>
+            b.addEventListener('click', () => {
+                const a = b.dataset.act;
+                if (a === 'skip') return answer({ max_throw: 'skip' });
+                if (a === 'na')   return answer({ max_throw: null });
+                return answer({ max_throw: v });
+            }));
+        return el;
+    },
+    keymap: {
+        'ArrowUp':   null,
+        'ArrowDown': null
+    }
+});
+</script>
+{% endblock %}

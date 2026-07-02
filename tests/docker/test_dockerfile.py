@@ -130,7 +130,8 @@ class TestDockerBuild:
             detach=True,
             ports={'5001/tcp': None},
             environment={
-                'FLASK_ENV': 'production'
+                'FLASK_ENV': 'production',
+                'SECRET_KEY': 'test-secret-key',
             }
         )
         
@@ -164,7 +165,8 @@ class TestDockerBuild:
         container = docker_client.containers.run(
             "jugglefit-test:latest",
             detach=True,
-            ports={'5001/tcp': None}
+            ports={'5001/tcp': None},
+            environment={'SECRET_KEY': 'test-secret-key'},
         )
         
         try:

@@ -33,5 +33,12 @@ USER appuser
 # Expose Flask port
 EXPOSE 5001
 
-# Set entry point
-CMD ["python", "app.py"]
+# Container-level health check (also declared in docker-compose.prod.yml)
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:5001/health || exit 1
+
+# Production entrypoint. Dev override lives in docker-compose.yml.
+CMD ["gunicorn", "--bind", "0.0.0.0:5001", \
+     "--workers", "2", "--threads", "4", "--preload", \
+     "--timeout", "60", "--max-requests", "2000", "--max-requests-jitter", "200", \
+     "wsgi:app"]

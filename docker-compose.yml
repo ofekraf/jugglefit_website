@@ -1,4 +1,13 @@
 services:
+  # Init container to set up database directory permissions on the named
+  # volume (created root-owned by Docker). Mirrors docker-compose.prod.yml.
+  init-permissions:
+    image: busybox
+    command: sh -c "mkdir -p /data && chown -R 1001:1001 /data"
+    volumes:
+      - sqlite_data:/data
+    user: root
+
   web:
     build: .
     ports:
@@ -14,8 +23,13 @@ services:
     volumes:
       - .:/app
       - sqlite_data:/app/database_data
+    # Override the production gunicorn CMD from the Dockerfile: the dev
+    # server gives auto-reload + full tracebacks.
     command: python app.py
     restart: unless-stopped
+    depends_on:
+      init-permissions:
+        condition: service_completed_successfully
 
 volumes:
   sqlite_data:

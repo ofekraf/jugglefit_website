@@ -1,0 +1,134 @@
+{% extends "macros/base.html" %}
+{% block title %}Crowd Pipeline{% endblock %}
+
+{% block head %}
+<script>window.propsSettings = {{ props_settings|tojson|safe }};</script>
+<style>
+    .tabs { display:flex; gap:.4rem; margin:.6rem 0 1rem; flex-wrap:wrap; }
+    .tabs button { border:1px solid #ccc; background:#fff; padding:.4rem .9rem; border-radius:6px; cursor:pointer; }
+    .tabs button.on { background:var(--primary-color,#2a7); border-color:var(--primary-color,#2a7); color:#fff; }
+    table.crowd { width:100%; border-collapse:collapse; font-size:.9rem; }
+    table.crowd th, table.crowd td { padding:.45rem .5rem; border-bottom:1px solid #eee; text-align:left; vertical-align:top; }
+    .gates span { display:inline-block; padding:1px 6px; border-radius:4px; font-size:.75rem; margin-right:2px; }
+    .gates .ok { background:#e7f6ec; color:#1a6b3a; }
+    .gates .no { background:#fdecea; color:#8a2a22; }
+    .row-actions button { margin-right:.3rem; }
+    .toolbar { display:flex; gap:.6rem; margin-bottom:.8rem; flex-wrap:wrap; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="route-page">
+    <div class="route-header">
+        <h1 class="route-title">Crowd Pipeline</h1>
+        <a href="{{ url_for('admin_logout') }}" class="secondary-button float-right">Logout</a>
+    </div>
+
+    <div class="route-form">
+        {% from 'macros/prop_selection_macro.html' import prop_selection_macro %}
+        {{ prop_selection_macro(props_settings, main_props) }}
+
+        <div class="form-section">
+            <div class="toolbar">
+                <button id="backup_btn" class="secondary-button">Backup now</button>
+                {% if is_super_admin %}
+                <a class="secondary-button" href="{{ url_for('admin_users') }}">Manage users</a>
+                {% endif %}
+                <span id="status" style="color:#666;"></span>
+            </div>
+            <div class="tabs" id="tabs">
+                <button data-state="ready" class="on">Ready to promote</button>
+                <button data-state="pool">Pool</button>
+                <button data-state="pending_deletion">Pending deletion</button>
+                <button data-state="deleted">Deleted</button>
+            </div>
+            <div id="list"><p>Loading…</p></div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function(){
+    let state='ready';
+    const listEl=document.getElementById('list');
+    const statusEl=document.getElementById('status');
+    function prop(){const e=document.querySelector('.prop-option-input:checked');return e?e.value:'balls';}
+    function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+    function gateBadges(g){
+        if(!g) return '';
+        return '<span class="gates">'+Object.entries(g).map(([k,v])=>
+            `<span class="${v?'ok':'no'}" title="${k}">${k}</span>`).join('')+'</span>';
+    }
+    function render(rows){
+        if(!rows.length){listEl.innerHTML='<p>Nothing here.</p>';return;}
+        const isQueue = (state==='pending_deletion' || state==='deleted');
+        const head = isQueue
+            ? '<tr><th>ID</th><th>Trick</th><th>Reason</th><th>When</th><th>flags</th><th></th></tr>'
+            : '<tr><th>ID</th><th>Trick</th><th>μ±σ</th><th>cmp/?</th><th>tag/thr</th>'
+              + (state==='ready'?'<th>Resolved</th>':'<th>Gates</th>')+'<th></th></tr>';
+        listEl.innerHTML='<table class="crowd"><thead>'+head+'</thead><tbody>'+
+            rows.map(r=>{
+                const label = esc(r.name||r.siteswap_x||'')+` <small>(${r.props_count})</small>`;
+                if(state==='pending_deletion') return `<tr><td>${r.id}</td><td>${label}</td>
+                    <td>${esc(r.removed_reason)}</td><td>${esc(r.removed_at)}</td><td>${r.n_flags}</td>
+                    <td class="row-actions">
+                        <button data-act="restore" data-id="${r.id}">Restore</button>
+                        <button class="primary-button" data-act="delete" data-id="${r.id}">Delete permanently</button>
+                    </td></tr>`;
+                if(state==='deleted') return `<tr><td>${r.id}</td><td>${label}</td>
+                    <td>${esc(r.removed_reason)}</td><td>${esc(r.removed_at)}</td><td>${r.n_flags}</td>
+                    <td><em>permanent</em></td></tr>`;
+                const mu=`${r.mu.toFixed(1)}±${r.sigma.toFixed(1)}`;
+                const ct=`${r.n_comparisons}/${r.n_cant_judge}`;
+                const tv=`${r.n_tag_votes}/${r.n_throw_votes}`;
+                if(state==='ready'){
+                    const res=`d=${r.resolved_difficulty} · [${r.resolved_tags.map(esc).join(', ')}] · mt=${r.resolved_max_throw??'–'}`;
+                    return `<tr><td>${r.id}</td><td>${label}</td><td>${mu}</td><td>${ct}</td><td>${tv}</td>
+                        <td>${res}</td>
+                        <td class="row-actions">
+                            <button class="primary-button" data-act="promote" data-id="${r.id}">Promote</button>
+                            <button data-act="reject" data-id="${r.id}">Reject</button></td></tr>`;
+                }
+                return `<tr><td>${r.id}</td><td>${label}</td><td>${mu}</td><td>${ct}</td><td>${tv}</td>
+                    <td>${gateBadges(r.gates)}</td>
+                    <td class="row-actions"><button data-act="reject" data-id="${r.id}">Reject</button></td></tr>`;
+            }).join('')+'</tbody></table>';
+        listEl.querySelectorAll('[data-act]').forEach(b=>b.addEventListener('click',onAction));
+    }
+    function load(){
+        listEl.innerHTML='<p>Loading…</p>';
+        const url = state==='pool'
+            ? `/admin/api/candidates/${encodeURIComponent(prop())}?state=pool`
+            : `/admin/api/candidates/${encodeURIComponent(prop())}?state=${state}`;
+        fetch(url).then(r=>r.json()).then(rows=>{
+            if(state==='pool'){
+                // annotate gates client-side via per-row fetch is wasteful; show raw + fetch on demand
+                Promise.all(rows.map(r=>fetch(`/admin/api/candidate/${r.id}`).then(x=>x.json())))
+                    .then(render);
+            } else render(rows);
+        });
+    }
+    function onAction(e){
+        const id=e.target.dataset.id, act=e.target.dataset.act;
+        if(act==='promote' && !confirm('Promote candidate '+id+' to master?')) return;
+        if(act==='reject'  && !confirm('Queue candidate '+id+' for deletion?')) return;
+        if(act==='delete'  && !confirm('PERMANENTLY delete candidate '+id+'? This cannot be undone.')) return;
+        fetch(`/admin/api/${act}/${id}`,{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'})
+            .then(r=>r.json()).then(d=>{
+                statusEl.textContent = d.ok ? `${act} #${id} ok` : `Error: ${d.error}`;
+                load();
+            });
+    }
+    document.getElementById('backup_btn').addEventListener('click',()=>
+        fetch('/admin/api/backup',{method:'POST'}).then(r=>r.json())
+            .then(d=>statusEl.textContent=d.ok?`Backup → ${d.path}`:`Backup failed: ${d.error}`));
+    document.querySelectorAll('#tabs button').forEach(b=>
+        b.addEventListener('click',()=>{
+            document.querySelectorAll('#tabs button').forEach(x=>x.classList.remove('on'));
+            b.classList.add('on'); state=b.dataset.state; load();
+        }));
+    document.querySelectorAll('input[name="prop"]').forEach(r=>r.addEventListener('change',load));
+    load();
+})();
+</script>
+{% endblock %}

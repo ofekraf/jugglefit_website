@@ -166,7 +166,7 @@ class TestDockerComposeIntegration:
             result = subprocess.run(
                 ['docker-compose', 'build'],
                 capture_output=True,
-                text=True,
+                text=True, encoding='utf-8', errors='replace',
                 timeout=300
             )
             assert result.returncode == 0, f"docker-compose build failed: {result.stderr}"
@@ -175,7 +175,7 @@ class TestDockerComposeIntegration:
             result = subprocess.run(
                 ['docker-compose', 'up', '-d'],
                 capture_output=True,
-                text=True,
+                text=True, encoding='utf-8', errors='replace',
                 timeout=60
             )
             assert result.returncode == 0, f"docker-compose up failed: {result.stderr}"
@@ -184,7 +184,7 @@ class TestDockerComposeIntegration:
             result = subprocess.run(
                 ['docker-compose', 'ps'],
                 capture_output=True,
-                text=True
+                text=True, encoding='utf-8', errors='replace'
             )
             assert 'web' in result.stdout, "Web service should be running"
             
@@ -209,7 +209,7 @@ class TestDockerComposeIntegration:
             result = subprocess.run(
                 ['docker-compose', '-f', 'docker-compose.prod.yml', 'build'],
                 capture_output=True,
-                text=True,
+                text=True, encoding='utf-8', errors='replace',
                 timeout=300
             )
             assert result.returncode == 0, f"docker-compose prod build failed: {result.stderr}"
@@ -218,7 +218,7 @@ class TestDockerComposeIntegration:
             result = subprocess.run(
                 ['docker-compose', '-f', 'docker-compose.prod.yml', 'up', '-d'],
                 capture_output=True,
-                text=True,
+                text=True, encoding='utf-8', errors='replace',
                 timeout=60
             )
             assert result.returncode == 0, f"docker-compose prod up failed: {result.stderr}"

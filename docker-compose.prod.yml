@@ -19,8 +19,22 @@ services:
       - SQLITE_DB_NAME=jugglefit.db
     env_file:
       - .env
-    command: gunicorn --bind 0.0.0.0:5001 --workers 2 --timeout 30 wsgi:app
+    # 2 workers × 4 threads with --preload: ALL_PROPS_TRICKS is loaded once
+    # in the master and shared copy-on-write → fits a 1 GB VM even as the
+    # master trick list grows. max-requests recycles workers to cap any
+    # slow leaks.
+    command: >
+      gunicorn --bind 0.0.0.0:5001
+      --workers 2 --threads 4 --preload
+      --timeout 60 --max-requests 2000 --max-requests-jitter 200
+      wsgi:app
+    mem_limit: 700m
     restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     depends_on:
       init-permissions:
         condition: service_completed_successfully

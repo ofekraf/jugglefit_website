@@ -1,0 +1,74 @@
+{% extends "macros/base.html" %}
+{% block title %}Leaderboards{% endblock %}
+
+{% block head %}
+<style>
+    .lb-tabs, .lb-periods { display:flex; gap:.4rem; flex-wrap:wrap; margin-bottom:.8rem; }
+    .lb-tabs button, .lb-periods button {
+        border:1px solid #ccc; background:#fff; padding:.4rem .9rem; border-radius:999px; cursor:pointer; }
+    .lb-tabs button.on, .lb-periods button.on {
+        background:var(--primary-color,#2a7); border-color:var(--primary-color,#2a7); color:#fff; }
+    table.lb { width:100%; border-collapse:collapse; }
+    table.lb th, table.lb td { padding:.5rem .6rem; border-bottom:1px solid #eee; text-align:left; }
+    table.lb tr.you { background:#f4faf6; font-weight:600; }
+    .lb-metric { color:#888; font-size:.85rem; margin-bottom:.6rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="route-page">
+    <div class="route-header"><h1 class="route-title">Leaderboards</h1></div>
+    <div class="route-form"><div class="form-section">
+        <div class="lb-tabs" id="lb_tabs">
+            {% for k in kinds %}
+            <button data-kind="{{ k }}" class="{{ 'on' if loop.first else '' }}">{{ kind_meta[k].title }}</button>
+            {% endfor %}
+        </div>
+        <div class="lb-periods" id="lb_periods">
+            {% for p in periods %}
+            <button data-period="{{ p }}" class="{{ 'on' if loop.first else '' }}">
+                {{ 'All time' if p == 'all' else p }}</button>
+            {% endfor %}
+        </div>
+        <div class="lb-metric" id="lb_metric"></div>
+        <table class="lb"><thead><tr><th>#</th><th>Player</th><th>Score</th></tr></thead>
+            <tbody id="lb_body"><tr><td colspan="3">Loading…</td></tr></tbody></table>
+        <p id="lb_you" style="margin-top:1rem;"></p>
+    </div></div>
+</div>
+
+<script>
+(function(){
+    let kind = '{{ kinds[0] }}', period = '{{ periods[0] }}';
+    const body = document.getElementById('lb_body');
+    const you  = document.getElementById('lb_you');
+    const metric = document.getElementById('lb_metric');
+
+    function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+    function load(){
+        body.innerHTML='<tr><td colspan="3">Loading…</td></tr>'; you.textContent='';
+        fetch(`/api/leaderboard?kind=${kind}&period=${period}`).then(r=>r.json()).then(d=>{
+            metric.textContent = `Ranked by ${d.metric}.`;
+            if(!d.top.length){ body.innerHTML='<tr><td colspan="3">No entries yet — go play!</td></tr>'; return; }
+            body.innerHTML = d.top.map(r=>
+                `<tr class="${d.you && d.you.user_id===r.user_id?'you':''}">
+                    <td>${r.rank}</td><td>${esc(r.display_name)}</td><td>${r.score}</td></tr>`
+            ).join('');
+            if(d.you) you.innerHTML = `You: <strong>#${d.you.rank}</strong> with ${d.you.score}`;
+            else you.innerHTML = `{% if current_user %}You haven't scored on this board yet.{% else %}<a href="{{ url_for('auth.login', next=request.path) }}">Log in</a> to see your rank.{% endif %}`;
+        });
+    }
+    function bind(group, attr, setter){
+        document.querySelectorAll(group+' button').forEach(b=>
+            b.addEventListener('click',()=>{
+                document.querySelectorAll(group+' button').forEach(x=>x.classList.remove('on'));
+                b.classList.add('on'); setter(b.dataset[attr]); load();
+            }));
+    }
+    bind('#lb_tabs','kind',v=>kind=v);
+    bind('#lb_periods','period',v=>period=v);
+    load();
+})();
+</script>
+{% endblock %}

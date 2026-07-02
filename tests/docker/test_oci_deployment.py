@@ -1,6 +1,7 @@
 import pytest
 import os
 import stat
+import sys
 from pathlib import Path
 
 
@@ -16,6 +17,8 @@ class TestOCIUbuntuDeploymentScripts:
         deploy_script = oci_deployment_path / "deploy.sh"
         assert deploy_script.exists(), "Docker deployment script should exist"
     
+    @pytest.mark.skipif(sys.platform == "win32",
+                        reason="POSIX exec bit is not meaningful on Windows/NTFS")
     def test_deployment_script_is_executable(self, oci_deployment_path):
         """Test that deployment script is executable."""
         deploy_script = oci_deployment_path / "deploy.sh"
@@ -181,14 +184,14 @@ class TestOCIProductionConfiguration:
         assert has_security, "Should have systemd security settings"
     
     def test_nginx_ssl_configuration(self, oci_deployment_path):
-        """Test that Nginx is configured for SSL."""
-        nginx_config = oci_deployment_path / "nginx.conf"
-        content = nginx_config.read_text()
-        
-        # Should support SSL
-        ssl_config = ['ssl_certificate', 'listen 443', 'ssl on']
-        has_ssl = any(config in content for config in ssl_config)
-        assert has_ssl, "Should be configured for SSL"
+        """SSL is provisioned by setup-ssl.sh via certbot --nginx, which
+        injects the 443 server block into nginx.conf. The base nginx.conf
+        must NOT ship a 443 block (or `nginx -t` fails pre-cert)."""
+        ssl_script = oci_deployment_path / "setup-ssl.sh"
+        assert ssl_script.exists(), "setup-ssl.sh should exist"
+        content = ssl_script.read_text()
+        assert "certbot" in content, "setup-ssl.sh should invoke certbot"
+        assert "--nginx" in content, "certbot should manage nginx SSL config"
     
     def test_backup_script_exists(self, oci_deployment_path):
         """Test that backup script exists."""

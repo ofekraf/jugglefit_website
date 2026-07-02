@@ -21,25 +21,22 @@ pip install -r requirements.txt
 ### Environment Configuration
 **IMPORTANT**: Always check the `.env` file for the `PORT` setting, as it overrides the default Flask port.
 
-Create a `.env` file with:
+Create a `.env` file from `.env.example`:
 ```bash
 # Port Configuration (CRITICAL - Flask reads this!)
-PORT=5001  # Default Flask port - change carefully if needed
+PORT=5001
 
 # Flask Configuration
-FLASK_ENV=development  # Set to 'production' for production
-FLASK_DEBUG=1         # Set to 0 for production
+FLASK_ENV=development         # Set to 'production' for production
+SECRET_KEY=<random-hex>       # REQUIRED when FLASK_ENV=production (app aborts otherwise)
 
-# Google Sheets API Configuration
-JUGGLEFIT_BOT_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYour private key here\n-----END PRIVATE KEY-----"
-TRICK_SUGGESTIONS_SPREADSHEET_ID=your_spreadsheet_id
+# SQLite storage
+SQLITE_DB_DIR=./database_data
+SQLITE_DB_NAME=jugglefit.db
 
-# PostgreSQL Configuration (optional - falls back to hardcoded values)
-POSTGRESQL_DBNAME=database_name
-POSTGRESQL_USERNAME=username
-POSTGRESQL_PASSWORD=password
-POSTGRESQL_HOST=localhost
-POSTGRESQL_PORT=5432
+# Super-admin (env-credential login at /auth/login and /admin/login)
+SUPER_ADMIN_USER=Admin
+SUPER_ADMIN_PASSWORD=<change-me>
 ```
 
 ### Running the Application
@@ -47,11 +44,11 @@ POSTGRESQL_PORT=5432
 # Development server
 flask run
 
-# Alternative using Python directly
-python app.py  # Runs on host='0.0.0.0', port=5001, debug=True
+# Alternative using Python directly (debug on unless FLASK_ENV=production)
+python app.py  # Runs on host='0.0.0.0', port=$PORT (default 5001)
 
 # Production using WSGI
-gunicorn -w 4 -b 0.0.0.0:5001 wsgi:app
+gunicorn --bind 0.0.0.0:5001 --workers 2 --threads 4 --preload wsgi:app
 ```
 
 ### Docker Deployment
@@ -85,11 +82,13 @@ docker rm -f <container-name>       # Force remove container
 ### Core Components
 
 **Flask Application Structure:**
-- **Main App** (`app.py`): Central Flask application with route definitions and API endpoints
-- **Database Layer**: PostgreSQL integration for URL shortening with automatic cleanup
-- **Hardcoded Data**: Static data for events, team members, and tricks stored in `/hardcoded_database/`
-- **Classes**: Object-oriented design with `Trick`, `Route`, `Prop`, `Tag`, and other core entities
-- **Route Generation**: Algorithm-based system for creating juggling practice routes
+- **Main App** (`app.py`): Flask app config, CSRF, and public page routes
+- **Blueprints** (`blueprints/`): `auth.py`, `games.py`, `api.py`, `admin.py`
+- **Database Layer** (`database/db_manager.py`): SQLite (WAL mode) — tricks, candidates, votes, users, short URLs. Schema is auto-created on `init_db()`; lightweight migrations run at startup.
+- **Hardcoded Data**: Static data for events, team members, and seed tricks in `/hardcoded_database/`
+- **Classes**: `Trick`, `Route`, `Prop`, `Tag` core entities in `pylib/classes/`
+- **Crowd Rating** (`pylib/rating/`): Elo-based difficulty rating, task tokens, promotion pipeline — see `docs/crowd_backend.md`
+- **Route Generation**: Algorithm-based practice-route builder
 
 **Key Classes and Their Relationships:**
 - **`Trick`** (`pylib/classes/trick.py`): Core entity with name, props_count, difficulty, tags, and validation
@@ -110,17 +109,26 @@ docker rm -f <container-name>       # Force remove container
 - Enables deep-linking to specific routes via query parameters
 
 **URL Shortening System:**
-- PostgreSQL table with automatic expiry and cleanup
-- Background thread for removing expired URLs
-- Configurable expiry and extension periods
+- SQLite `url_mappings` table with automatic expiry
+- Cleanup runs on app startup and nightly via `database/prune.py`
+- Same-origin guard prevents open-redirect abuse; 8 KB length cap
 
 ### API Endpoints
 
-**Core API** (`/api/` blueprint):
-- `POST /api/serialize_route`: Convert route data to compressed string
+**Core API** (`/api/` blueprint — `blueprints/api.py`):
 - `POST /api/fetch_tricks`: Filter tricks by criteria, return JSON
-- `POST /api/shorten_url`: Generate short URLs (currently disabled)
-- `GET /shortener/<code>`: Redirect to original URL (currently disabled)
+- `POST /api/trick_exists`: Dedup check for name/siteswap
+- `POST /api/suggest_trick`: Submit a trick to the crowd pipeline
+- `POST /api/shorten_url`: Generate short URLs (same-origin only)
+- `GET  /api/leaderboard`: Contribution leaderboards
+- `GET  /shortener/<code>`: Redirect to original URL
+
+**Games API** (`/api/games/` — `blueprints/games.py`):
+- `GET  /api/games/needs`, `GET /api/games/<game>/next_set`
+- `POST /api/games/answer`, `POST /api/games/flag`
+
+**Admin API** (`/admin/api/` — `blueprints/admin.py`):
+- Candidates list/detail, promote/reject/restore/delete, backup, prune, user-admin toggle
 
 **Health and Monitoring**:
 - `GET /health`: Container health check endpoint (returns JSON status)
@@ -130,12 +138,12 @@ docker rm -f <container-name>       # Force remove container
 
 **Constants Management** (`pylib/configuration/consts.py`):
 - Trick validation limits (props count, difficulty ranges)
-- Default values for route generation
-- Maximum name lengths and other constraints
+- Rating pipeline knobs (set size, control fraction, promotion thresholds)
+- Session lifetimes, leaderboard periods
 
-**Database Configuration** (`database/hardcoded_config.py`):
-- PostgreSQL connection parameters with environment variable fallbacks
-- URL shortening behavior (expiry intervals, cleanup frequency)
+**Database Configuration** (`database/db_manager.py`):
+- SQLite path from `SQLITE_DB_DIR` / `SQLITE_DB_NAME`
+- WAL mode + `busy_timeout` for multi-worker gunicorn
 
 ## Key Development Patterns
 
@@ -145,9 +153,10 @@ docker rm -f <container-name>       # Force remove container
 - Try-catch blocks with user-friendly error messages
 
 ### Data Loading and Caching
-- CSV-based trick databases loaded at application startup
+- Seed CSV tricks loaded into SQLite on first `init_db()`
+- `ALL_PROPS_TRICKS` cached in-process (loaded at import, refreshed after promotion)
 - Static data in Python modules for events and team information
-- Google Sheets integration for user-submitted trick suggestions
+- User-submitted tricks flow through the crowd pipeline (`pylib/rating/intake.py`)
 
 ### Template Architecture
 - Jinja2 templates in `/templates/` with base template inheritance
@@ -194,14 +203,21 @@ For manual verification:
 ## Deployment Considerations
 
 **Environment Variables:**
-- Google Sheets API credentials are required for trick suggestions
-- PostgreSQL configuration defaults to hardcoded values if not provided
-- Flask runs in debug mode by default in `app.py`
+- `SECRET_KEY` is **required** when `FLASK_ENV=production` (app raises on boot otherwise)
+- `SUPER_ADMIN_USER` / `SUPER_ADMIN_PASSWORD` gate `/admin/*`
+- Debug mode is only enabled when `FLASK_ENV != production`
 
 **Database Setup:**
-- PostgreSQL table creation is handled automatically via `init_db()`
-- Background cleanup thread starts automatically on app initialization
-- No migration system - schema changes require manual intervention
+- SQLite schema is created automatically via `init_db()` on startup
+- Lightweight column-add migrations in `db_manager._MIGRATIONS`
+- Backups: `database/backup.py` snapshots the DB file; `deploy/oci-ubuntu/setup.sh`
+  wires cron + rclone for off-box copies
+
+**Security:**
+- CSRF: session-token guard in `app._csrf_protect`; forms use `{{ csrf_token() }}`,
+  JS `fetch()` gets `X-CSRF-Token` auto-attached via `<head>` shim in `base.html`
+- Session cookies: `HttpOnly`, `SameSite=Lax`, `Secure` in prod
+- URL shortener rejects off-site targets (`_is_same_origin`)
 
 ## GitHub Actions and CI/CD
 

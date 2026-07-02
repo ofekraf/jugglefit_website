@@ -74,9 +74,8 @@ fi
 
 # Copy environment file if it doesn't exist
 if [ ! -f ".env" ]; then
-    echo -e "${YELLOW}Creating environment file...${NC}"
-    cp .env.example .env
-    echo -e "${YELLOW}Please edit .env file with your configuration${NC}"
+    echo -e "${YELLOW}Creating environment file from production template...${NC}"
+    cp deploy/oci-ubuntu/.env.production .env
 fi
 
 # Set ownership
@@ -129,10 +128,15 @@ EOF
 mkdir -p /var/log/jugglefit
 chown $APP_USER:$APP_USER /var/log/jugglefit
 
+# App-level setup: SUPER_ADMIN creds, rclone, backup/prune cron
+echo -e "${YELLOW}Running app setup (env keys, rclone, cron)...${NC}"
+bash $APP_DIR/deploy/oci-ubuntu/setup.sh
+
 echo -e "${GREEN}Deployment completed successfully!${NC}"
 echo -e "${YELLOW}Next steps:${NC}"
-echo "1. Edit $APP_DIR/.env with your configuration"
-echo "2. Run SSL setup: $APP_DIR/deploy/oci-ubuntu/setup-ssl.sh yourdomain.com"
-echo "3. Check service status: systemctl status jugglefit"
-echo "4. Check logs: journalctl -u jugglefit -f"
-echo "5. Check application: curl http://localhost/health"
+echo "1. SSL: sudo $APP_DIR/deploy/oci-ubuntu/setup-ssl.sh yourdomain.com"
+echo "2. Status: systemctl status jugglefit"
+echo "3. Logs:   journalctl -u jugglefit -f"
+echo "4. Health: curl http://localhost/health"
+echo
+echo "To update later: sudo $APP_DIR/deploy/oci-ubuntu/update.sh"

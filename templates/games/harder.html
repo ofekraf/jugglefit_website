@@ -1,0 +1,51 @@
+{% extends "games/_game_base.html" %}
+{% block title %}Which trick is considered harder{% endblock %}
+{% block game_title %}Which trick is considered harder{% endblock %}
+{% block game_blurb %}<p>Tap the trick you'd consider harder. Keyboard: ← left · → right · ? don't know.</p>{% endblock %}
+
+{% block game_css %}
+    .compare-grid { display:grid; grid-template-columns:1fr 40px 1fr; gap:.8rem; align-items:stretch; }
+    .compare-side { border:1px solid #e0e0e0; border-radius:8px; padding:1rem; cursor:pointer; text-align:center;
+                    display:flex; flex-direction:column; justify-content:center; min-height:140px; transition:background .1s, border-color .1s; }
+    .compare-side:hover, .compare-side:focus { background:#f4faf6; border-color:var(--primary-color,#2a7); outline:none; }
+    .compare-side .pc { font-size:.8rem; color:#888; margin-bottom:.35rem; }
+    .compare-side .label { font-size:1.05rem; font-weight:600; word-break:break-word; }
+    .compare-vs { display:flex; align-items:center; justify-content:center; color:#aaa; font-weight:700; }
+    .compare-buttons { display:flex; gap:.6rem; justify-content:center; margin-top:1rem; flex-wrap:wrap; }
+    @media (max-width:560px){ .compare-grid { grid-template-columns:1fr; } .compare-vs { display:none; } }
+{% endblock %}
+
+{% block game_init %}
+<script>
+GameEngine.start({
+    game: 'harder',
+    loggedIn: {{ 'true' if current_user else 'false' }},
+    renderCard: function (task, answer) {
+        const side = (key, data) => `
+            <div class="compare-side" tabindex="0" data-answer="${key}">
+                <span class="pc">${data.props_count} prop${data.props_count===1?'':'s'}</span>
+                <span class="label">${GameEngine.renderTrick(data)}</span>
+            </div>`;
+        const html = `
+            <div class="compare-grid">
+                ${side('left', task.left)}
+                <div class="compare-vs">vs</div>
+                ${side('right', task.right)}
+            </div>
+            <div class="compare-buttons">
+                <button class="secondary-button" data-answer="skip">Don't know one of these</button>
+            </div>`;
+        const el = document.createElement('div');
+        el.innerHTML = html;
+        el.querySelectorAll('[data-answer]').forEach(b =>
+            b.addEventListener('click', () => answer({ winner: b.dataset.answer })));
+        return el;
+    },
+    keymap: {
+        'ArrowLeft':  { winner: 'left' },
+        'ArrowRight': { winner: 'right' },
+        '?':          { winner: 'skip' },
+    }
+});
+</script>
+{% endblock %}

@@ -32,8 +32,8 @@ This repository contains the source code for the JuggleFit website, built using 
 - **Dockerized Deployment**: Complete Docker setup for development and production
 - **CI/CD Pipeline**: Automated testing and deployment with GitHub Actions
 - **Health Monitoring**: Built-in health checks and monitoring endpoints
-- **Security**: Rate limiting, security headers, and SSL/TLS support
-- **Scalable Architecture**: Designed for cloud deployment and horizontal scaling
+- **Security**: CSRF protection, hardened session cookies, nginx rate limiting, security headers, SSL/TLS via certbot
+- **Crowd Rating Pipeline**: Elo-based difficulty rating with reliability-weighted votes (see `docs/crowd_backend.md`)
 
 ## Quick Start
 
@@ -110,9 +110,9 @@ docker-compose -f docker-compose.prod.yml up --build -d
    ```
    
    Edit `.env` with your specific settings:
-   - Google Sheets API credentials (optional)
-   - Flask configuration
-   - Any custom settings
+   - `SECRET_KEY` (**required** in production — the app refuses to start without it)
+   - `SUPER_ADMIN_USER` / `SUPER_ADMIN_PASSWORD`
+   - `SQLITE_DB_DIR` / `SQLITE_DB_NAME` (defaults work for local dev)
 
 3. **Run Development Server**
    ```bash
@@ -146,10 +146,8 @@ sudo ./deploy/oci-ubuntu/setup-ssl.sh yourdomain.com
 ```
 
 #### Other Platforms
-- **Render**: Connect your GitHub repository for automatic deployments
-- **Railway**: Use the provided `docker-compose.prod.yml`
-- **Heroku**: Includes `Procfile` for Heroku deployment
-- **DigitalOcean App Platform**: Docker-based deployment supported
+- **Render / Railway / DigitalOcean App Platform**: Docker-based deployment supported via `Dockerfile` (defaults to gunicorn)
+- Any platform that can run a Docker image and provide `SECRET_KEY` + a persistent volume for `/app/database_data`
 
 ### Manual Production Setup
 
@@ -164,9 +162,12 @@ sudo ./deploy/oci-ubuntu/setup-ssl.sh yourdomain.com
      --name jugglefit \
      -p 5001:5001 \
      --env-file .env \
+     -v jugglefit_sqlite:/app/database_data \
      --restart unless-stopped \
      jugglefit-website
    ```
+   The image defaults to gunicorn (2 workers × 4 threads, `--preload`).
+   Ensure `.env` contains a real `SECRET_KEY` and `FLASK_ENV=production`.
 
 3. **Set Up Reverse Proxy** (Nginx recommended)
    ```bash
@@ -199,10 +200,10 @@ docker-compose exec web bash                # Access container shell
 ```
 
 ### Image Optimization
-- Multi-stage builds for smaller production images
-- Non-root user for security
-- Health checks for monitoring
-- Optimized layer caching
+- `python:3.11-slim` base
+- Non-root user (`appuser`, uid 1001)
+- `HEALTHCHECK` baked into the image
+- Optimized layer caching (requirements copied before app code)
 
 ## Testing
 
@@ -243,29 +244,30 @@ Tests run automatically on:
 
 ### Required Variables
 ```bash
-# Flask Configuration
 FLASK_APP=app.py
-FLASK_ENV=development  # or production
-DEBUG=False            # Set to False in production
+FLASK_ENV=development       # or production
+SECRET_KEY=<random-hex>     # REQUIRED when FLASK_ENV=production (app aborts otherwise)
 ```
 
 ### Optional Variables
 ```bash
-# Google Sheets API (for trick suggestions)
-JUGGLEFIT_BOT_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----"
-TRICK_SUGGESTIONS_SPREADSHEET_ID=your_spreadsheet_id
-
-# PostgreSQL (future feature)
-POSTGRESQL_DBNAME=database_name
-POSTGRESQL_USERNAME=username
-POSTGRESQL_PASSWORD=password
-POSTGRESQL_HOST=localhost
-POSTGRESQL_PORT=5432
-
-# Production Settings
+# Server
 PORT=5001
-WORKERS=4
-TIMEOUT=30
+
+# SQLite storage (paths inside the container when using docker-compose)
+SQLITE_DB_DIR=./database_data
+SQLITE_DB_NAME=jugglefit.db
+SQLITE_BACKUP_DIR=./database_backups
+
+# Super-admin (env-credential login at /auth/login and /admin/login)
+SUPER_ADMIN_USER=Admin
+SUPER_ADMIN_PASSWORD=<change-me>
+
+# Off-box backup via rclone (see deploy/oci-ubuntu/setup.sh)
+RCLONE_REMOTE=gdrive:jugglefit-backups
+BACKUP_KEEP_LOCAL=1
+BACKUP_REMOTE_KEEP_DAILY=14
+BACKUP_REMOTE_KEEP_WEEKLY=8
 ```
 
 ### Environment Files
@@ -280,9 +282,12 @@ TIMEOUT=30
 - `GET /ready`: Readiness probe for load balancers
 
 ### Core API (`/api/` prefix)
-- `POST /api/serialize_route`: Convert route data to compressed string
 - `POST /api/fetch_tricks`: Filter tricks by criteria
-- `POST /api/shorten_url`: Generate short URLs (currently disabled)
+- `POST /api/trick_exists`: Dedup check for a name/siteswap
+- `POST /api/suggest_trick`: Submit a trick to the crowd pipeline
+- `POST /api/shorten_url`: Generate short URLs (same-origin only)
+- `GET  /api/leaderboard`: Contribution leaderboards
+- `GET  /api/games/*`: Crowd-rating game task sets & answers
 
 ### Web Pages
 - `/`: Homepage with events and information
@@ -290,7 +295,10 @@ TIMEOUT=30
 - `/build_route`: Interactive route builder
 - `/past_events`: Archive of past events
 - `/host_event`: Information for event hosts
-- `/equipment_list`: Equipment recommendations
+- `/event_checklist`: Equipment / hosting checklist
+- `/contribute/games/`: Crowd-rating games hub
+- `/leaderboards`: Contribution leaderboards
+- `/admin/crowd`: Admin review console (login required)
 
 ## Contributing
 
@@ -334,21 +342,25 @@ We use TDD for infrastructure changes:
 ### Project Structure
 ```
 jugglefit_website/
-├── app.py                      # Main Flask application
-├── wsgi.py                     # WSGI entry point
-├── requirements.txt            # Python dependencies
-├── Dockerfile                  # Docker container configuration
+├── app.py                      # Flask app + config + public page routes
+├── wsgi.py                     # WSGI entry point (gunicorn)
+├── blueprints/                 # Feature-area routes
+│   ├── auth.py                 #   user login/registration
+│   ├── games.py                #   crowd-rating games + game API
+│   ├── api.py                  #   public JSON API + shortener
+│   └── admin.py                #   admin & super-admin console
+├── pylib/                      # Core application modules (rating, auth, classes)
+├── database/                   # SQLite manager, seed, backup, prune
+├── hardcoded_database/         # Static data (tricks CSVs, events, team)
+├── static/                     # CSS, JavaScript, images
+├── templates/                  # Jinja2 HTML templates
+├── tests/docker/               # Infra test suite
+├── docs/crowd_backend.md       # Backend reference (schema, pipeline, scaling)
+├── deploy/oci-ubuntu/          # OCI Ubuntu deployment (nginx, systemd, scripts)
+├── Dockerfile                  # Production image (gunicorn + healthcheck)
 ├── docker-compose.yml          # Development environment
 ├── docker-compose.prod.yml     # Production environment
-├── .env.example               # Environment template
-├── pylib/                     # Core application modules
-├── hardcoded_database/        # Static data (tricks, events, team)
-├── static/                    # CSS, JavaScript, images
-├── templates/                 # HTML templates
-├── tests/                     # Test suite
-├── deploy/                    # Deployment configurations
-│   └── oci-ubuntu/           # OCI Ubuntu deployment
-└── .github/workflows/        # CI/CD pipeline
+└── .github/workflows/          # CI/CD pipeline
 ```
 
 ## Troubleshooting

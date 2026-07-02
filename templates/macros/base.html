@@ -3,6 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <script>
+        // Attach CSRF header to all same-origin fetch() POST/PUT/PATCH/DELETE.
+        // Must run before any page script that calls fetch().
+        (function() {
+            var _tok = document.querySelector('meta[name="csrf-token"]');
+            if (!_tok) return;
+            var CSRF = _tok.content;
+            var _fetch = window.fetch;
+            window.fetch = function(resource, init) {
+                init = init || {};
+                var method = (init.method || 'GET').toUpperCase();
+                var url = (typeof resource === 'string') ? resource : resource.url;
+                var sameOrigin = !/^https?:\/\//i.test(url) || url.indexOf(location.origin) === 0;
+                if (sameOrigin && method !== 'GET' && method !== 'HEAD') {
+                    init.headers = new Headers(init.headers || {});
+                    if (!init.headers.has('X-CSRF-Token')) {
+                        init.headers.set('X-CSRF-Token', CSRF);
+                    }
+                }
+                return _fetch(resource, init);
+            };
+        })();
+    </script>
     <meta name="description" content="JuggleFit - A sport-juggling competition that's motivating to practice, requires minimal preparation, and is fun to watch">
     <title>{% block title %}{% endblock %} - JuggleFit</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}?v={{ cache_version }}">
@@ -78,12 +102,16 @@
                             <li><a href="{{ url_for('host_event') }}">Host Event</a></li>
                         </ul>
                     </li>
+                    <li class="nav-item">
+                        <a href="{{ url_for('games.hub') }}">Games</a>
+                    </li>
                     <li class="nav-item dropdown">Contribute
                         <span class="dropdown-arrow">▼</span>
                         <ul class="dropdown-menu">
-                            <li><a href="{{ url_for('donate') }}">Donate Money</a></li>
+                            <li><a href="{{ url_for('donate') }}">Donate</a></li>
                             <li><a href="{{ url_for('software_contribution') }}">Software</a></li>
                             <li><a href="{{ url_for('add_tricks') }}">Add Tricks</a></li>
+                            <li><a href="{{ url_for('games.hub') }}">Games</a></li>
                         </ul>
                     </li>
                     <li class="nav-item dropdown">Siteswap
@@ -101,18 +129,45 @@
                                 <a href="{{ url_for('siteswap_x_formatter') }}">Siteswap X Formatter</a>
                             </li>
                             <li>
-                                <a href="http://db97531.com/" target="_blank" rel="noopener noreferrer">
+                                <a href="https://db97531.com/" target="_blank" rel="noopener noreferrer">
                                     Animator + Generator <i class="fas fa-external-link-alt" style="font-size:0.9em;"></i>
                                 </a>
                             </li>
                         </ul>
                     </li>
+                    {% set _is_admin = (current_user and current_user.is_admin) or is_super_admin %}
+                    {% if current_user %}
+                    <li class="nav-item dropdown">{{ current_user.display_name }}
+                        <span class="dropdown-arrow">▼</span>
+                        <ul class="dropdown-menu">
+                            <li><a href="{{ url_for('auth.profile') }}">Profile</a></li>
+                            <li><a href="{{ url_for('leaderboard') }}">Leaderboards</a></li>
+                            {% if _is_admin %}
+                            <li class="dropdown-divider"></li>
+                            <li><a href="{{ url_for('admin_crowd') }}">Crowd Pipeline</a></li>
+                            {% if is_super_admin %}
+                            <li><a href="{{ url_for('admin_users') }}">Manage Users</a></li>
+                            {% endif %}
+                            {% endif %}
+                            <li class="dropdown-divider"></li>
+                            <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
+                        </ul>
+                    </li>
+                    {% elif is_super_admin %}
+                    {# super-admin via /admin/login without a user session – rare #}
                     <li class="nav-item dropdown">Admin
                         <span class="dropdown-arrow">▼</span>
                         <ul class="dropdown-menu">
-                            <li><a href="{{ url_for('admin_suggestions') }}">Trick Suggestions</a></li>
+                            <li><a href="{{ url_for('admin_crowd') }}">Crowd Pipeline</a></li>
+                            <li><a href="{{ url_for('admin_users') }}">Manage Users</a></li>
+                            <li><a href="{{ url_for('admin_logout') }}">Logout</a></li>
                         </ul>
                     </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a href="{{ url_for('auth.login') }}">Login</a>
+                    </li>
+                    {% endif %}
                 </ul>
             </nav>
         </div>

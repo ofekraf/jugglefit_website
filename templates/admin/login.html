@@ -44,14 +44,29 @@
         <div class="route-form">
             <div class="form-section">
                 <form method="POST" class="custom-trick-form">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                    {% if need_username %}
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label for="username">Super-admin user</label>
+                            <input type="text" id="username" name="username" class="form-input"
+                                   autocomplete="username" required autofocus>
+                        </div>
+                    </div>
+                    {% endif %}
                     <div class="form-row">
                         <div class="form-group full-width">
                             <label for="password">Password</label>
-                            <input type="password" id="password" name="password" class="form-input" required>
+                            <input type="password" id="password" name="password" class="form-input"
+                                   autocomplete="current-password" required>
                         </div>
                     </div>
                     <button type="submit" class="primary-button">Login</button>
                 </form>
+                <p style="margin-top:1rem; color:#666; font-size:.9rem;">
+                    Regular admins: just <a href="{{ url_for('auth.login', next=request.args.get('next')) }}">log in</a>
+                    with your user account — no separate admin password needed.
+                </p>
             </div>
         </div>
     </div>

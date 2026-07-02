@@ -1,0 +1,65 @@
+{% extends "macros/base.html" %}
+{% block title %}Users{% endblock %}
+
+{% block head %}
+<style>
+    table.users { width:100%; border-collapse:collapse; font-size:.9rem; }
+    table.users th, table.users td { padding:.45rem .5rem; border-bottom:1px solid #eee; text-align:left; }
+    .badge { display:inline-block; padding:1px 8px; border-radius:10px; font-size:.75rem; }
+    .badge.admin { background:#e7f6ec; color:#1a6b3a; }
+    .badge.user  { background:#eef; color:#335; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="route-page">
+    <div class="route-header">
+        <h1 class="route-title">Users</h1>
+        <p>Super-admin only. Grant or revoke admin on user accounts.</p>
+    </div>
+    <div class="route-form"><div class="form-section">
+        <table class="users">
+            <thead><tr>
+                <th>ID</th><th>Name</th><th>Role</th><th>Reliability</th>
+                <th>Promoted</th><th>Harder/Tag/Throw</th><th>Created</th><th></th>
+            </tr></thead>
+            <tbody>
+            {% for u in users %}
+                <tr data-uid="{{ u.id }}">
+                    <td>{{ u.id }}</td>
+                    <td>{{ u.display_name }}</td>
+                    <td><span class="badge {{ 'admin' if u.is_admin else 'user' }}">
+                        {{ 'admin' if u.is_admin else 'user' }}</span></td>
+                    <td>{{ (u.reliability * 100) | round | int }}%</td>
+                    <td>{{ u.n_tricks_promoted }}</td>
+                    <td>{{ u.n_harder }}/{{ u.n_tagging }}/{{ u.n_throw }}</td>
+                    <td>{{ u.created_at }}</td>
+                    <td>
+                        {% if u.is_admin %}
+                        <button class="secondary-button" data-set="0">Revoke admin</button>
+                        {% else %}
+                        <button class="primary-button" data-set="1">Make admin</button>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div></div>
+</div>
+<script>
+document.querySelectorAll('table.users [data-set]').forEach(b =>
+    b.addEventListener('click', () => {
+        const tr = b.closest('tr');
+        const uid = tr.dataset.uid;
+        const make = b.dataset.set === '1';
+        if (!confirm((make ? 'Grant' : 'Revoke') + ' admin for user #' + uid + '?')) return;
+        fetch(`/admin/api/users/${uid}/admin`, {
+            method: 'POST', headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({is_admin: make})
+        }).then(r => r.json()).then(d => {
+            if (d.ok) location.reload(); else alert(d.error || 'failed');
+        });
+    }));
+</script>
+{% endblock %}

@@ -49,6 +49,24 @@ def env_example_path(project_root):
     return project_root / ".env.example"
 
 
+@pytest.fixture(scope="session", autouse=True)
+def ensure_dotenv(project_root):
+    """docker-compose.yml requires a .env file. Provide one from
+    .env.example for the duration of the test session if missing."""
+    env = project_root / ".env"
+    created = False
+    if not env.exists():
+        example = project_root / ".env.example"
+        if example.exists():
+            env.write_text(example.read_text())
+            created = True
+    try:
+        yield env
+    finally:
+        if created and env.exists():
+            env.unlink()
+
+
 @pytest.fixture
 def github_workflow_path(project_root):
     """Path to GitHub Actions workflow."""

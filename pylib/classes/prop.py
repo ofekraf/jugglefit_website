@@ -5,6 +5,7 @@ class Prop(ReverseLookupEnum):
     Clubs = "clubs"
     Rings = "rings"
     ClubPassing = "club passing"
+    Balance = "balance"
 
     def __lt__(self, other):
         """Make Prop sortable by comparing their values."""

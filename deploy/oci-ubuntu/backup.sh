@@ -1,53 +1,89 @@
 #!/bin/bash
-
-# JuggleFit Website Backup Script
-# Creates backups of application data and configuration
+#
+# JuggleFit backup: snapshot SQLite (1 local copy) → push to rclone remote
+# (long-term retention lives there) → prune live DB.
+#
+# Retention model:
+#   LOCAL : keep BACKUP_KEEP_LOCAL (default 1) — just the upload source.
+#   REMOTE: keep BACKUP_REMOTE_KEEP_DAILY newest + one-per-week for
+#           BACKUP_REMOTE_KEEP_WEEKLY weeks (defaults 14 / 8).
 
 set -e
 
-# Configuration
-BACKUP_DIR="/opt/jugglefit/backups"
 APP_DIR="/opt/jugglefit"
-TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-BACKUP_NAME="jugglefit_backup_$TIMESTAMP"
-RETENTION_DAYS=30
+COMPOSE="$APP_DIR/docker-compose.prod.yml"
+CONTAINER="jugglefit_website-web-1"
 
-# Colors for output
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
+[ -f "$APP_DIR/.env" ] && set -a && . "$APP_DIR/.env" && set +a
 
+: "${BACKUP_REMOTE_KEEP_DAILY:=14}"
+: "${BACKUP_REMOTE_KEEP_WEEKLY:=8}"
+
+GREEN='\033[0;32m'; YELLOW='\033[1;33m'; RED='\033[0;31m'; NC='\033[0m'
 echo -e "${GREEN}Starting JuggleFit backup...${NC}"
 
-# Create backup directory
-mkdir -p $BACKUP_DIR
+# 1. Online-safe SQLite snapshot inside the container. Prints the path of
+#    the new .db on stdout (last line).
+echo -e "${YELLOW}Snapshotting SQLite database...${NC}"
+SNAP_PATH=$(docker compose -f "$COMPOSE" exec -T web python -m database.backup \
+    | tail -n1 | sed 's/^Backup written to //') \
+    || { echo -e "${RED}ERROR: SQLite snapshot failed${NC}"; exit 1; }
+[ -n "$SNAP_PATH" ] || { echo -e "${RED}ERROR: snapshot path empty${NC}"; exit 1; }
+SNAP_NAME=$(basename "$SNAP_PATH")
 
-# Create backup archive
-echo -e "${YELLOW}Creating backup archive...${NC}"
-tar -czf "$BACKUP_DIR/$BACKUP_NAME.tar.gz" \
-    -C $APP_DIR \
-    --exclude='*.log' \
-    --exclude='__pycache__' \
-    --exclude='.git' \
-    --exclude='venv' \
-    --exclude='backups' \
-    .env \
-    docker-compose.prod.yml \
-    deploy/
+# 2. Copy that one file to the host.
+HOST_SNAP="/tmp/$SNAP_NAME"
+docker cp "$CONTAINER:$SNAP_PATH" "$HOST_SNAP" \
+    || { echo -e "${RED}ERROR: docker cp failed${NC}"; exit 1; }
+echo "Local snapshot: $HOST_SNAP ($(du -h "$HOST_SNAP" | cut -f1))"
 
-# Create backup info file
-cat > "$BACKUP_DIR/$BACKUP_NAME.info" << EOF
-Backup created: $(date)
-Application directory: $APP_DIR
-Backup size: $(du -h "$BACKUP_DIR/$BACKUP_NAME.tar.gz" | cut -f1)
-Git commit: $(cd $APP_DIR && git rev-parse HEAD 2>/dev/null || echo "Unknown")
-Docker images: $(docker images --format "table {{.Repository}}:{{.Tag}}\t{{.Size}}" | grep jugglefit || echo "None")
-EOF
+# 3. Off-box: push to remote (copy, NOT sync — remote accumulates) then
+#    prune the remote according to daily/weekly retention.
+if [ -n "${RCLONE_REMOTE:-}" ] && command -v rclone >/dev/null 2>&1; then
+    echo -e "${YELLOW}Uploading to ${RCLONE_REMOTE}...${NC}"
+    if rclone copy "$HOST_SNAP" "${RCLONE_REMOTE}/"; then
+        echo -e "${GREEN}Upload complete.${NC}"
+        # Remote retention: keep newest N + one-per-week for M weeks.
+        echo -e "${YELLOW}Pruning remote (keep ${BACKUP_REMOTE_KEEP_DAILY} daily + ${BACKUP_REMOTE_KEEP_WEEKLY} weekly)...${NC}"
+        prune_remote() {
+            local listing keep_set weeks_seen=""
+            listing=$(rclone lsf "${RCLONE_REMOTE}/" --include "jugglefit_*.db" | sort -r)
+            local i=0
+            while IFS= read -r f; do
+                [ -z "$f" ] && continue
+                i=$((i+1))
+                if [ "$i" -le "$BACKUP_REMOTE_KEEP_DAILY" ]; then
+                    keep_set="$keep_set $f"; continue
+                fi
+                # parse YYYYMMDD from jugglefit_YYYYMMDD_HHMMSS.db → ISO week
+                local d="${f#jugglefit_}"; d="${d:0:8}"
+                local wk
+                wk=$(date -d "${d:0:4}-${d:4:2}-${d:6:2}" +%G-W%V 2>/dev/null) || { keep_set="$keep_set $f"; continue; }
+                case " $weeks_seen " in *" $wk "*) ;; *)
+                    if [ "$(echo "$weeks_seen" | wc -w)" -lt "$BACKUP_REMOTE_KEEP_WEEKLY" ]; then
+                        weeks_seen="$weeks_seen $wk"; keep_set="$keep_set $f"; continue
+                    fi;;
+                esac
+                rclone deletefile "${RCLONE_REMOTE}/$f" && echo "  removed remote $f"
+            done <<< "$listing"
+        }
+        prune_remote
+    else
+        echo -e "${RED}WARN: rclone upload failed — local snapshot kept at $HOST_SNAP${NC}"
+    fi
+elif [ -n "${RCLONE_REMOTE:-}" ]; then
+    echo -e "${RED}WARN: RCLONE_REMOTE set but rclone not installed${NC}"
+else
+    echo "RCLONE_REMOTE not set — skipping off-box upload."
+fi
 
-# Clean up old backups
-echo -e "${YELLOW}Cleaning up old backups (keeping $RETENTION_DAYS days)...${NC}"
-find $BACKUP_DIR -name "jugglefit_backup_*.tar.gz" -mtime +$RETENTION_DAYS -delete
-find $BACKUP_DIR -name "jugglefit_backup_*.info" -mtime +$RETENTION_DAYS -delete
+# 4. Host cleanup: remove the temp copy (container keeps its 1 local).
+rm -f "$HOST_SNAP"
 
-echo -e "${GREEN}Backup completed: $BACKUP_DIR/$BACKUP_NAME.tar.gz${NC}"
-echo "Backup info: $BACKUP_DIR/$BACKUP_NAME.info"
+# 5. Reclaim disk in the live DB. Runs *after* upload so today's snapshot
+#    still contains anything about to be pruned.
+echo -e "${YELLOW}Pruning raw vote rows + VACUUM...${NC}"
+docker compose -f "$COMPOSE" exec -T web python -m database.prune \
+    || echo "WARN: prune failed"
+
+echo -e "${GREEN}Backup complete.${NC}"
