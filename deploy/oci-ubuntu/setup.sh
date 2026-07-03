@@ -117,7 +117,10 @@ CRON_LINES=$(cat <<EOF
 0 4 1 * * docker system prune -af >> $LOG_DIR/docker-prune.log 2>&1 $CRON_TAG
 EOF
 )
-( crontab -l 2>/dev/null | grep -v "$CRON_TAG" ; echo "$CRON_LINES" ) | crontab -
+# `|| true`: with set -euo pipefail, an empty/no crontab makes both
+# `crontab -l` and `grep -v` exit 1, which would abort the subshell
+# before echo runs and leave root with an empty crontab.
+( crontab -l 2>/dev/null | grep -v "$CRON_TAG" || true ; echo "$CRON_LINES" ) | crontab -
 say "Cron installed:"
 crontab -l | grep "$CRON_TAG" | sed 's/^/  /'
 
