@@ -25,21 +25,35 @@ def missing_tag_categories(candidate_id: int, prop_type: str) -> list[str]:
             if cov.get(cat, 0) < MIN_TAG_VOTES]
 
 
-def resolve_tags(candidate_id: int) -> Set[str]:
-    """Reliability-weighted majority per tag.
+def tag_probabilities(candidate_id: int) -> list[dict]:
+    """Per-tag confidence, sorted by probability desc.
 
-    A tag is included when its weighted-positive share is ≥ TAG_VOTE_THRESHOLD
-    and it has at least MIN_TAG_VOTES non-zero votes.
+    ``p`` = reliability-weighted positive share ∈ [0, 1] (0.0 when the tag
+    has been shown but nobody with weight has voted). ``n`` = distinct
+    non-abstain votes. ``resolved`` mirrors the promotion threshold so
+    callers that only need the final set can filter on it.
     """
-    out: Set[str] = set()
+    out: list[dict] = []
     for row in db_manager.tag_vote_summary(candidate_id):
         w_pos = row["w_pos"] or 0.0
         w_neg = row["w_neg"] or 0.0
         n = row["n_nonzero"] or 0
         denom = w_pos + w_neg
-        if n >= MIN_TAG_VOTES and denom > 0 and (w_pos / denom) >= TAG_VOTE_THRESHOLD:
-            out.add(row["tag"])
+        p = (w_pos / denom) if denom > 0 else 0.0
+        out.append({
+            "tag": row["tag"],
+            "p": round(p, 3),
+            "n": n,
+            "resolved": n >= MIN_TAG_VOTES and p >= TAG_VOTE_THRESHOLD,
+        })
+    out.sort(key=lambda r: (-r["p"], -r["n"], r["tag"]))
     return out
+
+
+def resolve_tags(candidate_id: int) -> Set[str]:
+    """Final tag set for promotion — thin threshold over
+    :func:`tag_probabilities`."""
+    return {r["tag"] for r in tag_probabilities(candidate_id) if r["resolved"]}
 
 
 def resolve_max_throw(candidate_id: int) -> Optional[int]:

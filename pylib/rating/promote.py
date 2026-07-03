@@ -19,7 +19,7 @@ from database.backup import backup_db
 from pylib.classes.prop import Prop
 from pylib.utils.trick_registry import reload_prop
 from pylib.rating.aggregate import (
-    resolve_tags, resolve_max_throw, missing_tag_categories,
+    resolve_tags, resolve_max_throw, missing_tag_categories, tag_probabilities,
 )
 from pylib.configuration.consts import (
     PROMOTE_MIN_COMPARISONS, PROMOTE_MAX_SIGMA, PROMOTE_MAX_UNKNOWN_RATIO,
@@ -45,7 +45,9 @@ def _annotate(c: dict) -> dict:
     unknown_ratio = ((c["n_cant_judge"] + c["n_flags"]) / seen) if seen else 0.0
     out = dict(c)
     out["resolved_difficulty"] = round(c["mu"])
-    out["resolved_tags"] = sorted(resolve_tags(cid))
+    probs = tag_probabilities(cid)
+    out["tag_probs"] = probs
+    out["resolved_tags"] = sorted(r["tag"] for r in probs if r["resolved"])
     out["resolved_max_throw"] = resolve_max_throw(cid)
     out["unknown_ratio"] = round(unknown_ratio, 3)
     out["age_hours"] = round(_age_hours(c.get("created_at")), 1)
