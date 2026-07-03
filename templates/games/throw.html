@@ -9,7 +9,13 @@
     .throw-trick .label { font-size:1.15rem; font-weight:600; word-break:break-word; }
     .stepper { display:flex; align-items:center; justify-content:center; gap:1rem; margin:.6rem 0 1.2rem; }
     .stepper button { width:44px; height:44px; font-size:1.4rem; border-radius:8px; border:1px solid #ccc; background:#fff; cursor:pointer; }
-    .stepper .val { font-size:1.8rem; font-weight:700; min-width:2.2em; text-align:center; }
+    .stepper .val { font-size:1.8rem; font-weight:700; width:2.6em; text-align:center;
+                    border:none; border-bottom:2px solid var(--primary-color,#2a7);
+                    background:transparent; outline:none;
+                    -moz-appearance:textfield; appearance:textfield; }
+    .stepper .val::-webkit-outer-spin-button,
+    .stepper .val::-webkit-inner-spin-button { -webkit-appearance:none; margin:0; }
+    .stepper-hint { text-align:center; font-size:.75rem; color:#999; margin:-.8rem 0 1rem; }
     .throw-buttons { display:flex; gap:.6rem; justify-content:center; flex-wrap:wrap; }
 {% endblock %}
 
@@ -19,7 +25,8 @@ GameEngine.start({
     game: 'throw',
     loggedIn: {{ 'true' if current_user else 'false' }},
     renderCard: function (task, answer) {
-        let v = Math.max(task.min, Math.min(task.max, task.default || task.min));
+        const clamp = n => Math.max(task.min, Math.min(task.max, n));
+        let v = clamp(task.default || task.min);
         const el = document.createElement('div');
         el.innerHTML = `
             <div class="throw-trick">
@@ -28,33 +35,46 @@ GameEngine.start({
             </div>
             <div class="stepper">
                 <button type="button" data-d="-1">−</button>
-                <span class="val" id="tv">${v}</span>
+                <input class="val" id="tv" type="number" inputmode="numeric"
+                       min="${task.min}" max="${task.max}" step="1" value="${v}">
                 <button type="button" data-d="+1">+</button>
             </div>
+            <div class="stepper-hint">type a number · ↑/↓ · Enter to submit</div>
             <div class="throw-buttons">
                 <button class="primary-button" data-act="submit">Submit</button>
                 <button class="secondary-button" data-act="na">N/A</button>
                 <button class="secondary-button" data-act="skip">Don't know</button>
             </div>`;
         const tv = el.querySelector('#tv');
+        const setV = n => { v = clamp(n); tv.value = v; };
         el.querySelectorAll('[data-d]').forEach(b =>
-            b.addEventListener('click', () => {
-                v = Math.max(task.min, Math.min(task.max, v + parseInt(b.dataset.d, 10)));
-                tv.textContent = v;
-            }));
+            b.addEventListener('click', () => { setV(v + parseInt(b.dataset.d, 10)); tv.focus(); }));
+        tv.addEventListener('input', () => {
+            const n = parseInt(tv.value, 10);
+            if (Number.isFinite(n)) v = clamp(n);   // don't rewrite while typing
+        });
+        tv.addEventListener('blur', () => setV(v));
+        tv.addEventListener('keydown', e => {
+            if (e.key === 'ArrowUp')   { e.preventDefault(); setV(v + 1); }
+            else if (e.key === 'ArrowDown') { e.preventDefault(); setV(v - 1); }
+            else if (e.key === 'Enter') { e.preventDefault(); submit('submit'); }
+            else if (e.key === 'Escape') tv.blur();
+        });
+        function submit(a) {
+            if (a === 'skip') return answer({ max_throw: 'skip' });
+            if (a === 'na')   return answer({ max_throw: null });
+            const n = parseInt(tv.value, 10);
+            return answer({ max_throw: clamp(Number.isFinite(n) ? n : v) });
+        }
         el.querySelectorAll('[data-act]').forEach(b =>
-            b.addEventListener('click', () => {
-                const a = b.dataset.act;
-                if (a === 'skip') return answer({ max_throw: 'skip' });
-                if (a === 'na')   return answer({ max_throw: null });
-                return answer({ max_throw: v });
-            }));
+            b.addEventListener('click', () => submit(b.dataset.act)));
         return el;
     },
-    keymap: {
-        'ArrowUp':   null,
-        'ArrowDown': null
-    }
+    onCardMounted: function (el) {
+        const tv = el.querySelector('#tv');
+        if (tv) { tv.focus(); tv.select(); }
+    },
+    keymap: {}
 });
 </script>
 {% endblock %}

@@ -230,6 +230,9 @@
             f.id = 'flash'; f.className = 'feedback-flash';
             cardEl().appendChild(f);
             renderFlag(task, opts, () => { idx++; show(); });
+            if (typeof opts.onCardMounted === 'function') {
+                try { opts.onCardMounted(node, task); } catch (_) {}
+            }
         }
 
         function answer(payload) {
