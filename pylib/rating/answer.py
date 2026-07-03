@@ -8,8 +8,17 @@ from typing import Optional
 from database.db_manager import db_manager
 from pylib.configuration.consts import ANON_VOTE_WEIGHT
 from pylib.rating.elo import Side, apply_comparison
+from pylib.classes.tag import TAG_CATEGORY_MAP, TagCategory
 from pylib.rating.flags import check_unstable
 from pylib.rating.tasks import unsign
+
+
+def _tag_to_category() -> dict[str, str]:
+    return {str(t): cat.value
+            for cat, tags in TAG_CATEGORY_MAP.items() for t in tags}
+
+
+_TAG_CAT = _tag_to_category()
 
 
 _VALID_WINNERS = {"left", "right", "skip"}
@@ -100,15 +109,25 @@ def _handle_compare(task: dict, payload: dict, *, user_id: Optional[int],
 def _handle_tag(task: dict, payload: dict, *, user_id: Optional[int],
                 anon_id: Optional[str], reliability: float) -> dict:
     shown: list[str] = task.get("tags") or []
-    selected = set(payload.get("selected_tags") or [])
-    dont_know = bool(payload.get("dont_know"))
+    selected = set(payload.get("selected_tags") or []) & set(shown)
+    dont_know_all = bool(payload.get("dont_know"))
+    # Per-category "don't know" from the multi-category UI. Tags in these
+    # categories are recorded as 0 (unrated) instead of -1.
+    dk_cats = set(payload.get("dont_know_categories") or [])
     is_control = bool(task.get("c"))
     result: dict = {"ok": True, "is_control": is_control}
 
     if is_control:
-        if user_id is not None and not dont_know:
+        if user_id is not None and not dont_know_all:
             expected = set(task.get("e") or [])
-            correct = expected.issubset(selected & set(shown))
+            # Ignore categories the user explicitly skipped when scoring.
+            scoreable = {t for t in shown if _TAG_CAT.get(t) not in dk_cats}
+            exp = expected & scoreable
+            got = selected & scoreable
+            # Jaccard on the scoreable universe → correct if ≥ 0.5.
+            union = exp | got
+            j = (len(exp & got) / len(union)) if union else 1.0
+            correct = j >= 0.5
             new_rel = db_manager.update_user_reliability(user_id, correct=correct)
             result["correct"] = correct
             result["reliability"] = round(new_rel, 3)
@@ -120,12 +139,20 @@ def _handle_tag(task: dict, payload: dict, *, user_id: Optional[int],
         return result
     if user_id is not None:
         db_manager.bump_user_game_counter(user_id, game="tagging")
-    if dont_know:
-        votes = {t: 0 for t in shown}
-    else:
-        votes = {t: (1 if t in selected else -1) for t in shown}
-    db_manager.record_tag_votes(candidate_id=cid, user_id=user_id, anon_id=anon_id,
-                                category=task["cat"], votes=votes)
+
+    # Bucket shown tags by their category so record_tag_votes still gets a
+    # correct `category` per row (used by tag_category_coverage / gates).
+    by_cat: dict[str, dict[str, int]] = {}
+    for t in shown:
+        cat = _TAG_CAT.get(t) or task.get("cat") or "misc"
+        if dont_know_all or cat in dk_cats:
+            v = 0
+        else:
+            v = 1 if t in selected else -1
+        by_cat.setdefault(cat, {})[t] = v
+    for cat, votes in by_cat.items():
+        db_manager.record_tag_votes(candidate_id=cid, user_id=user_id,
+                                    anon_id=anon_id, category=cat, votes=votes)
     return result
 
 

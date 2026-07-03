@@ -16,7 +16,7 @@ from pylib.configuration.consts import (
     RATING_SET_SIZE, RATING_CONTROL_FRACTION, CONTROL_MIN_GAP,
     TAG_UNLOCK_SIGMA, THROW_STEPPER_MIN, THROW_STEPPER_MAX,
 )
-from pylib.rating.aggregate import relevant_categories, missing_tag_categories
+from pylib.rating.aggregate import relevant_categories
 from pylib.rating.tasks import sign
 
 
@@ -137,41 +137,44 @@ def _eligible_for_metadata(prop_type: str, *, user_id: int, order: str,
     )
 
 
-def _make_tag_task(prop_type: str, *, kind: str, row: dict, category: str,
-                   expected: Optional[list[str]]) -> dict:
-    tags = _category_tags(category)
+def _make_tag_task(prop_type: str, *, kind: str, row: dict,
+                   cats: list[str], expected: Optional[list[str]]) -> dict:
+    """One task = one trick × ALL prop-relevant categories."""
+    tags_by_cat = {cat: _category_tags(cat) for cat in cats}
+    all_tags = [t for ts in tags_by_cat.values() for t in ts]
     cid = row["id"] if kind == "candidate" else None
     token = sign({
         "k": "tag", "p": prop_type,
         "cid": cid,
         "aid": row["id"] if kind == "anchor" else None,
-        "cat": category, "tags": tags,
+        "cats": cats, "tags": all_tags,
         "c": kind == "anchor", "e": expected,
         "cand": [cid] if cid is not None else [],
     })
     return {
         "kind": "tag", "task_id": token,
         "trick": _public_side(row),
-        "category": category, "tags": tags,
+        # Legacy renderers may still read `category`/`tags`; keep both flat
+        # and grouped forms so old clients don't crash mid-deploy.
+        "category": None, "tags": all_tags,
+        "tags_by_cat": tags_by_cat,
         "flaggable": cid is not None,
     }
 
 
 def _tag_control(prop_type: str, cats: list[str]) -> Optional[dict]:
-    """Pick a random tagged anchor, then choose a category it actually has
-    tags in. Bounded: one indexed query + O(|cats|) filter."""
+    """Random tagged anchor; expected = its master tags restricted to the
+    prop's tag universe."""
     a = db_manager.random_anchor_with_tags(prop_type)
     if not a:
         return None
     a_tags = set((a.get("tags") or "").split("|")) - {""}
-    viable = [(cat, sorted(set(_category_tags(cat)) & a_tags))
-              for cat in cats]
-    viable = [(cat, exp) for cat, exp in viable if exp]
-    if not viable:
+    universe = {t for cat in cats for t in _category_tags(cat)}
+    expected = sorted(a_tags & universe)
+    if not expected:
         return None
-    cat, expected = random.choice(viable)
     return _make_tag_task(prop_type, kind="anchor", row=a,
-                          category=cat, expected=expected)
+                          cats=cats, expected=expected)
 
 
 def build_tag_set(prop_type: str, *, user_id: int,
@@ -193,10 +196,8 @@ def build_tag_set(prop_type: str, *, user_id: int,
     while len(tasks) < size and cands:
         c = cands[ci % len(cands)]
         ci += 1
-        missing = missing_tag_categories(c["id"], prop_type) or cats
-        cat = random.choice(missing)
         tasks.append(_make_tag_task(prop_type, kind="candidate", row=c,
-                                    category=cat, expected=None))
+                                    cats=cats, expected=None))
 
     attempts = 0
     while len(tasks) < size and attempts < size * 4:

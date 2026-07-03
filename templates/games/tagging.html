@@ -1,16 +1,23 @@
 {% extends "games/_game_base.html" %}
 {% block title %}Tagging{% endblock %}
 {% block game_title %}Tagging{% endblock %}
-{% block game_blurb %}<p>Tap every tag that describes the trick. Hit Submit, or "None" / "Don't know".</p>{% endblock %}
+{% block game_blurb %}<p>Tap every tag that describes the trick. Use the <b>?</b> next to a group to skip just that group. Unticked tags count as "no".</p>{% endblock %}
 
 {% block game_css %}
-    .tag-trick { text-align:center; margin-bottom:.6rem; }
+    .tag-trick { text-align:center; margin-bottom:.9rem; }
     .tag-trick .pc { font-size:.8rem; color:#888; }
     .tag-trick .label { font-size:1.15rem; font-weight:600; word-break:break-word; }
-    .tag-cat { text-align:center; font-size:.8rem; color:#888; text-transform:uppercase; letter-spacing:.05em; margin-bottom:.8rem; }
-    .tag-chips { display:flex; flex-wrap:wrap; gap:.5rem; justify-content:center; }
-    .tag-chip { border:1px solid #ccc; border-radius:999px; padding:.35rem .9rem; cursor:pointer; user-select:none; background:#fff; }
+    .tag-cats { display:flex; flex-direction:column; gap:.9rem; max-width:640px; margin:0 auto; }
+    .tag-cat-row { border:1px solid #eee; border-radius:8px; padding:.6rem .7rem; }
+    .tag-cat-row.dk { opacity:.45; }
+    .tag-cat-head { display:flex; align-items:center; justify-content:space-between; gap:.6rem; margin-bottom:.5rem; }
+    .tag-cat-name { font-size:.75rem; color:#888; text-transform:uppercase; letter-spacing:.05em; }
+    .tag-cat-dk { font-size:.75rem; border:1px solid #ccc; background:#fff; border-radius:999px; padding:.15rem .6rem; cursor:pointer; }
+    .tag-cat-row.dk .tag-cat-dk { background:#eee; }
+    .tag-chips { display:flex; flex-wrap:wrap; gap:.4rem; }
+    .tag-chip { border:1px solid #ccc; border-radius:999px; padding:.3rem .8rem; cursor:pointer; user-select:none; background:#fff; font-size:.9rem; }
     .tag-chip.on { background:var(--primary-color,#2a7); border-color:var(--primary-color,#2a7); color:#fff; }
+    .tag-cat-row.dk .tag-chip { pointer-events:none; }
     .tag-buttons { display:flex; gap:.6rem; justify-content:center; margin-top:1.2rem; flex-wrap:wrap; }
 {% endblock %}
 
@@ -20,40 +27,66 @@ GameEngine.start({
     game: 'tagging',
     loggedIn: {{ 'true' if current_user else 'false' }},
     renderCard: function (task, answer) {
+        const esc = GameEngine.esc;
+        // Server sends tags_by_cat = {category: [tag,...]}. Fall back to the
+        // legacy single-category shape if an old task set is still cached.
+        const byCat = task.tags_by_cat
+            || (task.category ? { [task.category]: task.tags } : { '': task.tags });
         const el = document.createElement('div');
         el.innerHTML = `
             <div class="tag-trick">
                 <div class="pc">${task.trick.props_count} prop${task.trick.props_count===1?'':'s'}</div>
                 <div class="label">${GameEngine.renderTrick(task.trick)}</div>
             </div>
-            <div class="tag-cat">${GameEngine.esc(task.category)}</div>
-            <div class="tag-chips">
-                ${task.tags.map(t =>
-                    `<span class="tag-chip" data-tag="${GameEngine.esc(t)}">${GameEngine.esc(t)}</span>`
-                ).join('')}
+            <div class="tag-cats">
+                ${Object.entries(byCat).map(([cat, tags]) => `
+                    <div class="tag-cat-row" data-cat="${esc(cat)}">
+                        <div class="tag-cat-head">
+                            <span class="tag-cat-name">${esc(cat)}</span>
+                            <button type="button" class="tag-cat-dk" title="Skip this group">? don't know</button>
+                        </div>
+                        <div class="tag-chips">
+                            ${tags.map(t =>
+                                `<span class="tag-chip" data-tag="${esc(t)}">${esc(t)}</span>`
+                            ).join('')}
+                        </div>
+                    </div>`).join('')}
             </div>
             <div class="tag-buttons">
                 <button class="primary-button" data-act="submit">Submit</button>
-                <button class="secondary-button" data-act="none">None of these</button>
-                <button class="secondary-button" data-act="skip">Don't know</button>
+                <button class="secondary-button" data-act="skip">Skip trick</button>
             </div>`;
         const selected = new Set();
+        const dkCats = new Set();
         el.querySelectorAll('.tag-chip').forEach(chip =>
             chip.addEventListener('click', () => {
                 const t = chip.dataset.tag;
                 if (selected.has(t)) { selected.delete(t); chip.classList.remove('on'); }
                 else { selected.add(t); chip.classList.add('on'); }
             }));
+        el.querySelectorAll('.tag-cat-dk').forEach(btn =>
+            btn.addEventListener('click', () => {
+                const row = btn.closest('.tag-cat-row');
+                const cat = row.dataset.cat;
+                if (dkCats.has(cat)) { dkCats.delete(cat); row.classList.remove('dk'); }
+                else {
+                    dkCats.add(cat); row.classList.add('dk');
+                    row.querySelectorAll('.tag-chip.on').forEach(c => {
+                        selected.delete(c.dataset.tag); c.classList.remove('on');
+                    });
+                }
+            }));
         el.querySelectorAll('[data-act]').forEach(b =>
             b.addEventListener('click', () => {
-                const act = b.dataset.act;
-                if (act === 'skip')   return answer({ dont_know: true });
-                if (act === 'none')   return answer({ selected_tags: [] });
-                return answer({ selected_tags: Array.from(selected) });
+                if (b.dataset.act === 'skip') return answer({ dont_know: true });
+                return answer({
+                    selected_tags: Array.from(selected),
+                    dont_know_categories: Array.from(dkCats),
+                });
             }));
         return el;
     },
-    keymap: { 'Enter': null }  // no global keymap; chips are click-only
+    keymap: { 'Enter': null }
 });
 </script>
 {% endblock %}

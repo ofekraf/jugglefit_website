@@ -13,7 +13,10 @@
     .gates .ok { background:#e7f6ec; color:#1a6b3a; }
     .gates .no { background:#fdecea; color:#8a2a22; }
     .row-actions button { margin-right:.3rem; }
-    .toolbar { display:flex; gap:.6rem; margin-bottom:.8rem; flex-wrap:wrap; }
+    .toolbar { display:flex; gap:.6rem; margin-bottom:.8rem; flex-wrap:wrap; align-items:center; }
+    table.crowd .trick-main { display:inline-block; }
+    table.crowd .trick-siteswap-x { display:none; }
+    table.crowd .trick-only { display:inline; }
 </style>
 {% endblock %}
 
@@ -34,6 +37,7 @@
                 {% if is_super_admin %}
                 <a class="secondary-button" href="{{ url_for('admin_users') }}">Manage users</a>
                 {% endif %}
+                {% include "macros/siteswap_x_toggle.html" %}
                 <span id="status" style="color:#666;"></span>
             </div>
             <div class="tabs" id="tabs">
@@ -54,6 +58,24 @@
     const statusEl=document.getElementById('status');
     function prop(){const e=document.querySelector('.prop-option-input:checked');return e?e.value:'balls';}
     function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+    const ssxCb=document.getElementById('toggle-siteswap-x-checkbox');
+    const ssxKey='jf.crowd.siteswapx';
+    function ssxOn(){return !!(ssxCb && ssxCb.checked);}
+    function trickLabel(r){
+        const nm=r.name, sx=r.siteswap_x;
+        const tail=` <small>(${r.props_count})</small>`;
+        const fx=(typeof window.formatSiteswapX==='function')
+            ? window.formatSiteswapX(sx||'') : esc(sx||'');
+        if(nm && sx){
+            const on=ssxOn();
+            return '<span class="trick-container"><span class="trick-main">'
+                + `<span class="trick-name" style="display:${on?'none':''}">${esc(nm)}</span>`
+                + `<span class="trick-siteswap-x" style="display:${on?'':'none'}">${fx}</span>`
+                + '</span></span>'+tail;
+        }
+        if(sx) return `<span class="trick-only trick-ss-only">${fx}</span>`+tail;
+        return `<span class="trick-only">${esc(nm||'')}</span>`+tail;
+    }
     function gateBadges(g){
         if(!g) return '';
         return '<span class="gates">'+Object.entries(g).map(([k,v])=>
@@ -68,7 +90,7 @@
               + (state==='ready'?'<th>Resolved</th>':'<th>Gates</th>')+'<th></th></tr>';
         listEl.innerHTML='<table class="crowd"><thead>'+head+'</thead><tbody>'+
             rows.map(r=>{
-                const label = esc(r.name||r.siteswap_x||'')+` <small>(${r.props_count})</small>`;
+                const label = trickLabel(r);
                 if(state==='pending_deletion') return `<tr><td>${r.id}</td><td>${label}</td>
                     <td>${esc(r.removed_reason)}</td><td>${esc(r.removed_at)}</td><td>${r.n_flags}</td>
                     <td class="row-actions">
@@ -128,7 +150,20 @@
             b.classList.add('on'); state=b.dataset.state; load();
         }));
     document.querySelectorAll('input[name="prop"]').forEach(r=>r.addEventListener('change',load));
+    if(ssxCb){
+        ssxCb.checked = localStorage.getItem(ssxKey)==='1';
+        ssxCb.addEventListener('change',()=>{
+            localStorage.setItem(ssxKey, ssxCb.checked?'1':'0');
+            if(typeof window.toggleSiteswapXEverywhere==='function')
+                window.toggleSiteswapXEverywhere();
+        });
+    }
     load();
 })();
 </script>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/siteswap_x.js') }}?v={{ cache_version }}"></script>
 {% endblock %}
