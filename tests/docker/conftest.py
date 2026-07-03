@@ -68,12 +68,6 @@ def ensure_dotenv(project_root):
 
 
 @pytest.fixture
-def github_workflow_path(project_root):
-    """Path to GitHub Actions workflow."""
-    return project_root / ".github" / "workflows" / "deploy.yml"
-
-
-@pytest.fixture
 def oci_deployment_path(project_root):
     """Path to OCI deployment scripts."""
     return project_root / "deploy" / "oci-ubuntu"
