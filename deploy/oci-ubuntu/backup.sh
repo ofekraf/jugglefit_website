@@ -12,7 +12,10 @@ set -e
 
 APP_DIR="/opt/jugglefit"
 COMPOSE="$APP_DIR/docker-compose.prod.yml"
-CONTAINER="jugglefit_website-web-1"
+# Resolve the web container id from compose so we don't depend on the
+# project-name prefix (varies with APP_DIR / -p).
+CONTAINER="$(docker compose -f "$COMPOSE" ps -q web)"
+[ -n "$CONTAINER" ] || { echo "ERROR: web container not running"; exit 1; }
 
 [ -f "$APP_DIR/.env" ] && set -a && . "$APP_DIR/.env" && set +a
 
