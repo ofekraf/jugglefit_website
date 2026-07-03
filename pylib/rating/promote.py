@@ -23,8 +23,9 @@ from pylib.rating.aggregate import (
 )
 from pylib.configuration.consts import (
     PROMOTE_MIN_COMPARISONS, PROMOTE_MAX_SIGMA, PROMOTE_MAX_UNKNOWN_RATIO,
-    PROMOTE_MIN_AGE_HOURS, MIN_THROW_VOTES,
+    PROMOTE_MIN_AGE_HOURS, MIN_THROW_VOTES, MIN_TAG_VOTES,
 )
+from pylib.rating.aggregate import relevant_categories
 
 
 def _age_hours(ts: str | None) -> float:
@@ -51,22 +52,44 @@ def _annotate(c: dict) -> dict:
     out["resolved_max_throw"] = resolve_max_throw(cid)
     out["unknown_ratio"] = round(unknown_ratio, 3)
     out["age_hours"] = round(_age_hours(c.get("created_at")), 1)
+    n_cats = max(1, len(relevant_categories(c["prop_type"])))
+    missing = missing_tag_categories(cid, c["prop_type"])
     out["gates"] = {
         "comparisons": c["n_comparisons"] >= PROMOTE_MIN_COMPARISONS,
         "sigma": c["sigma"] <= PROMOTE_MAX_SIGMA,
         "recognition": unknown_ratio < PROMOTE_MAX_UNKNOWN_RATIO,
-        "tags": len(missing_tag_categories(cid, c["prop_type"])) == 0,
+        "tags": len(missing) == 0,
         "throw": c["n_throw_votes"] >= MIN_THROW_VOTES,
         "age": out["age_hours"] >= PROMOTE_MIN_AGE_HOURS,
     }
     out["ready"] = all(out["gates"].values())
+    # Continuous readiness ∈ [0,1]: mean of per-gate progress. Lets the admin
+    # sort the pool by "closest to promotion" without a boolean cliff.
+    progress = [
+        min(1.0, c["n_comparisons"] / PROMOTE_MIN_COMPARISONS),
+        min(1.0, PROMOTE_MAX_SIGMA / max(c["sigma"], 1e-6)),
+        1.0 if unknown_ratio < PROMOTE_MAX_UNKNOWN_RATIO
+            else max(0.0, 1.0 - (unknown_ratio - PROMOTE_MAX_UNKNOWN_RATIO)
+                                 / max(1e-6, 1.0 - PROMOTE_MAX_UNKNOWN_RATIO)),
+        (n_cats - len(missing)) / n_cats,
+        min(1.0, c["n_throw_votes"] / MIN_THROW_VOTES),
+        min(1.0, out["age_hours"] / PROMOTE_MIN_AGE_HOURS),
+    ]
+    out["readiness"] = round(sum(progress) / len(progress), 3)
+    out["gates_passed"] = sum(1 for v in out["gates"].values() if v)
     return out
 
 
+def annotated_active_candidates(prop_type: str) -> list[dict]:
+    """All active candidates for a prop, fully annotated and ordered by
+    readiness (closest-to-promotion first)."""
+    rows = [_annotate(c) for c in db_manager.get_active_candidates(prop_type)]
+    rows.sort(key=lambda a: (-a["gates_passed"], -a["readiness"], a["sigma"]))
+    return rows
+
+
 def ready_candidates(prop_type: str) -> list[dict]:
-    return [a for a in (
-        _annotate(c) for c in db_manager.get_active_candidates(prop_type)
-    ) if a["ready"]]
+    return [a for a in annotated_active_candidates(prop_type) if a["ready"]]
 
 
 def annotate_candidate(candidate_id: int) -> Optional[dict]:

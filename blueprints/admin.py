@@ -27,7 +27,10 @@ from pylib.auth import (
 from pylib.classes.prop import Prop, MAIN_PROPS
 from pylib.configuration.consts import ADMIN_SESSION_SECONDS
 from pylib.rating.flags import queue_for_deletion
-from pylib.rating.promote import ready_candidates, annotate_candidate, promote_candidate
+from pylib.rating.promote import (
+    ready_candidates, annotated_active_candidates,
+    annotate_candidate, promote_candidate,
+)
 
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
@@ -145,6 +148,10 @@ def api_candidates(prop_type):
         return jsonify({"error": "invalid prop"}), 400
     if state == "ready":
         return jsonify(ready_candidates(prop_type))
+    if state == "pool":
+        # Server-side annotation so the client doesn't fan out N per-row
+        # fetches (which also caused a stale-render race when switching tabs).
+        return jsonify(annotated_active_candidates(prop_type))
     try:
         return jsonify(db_manager.get_candidates_by_state(prop_type, state))
     except ValueError:

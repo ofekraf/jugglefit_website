@@ -87,7 +87,7 @@
         const head = isQueue
             ? '<tr><th>ID</th><th>Trick</th><th>Reason</th><th>When</th><th>flags</th><th></th></tr>'
             : '<tr><th>ID</th><th>Trick</th><th>μ±σ</th><th>cmp/?</th><th>tag/thr</th>'
-              + (state==='ready'?'<th>Resolved</th>':'<th>Gates</th>')+'<th></th></tr>';
+              + (state==='ready'?'<th>Resolved</th>':'<th>Ready</th><th>Gates</th>')+'<th></th></tr>';
         listEl.innerHTML='<table class="crowd"><thead>'+head+'</thead><tbody>'+
             rows.map(r=>{
                 const label = trickLabel(r);
@@ -111,23 +111,26 @@
                             <button class="primary-button" data-act="promote" data-id="${r.id}">Promote</button>
                             <button data-act="reject" data-id="${r.id}">Reject</button></td></tr>`;
                 }
+                const rd = (r.readiness!=null)
+                    ? `<span title="${r.gates_passed}/${Object.keys(r.gates||{}).length} gates">${Math.round(r.readiness*100)}%</span>`
+                    : '';
                 return `<tr><td>${r.id}</td><td>${label}</td><td>${mu}</td><td>${ct}</td><td>${tv}</td>
-                    <td>${gateBadges(r.gates)}</td>
+                    <td>${rd}</td><td>${gateBadges(r.gates)}</td>
                     <td class="row-actions"><button data-act="reject" data-id="${r.id}">Reject</button></td></tr>`;
             }).join('')+'</tbody></table>';
         listEl.querySelectorAll('[data-act]').forEach(b=>b.addEventListener('click',onAction));
     }
+    let loadGen = 0;
     function load(){
+        const gen = ++loadGen;
+        const reqState = state;
         listEl.innerHTML='<p>Loading…</p>';
-        const url = state==='pool'
-            ? `/admin/api/candidates/${encodeURIComponent(prop())}?state=pool`
-            : `/admin/api/candidates/${encodeURIComponent(prop())}?state=${state}`;
+        const url = `/admin/api/candidates/${encodeURIComponent(prop())}?state=${reqState}`;
         fetch(url).then(r=>r.json()).then(rows=>{
-            if(state==='pool'){
-                // annotate gates client-side via per-row fetch is wasteful; show raw + fetch on demand
-                Promise.all(rows.map(r=>fetch(`/admin/api/candidate/${r.id}`).then(x=>x.json())))
-                    .then(render);
-            } else render(rows);
+            if (gen !== loadGen) return;   // stale response — tab changed
+            render(rows);
+            if (ssxCb && ssxCb.checked && typeof window.toggleSiteswapXEverywhere==='function')
+                window.toggleSiteswapXEverywhere();
         });
     }
     function onAction(e){
