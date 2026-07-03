@@ -27,6 +27,37 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 
+# ---------------------------------------------------------------------------
+# Safety confirmation — this is a ONE-TIME bootstrap for a fresh VM.
+# It runs `apt upgrade -y`, installs docker/nginx/ufw/certbot, rewrites the
+# systemd unit and nginx site, and chown's $APP_DIR. Do NOT use it for
+# routine code deploys — use update.sh for that.
+# Bypass with: DEPLOY_CONFIRM=yes ./deploy.sh
+# ---------------------------------------------------------------------------
+if [[ "${DEPLOY_CONFIRM:-}" != "yes" ]]; then
+    echo
+    echo -e "${YELLOW}────────────────────────────────────────────────────────────${NC}"
+    echo -e "${YELLOW}WARNING: full host bootstrap${NC}"
+    echo    "This script is intended for a FRESH Ubuntu VM. It will:"
+    echo    "  • apt update && apt upgrade -y   (upgrades ALL OS packages, incl. kernel)"
+    echo    "  • install docker, nginx, ufw, certbot"
+    echo    "  • overwrite systemd unit + nginx site, enable firewall"
+    echo    "  • chown -R $APP_DIR"
+    echo
+    echo -e "For routine code deploys use: ${GREEN}sudo bash $APP_DIR/deploy/oci-ubuntu/update.sh${NC}"
+    echo -e "For env/rclone/cron only use: ${GREEN}sudo bash $APP_DIR/deploy/oci-ubuntu/setup.sh${NC}"
+    if [ -d "$APP_DIR/.git" ]; then
+        echo
+        echo -e "${RED}Note:${NC} $APP_DIR already looks provisioned — you probably want update.sh."
+    fi
+    echo -e "${YELLOW}────────────────────────────────────────────────────────────${NC}"
+    read -r -p "Type 'yes' to proceed with full bootstrap: " _ans
+    if [[ "$_ans" != "yes" ]]; then
+        echo -e "${RED}Aborted.${NC}"
+        exit 1
+    fi
+fi
+
 # Update system packages
 echo -e "${YELLOW}Updating system packages...${NC}"
 apt update && apt upgrade -y
