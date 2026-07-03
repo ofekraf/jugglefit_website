@@ -25,7 +25,9 @@ from pylib.auth import (
     is_super_admin_credentials, ensure_super_admin_user,
 )
 from pylib.classes.prop import Prop, MAIN_PROPS
+from pylib.classes.tag import TAG_CATEGORY_MAP
 from pylib.configuration.consts import ADMIN_SESSION_SECONDS
+from pylib.rating.aggregate import relevant_categories
 from pylib.rating.flags import queue_for_deletion
 from pylib.rating.promote import (
     ready_candidates, annotated_active_candidates,
@@ -118,6 +120,20 @@ def suggestions():
     return redirect(url_for("admin.crowd"))
 
 
+def _tags_by_prop_json() -> dict:
+    """{prop_value: {category: [tag, ...]}} for the promote-edit dialog."""
+    out: dict[str, dict[str, list[str]]] = {}
+    for prop in Prop:
+        cats = relevant_categories(prop.value)
+        out[prop.value] = {
+            cat: sorted(str(t) for t in TAG_CATEGORY_MAP[
+                next(c for c in TAG_CATEGORY_MAP if c.value == cat)
+            ])
+            for cat in cats
+        }
+    return out
+
+
 @admin_bp.route("/crowd")
 @admin_required
 def crowd():
@@ -126,6 +142,7 @@ def crowd():
         props_settings=ALL_PROPS_SETTINGS_JSON,
         main_props=MAIN_PROPS,
         is_super_admin=super_admin_session_valid(),
+        tags_by_prop=_tags_by_prop_json(),
     )
 
 
@@ -183,11 +200,16 @@ def api_set_user_admin(user_id):
     return jsonify({"ok": True, "user_id": user_id, "is_admin": is_admin_val})
 
 
+_PROMOTE_OVERRIDE_KEYS = (
+    "name", "siteswap_x", "comment", "difficulty", "tags", "max_throw",
+)
+
+
 @admin_bp.route("/api/promote/<int:candidate_id>", methods=["POST"])
 @admin_required
 def api_promote(candidate_id):
     body = request.get_json(silent=True) or {}
-    overrides = {k: body[k] for k in ("difficulty", "tags", "max_throw") if k in body}
+    overrides = {k: body[k] for k in _PROMOTE_OVERRIDE_KEYS if k in body}
     try:
         result = promote_candidate(candidate_id, overrides=overrides)
     except ValueError as e:

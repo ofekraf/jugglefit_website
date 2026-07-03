@@ -19,7 +19,7 @@ from database.backup import backup_db
 from pylib.classes.prop import Prop
 from pylib.utils.trick_registry import reload_prop
 from pylib.rating.aggregate import (
-    resolve_tags, resolve_max_throw, missing_tag_categories, tag_probabilities,
+    resolve_max_throw, missing_tag_categories, tag_probabilities,
 )
 from pylib.configuration.consts import (
     PROMOTE_MIN_COMPARISONS, PROMOTE_MAX_SIGMA, PROMOTE_MAX_UNKNOWN_RATIO,
@@ -109,12 +109,26 @@ def promote_candidate(candidate_id: int, *, overrides: dict | None = None,
         raise ValueError("candidate is removed")
 
     a = _annotate(c)
+
+    def _ov(key, default):
+        v = overrides.get(key, default)
+        if isinstance(v, str):
+            v = v.strip() or None
+        return v
+
+    name = _ov("name", c["name"])
+    siteswap_x = _ov("siteswap_x", c["siteswap_x"])
+    comment = _ov("comment", c["comment"])
+    if not name and not siteswap_x:
+        raise ValueError("name or siteswap_x is required")
     difficulty = int(overrides.get("difficulty", a["resolved_difficulty"]))
     tags_list = overrides.get("tags")
     if tags_list is None:
         tags_list = a["resolved_tags"]
     tags_str = "|".join(sorted(tags_list))
     max_throw = overrides.get("max_throw", a["resolved_max_throw"])
+    if isinstance(max_throw, str):
+        max_throw = int(max_throw) if max_throw.strip() else None
 
     if do_backup:
         try:
@@ -124,9 +138,9 @@ def promote_candidate(candidate_id: int, *, overrides: dict | None = None,
 
     trick_id = db_manager.insert_trick(
         prop_type=c["prop_type"], props_count=c["props_count"],
-        name=c["name"], siteswap_x=c["siteswap_x"],
+        name=name, siteswap_x=siteswap_x,
         difficulty=difficulty, tags=tags_str, max_throw=max_throw,
-        comment=c["comment"], source="crowd", user_id=c["user_id"],
+        comment=comment, source="crowd", user_id=c["user_id"],
     )
     if trick_id is None:
         raise ValueError("master already contains this trick")

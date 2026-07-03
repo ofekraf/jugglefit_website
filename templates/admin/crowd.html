@@ -2,7 +2,10 @@
 {% block title %}Crowd Pipeline{% endblock %}
 
 {% block head %}
-<script>window.propsSettings = {{ props_settings|tojson|safe }};</script>
+<script>
+window.propsSettings = {{ props_settings|tojson|safe }};
+window.tagsByProp    = {{ tags_by_prop|tojson|safe }};
+</script>
 <style>
     .tabs { display:flex; gap:.4rem; margin:.6rem 0 1rem; flex-wrap:wrap; }
     .tabs button { border:1px solid #ccc; background:#fff; padding:.4rem .9rem; border-radius:6px; cursor:pointer; }
@@ -17,6 +20,20 @@
     table.crowd .trick-main { display:inline-block; }
     table.crowd .trick-siteswap-x { display:none; }
     table.crowd .trick-only { display:inline; }
+    dialog#promo::backdrop { background:rgba(0,0,0,.35); }
+    dialog#promo { border:none; border-radius:10px; padding:0; width:min(560px,94vw); }
+    #promo form { padding:1.1rem 1.2rem; display:flex; flex-direction:column; gap:.7rem; }
+    #promo h3 { margin:0 0 .2rem; }
+    #promo label { display:flex; flex-direction:column; gap:.2rem; font-size:.85rem; }
+    #promo input[type=text], #promo input[type=number] { padding:.4rem .5rem; border:1px solid #ccc; border-radius:6px; font-size:.95rem; }
+    #promo .row { display:flex; gap:.6rem; }
+    #promo .row > label { flex:1; }
+    #promo .tag-cat { font-size:.75rem; color:#888; text-transform:uppercase; letter-spacing:.04em; margin:.3rem 0 .1rem; }
+    #promo .tag-grid { display:flex; flex-wrap:wrap; gap:.25rem .8rem; }
+    #promo .tag-grid label { flex-direction:row; align-items:center; gap:.35rem; font-size:.85rem; }
+    #promo .tag-grid .p { color:#999; font-size:.75rem; }
+    #promo .warn { font-size:.8rem; color:#8a2a22; }
+    #promo .actions { display:flex; gap:.5rem; justify-content:flex-end; margin-top:.4rem; }
 </style>
 {% endblock %}
 
@@ -50,6 +67,38 @@
         </div>
     </div>
 </div>
+
+<dialog id="promo">
+    <form id="promo_form" method="dialog">
+        <h3>Promote candidate <span id="pf_id"></span></h3>
+        <div id="pf_warn" class="warn" hidden></div>
+        <label>Name
+            <input type="text" id="pf_name" maxlength="200">
+        </label>
+        <label>Siteswap-X
+            <input type="text" id="pf_sx" maxlength="200">
+        </label>
+        <label>Comment
+            <input type="text" id="pf_comment" maxlength="200">
+        </label>
+        <div class="row">
+            <label>Difficulty
+                <input type="number" id="pf_diff" step="1">
+            </label>
+            <label>Max throw <small>(blank = N/A)</small>
+                <input type="number" id="pf_mt" min="1" max="35" step="1">
+            </label>
+        </div>
+        <div>
+            <div class="tag-cat">Tags</div>
+            <div id="pf_tags"></div>
+        </div>
+        <div class="actions">
+            <button type="button" class="secondary-button" id="pf_cancel">Cancel</button>
+            <button type="submit" class="primary-button" id="pf_go">Promote</button>
+        </div>
+    </form>
+</dialog>
 
 <script>
 (function(){
@@ -116,7 +165,9 @@
                     : '';
                 return `<tr><td>${r.id}</td><td>${label}</td><td>${mu}</td><td>${ct}</td><td>${tv}</td>
                     <td>${rd}</td><td>${gateBadges(r.gates)}</td>
-                    <td class="row-actions"><button data-act="reject" data-id="${r.id}">Reject</button></td></tr>`;
+                    <td class="row-actions">
+                        <button class="primary-button" data-act="promote" data-id="${r.id}">Promote…</button>
+                        <button data-act="reject" data-id="${r.id}">Reject</button></td></tr>`;
             }).join('')+'</tbody></table>';
         listEl.querySelectorAll('[data-act]').forEach(b=>b.addEventListener('click',onAction));
     }
@@ -133,17 +184,102 @@
                 window.toggleSiteswapXEverywhere();
         });
     }
+    function post(path, body){
+        return fetch(path,{method:'POST',headers:{'Content-Type':'application/json'},
+                           body:JSON.stringify(body||{})}).then(r=>r.json());
+    }
     function onAction(e){
         const id=e.target.dataset.id, act=e.target.dataset.act;
-        if(act==='promote' && !confirm('Promote candidate '+id+' to master?')) return;
+        if(act==='promote') return openPromote(id);
         if(act==='reject'  && !confirm('Queue candidate '+id+' for deletion?')) return;
         if(act==='delete'  && !confirm('PERMANENTLY delete candidate '+id+'? This cannot be undone.')) return;
-        fetch(`/admin/api/${act}/${id}`,{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'})
-            .then(r=>r.json()).then(d=>{
-                statusEl.textContent = d.ok ? `${act} #${id} ok` : `Error: ${d.error}`;
-                load();
-            });
+        post(`/admin/api/${act}/${id}`).then(d=>{
+            statusEl.textContent = d.ok ? `${act} #${id} ok` : `Error: ${d.error}`;
+            load();
+        });
     }
+
+    // ---- promote/edit dialog ------------------------------------------------
+    const dlg=document.getElementById('promo');
+    const pf={
+        id:document.getElementById('pf_id'),
+        name:document.getElementById('pf_name'),
+        sx:document.getElementById('pf_sx'),
+        comment:document.getElementById('pf_comment'),
+        diff:document.getElementById('pf_diff'),
+        mt:document.getElementById('pf_mt'),
+        tags:document.getElementById('pf_tags'),
+        warn:document.getElementById('pf_warn'),
+        go:document.getElementById('pf_go'),
+    };
+    let promoId=null;
+    function openPromote(id){
+        promoId=id;
+        pf.go.disabled=true; pf.warn.hidden=true;
+        fetch(`/admin/api/candidate/${id}`).then(r=>r.json()).then(a=>{
+            pf.id.textContent='#'+a.id+' · '+a.prop_type+' · '+a.props_count+' props';
+            pf.name.value=a.name||'';
+            pf.sx.value=a.siteswap_x||'';
+            pf.comment.value=a.comment||'';
+            pf.diff.value=a.resolved_difficulty!=null?a.resolved_difficulty:Math.round(a.mu);
+            pf.mt.value=(a.resolved_max_throw!=null)?a.resolved_max_throw:'';
+            renderTagPicker(a);
+            if(!a.ready){
+                const failed=Object.entries(a.gates||{}).filter(([,v])=>!v).map(([k])=>k);
+                pf.warn.textContent='Not all gates passed ('+failed.join(', ')
+                    +'). You can still promote with overrides.';
+                pf.warn.hidden=false;
+            }
+            pf.go.disabled=false;
+            dlg.showModal();
+            pf.name.focus();
+        });
+    }
+    function renderTagPicker(a){
+        const probs={};
+        (a.tag_probs||[]).forEach(t=>probs[t.tag]=t);
+        const sel=new Set(a.resolved_tags||[]);
+        const cats=window.tagsByProp[a.prop_type]||{};
+        pf.tags.innerHTML=Object.entries(cats).map(([cat,tags])=>`
+            <div class="tag-cat">${esc(cat)}</div>
+            <div class="tag-grid">
+                ${tags.map(t=>{
+                    const pr=probs[t];
+                    const p = pr ? Math.round(pr.p*100)+'%'+(pr.n?`·${pr.n}`:'') : '';
+                    return `<label><input type="checkbox" value="${esc(t)}"${sel.has(t)?' checked':''}>
+                            ${esc(t)}${p?` <span class="p">${p}</span>`:''}</label>`;
+                }).join('')}
+            </div>`).join('');
+    }
+    document.getElementById('pf_cancel').addEventListener('click',()=>dlg.close());
+    document.getElementById('promo_form').addEventListener('submit',e=>{
+        e.preventDefault();
+        if(promoId==null) return;
+        const tags=Array.from(pf.tags.querySelectorAll('input[type=checkbox]:checked'))
+                        .map(cb=>cb.value);
+        const mtRaw=pf.mt.value.trim();
+        const body={
+            name: pf.name.value.trim(),
+            siteswap_x: pf.sx.value.trim(),
+            comment: pf.comment.value.trim(),
+            difficulty: parseInt(pf.diff.value,10),
+            tags: tags,
+            max_throw: mtRaw===''?null:parseInt(mtRaw,10),
+        };
+        if(!body.name && !body.siteswap_x){
+            pf.warn.textContent='Name or siteswap-x is required.'; pf.warn.hidden=false; return;
+        }
+        pf.go.disabled=true;
+        post(`/admin/api/promote/${promoId}`, body).then(d=>{
+            pf.go.disabled=false;
+            if(d.ok){
+                statusEl.textContent=`promote #${promoId} ok → trick ${d.trick_id}`;
+                dlg.close(); load();
+            } else {
+                pf.warn.textContent='Error: '+(d.error||'unknown'); pf.warn.hidden=false;
+            }
+        });
+    });
     document.getElementById('backup_btn').addEventListener('click',()=>
         fetch('/admin/api/backup',{method:'POST'}).then(r=>r.json())
             .then(d=>statusEl.textContent=d.ok?`Backup → ${d.path}`:`Backup failed: ${d.error}`));
