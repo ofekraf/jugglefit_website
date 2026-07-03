@@ -44,7 +44,7 @@ EJC2025 = PastEvent(
                     Trick(name="6 rounds 741, single 7", props_count=4, comment="entrance: 5", siteswap_x="6 rounds 7{1}41"),
                     Trick(name="5c cascade -> 5c reverse spin doubles -> 5c cascade", props_count=5, siteswap_x="5c 5 -> 5c 5{-2} -> 5c 5"),
                     Trick(name="5c cascade -> 4c 7733, backrosses 3's -> cascade", props_count=5, siteswap_x="5c 5 -> 1 round 773{B}3{B} -> 5"),
-                    Trick(name="cascade -> 6c a86411, 1's around the body -> singles", props_count=5, siteswap_x="5 -> 1 round a86411{B} 5{1}"),
+                    Trick(name="cascade -> 6c a86411, 1's around the body -> singles", props_count=5, siteswap_x="5 -> 1 round a86411{B} -> 5{1}"),
                     Trick(name="5c cascade -> 2 connected 3up 360 -> cascade", props_count=5),
                     Trick(name="sync fountain", props_count=6),
                     Trick(name="75 -> 6c b55555 -> any", props_count=6),
