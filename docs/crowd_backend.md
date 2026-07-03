@@ -354,7 +354,7 @@ same-site relative paths.
 | `TAG_UNLOCK_SIGMA` | 8.0 | metadata-eligibility |
 | `TAG_VOTE_THRESHOLD`, `MIN_TAG_VOTES`, `MIN_THROW_VOTES` | 0.30, 5, 5 | aggregate |
 | `PROMOTE_MIN_COMPARISONS / MAX_SIGMA / MAX_UNKNOWN_RATIO / MIN_AGE_HOURS` | 20 / 6.0 / 0.4 / 48 | promote gates |
-| `FLAG_REASONS`, `FLAG_REMOVE_MIN`, `FLAG_REMOVE_RATIO` | 4 reasons, 3, 0.25 | flags |
+| `FLAG_REASONS`, `FLAG_REMOVE_MIN`, `FLAG_REMOVE_RATIO` | 4 reasons, 5, 0.10 | queue for deletion when ≥5 flags AND >10% of exposures |
 | `W_HARDER / W_TAG / W_THROW` | 1.0 / 1.5 / 1.2 | hub ordering |
 | `LEADERBOARD_TOP_N`, `LEADERBOARD_PERIODS` | 20, `{all,30d}` | leaderboard |
 | `RAW_VOTE_RETENTION_DAYS`, `PENDING_RETENTION_DAYS`, `PRUNE_BATCH_SIZE` | 45, 14, 5000 | prune |

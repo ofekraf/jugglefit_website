@@ -120,7 +120,8 @@
 
     // ---- flag UI -----------------------------------------------------------
     const REASON_LABELS = {
-        not_a_trick: 'Not a real trick',
+        invalid:     'Not a valid trick',
+        not_a_trick: 'Not a valid trick',   // legacy alias
         duplicate:   'Duplicate',
         offensive:   'Offensive / spam',
         wrong_prop:  'Wrong prop / count'
@@ -131,12 +132,12 @@
         if (!area) return;
         if (!task.flaggable) { area.innerHTML = ''; return; }
         if (!opts.loggedIn) {
-            area.innerHTML = '<span title="Log in to flag bad tricks">⚑</span>';
+            area.innerHTML = '<span title="Log in to flag invalid tricks">⚑</span>';
             return;
         }
-        const reasons = window.JF_FLAG_REASONS || Object.keys(REASON_LABELS);
+        const reasons = window.JF_FLAG_REASONS || ['invalid','duplicate','offensive','wrong_prop'];
         area.innerHTML = `<span class="flag-menu" id="flag_menu">
-            <button type="button" id="flag_btn">⚑ Bad trick</button>
+            <button type="button" id="flag_btn">⚑ Invalid trick</button>
             <span class="flag-options">
                 ${reasons.map(r =>
                     `<button type="button" data-reason="${r}">${esc(REASON_LABELS[r] || r)}</button>`

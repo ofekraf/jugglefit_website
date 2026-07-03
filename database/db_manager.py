@@ -777,7 +777,8 @@ class DBManager:
 
     def distinct_raters_seen(self, candidate_id: int) -> int:
         """How many distinct people have been served this candidate in any
-        game so far. Uses comparisons + tag_votes + throw_votes."""
+        game so far. Union of comparisons + tag_votes + throw_votes +
+        trick_flags (a flag counts as an exposure)."""
         cid = str(candidate_id)
         with self.cursor() as cur:
             cur.execute(
@@ -793,9 +794,12 @@ class DBManager:
                     UNION
                     SELECT COALESCE('u:'||user_id, 'a:'||anon_id)
                     FROM throw_votes WHERE candidate_id = ?
+                    UNION
+                    SELECT 'u:'||user_id
+                    FROM trick_flags WHERE candidate_id = ?
                 )
                 """,
-                (cid, cid, candidate_id, candidate_id),
+                (cid, cid, candidate_id, candidate_id, candidate_id),
             )
             return cur.fetchone()["c"]
 

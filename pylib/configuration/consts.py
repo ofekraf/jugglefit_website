@@ -42,10 +42,14 @@ PROMOTE_MAX_SIGMA = 6.0
 PROMOTE_MAX_UNKNOWN_RATIO = 0.4
 PROMOTE_MIN_AGE_HOURS = 48
 
-# Flags (logged-in only)
-FLAG_REASONS = ["not_a_trick", "duplicate", "offensive", "wrong_prop"]
-FLAG_REMOVE_MIN = 3
-FLAG_REMOVE_RATIO = 0.25
+# Flags (logged-in only). "invalid" is the primary reason (was "not_a_trick"
+# — kept as an accepted alias for old rows / in-flight clients).
+FLAG_REASONS = ["invalid", "duplicate", "offensive", "wrong_prop"]
+FLAG_REASON_ALIASES = {"not_a_trick": "invalid"}
+# A candidate is queued for deletion once BOTH hold:
+#   n_flags >= FLAG_REMOVE_MIN  AND  n_flags / distinct_raters_seen > FLAG_REMOVE_RATIO
+FLAG_REMOVE_MIN = 5
+FLAG_REMOVE_RATIO = 0.10
 
 # Auto-unstable: a candidate that accumulates this many compare exposures
 # while remaining mostly unrecognised is queued for deletion automatically.

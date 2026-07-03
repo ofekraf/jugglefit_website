@@ -11,7 +11,7 @@ from typing import List
 
 from database.db_manager import db_manager
 from pylib.configuration.consts import (
-    FLAG_REASONS, FLAG_REMOVE_MIN, FLAG_REMOVE_RATIO,
+    FLAG_REASONS, FLAG_REASON_ALIASES, FLAG_REMOVE_MIN, FLAG_REMOVE_RATIO,
     UNSTABLE_MIN_EXPOSURES, UNSTABLE_UNKNOWN_RATIO,
 )
 from pylib.rating.tasks import unsign
@@ -62,15 +62,19 @@ def _candidate_ids_from_task(task: dict) -> List[int]:
 
 
 def _should_remove(*, n_flags: int, seen: int) -> bool:
+    """Queue for deletion only when BOTH: at least FLAG_REMOVE_MIN distinct
+    flaggers AND they represent > FLAG_REMOVE_RATIO of everyone who has been
+    served this candidate. Flaggers are themselves raters, so ``seen`` is
+    always ≥ n_flags in practice; guard the degenerate case anyway."""
     if n_flags < FLAG_REMOVE_MIN:
         return False
-    if seen <= 0:
-        return True
-    return (n_flags / seen) >= FLAG_REMOVE_RATIO
+    exposures = max(seen, n_flags)
+    return (n_flags / exposures) > FLAG_REMOVE_RATIO
 
 
 def record_flag(*, task_id: str, reason: str, user_id: int,
                 is_admin: bool) -> List[FlagResult]:
+    reason = FLAG_REASON_ALIASES.get(reason, reason)
     if reason not in FLAG_REASONS:
         raise ValueError("invalid reason")
     task = unsign(task_id)
