@@ -4,7 +4,7 @@ Used by the Promote step and by the admin Ready view.
 """
 from __future__ import annotations
 
-from typing import Optional, Set
+from typing import Optional
 
 from database.db_manager import db_manager
 from pylib.configuration.consts import (
@@ -50,9 +50,10 @@ def tag_probabilities(candidate_id: int) -> list[dict]:
     return out
 
 
-def resolve_tags(candidate_id: int) -> Set[str]:
+def resolve_tags(candidate_id: int) -> set[str]:
     """Final tag set for promotion — thin threshold over
-    :func:`tag_probabilities`."""
+    :func:`tag_probabilities`. Kept as a stable public helper for callers
+    that don't need per-tag confidence (docs, potential CLI)."""
     return {r["tag"] for r in tag_probabilities(candidate_id) if r["resolved"]}
 
 

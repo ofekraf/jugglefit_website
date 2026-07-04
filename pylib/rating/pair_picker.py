@@ -232,10 +232,11 @@ def build_tag_set(prop_type: str, *, user_id: int,
         if t:
             tasks.append(t)
 
-    ci = 0
-    while len(tasks) < size and cands:
-        c = cands[ci % len(cands)]
-        ci += 1
+    # One card now covers ALL categories, so each candidate appears at most
+    # once per set. If the pool is smaller than `size`, controls fill the gap.
+    for c in cands:
+        if len(tasks) >= size:
+            break
         tasks.append(_make_tag_task(prop_type, kind="candidate", row=c,
                                     cats=cats, expected=None))
 
@@ -248,21 +249,18 @@ def build_tag_set(prop_type: str, *, user_id: int,
 
     random.shuffle(tasks)
     tasks = tasks[:size]
-    _pin_to_front(tasks, [p["id"] for p in pins], key="cid")
+    _pin_to_front(tasks, [p["id"] for p in pins])
     return tasks
 
 
-def _pin_to_front(tasks: list[dict], pin_ids: list[int], *, key: str) -> None:
-    """Stable-move tasks whose signed payload references a pin id to the front."""
+def _pin_to_front(tasks: list[dict], pin_ids: list[int]) -> None:
+    """Stable-move tasks whose `_cid` matches a pin id to the front."""
     if not pin_ids:
+        for t in tasks:
+            t.pop("_cid", None)
         return
     order = {pid: i for i, pid in enumerate(pin_ids)}
-    def _k(t):
-        # tag/throw tasks expose the candidate id via the flaggable/cid path;
-        # we stashed it on the public dict too for this purpose.
-        cid = t.get("_cid")
-        return order.get(cid, len(pin_ids))
-    tasks.sort(key=_k)
+    tasks.sort(key=lambda t: order.get(t.get("_cid"), len(pin_ids)))
     for t in tasks:
         t.pop("_cid", None)
 
@@ -315,10 +313,9 @@ def build_throw_set(prop_type: str, *, user_id: int,
         if t:
             tasks.append(t)
 
-    ci = 0
-    while len(tasks) < size and cands:
-        c = cands[ci % len(cands)]
-        ci += 1
+    for c in cands:
+        if len(tasks) >= size:
+            break
         tasks.append(_make_throw_task(prop_type, kind="candidate", row=c,
                                       expected=None))
 
@@ -330,7 +327,7 @@ def build_throw_set(prop_type: str, *, user_id: int,
 
     random.shuffle(tasks)
     tasks = tasks[:size]
-    _pin_to_front(tasks, [p["id"] for p in pins], key="cid")
+    _pin_to_front(tasks, [p["id"] for p in pins])
     return tasks
 
 

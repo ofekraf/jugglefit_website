@@ -264,8 +264,8 @@ n_flags / distinct_raters_seen(cid) ≥ 0.25`.
 `distinct_raters_seen` = `COUNT` over a `UNION` of
 `comparisons|tag_votes|throw_votes` filtered to that candidate (uses
 `idx_cmp_left/right`, `idx_tagv_cand`, `idx_throwv_cand`).
-Removal = `set_candidate_removed` (sets `removed_at`,
-`removed_reason = top_flag_reason()`).
+Removal = `queue_for_deletion` (sets `status='pending_deletion'`,
+`removed_at`, `removed_reason = top_flag_reason()`).
 
 ### 4.6 Promote — `POST /admin/api/promote/<id>` *(admin)*
 

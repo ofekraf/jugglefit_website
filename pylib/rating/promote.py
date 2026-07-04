@@ -20,12 +20,12 @@ from pylib.classes.prop import Prop
 from pylib.utils.trick_registry import reload_prop
 from pylib.rating.aggregate import (
     resolve_max_throw, missing_tag_categories, tag_probabilities,
+    relevant_categories,
 )
 from pylib.configuration.consts import (
     PROMOTE_MIN_COMPARISONS, PROMOTE_MAX_SIGMA, PROMOTE_MAX_UNKNOWN_RATIO,
-    PROMOTE_MIN_AGE_HOURS, MIN_THROW_VOTES, MIN_TAG_VOTES,
+    PROMOTE_MIN_AGE_HOURS, MIN_THROW_VOTES,
 )
-from pylib.rating.aggregate import relevant_categories
 
 
 def _age_hours(ts: str | None) -> float:

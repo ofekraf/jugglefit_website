@@ -212,12 +212,13 @@ window.propsSettings = {{ props_settings|tojson|safe }};
             if(!y){ totdEl.hidden=true; return; }
             totdEl.hidden=false;
             const nm=esc(y.name||y.siteswap_x||'');
+            const verdict = y.n_comparisons>0
+                ? `${y.n_comparisons} rating${y.n_comparisons===1?'':'s'} · crowd difficulty <strong>${Math.round(y.mu)}</strong>/100`
+                : `no ratings yet — be the first`;
             totdEl.innerHTML=`<h4>Yesterday's trick of the day</h4>
                 <div><span class="name">${nm}</span>
-                     <span class="muted">(${y.props_count} props)</span></div>
-                <div class="muted">crowd difficulty μ=${y.mu} · ${y.n_comparisons} comparisons
-                    ${y.resolved_tags.length?` · tags: ${y.resolved_tags.map(esc).join(', ')}`:''}</div>
-                <div class="muted">Today's trick appears first in every game set.</div>`;
+                     <span class="muted">· ${y.props_count} ${esc(d.prop)}</span></div>
+                <div class="muted">${verdict}</div>`;
         }).catch(()=>{ totdEl.hidden=true; });
     }
 

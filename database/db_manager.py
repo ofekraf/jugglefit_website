@@ -534,8 +534,8 @@ class DBManager:
                 "SELECT id, props_count, name, siteswap_x, mu, sigma, user_id "
                 "FROM candidate_tricks "
                 "WHERE prop_type = ? AND promoted_at IS NULL AND removed_at IS NULL "
-                "  AND (user_id IS NULL OR user_id != ?) "
-                "ORDER BY sigma DESC, n_comparisons ASC LIMIT ?",
+                "ORDER BY (user_id IS NOT NULL AND user_id = ?) ASC, "
+                "         sigma DESC, n_comparisons ASC LIMIT ?",
                 (prop_type, exclude_user, limit * pool_factor),
             )
             pool = [dict(r) for r in cur.fetchall()]
@@ -555,6 +555,9 @@ class DBManager:
                                      max_sigma: float, order: str,
                                      limit: int, pool_factor: int = 8
                                      ) -> List[Dict[str, Any]]:
+        """Candidates eligible for tag/throw games, distinct, ordered by need.
+        Own submissions are *de-prioritised* (not excluded) so bulk-seeders /
+        admins can still play when they authored most of the pool."""
         import random as _r
         order_sql = {
             "tag":   "n_tag_votes ASC, sigma ASC",
@@ -566,8 +569,9 @@ class DBManager:
                 "       n_tag_votes, n_throw_votes "
                 "FROM candidate_tricks "
                 "WHERE prop_type = ? AND promoted_at IS NULL AND removed_at IS NULL "
-                "  AND sigma <= ? AND (user_id IS NULL OR user_id != ?) "
-                f"ORDER BY {order_sql} LIMIT ?",
+                "  AND sigma <= ? "
+                f"ORDER BY (user_id IS NOT NULL AND user_id = ?) ASC, {order_sql} "
+                "LIMIT ?",
                 (prop_type, max_sigma, exclude_user, limit * pool_factor),
             )
             pool = [dict(r) for r in cur.fetchall()]
@@ -836,10 +840,6 @@ class DBManager:
                 (reason, candidate_id),
             )
 
-    # Back-compat alias (older call sites).
-    def set_candidate_removed(self, candidate_id: int, *, reason: str) -> None:
-        self.queue_for_deletion(candidate_id, reason=reason)
-
     def delete_candidate_permanently(self, candidate_id: int) -> None:
         """Terminal state. Row is kept (audit) but can never return."""
         with self.cursor(commit=True) as cur:
@@ -1010,7 +1010,7 @@ class DBManager:
             )
             return cur.fetchone()["c"]
 
-    def candidate_agree_stats(self, candidate_id: int, *, side: str) -> Dict[str, int]:
+    def candidate_agree_stats(self, candidate_id: int) -> Dict[str, int]:
         """For 'you vs. crowd' reveal: how many prior non-skip comparisons
         involved this candidate, and how many judged it the harder side."""
         cid = str(candidate_id)

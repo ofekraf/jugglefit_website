@@ -210,8 +210,6 @@
                 return d;
             }).catch(() => {});
     }
-    // Back-compat alias (harmless if any template still calls it).
-    const refreshReliability = refreshMe;
 
     // ---- main loop ---------------------------------------------------------
     function start(opts) {

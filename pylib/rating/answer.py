@@ -9,7 +9,7 @@ from database.db_manager import db_manager
 from pylib.configuration.consts import ANON_VOTE_WEIGHT, REVEAL_MIN_COMPARISONS
 from pylib.rating.achievements import check_and_award
 from pylib.rating.elo import Side, apply_comparison
-from pylib.classes.tag import TAG_CATEGORY_MAP, TagCategory
+from pylib.classes.tag import TAG_CATEGORY_MAP
 from pylib.rating.flags import check_unstable
 from pylib.rating.tasks import unsign
 
@@ -109,7 +109,7 @@ def _handle_compare(task: dict, payload: dict, *, user_id: Optional[int],
     # once it has enough prior signal to be meaningful.
     chosen_kind, chosen_id = (l_kind, l_id) if winner == "left" else (r_kind, r_id)
     if chosen_kind == "candidate":
-        stats = db_manager.candidate_agree_stats(chosen_id, side=winner)
+        stats = db_manager.candidate_agree_stats(chosen_id)
         if stats["n"] >= REVEAL_MIN_COMPARISONS:
             agree = stats["n_harder"] / stats["n"]
             result["reveal"] = {
