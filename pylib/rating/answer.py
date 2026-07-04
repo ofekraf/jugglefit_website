@@ -6,7 +6,8 @@ from __future__ import annotations
 from typing import Optional
 
 from database.db_manager import db_manager
-from pylib.configuration.consts import ANON_VOTE_WEIGHT
+from pylib.configuration.consts import ANON_VOTE_WEIGHT, REVEAL_MIN_COMPARISONS
+from pylib.rating.achievements import check_and_award
 from pylib.rating.elo import Side, apply_comparison
 from pylib.classes.tag import TAG_CATEGORY_MAP, TagCategory
 from pylib.rating.flags import check_unstable
@@ -69,7 +70,7 @@ def _handle_compare(task: dict, payload: dict, *, user_id: Optional[int],
 
     # data pair
     if user_id is not None:
-        db_manager.bump_user_game_counter(user_id, game="harder")
+        db_manager.bump_user_game_counter(user_id, game="harder", prop_type=prop_type)
 
     if winner == "skip":
         for kind, ident in ((l_kind, l_id), (r_kind, r_id)):
@@ -103,6 +104,20 @@ def _handle_compare(task: dict, payload: dict, *, user_id: Optional[int],
             db_manager.update_candidate_rating(
                 ident, mu=after.mu, sigma=after.sigma, inc_comparisons=1,
             )
+
+    # 'You vs. crowd' reveal: use the *chosen* candidate side (if any). Only
+    # once it has enough prior signal to be meaningful.
+    chosen_kind, chosen_id = (l_kind, l_id) if winner == "left" else (r_kind, r_id)
+    if chosen_kind == "candidate":
+        stats = db_manager.candidate_agree_stats(chosen_id, side=winner)
+        if stats["n"] >= REVEAL_MIN_COMPARISONS:
+            agree = stats["n_harder"] / stats["n"]
+            result["reveal"] = {
+                "agree_pct": round(agree * 100),
+                "n": stats["n"],
+                "left_mu": round(left.mu, 1),
+                "right_mu": round(right.mu, 1),
+            }
     return result
 
 
@@ -138,7 +153,8 @@ def _handle_tag(task: dict, payload: dict, *, user_id: Optional[int],
     if not cand or cand.get("status") != "active":
         return result
     if user_id is not None:
-        db_manager.bump_user_game_counter(user_id, game="tagging")
+        db_manager.bump_user_game_counter(user_id, game="tagging",
+                                          prop_type=task.get("p"))
 
     # Bucket shown tags by their category so record_tag_votes still gets a
     # correct `category` per row (used by tag_category_coverage / gates).
@@ -182,7 +198,8 @@ def _handle_throw(task: dict, payload: dict, *, user_id: Optional[int],
     if not cand or cand.get("status") != "active":
         return result
     if user_id is not None:
-        db_manager.bump_user_game_counter(user_id, game="throw")
+        db_manager.bump_user_game_counter(user_id, game="throw",
+                                          prop_type=task.get("p"))
     if raw == "skip":
         return result
     val = None if raw is None else int(raw)
@@ -204,5 +221,10 @@ def handle_answer(task_id: str, payload: dict, *, user_id: Optional[int],
     handler = _HANDLERS.get(task.get("k"))
     if handler is None:
         raise ValueError("unsupported task kind")
-    return handler(task, payload, user_id=user_id, anon_id=anon_id,
-                   reliability=reliability)
+    result = handler(task, payload, user_id=user_id, anon_id=anon_id,
+                     reliability=reliability)
+    if user_id is not None:
+        new = check_and_award(user_id)
+        if new:
+            result["new_badges"] = new
+    return result

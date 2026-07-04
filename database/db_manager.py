@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 import sqlite3
@@ -266,6 +267,16 @@ class DBManager:
     _MIGRATIONS = [
         ("candidate_tricks", "status",
          "ALTER TABLE candidate_tricks ADD COLUMN status TEXT NOT NULL DEFAULT 'active'"),
+        ("users", "badges",
+         "ALTER TABLE users ADD COLUMN badges TEXT NOT NULL DEFAULT '[]'"),
+        ("users", "n_curated",
+         "ALTER TABLE users ADD COLUMN n_curated INTEGER NOT NULL DEFAULT 0"),
+        ("users", "n_balls",
+         "ALTER TABLE users ADD COLUMN n_balls INTEGER NOT NULL DEFAULT 0"),
+        ("users", "n_clubs",
+         "ALTER TABLE users ADD COLUMN n_clubs INTEGER NOT NULL DEFAULT 0"),
+        ("users", "n_rings",
+         "ALTER TABLE users ADD COLUMN n_rings INTEGER NOT NULL DEFAULT 0"),
     ]
 
     def init_db(self):
@@ -930,12 +941,158 @@ class DBManager:
             )
             return cur.lastrowid
 
-    def bump_user_game_counter(self, user_id: int, *, game: str) -> None:
+    _PROP_COUNTER_COL = {"balls": "n_balls", "clubs": "n_clubs", "rings": "n_rings"}
+
+    def bump_user_game_counter(self, user_id: int, *, game: str,
+                               prop_type: Optional[str] = None) -> None:
         col = {"harder": "n_harder", "tagging": "n_tagging", "throw": "n_throw"}.get(game)
         if not col:
             return
+        pcol = self._PROP_COUNTER_COL.get(prop_type or "")
+        sets = f"{col} = {col} + 1"
+        if pcol:
+            sets += f", {pcol} = {pcol} + 1"
         with self.cursor(commit=True) as cur:
-            cur.execute(f"UPDATE users SET {col} = {col} + 1 WHERE id = ?", (user_id,))
+            cur.execute(f"UPDATE users SET {sets} WHERE id = ?", (user_id,))
+
+    # ---- gamification helpers ---------------------------------------
+    def get_user_row(self, user_id: int) -> Optional[Dict[str, Any]]:
+        with self.cursor() as cur:
+            cur.execute("SELECT * FROM users WHERE id = ?", (user_id,))
+            r = cur.fetchone()
+            return dict(r) if r else None
+
+    def set_user_badges(self, user_id: int, badges: list[str]) -> None:
+        with self.cursor(commit=True) as cur:
+            cur.execute("UPDATE users SET badges = ? WHERE id = ?",
+                        (json.dumps(sorted(set(badges))), user_id))
+
+    def bump_user_curated(self, user_ids: list[int]) -> None:
+        if not user_ids:
+            return
+        qs = ",".join("?" * len(user_ids))
+        with self.cursor(commit=True) as cur:
+            cur.execute(
+                f"UPDATE users SET n_curated = n_curated + 1 WHERE id IN ({qs})",
+                tuple(user_ids),
+            )
+
+    def count_active_candidates(self, prop_type: str) -> int:
+        with self.cursor() as cur:
+            cur.execute(
+                "SELECT COUNT(*) AS c FROM candidate_tricks "
+                "WHERE prop_type = ? AND status = 'active'",
+                (prop_type,),
+            )
+            return cur.fetchone()["c"]
+
+    def count_candidates_rated_by(self, user_id: int, prop_type: str) -> int:
+        """Distinct active candidates this user has touched via any game."""
+        with self.cursor() as cur:
+            cur.execute(
+                """
+                SELECT COUNT(DISTINCT ct.id) AS c
+                FROM candidate_tricks ct
+                WHERE ct.prop_type = ? AND ct.status = 'active'
+                  AND ct.id IN (
+                    SELECT CAST(left_id AS INTEGER) FROM comparisons
+                      WHERE user_id = ? AND left_kind = 'candidate'
+                    UNION
+                    SELECT CAST(right_id AS INTEGER) FROM comparisons
+                      WHERE user_id = ? AND right_kind = 'candidate'
+                    UNION
+                    SELECT candidate_id FROM tag_votes WHERE user_id = ?
+                    UNION
+                    SELECT candidate_id FROM throw_votes WHERE user_id = ?
+                  )
+                """,
+                (prop_type, user_id, user_id, user_id, user_id),
+            )
+            return cur.fetchone()["c"]
+
+    def candidate_agree_stats(self, candidate_id: int, *, side: str) -> Dict[str, int]:
+        """For 'you vs. crowd' reveal: how many prior non-skip comparisons
+        involved this candidate, and how many judged it the harder side."""
+        cid = str(candidate_id)
+        with self.cursor() as cur:
+            cur.execute(
+                """
+                SELECT
+                  SUM(CASE WHEN winner != 'skip' THEN 1 ELSE 0 END) AS n,
+                  SUM(CASE WHEN (left_kind='candidate'  AND left_id  = ? AND winner='left')
+                             OR (right_kind='candidate' AND right_id = ? AND winner='right')
+                           THEN 1 ELSE 0 END) AS n_harder
+                FROM comparisons
+                WHERE is_control = 0
+                  AND ((left_kind='candidate'  AND left_id  = ?)
+                    OR (right_kind='candidate' AND right_id = ?))
+                """,
+                (cid, cid, cid, cid),
+            )
+            r = cur.fetchone()
+            return {"n": r["n"] or 0, "n_harder": r["n_harder"] or 0}
+
+    def voters_for_candidate(self, candidate_id: int) -> list[int]:
+        """Distinct logged-in user_ids who voted (any game) on this candidate."""
+        cid = str(candidate_id)
+        with self.cursor() as cur:
+            cur.execute(
+                """
+                SELECT DISTINCT user_id FROM (
+                    SELECT user_id FROM comparisons
+                    WHERE user_id IS NOT NULL AND is_control = 0
+                      AND ((left_kind='candidate' AND left_id=?)
+                        OR (right_kind='candidate' AND right_id=?))
+                    UNION
+                    SELECT user_id FROM tag_votes
+                    WHERE user_id IS NOT NULL AND candidate_id = ?
+                    UNION
+                    SELECT user_id FROM throw_votes
+                    WHERE user_id IS NOT NULL AND candidate_id = ?
+                )
+                """,
+                (cid, cid, candidate_id, candidate_id),
+            )
+            return [r["user_id"] for r in cur.fetchall()]
+
+    def flaggers_for_candidate(self, candidate_id: int) -> list[int]:
+        with self.cursor() as cur:
+            cur.execute(
+                "SELECT DISTINCT user_id FROM trick_flags "
+                "WHERE candidate_id = ? AND user_id IS NOT NULL",
+                (candidate_id,),
+            )
+            return [r["user_id"] for r in cur.fetchall()]
+
+    def user_submissions(self, user_id: int) -> List[Dict[str, Any]]:
+        with self.cursor() as cur:
+            cur.execute(
+                "SELECT * FROM candidate_tricks WHERE user_id = ? "
+                "ORDER BY (status='active') DESC, created_at DESC",
+                (user_id,),
+            )
+            return [dict(r) for r in cur.fetchall()]
+
+    def daily_candidate(self, prop_type: str, *, seed: int) -> Optional[Dict[str, Any]]:
+        """Deterministic pick from the active pool. Stable for a given seed
+        even as rows are added (ORDER BY id, index = seed % count)."""
+        with self.cursor() as cur:
+            cur.execute(
+                "SELECT COUNT(*) AS c FROM candidate_tricks "
+                "WHERE prop_type = ? AND status = 'active'",
+                (prop_type,),
+            )
+            n = cur.fetchone()["c"]
+            if n == 0:
+                return None
+            cur.execute(
+                "SELECT * FROM candidate_tricks "
+                "WHERE prop_type = ? AND status = 'active' "
+                "ORDER BY id LIMIT 1 OFFSET ?",
+                (prop_type, seed % n),
+            )
+            r = cur.fetchone()
+            return dict(r) if r else None
 
     # ---- user admin management --------------------------------------
     def list_users(self, *, limit: int = 500) -> List[Dict[str, Any]]:

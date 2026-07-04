@@ -1,11 +1,12 @@
 /**
  * Generic single-task-at-a-time game loop shared by all crowd games.
  *
- * GameEngine.start({game, renderCard, keymap, loggedIn})
+ * GameEngine.start({game, renderCard, keymap, loggedIn, onCardMounted?, onResult?})
  *   renderCard(task, answer) → DOM node; call answer(payload) to submit.
  *
- * Gamification: per-set score, streak with multiplier, instant flash
- * feedback (✓ / ✗ / +N), best-streak persisted in localStorage.
+ * Gamification: per-set score with instant +N flash, level bar fed by
+ * /api/games/me, badge-unlock toasts, and an impact summary on the
+ * set-done screen. No streak mechanics.
  */
 (function () {
     'use strict';
@@ -75,15 +76,23 @@
         progEl().innerHTML = html;
     }
 
-    // ---- score / streak ----------------------------------------------------
-    function bestKey(game) { return 'jf_best_streak_' + game; }
-    function getBest(game) { return parseInt(localStorage.getItem(bestKey(game)) || '0', 10); }
-    function setBest(game, v) { localStorage.setItem(bestKey(game), String(v)); }
+    // ---- score / level -----------------------------------------------------
+    let ME = null;           // last /api/games/me payload
+    let BADGE_META = {};
 
     function paintScore(state) {
-        if ($('score_val'))  $('score_val').textContent  = state.score;
-        if ($('streak_val')) $('streak_val').textContent = state.streak;
-        if ($('best_val'))   $('best_val').textContent   = state.best;
+        if ($('score_val')) $('score_val').textContent = state.score;
+    }
+
+    function paintLevel(d) {
+        const bar = $('level_bar'), lbl = $('level_label');
+        if (!bar || !lbl || !d || !d.level) return;
+        const L = d.level;
+        lbl.innerHTML = `<strong>Lv ${L.level}</strong> · ${esc(L.title)}`
+            + (L.next_at != null
+               ? ` <span class="muted">· ${L.to_next} to ${esc(L.next_title)}</span>`
+               : ' <span class="muted">· max</span>');
+        bar.style.width = Math.round(L.pct * 100) + '%';
     }
 
     function flash(kind, text) {
@@ -94,28 +103,53 @@
         setTimeout(() => { el.className = 'feedback-flash'; el.textContent = ''; }, 450);
     }
 
-    function award(state, result, game) {
-        // Decide outcome from server response.
-        let outcome = 'neutral';   // neutral | hit | miss
+    function toast(html) {
+        let host = $('toast_host');
+        if (!host) {
+            host = document.createElement('div');
+            host.id = 'toast_host';
+            host.className = 'toast-host';
+            document.body.appendChild(host);
+        }
+        const t = document.createElement('div');
+        t.className = 'toast';
+        t.innerHTML = html;
+        host.appendChild(t);
+        requestAnimationFrame(() => t.classList.add('show'));
+        setTimeout(() => {
+            t.classList.remove('show');
+            setTimeout(() => t.remove(), 300);
+        }, 3500);
+    }
+
+    function toastBadges(ids) {
+        (ids || []).forEach(id => {
+            const m = BADGE_META[id] || {};
+            toast(`<span class="badge-emoji">${m.emoji || '🏅'}</span>
+                   <span><strong>${esc(m.label || id)}</strong><br>
+                   <small>${esc(m.desc || '')}</small></span>`);
+        });
+    }
+
+    function award(state, result) {
+        let outcome = 'neutral';
         if (typeof result.correct === 'boolean') {
             outcome = result.correct ? 'hit' : 'miss';
         }
         if (outcome === 'hit') {
-            state.streak += 1;
-            const pts = 10 + Math.min(40, (state.streak - 1) * 5);
-            state.score += pts;
-            if (state.streak > state.best) { state.best = state.streak; setBest(game, state.best); }
-            flash('correct', '+' + pts);
-            const sp = $('streak_pill');
-            if (sp) { sp.classList.add('hot'); setTimeout(() => sp.classList.remove('hot'), 400); }
+            state.score += 10;
+            flash('correct', '+10');
         } else if (outcome === 'miss') {
-            state.streak = 0;
             flash('wrong', '✗');
         } else {
             state.score += 5;
             flash('neutral', '+5');
         }
         paintScore(state);
+        if (result.new_badges && result.new_badges.length) {
+            toastBadges(result.new_badges);
+            refreshMe();   // level may have changed too
+        }
     }
 
     // ---- flag UI -----------------------------------------------------------
@@ -162,14 +196,22 @@
             }));
     }
 
-    function refreshReliability() {
-        fetch('/api/games/me').then(r => r.json()).then(d => {
-            if (!d.logged_in) { relEl().textContent = ''; return; }
-            relEl().textContent =
-                `${d.n_harder + d.n_tagging + d.n_throw} answers · ` +
-                `reliability ${Math.round(d.reliability * 100)}%`;
-        }).catch(() => {});
+    function refreshMe() {
+        return fetch(`/api/games/me?prop=${encodeURIComponent(selectedProp())}`)
+            .then(r => r.json()).then(d => {
+                ME = d;
+                BADGE_META = d.badge_meta || BADGE_META;
+                if (!d.logged_in) { if (relEl()) relEl().textContent = ''; return d; }
+                if (relEl()) {
+                    relEl().textContent =
+                        `${d.n_total} answers · reliability ${Math.round(d.reliability * 100)}%`;
+                }
+                paintLevel(d);
+                return d;
+            }).catch(() => {});
     }
+    // Back-compat alias (harmless if any template still calls it).
+    const refreshReliability = refreshMe;
 
     // ---- main loop ---------------------------------------------------------
     function start(opts) {
@@ -177,14 +219,17 @@
         let idx = 0;
         let busy = false;
         const keymap = opts.keymap || {};
-        const state = { score: 0, streak: 0, best: getBest(opts.game) };
+        const state = { score: 0 };
         paintScore(state);
+        const urlFocus = new URLSearchParams(location.search).get('focus');
 
         function loadSet() {
             cardEl().innerHTML = '<p>Loading…</p><div id="flash" class="feedback-flash"></div>';
             flagEl().innerHTML = '';
-            state.score = 0; state.streak = 0; paintScore(state);
-            fetch(`/api/games/${opts.game}/next_set?prop=${encodeURIComponent(selectedProp())}`)
+            state.score = 0; paintScore(state);
+            const qs = new URLSearchParams({prop: selectedProp()});
+            if (urlFocus) qs.set('focus', urlFocus);
+            fetch(`/api/games/${opts.game}/next_set?${qs}`)
                 .then(r => r.json())
                 .then(d => {
                     tasks = d.tasks || [];
@@ -202,22 +247,36 @@
                 .catch(() => { cardEl().innerHTML = '<p>Failed to load set.</p>'; });
         }
 
+        function renderSetDone() {
+            renderProgress(tasks.length, tasks.length);
+            flagEl().innerHTML = '';
+            cardEl().innerHTML = `<div class="set-done">
+                <div>Set complete!</div>
+                <div class="big">🎉 ${state.score} pts</div>
+                <div class="impact" id="set_impact"><small>…</small></div>
+                <p style="margin-top:1rem">
+                    <button id="next_set_btn" class="primary-button">Next set ▶</button>
+                    <a class="secondary-button" href="/contribute/games/?prop=${encodeURIComponent(selectedProp())}">Other games</a>
+                </p>
+            </div>`;
+            $('next_set_btn').addEventListener('click', loadSet);
+            refreshMe().then(d => {
+                if (!d || !d.logged_in) return;
+                const el = $('set_impact');
+                if (!el) return;
+                const bits = [];
+                if (d.n_tricks_promoted > 0)
+                    bits.push(`helped promote <strong>${d.n_tricks_promoted}</strong> trick${d.n_tricks_promoted===1?'':'s'}`);
+                bits.push(`rated <strong>${d.pool_rated}</strong>/<strong>${d.pool_size}</strong> ${esc(d.prop)} candidates`);
+                bits.push(`Lv <strong>${d.level.level}</strong> ${esc(d.level.title)}`
+                    + (d.level.next_at != null ? ` — ${d.level.to_next} to ${esc(d.level.next_title)}` : ''));
+                el.innerHTML = bits.join(' · ');
+            });
+        }
+
         function show() {
             if (idx >= tasks.length) {
-                renderProgress(tasks.length, tasks.length);
-                flagEl().innerHTML = '';
-                const newBest = state.streak >= state.best && state.best > 0;
-                cardEl().innerHTML = `<div class="set-done">
-                    <div>Set complete!</div>
-                    <div class="big">🎉 ${state.score} pts</div>
-                    <div>Best streak: <strong>${state.best}</strong>${newBest ? ' — new record!' : ''}</div>
-                    <p style="margin-top:1rem">
-                        <button id="next_set_btn" class="primary-button">Next set ▶</button>
-                        <a class="secondary-button" href="/contribute/games/?prop=${encodeURIComponent(selectedProp())}">Other games</a>
-                    </p>
-                </div>`;
-                $('next_set_btn').addEventListener('click', loadSet);
-                refreshReliability();
+                renderSetDone();
                 return;
             }
             const task = tasks[idx];
@@ -245,12 +304,24 @@
                 body: JSON.stringify({task_id: task.task_id, payload: payload})
             })
             .then(r => r.json())
-            .then(res => award(state, res || {}, opts.game))
-            .catch(() => {})
-            .finally(() => {
+            .then(res => {
+                res = res || {};
+                award(state, res);
+                let hold = 300;
+                if (typeof opts.onResult === 'function') {
+                    // onResult may return ms to hold before advancing
+                    // (e.g. harder-game 'you vs. crowd' reveal).
+                    try { hold = opts.onResult(task, payload, res, cardEl()) || hold; }
+                    catch (_) {}
+                }
                 busy = false;
                 idx++;
-                setTimeout(show, 300);  // let the flash land before swapping card
+                setTimeout(show, hold);
+            })
+            .catch(() => {
+                busy = false;
+                idx++;
+                setTimeout(show, 300);
             });
         }
 
@@ -267,9 +338,9 @@
             ssCb.addEventListener('change', window.toggleSiteswapXEverywhere);
         }
 
-        refreshReliability();
+        refreshMe();
         loadSet();
     }
 
-    window.GameEngine = { start, esc, renderTrick };
+    window.GameEngine = { start, esc, renderTrick, refreshMe, toast };
 })();

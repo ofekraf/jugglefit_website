@@ -23,12 +23,23 @@ window.propsSettings = {{ props_settings|tojson|safe }};
     .flag-menu .flag-options button:hover { background:#f5f5f5; }
     .set-done { text-align:center; padding:2rem 1rem; }
     .set-done .big { font-size:2.4rem; margin:.2rem 0; }
-    .score-bar { display:flex; align-items:center; justify-content:space-between; gap:.8rem;
-        margin-bottom:.8rem; font-size:.9rem; }
-    .score-bar .pill { background:#f3f4f7; border-radius:999px; padding:.25rem .8rem; font-weight:600; }
-    .score-bar .streak { color:#e8590c; }
-    .score-bar .streak.hot { animation:streak-pop .4s ease; }
-    @keyframes streak-pop { 0%{transform:scale(1)} 40%{transform:scale(1.35)} 100%{transform:scale(1)} }
+    .set-done .impact { font-size:.9rem; color:#555; margin-top:.4rem; }
+    .score-bar { display:flex; align-items:center; gap:.9rem; margin-bottom:.8rem; font-size:.9rem; }
+    .score-bar .pill { background:#f3f4f7; border-radius:999px; padding:.25rem .8rem; font-weight:600; white-space:nowrap; }
+    .level-wrap { flex:1; min-width:0; }
+    .level-wrap .track { height:8px; background:#eef0f3; border-radius:999px; overflow:hidden; }
+    .level-wrap .track > span { display:block; height:100%; width:0;
+        background:linear-gradient(90deg,#5b8def,#7a5cff); transition:width .4s ease; }
+    .level-wrap .label { font-size:.78rem; color:#666; margin-top:.15rem; }
+    .level-wrap .label .muted { color:#999; }
+    .toast-host { position:fixed; right:16px; bottom:16px; display:flex; flex-direction:column;
+        gap:.5rem; z-index:1000; }
+    .toast { display:flex; align-items:center; gap:.7rem; background:#222; color:#fff;
+        padding:.7rem .9rem; border-radius:10px; box-shadow:0 8px 24px rgba(0,0,0,.25);
+        opacity:0; transform:translateY(10px); transition:opacity .2s, transform .2s; max-width:320px; }
+    .toast.show { opacity:1; transform:none; }
+    .toast .badge-emoji { font-size:1.6rem; }
+    .toast small { opacity:.8; }
     .feedback-flash { position:absolute; inset:0; pointer-events:none; opacity:0;
         display:flex; align-items:center; justify-content:center; font-size:3rem; font-weight:800;
         border-radius:10px; transition:opacity .12s ease; }
@@ -62,8 +73,10 @@ window.propsSettings = {{ props_settings|tojson|safe }};
             {% include "macros/siteswap_x_toggle.html" %}
             <div class="score-bar">
                 <span class="pill">Score <strong id="score_val">0</strong></span>
-                <span class="pill streak" id="streak_pill">🔥 <span id="streak_val">0</span></span>
-                <span class="pill" id="best_pill">Best <span id="best_val">0</span></span>
+                <div class="level-wrap">
+                    <div class="track"><span id="level_bar"></span></div>
+                    <div class="label" id="level_label"></div>
+                </div>
             </div>
             <div id="progress" class="progress-dots"></div>
             <div id="card" class="game-card-area">

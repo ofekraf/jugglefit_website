@@ -61,6 +61,9 @@ def submit_and_intake(
         name=name, siteswap_x=siteswap_x, comment=comment,
         user_id=user_id, anon_id=anon_id,
     )
+    if user_id is not None:
+        from pylib.rating.achievements import award
+        award(user_id, "first_submit")
 
     Prop.get_key_by_value(prop_type)  # validate
 

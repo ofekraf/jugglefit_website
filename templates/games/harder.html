@@ -12,6 +12,11 @@
     .compare-side .label { font-size:1.05rem; font-weight:600; word-break:break-word; }
     .compare-vs { display:flex; align-items:center; justify-content:center; color:#aaa; font-weight:700; }
     .compare-buttons { display:flex; gap:.6rem; justify-content:center; margin-top:1rem; flex-wrap:wrap; }
+    .compare-side.picked { border-color:var(--primary-color,#2a7); box-shadow:0 0 0 2px rgba(42,167,119,.25) inset; }
+    .reveal { text-align:center; margin-top:.9rem; font-size:.9rem; color:#555;
+              animation:card-in .18s ease; }
+    .reveal strong { color:#222; }
+    .reveal .mus { display:block; font-size:.78rem; color:#999; margin-top:.15rem; }
     @media (max-width:560px){ .compare-grid { grid-template-columns:1fr; } .compare-vs { display:none; } }
 {% endblock %}
 
@@ -40,6 +45,22 @@ GameEngine.start({
         el.querySelectorAll('[data-answer]').forEach(b =>
             b.addEventListener('click', () => answer({ winner: b.dataset.answer })));
         return el;
+    },
+    onResult: function (task, payload, res, cardEl) {
+        const w = payload.winner;
+        if (w === 'left' || w === 'right') {
+            const side = cardEl.querySelector(`[data-answer="${w}"]`);
+            if (side) side.classList.add('picked');
+        }
+        const r = res.reveal;
+        if (!r) return 300;
+        const line = r.agree_pct >= 50
+            ? `Crowd agrees — <strong>${r.agree_pct}%</strong> also picked this (n=${r.n})`
+            : `Interesting — only <strong>${r.agree_pct}%</strong> picked this (n=${r.n})`;
+        cardEl.insertAdjacentHTML('beforeend',
+            `<div class="reveal">${line}
+               <span class="mus">μ: ${r.left_mu} vs ${r.right_mu}</span></div>`);
+        return 1100;
     },
     keymap: {
         'ArrowLeft':  { winner: 'left' },

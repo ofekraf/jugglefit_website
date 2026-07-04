@@ -20,6 +20,9 @@ from pylib.rating.tasks import unsign
 def queue_for_deletion(candidate_id: int, *, reason: str) -> None:
     """Single entry point: move to pending_deletion and purge raw votes.
     Idempotent — no-op if the candidate is not currently active."""
+    # Award tastemaker BEFORE purge deletes trick_flags rows.
+    from pylib.rating.achievements import on_candidate_removed
+    on_candidate_removed(candidate_id)
     db_manager.queue_for_deletion(candidate_id, reason=reason)
     db_manager.purge_candidate_votes(candidate_id)
 

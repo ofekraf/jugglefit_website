@@ -1,6 +1,28 @@
 {% extends "macros/base.html" %}
 {% block title %}{{ user.display_name }}{% endblock %}
 
+{% block head %}
+<style>
+    .lvl-track { height:10px; background:#eef0f3; border-radius:999px; overflow:hidden; margin:.4rem 0 .3rem; }
+    .lvl-track > span { display:block; height:100%; background:linear-gradient(90deg,#5b8def,#7a5cff); }
+    .badge-grid { display:flex; flex-wrap:wrap; gap:.4rem; margin-top:.6rem; }
+    .badge-chip { display:inline-flex; align-items:center; gap:.4rem; border:1px solid #e5e5e5;
+        border-radius:999px; padding:.2rem .65rem; font-size:.85rem; background:#fafafa; }
+    .badge-chip.locked { opacity:.35; }
+    .subs { list-style:none; padding:0; margin:.4rem 0 0; }
+    .subs li { border:1px solid #eee; border-radius:10px; padding:.7rem .9rem; margin-bottom:.6rem; }
+    .subs .name { font-weight:600; }
+    .subs .meta { font-size:.82rem; color:#888; }
+    .subs .bar { height:6px; background:#eef0f3; border-radius:999px; overflow:hidden; margin:.4rem 0 .3rem; }
+    .subs .bar > span { display:block; height:100%; background:linear-gradient(90deg,#2dbd9b,#18a06f); }
+    .subs .gates span { display:inline-block; padding:1px 6px; border-radius:4px; font-size:.72rem; margin-right:2px; }
+    .subs .gates .ok { background:#e7f6ec; color:#1a6b3a; }
+    .subs .gates .no { background:#fdecea; color:#8a2a22; }
+    .subs .share { font-size:.82rem; }
+    .muted { color:#888; }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="route-page">
     <div class="route-header">
@@ -9,19 +31,90 @@
 
     <div class="route-form">
         <div class="form-section">
-            <h3>Your impact</h3>
+            <h3>Level</h3>
+            <div id="level_box"><span class="muted">Loading…</span></div>
+
+            <h3 style="margin-top:1.4rem">Your impact</h3>
             <table class="stats-table">
-                <tr><td>Tricks promoted to the database</td><td><strong>{{ user.n_tricks_promoted }}</strong></td></tr>
-                <tr><td>"Which trick is considered harder" answers</td><td><strong>{{ user.n_harder }}</strong></td></tr>
+                <tr><td>Tricks you submitted that were promoted</td><td><strong>{{ user.n_tricks_promoted }}</strong></td></tr>
+                <tr><td>Tricks you helped promote (voted on)</td><td><strong id="n_curated">—</strong></td></tr>
+                <tr><td>"Harder" answers</td><td><strong>{{ user.n_harder }}</strong></td></tr>
                 <tr><td>Tagging answers</td><td><strong>{{ user.n_tagging }}</strong></td></tr>
                 <tr><td>Highest Throw answers</td><td><strong>{{ user.n_throw }}</strong></td></tr>
                 <tr><td>Reliability</td><td><strong>{{ (user.reliability * 100) | round | int }}%</strong></td></tr>
             </table>
+
+            <h3 style="margin-top:1.4rem">Badges</h3>
+            <div class="badge-grid" id="badge_grid"><span class="muted">Loading…</span></div>
+
+            <h3 style="margin-top:1.4rem">Your submitted tricks</h3>
+            <ul class="subs" id="subs"><li class="muted">Loading…</li></ul>
+
             <p style="margin-top:1.5rem;">
-                <a class="primary-button" href="{{ url_for('leaderboard') }}">View leaderboards</a>
+                <a class="primary-button" href="{{ url_for('games.hub') }}">Play games</a>
+                <a class="secondary-button" href="{{ url_for('leaderboard') }}">Leaderboards</a>
                 <a class="secondary-button" href="{{ url_for('auth.logout') }}">Logout</a>
             </p>
         </div>
     </div>
 </div>
+
+<script>
+(function(){
+    function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+    fetch('/api/games/me').then(r=>r.json()).then(d=>{
+        if(!d.logged_in) return;
+        const L=d.level;
+        document.getElementById('level_box').innerHTML =
+            `<div><strong>Lv ${L.level} · ${esc(L.title)}</strong>
+                 ${L.next_at!=null?`<span class="muted"> — ${L.to_next} answers to ${esc(L.next_title)}</span>`
+                                  :'<span class="muted"> — max level</span>'}</div>
+             <div class="lvl-track"><span style="width:${Math.round(L.pct*100)}%"></span></div>
+             <div class="muted">${d.n_total} total answers</div>`;
+        document.getElementById('n_curated').textContent = d.n_curated;
+        const have=new Set(d.badges||[]);
+        document.getElementById('badge_grid').innerHTML =
+            Object.entries(d.badge_meta||{}).map(([id,m])=>
+                `<span class="badge-chip ${have.has(id)?'':'locked'}" title="${esc(m.desc)}">
+                    <span>${m.emoji}</span>${esc(m.label)}</span>`).join('');
+    });
+
+    fetch('/api/games/me/submissions').then(r=>r.json()).then(d=>{
+        const el=document.getElementById('subs');
+        const rows=d.submissions||[];
+        if(!rows.length){
+            el.innerHTML=`<li class="muted">You haven't submitted any tricks yet —
+                <a href="{{ url_for('add_tricks') }}">add one</a>.</li>`;
+            return;
+        }
+        el.innerHTML=rows.map(r=>{
+            const nm=esc(r.name||r.siteswap_x||'');
+            const head=`<div><span class="name">${nm}</span>
+                <span class="meta"> · ${esc(r.prop_type)} · ${r.props_count} props · ${esc(r.status)}</span></div>`;
+            if(r.status!=='active'){
+                return `<li>${head}</li>`;
+            }
+            const gates=Object.entries(r.gates||{}).map(([k,v])=>
+                `<span class="${v?'ok':'no'}">${k}</span>`).join('');
+            const share=location.origin+r.share_url;
+            return `<li>${head}
+                <div class="bar"><span style="width:${Math.round((r.readiness||0)*100)}%"></span></div>
+                <div class="meta">${Math.round((r.readiness||0)*100)}% ready ·
+                    <span class="gates">${gates}</span></div>
+                <div class="share">Share to collect votes:
+                    <a href="${r.share_url}">${share}</a>
+                    <button type="button" data-url="${share}" class="secondary-button"
+                        style="padding:.1rem .5rem;font-size:.78rem">copy</button></div>
+            </li>`;
+        }).join('');
+        el.querySelectorAll('button[data-url]').forEach(b=>
+            b.addEventListener('click',()=>{
+                navigator.clipboard && navigator.clipboard.writeText(b.dataset.url);
+                b.textContent='copied';
+                setTimeout(()=>b.textContent='copy',1200);
+            }));
+    });
+})();
+</script>
 {% endblock %}

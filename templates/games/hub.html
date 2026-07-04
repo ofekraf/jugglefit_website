@@ -28,8 +28,27 @@ window.propsSettings = {{ props_settings|tojson|safe }};
     .g-harder  { background:linear-gradient(135deg,#ff7a59,#ff3d6e); }
     .g-tagging { background:linear-gradient(135deg,#5b8def,#7a5cff); }
     .g-throw   { background:linear-gradient(135deg,#2dbd9b,#18a06f); }
-    .impact-strip { margin-top:1.5rem; padding:.8rem 1rem; border-top:1px solid #eee; font-size:.9rem; color:#555; }
+    .hub-panels { display:grid; grid-template-columns:1.2fr 1fr; gap:1rem; margin-top:1.5rem; }
+    .panel { border:1px solid #eee; border-radius:12px; padding:1rem 1.1rem; background:#fff; }
+    .panel h4 { margin:0 0 .6rem; font-size:.95rem; }
+    .panel .muted { color:#888; font-size:.85rem; }
+    .lvl-track { height:8px; background:#eef0f3; border-radius:999px; overflow:hidden; margin:.3rem 0 .2rem; }
+    .lvl-track > span { display:block; height:100%; background:linear-gradient(90deg,#5b8def,#7a5cff); }
+    .impact-line { font-size:.9rem; color:#555; margin-top:.5rem; }
+    .badge-grid { display:flex; flex-wrap:wrap; gap:.35rem; margin-top:.6rem; }
+    .badge-chip { display:inline-flex; align-items:center; gap:.35rem; border:1px solid #e5e5e5;
+        border-radius:999px; padding:.15rem .55rem; font-size:.82rem; background:#fafafa; }
+    .badge-chip.locked { opacity:.35; }
+    .lb-mini { list-style:none; padding:0; margin:.2rem 0 0; font-size:.9rem; }
+    .lb-mini li { display:flex; justify-content:space-between; padding:.25rem 0; border-bottom:1px solid #f2f2f2; }
+    .lb-mini li:last-child { border-bottom:none; }
+    .lb-mini .you { font-weight:700; color:var(--primary-color,#2a7); }
+    .totd { border:1px solid #eee; border-radius:12px; padding:.9rem 1.1rem; margin-top:1rem;
+        background:linear-gradient(135deg,#fff8ef,#fff); }
+    .totd h4 { margin:0 0 .3rem; }
+    .totd .name { font-weight:600; }
     .empty-banner { padding:1.2rem; border:1px dashed #ccc; border-radius:12px; text-align:center; }
+    @media (max-width:720px){ .hub-panels{ grid-template-columns:1fr; } }
     @media (max-width:640px){ .game-grid{ grid-template-columns:1fr; } .game-card.hero{ min-height:170px; } }
 </style>
 {% endblock %}
@@ -51,7 +70,20 @@ window.propsSettings = {{ props_settings|tojson|safe }};
             <div id="games_grid" class="game-grid">
                 <p>Loading…</p>
             </div>
-            <div id="impact" class="impact-strip"></div>
+
+            <div id="totd" class="totd" hidden></div>
+
+            <div class="hub-panels">
+                <div class="panel" id="impact_panel">
+                    <h4>Your progress</h4>
+                    <div id="impact_body"><span class="muted">Loading…</span></div>
+                </div>
+                <div class="panel" id="lb_panel">
+                    <h4>This week — <span id="lb_title"></span>
+                        <a href="{{ url_for('leaderboard') }}" class="muted" style="float:right">all →</a></h4>
+                    <ol class="lb-mini" id="lb_body"><li class="muted">Loading…</li></ol>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -59,7 +91,6 @@ window.propsSettings = {{ props_settings|tojson|safe }};
 <script>
 (function () {
     const grid   = document.getElementById('games_grid');
-    const impact = document.getElementById('impact');
     const gameUrls = {
         harder:  "{{ url_for('games.harder') }}",
         tagging: "{{ url_for('games.tagging') }}",
@@ -115,26 +146,87 @@ window.propsSettings = {{ props_settings|tojson|safe }};
             .catch(() => { grid.innerHTML = '<p>Failed to load.</p>'; });
     }
 
+    const impactBody = document.getElementById('impact_body');
+    const lbBody = document.getElementById('lb_body');
+    const lbTitle = document.getElementById('lb_title');
+    const totdEl = document.getElementById('totd');
+
+    function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+    function badgeChip(id, meta, have){
+        const m = meta[id]||{};
+        return `<span class="badge-chip ${have?'':'locked'}" title="${esc(m.desc||'')}">
+            <span>${m.emoji||'🏅'}</span>${esc(m.label||id)}</span>`;
+    }
+
     function loadImpact() {
-        fetch('/api/games/me').then(r=>r.json()).then(d => {
+        fetch(`/api/games/me?prop=${encodeURIComponent(selectedProp())}`).then(r=>r.json()).then(d => {
             if (!d.logged_in) {
-                impact.innerHTML = `<a href="{{ url_for('auth.login', next=request.path) }}">Log in</a>
+                impactBody.innerHTML = `<a href="{{ url_for('auth.login', next=request.path) }}">Log in</a>
                     or <a href="{{ url_for('auth.register_view', next=request.path) }}">create an account</a>
-                    to play — it takes 10 seconds.`;
+                    to track your level, badges and impact — takes 10 seconds.`;
                 return;
             }
-            const rel = Math.round(d.reliability*100);
-            impact.innerHTML = `Your impact: <strong>${d.n_harder + d.n_tagging + d.n_throw}</strong> answers
-                · reliability <strong>${rel}%</strong>
-                · <strong>${d.n_tricks_promoted}</strong> tricks promoted
-                · <a href="{{ url_for('leaderboard') }}">leaderboards</a>`;
+            const L=d.level, rel=Math.round(d.reliability*100);
+            const have=new Set(d.badges||[]);
+            const allBadges=Object.keys(d.badge_meta||{});
+            impactBody.innerHTML = `
+                <div><strong>Lv ${L.level} · ${esc(L.title)}</strong>
+                     ${L.next_at!=null?`<span class="muted"> — ${L.to_next} to ${esc(L.next_title)}</span>`:''}</div>
+                <div class="lvl-track"><span style="width:${Math.round(L.pct*100)}%"></span></div>
+                <div class="impact-line">
+                    <strong>${d.n_total}</strong> answers · reliability <strong>${rel}%</strong>
+                    · rated <strong>${d.pool_rated}</strong>/<strong>${d.pool_size}</strong> ${esc(d.prop)} candidates
+                    ${d.n_tricks_promoted>0?` · <strong>${d.n_tricks_promoted}</strong> of your tricks promoted`:''}
+                    ${d.n_curated>0?` · helped promote <strong>${d.n_curated}</strong>`:''}
+                </div>
+                <div class="badge-grid">
+                    ${allBadges.map(id=>badgeChip(id, d.badge_meta, have.has(id))).join('')}
+                </div>`;
         });
     }
 
+    function loadLeaderboard(){
+        fetch('/api/games/hub_leaderboard').then(r=>r.json()).then(b=>{
+            lbTitle.textContent = b.title || '';
+            if(!b.top || !b.top.length){
+                lbBody.innerHTML='<li class="muted">No answers yet this week — be first.</li>';
+                return;
+            }
+            const youId = b.you ? b.you.user_id : null;
+            let html = b.top.map(r=>
+                `<li class="${r.user_id===youId?'you':''}">
+                    <span>#${r.rank} ${esc(r.display_name)}</span>
+                    <span>${r.score}</span></li>`).join('');
+            if(b.you && !b.top.some(r=>r.user_id===youId)){
+                html += `<li class="you"><span>#${b.you.rank} ${esc(b.you.display_name)} (you)</span>
+                         <span>${b.you.score}</span></li>`;
+            }
+            lbBody.innerHTML = html;
+        }).catch(()=>{ lbBody.innerHTML='<li class="muted">—</li>'; });
+    }
+
+    function loadTotd(){
+        fetch(`/api/games/totd?prop=${encodeURIComponent(selectedProp())}`).then(r=>r.json()).then(d=>{
+            const y=d.yesterday;
+            if(!y){ totdEl.hidden=true; return; }
+            totdEl.hidden=false;
+            const nm=esc(y.name||y.siteswap_x||'');
+            totdEl.innerHTML=`<h4>Yesterday's trick of the day</h4>
+                <div><span class="name">${nm}</span>
+                     <span class="muted">(${y.props_count} props)</span></div>
+                <div class="muted">crowd difficulty μ=${y.mu} · ${y.n_comparisons} comparisons
+                    ${y.resolved_tags.length?` · tags: ${y.resolved_tags.map(esc).join(', ')}`:''}</div>
+                <div class="muted">Today's trick appears first in every game set.</div>`;
+        }).catch(()=>{ totdEl.hidden=true; });
+    }
+
     document.querySelectorAll('input[name="prop"]').forEach(r =>
-        r.addEventListener('change', loadNeeds));
+        r.addEventListener('change', ()=>{ loadNeeds(); loadImpact(); loadTotd(); }));
     loadNeeds();
     loadImpact();
+    loadLeaderboard();
+    loadTotd();
 })();
 </script>
 {% endblock %}

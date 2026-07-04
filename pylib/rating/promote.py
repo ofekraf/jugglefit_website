@@ -153,6 +153,11 @@ def promote_candidate(candidate_id: int, *, overrides: dict | None = None,
                 (c["user_id"],),
             )
 
+    # Curator credit + founder badge — must run BEFORE the vote purge below
+    # so voters_for_candidate can still see who helped.
+    from pylib.rating.achievements import on_candidate_promoted
+    on_candidate_promoted(candidate_id, submitter_id=c["user_id"])
+
     # Trick is now stable in ``tricks`` — raw votes for it have served
     # their purpose. The pre-promote backup_db() above already snapshotted
     # them, so we can reclaim immediately.

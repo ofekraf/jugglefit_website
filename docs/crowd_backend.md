@@ -320,15 +320,18 @@ Top-20 + caller's rank returned.
 | GET | `/contribute/games/` | – | `blueprints/games.py:hub` |
 | GET | `/contribute/games/{harder,tagging,throw}` | **user** | |
 | GET | `/api/games/needs?prop=` | – | `compute_needs` |
-| GET | `/api/games/<game>/next_set?prop=` | **user** | `build_set` |
-| POST | `/api/games/answer` | **user** | `handle_answer` |
+| GET | `/api/games/<game>/next_set?prop=&focus=` | **user** | `build_set`; `focus=<cid>` pins that candidate first |
+| POST | `/api/games/answer` | **user** | `handle_answer`; may return `reveal`/`new_badges` |
 | POST | `/api/games/flag` | **user** | `record_flag` |
-| GET | `/api/games/me` | – | user stats or `{logged_in:false}` |
+| GET | `/api/games/me?prop=` | – | level/badges/impact payload or `{logged_in:false}` |
+| GET | `/api/games/me/submissions` | **user** | your candidates + readiness + share link |
+| GET | `/api/games/totd?prop=` | – | yesterday's trick-of-the-day summary |
+| GET | `/api/games/hub_leaderboard` | – | top-5 weekly + `you` |
 | GET | `/leaderboards` · `/api/leaderboard?kind=&period=` | – | `get_board` |
 | GET | `/admin/crowd` | admin | tabbed UI |
 | GET | `/admin/api/candidates/<prop>?state=ready\|pool\|removed` | admin | |
 | GET | `/admin/api/candidate/<id>` | admin | annotated gates |
-| POST | `/admin/api/promote/<id>` | admin | overrides `{difficulty,tags,max_throw}` |
+| POST | `/admin/api/promote/<id>` | admin | overrides `{name,siteswap_x,comment,difficulty,tags,max_throw}` |
 | POST | `/admin/api/reject/<id>` `/admin/api/restore/<id>` | admin | |
 | POST | `/admin/api/backup` `/admin/api/prune` | admin | |
 | GET | `/admin/suggestions` | – | 302 → `/admin/crowd` (legacy) |
@@ -356,7 +359,11 @@ same-site relative paths.
 | `PROMOTE_MIN_COMPARISONS / MAX_SIGMA / MAX_UNKNOWN_RATIO / MIN_AGE_HOURS` | 20 / 6.0 / 0.4 / 48 | promote gates |
 | `FLAG_REASONS`, `FLAG_REMOVE_MIN`, `FLAG_REMOVE_RATIO` | 4 reasons, 5, 0.10 | queue for deletion when ≥5 flags AND >10% of exposures |
 | `W_HARDER / W_TAG / W_THROW` | 1.0 / 1.5 / 1.2 | hub ordering |
-| `LEADERBOARD_TOP_N`, `LEADERBOARD_PERIODS` | 20, `{all,30d}` | leaderboard |
+| `LEADERBOARD_TOP_N`, `LEADERBOARD_PERIODS` | 20, `{all,30d,7d}` | leaderboard |
+| `HUB_LEADERBOARD_*` | `harder`, `7d`, top 5 | mini-board on games hub |
+| `LEVELS` | 8 tiers, 0→1200 answers | level pill / progress bar |
+| `BADGES` | 16 achievements | see `pylib/rating/achievements.py` for award rules |
+| `REVEAL_MIN_COMPARISONS` | 5 | harder-game "you vs. crowd" needs this many priors |
 | `RAW_VOTE_RETENTION_DAYS`, `PENDING_RETENTION_DAYS`, `PRUNE_BATCH_SIZE` | 45, 14, 5000 | prune |
 | `THROW_STEPPER_MIN/MAX` | 3 / 15 | throw UI |
 | `PROP_RELEVANT_CATEGORIES` | per-prop `TagCategory` list | tag game / promote gate |

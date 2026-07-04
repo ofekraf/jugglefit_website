@@ -6,7 +6,14 @@ from pylib.rating.need import compute_needs, GAME_META
 from pylib.rating.pair_picker import build_set, AVAILABLE_GAMES
 from pylib.rating.answer import handle_answer
 from pylib.rating.flags import record_flag
-from pylib.configuration.consts import FLAG_REASONS
+from pylib.rating.progress import me_payload
+from pylib.rating.promote import _annotate as _annotate_candidate_row  # readiness for submissions
+from pylib.rating.totd import pick as totd_pick, yesterday_summary as totd_yesterday
+from pylib.configuration.consts import (
+    FLAG_REASONS, BADGES, HUB_LEADERBOARD_KIND, HUB_LEADERBOARD_PERIOD,
+    HUB_LEADERBOARD_N,
+)
+from database.db_manager import db_manager
 from hardcoded_database.tricks import ALL_PROPS_SETTINGS_JSON
 
 
@@ -79,11 +86,16 @@ def needs():
 def next_set(game: str):
     prop = _prop_arg()
     user = current_user()
+    focus = request.args.get("focus", type=int)
     try:
-        tasks = build_set(game, prop, user_id=user.id)
+        tasks = build_set(game, prop, user_id=user.id, focus=focus)
     except ValueError as e:
         return jsonify({"error": str(e)}), 404
-    return jsonify({"prop": prop, "game": game, "tasks": tasks})
+    totd = totd_pick(prop)
+    return jsonify({
+        "prop": prop, "game": game, "tasks": tasks,
+        "totd_id": totd["id"] if totd else None,
+    })
 
 
 @games_api.route("/answer", methods=["POST"])
@@ -131,14 +143,54 @@ def flag():
 @games_api.route("/me")
 def me():
     user = current_user()
+    prop = _prop_arg()
     if not user:
-        return jsonify({"logged_in": False})
+        return jsonify({"logged_in": False, "prop": prop,
+                        "badge_meta": {k: {"label": l, "emoji": e, "desc": d}
+                                       for k, (l, e, d) in BADGES.items()}})
+    return jsonify(me_payload(user, prop=prop))
+
+
+@games_api.route("/totd")
+def totd():
+    prop = _prop_arg()
     return jsonify({
-        "logged_in": True,
-        "display_name": user.display_name,
-        "n_harder": user.n_harder,
-        "n_tagging": user.n_tagging,
-        "n_throw": user.n_throw,
-        "n_tricks_promoted": user.n_tricks_promoted,
-        "reliability": round(user.reliability, 3),
+        "prop": prop,
+        "yesterday": totd_yesterday(prop),
     })
+
+
+@games_api.route("/me/submissions")
+@login_required_user
+def my_submissions():
+    user = current_user()
+    out = []
+    for c in db_manager.user_submissions(user.id):
+        row = {
+            "id": c["id"],
+            "prop_type": c["prop_type"],
+            "props_count": c["props_count"],
+            "name": c["name"],
+            "siteswap_x": c["siteswap_x"],
+            "status": c["status"],
+        }
+        if c["status"] == "active":
+            a = _annotate_candidate_row(c)
+            row.update({
+                "readiness": a["readiness"],
+                "gates": a["gates"],
+                "gates_passed": a["gates_passed"],
+                "share_url": f"/contribute/games/harder?prop={c['prop_type']}&focus={c['id']}",
+            })
+        out.append(row)
+    return jsonify({"submissions": out})
+
+
+@games_api.route("/hub_leaderboard")
+def hub_leaderboard():
+    from pylib.rating.leaderboard import get_board
+    user = current_user()
+    board = get_board(HUB_LEADERBOARD_KIND, HUB_LEADERBOARD_PERIOD,
+                      viewer_id=user.id if user else None)
+    board["top"] = board["top"][:HUB_LEADERBOARD_N]
+    return jsonify(board)

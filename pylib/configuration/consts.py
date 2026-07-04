@@ -63,7 +63,51 @@ W_THROW = 1.2
 
 # Leaderboard
 LEADERBOARD_TOP_N = 20
-LEADERBOARD_PERIODS = {"all": None, "30d": 30}
+LEADERBOARD_PERIODS = {"all": None, "30d": 30, "7d": 7}
+HUB_LEADERBOARD_KIND = "harder"
+HUB_LEADERBOARD_PERIOD = "7d"
+HUB_LEADERBOARD_N = 5
+
+# ---------------------------------------------------------------------------
+# Gamification
+# ---------------------------------------------------------------------------
+# Level = f(total lifetime answers). Thresholds are cumulative n_total.
+# Titles intentionally juggling-flavoured; tune freely.
+LEVELS: list[tuple[int, str]] = [
+    (0,    "Novice"),
+    (10,   "Apprentice"),
+    (30,   "Juggler"),
+    (75,   "Rater"),
+    (150,  "Cataloguer"),
+    (300,  "Curator"),
+    (600,  "Archivist"),
+    (1200, "Grandmaster"),
+]
+
+# 'You vs. crowd' reveal on the harder game: only shown once a candidate
+# has this many prior comparisons (else the % is noise).
+REVEAL_MIN_COMPARISONS = 5
+
+# Achievements: id → (label, emoji, description).
+# Award predicates live in pylib/rating/achievements.py.
+BADGES: dict[str, tuple[str, str, str]] = {
+    "first_answer":   ("First Step",      "🥇", "Answered your first task"),
+    "answers_10":     ("Warmed Up",       "🔟", "10 answers"),
+    "answers_50":     ("In the Groove",   "🎯", "50 answers"),
+    "answers_200":    ("Workhorse",       "🏋️", "200 answers"),
+    "answers_1000":   ("Machine",         "🤖", "1000 answers"),
+    "polyglot":       ("Polyglot",        "🔀", "Played all three games"),
+    "first_submit":   ("Contributor",     "✍️", "Submitted a trick"),
+    "founder":        ("Founder",         "🏛️", "Your trick was promoted to the master list"),
+    "curator_1":      ("Curator I",       "📚", "Voted on a trick that got promoted"),
+    "curator_5":      ("Curator II",      "📚", "Voted on 5 promoted tricks"),
+    "curator_25":     ("Curator III",     "📚", "Voted on 25 promoted tricks"),
+    "tastemaker":     ("Tastemaker",      "🚫", "Flagged a trick that was later removed"),
+    "sharp_eye":      ("Sharp Eye",       "👁️", "Reliability ≥ 90% with ≥ 50 answers"),
+    "balls_50":       ("Ball Specialist", "🟠", "50 answers on balls"),
+    "clubs_50":       ("Club Specialist", "🏏", "50 answers on clubs"),
+    "rings_50":       ("Ring Specialist", "⭕", "50 answers on rings"),
+}
 
 # ---------------------------------------------------------------------------
 # Storage retention (single-VM disk budget)

@@ -18,6 +18,23 @@ from pylib.configuration.consts import (
 )
 from pylib.rating.aggregate import relevant_categories
 from pylib.rating.tasks import sign
+from pylib.rating.totd import pick as totd_pick
+
+
+def _pins(prop_type: str, focus: int | None) -> list[dict]:
+    """Candidate rows to force to the front of every set (TOTD + ?focus=)."""
+    out: list[dict] = []
+    seen: set[int] = set()
+    for row in (
+        db_manager.get_candidate(focus) if focus else None,
+        totd_pick(prop_type),
+    ):
+        if (row and row.get("status") == "active"
+                and row.get("prop_type") == prop_type
+                and row["id"] not in seen):
+            out.append(row)
+            seen.add(row["id"])
+    return out
 
 
 # ---------------------------------------------------------------------------
@@ -49,11 +66,15 @@ def _control_compare(prop_type: str) -> Optional[dict]:
 
 
 def build_compare_set(prop_type: str, *, user_id: int,
-                      size: int = RATING_SET_SIZE) -> list[dict]:
+                      size: int = RATING_SET_SIZE,
+                      focus: int | None = None) -> list[dict]:
     n_control = max(1, round(size * RATING_CONTROL_FRACTION))
-    cands = db_manager.pick_candidates_for_compare(
-        prop_type, exclude_user=user_id, limit=size,
-    )
+    pins = _pins(prop_type, focus)
+    cands = pins + [
+        c for c in db_manager.pick_candidates_for_compare(
+            prop_type, exclude_user=user_id, limit=size,
+        ) if c["id"] not in {p["id"] for p in pins}
+    ]
     tasks: list[dict] = []
 
     for _ in range(n_control):
@@ -92,7 +113,19 @@ def build_compare_set(prop_type: str, *, user_id: int,
         tasks.append(t)
 
     random.shuffle(tasks)
-    return tasks[:size]
+    tasks = tasks[:size]
+    # Re-pin: move any task involving a pinned candidate to the front,
+    # preserving pin order (focus first, then TOTD).
+    pin_ids = [p["id"] for p in pins]
+    def _has_pin(t):
+        for i, pid in enumerate(pin_ids):
+            if pid in (t.get("_cand_ids") or []):
+                return i
+        return len(pin_ids)
+    tasks.sort(key=_has_pin)
+    for t in tasks:
+        t.pop("_cand_ids", None)
+    return tasks
 
 
 def _make_compare_task(prop_type: str,
@@ -118,6 +151,7 @@ def _make_compare_task(prop_type: str,
         "left": _public_side(l_row),
         "right": _public_side(r_row),
         "flaggable": bool(candidate_ids),
+        "_cand_ids": candidate_ids,   # stripped before returning to client
     }
 
 
@@ -159,6 +193,7 @@ def _make_tag_task(prop_type: str, *, kind: str, row: dict,
         "category": None, "tags": all_tags,
         "tags_by_cat": tags_by_cat,
         "flaggable": cid is not None,
+        "_cid": cid,
     }
 
 
@@ -178,12 +213,17 @@ def _tag_control(prop_type: str, cats: list[str]) -> Optional[dict]:
 
 
 def build_tag_set(prop_type: str, *, user_id: int,
-                  size: int = RATING_SET_SIZE) -> list[dict]:
+                  size: int = RATING_SET_SIZE,
+                  focus: int | None = None) -> list[dict]:
     cats = relevant_categories(prop_type)
     if not cats:
         return []
-    cands = _eligible_for_metadata(prop_type, user_id=user_id,
-                                   order="tag", limit=size)
+    pins = _pins(prop_type, focus)
+    cands = pins + [
+        c for c in _eligible_for_metadata(prop_type, user_id=user_id,
+                                          order="tag", limit=size)
+        if c["id"] not in {p["id"] for p in pins}
+    ]
     n_control = max(1, round(size * RATING_CONTROL_FRACTION))
     tasks: list[dict] = []
 
@@ -207,7 +247,24 @@ def build_tag_set(prop_type: str, *, user_id: int,
             tasks.append(t)
 
     random.shuffle(tasks)
-    return tasks[:size]
+    tasks = tasks[:size]
+    _pin_to_front(tasks, [p["id"] for p in pins], key="cid")
+    return tasks
+
+
+def _pin_to_front(tasks: list[dict], pin_ids: list[int], *, key: str) -> None:
+    """Stable-move tasks whose signed payload references a pin id to the front."""
+    if not pin_ids:
+        return
+    order = {pid: i for i, pid in enumerate(pin_ids)}
+    def _k(t):
+        # tag/throw tasks expose the candidate id via the flaggable/cid path;
+        # we stashed it on the public dict too for this purpose.
+        cid = t.get("_cid")
+        return order.get(cid, len(pin_ids))
+    tasks.sort(key=_k)
+    for t in tasks:
+        t.pop("_cid", None)
 
 
 # ---------------------------------------------------------------------------
@@ -229,6 +286,7 @@ def _make_throw_task(prop_type: str, *, kind: str, row: dict,
         "min": THROW_STEPPER_MIN, "max": THROW_STEPPER_MAX,
         "default": row["props_count"],
         "flaggable": cid is not None,
+        "_cid": cid,
     }
 
 
@@ -241,9 +299,14 @@ def _throw_control(prop_type: str) -> Optional[dict]:
 
 
 def build_throw_set(prop_type: str, *, user_id: int,
-                    size: int = RATING_SET_SIZE) -> list[dict]:
-    cands = _eligible_for_metadata(prop_type, user_id=user_id,
-                                   order="throw", limit=size)
+                    size: int = RATING_SET_SIZE,
+                    focus: int | None = None) -> list[dict]:
+    pins = _pins(prop_type, focus)
+    cands = pins + [
+        c for c in _eligible_for_metadata(prop_type, user_id=user_id,
+                                          order="throw", limit=size)
+        if c["id"] not in {p["id"] for p in pins}
+    ]
     n_control = max(1, round(size * RATING_CONTROL_FRACTION))
     tasks: list[dict] = []
 
@@ -266,7 +329,9 @@ def build_throw_set(prop_type: str, *, user_id: int,
         tasks.append(t)
 
     random.shuffle(tasks)
-    return tasks[:size]
+    tasks = tasks[:size]
+    _pin_to_front(tasks, [p["id"] for p in pins], key="cid")
+    return tasks
 
 
 # ---------------------------------------------------------------------------
@@ -281,8 +346,9 @@ _BUILDERS = {
 AVAILABLE_GAMES: set[str] = set(_BUILDERS.keys())
 
 
-def build_set(game: str, prop_type: str, *, user_id: int) -> list[dict]:
+def build_set(game: str, prop_type: str, *, user_id: int,
+              focus: int | None = None) -> list[dict]:
     builder = _BUILDERS.get(game)
     if builder is None:
         raise ValueError(f"unknown or not-yet-available game: {game}")
-    return builder(prop_type, user_id=user_id)
+    return builder(prop_type, user_id=user_id, focus=focus)
