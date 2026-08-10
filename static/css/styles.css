@@ -39,6 +39,12 @@ body {
     z-index: 1;
 }
 
+/* Responsive images: never overflow their container */
+img {
+    max-width: 100%;
+    height: auto;
+}
+
 /* Utility class for hiding elements (replaces inline style="display:none;") */
 .hidden {
     display: none !important;
@@ -592,6 +598,26 @@ a.primary-button.live-event-button:hover {
     transition: transform 0.3s ease;
     backface-visibility: hidden;
     transform: translateZ(0);
+}
+
+/* Team member image inside a carousel item (host page) */
+.carousel-item-image {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background-color: var(--section-bg);
+}
+
+.carousel-item-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.carousel-item-content {
+    padding: 20px;
+    text-align: center;
 }
 
 /* Carousel navigation arrows (prev/next buttons) */

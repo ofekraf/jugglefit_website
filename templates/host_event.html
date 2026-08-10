@@ -91,82 +91,86 @@
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const carousel = document.querySelector('#team-carousel .carousel');
-    if (!carousel) return;
+    const container = document.querySelector('#team-carousel');
+    if (!container) return;
 
-    const items = document.querySelectorAll('#team-carousel .carousel-item');
-    const prevBtn = document.querySelector('#team-carousel .carousel-prev');
-    const nextBtn = document.querySelector('#team-carousel .carousel-next');
-    
-    if (items.length === 0) return;
+    const carousel = container.querySelector('.carousel');
+    const items = container.querySelectorAll('.carousel-item');
+    const prevBtn = container.querySelector('.carousel-prev');
+    const nextBtn = container.querySelector('.carousel-next');
+
+    if (!carousel || items.length === 0) return;
 
     let currentIndex = 0;
-    const itemWidth = 300; // Width + gap
-    const containerWidth = document.querySelector('.carousel-container').offsetWidth;
-    const itemsPerView = Math.floor(containerWidth / itemWidth) || 1;
-    
-    // Clone items for infinite scroll
-    items.forEach(item => {
-        const clone = item.cloneNode(true);
-        carousel.appendChild(clone);
-    });
-    
-    // Clone again for smooth backward scroll
-    items.forEach(item => {
-        const clone = item.cloneNode(true);
-        carousel.insertBefore(clone, carousel.firstChild);
-    });
-
-    // Set initial position
-    const initialOffset = -(items.length * itemWidth);
-    carousel.style.transform = `translateX(${initialOffset}px)`;
-    currentIndex = items.length;
-
     let isAnimating = false;
 
+    function itemsPerView() {
+        return window.innerWidth <= 768 ? 1 : 2;
+    }
+
+    function getItemWidth() {
+        // Actual rendered item width + gap (20px), measured live so it stays
+        // correct across breakpoints (desktop 2-up, mobile 1-up).
+        return items[0].offsetWidth + 20;
+    }
+
+    function maxIndex() {
+        return Math.max(0, items.length - itemsPerView());
+    }
+
     function updateCarousel(animate = true) {
-        if (animate) {
-            carousel.style.transition = 'transform 0.5s ease-in-out';
-        } else {
-            carousel.style.transition = 'none';
-        }
-        const offset = -(currentIndex * itemWidth);
+        carousel.style.transition = animate ? 'transform 0.5s ease-in-out' : 'none';
+        const offset = -currentIndex * getItemWidth();
         carousel.style.transform = `translateX(${offset}px)`;
     }
 
-    function handleTransitionEnd() {
-        if (currentIndex >= items.length * 2) {
-            carousel.style.transition = 'none';
-            currentIndex = items.length;
-            updateCarousel(false);
-        }
-        if (currentIndex < items.length) {
-            carousel.style.transition = 'none';
-            currentIndex = items.length * 2 - 1;
-            updateCarousel(false);
-        }
-        isAnimating = false;
+    function updateButtons() {
+        const max = maxIndex();
+        prevBtn.style.opacity = currentIndex === 0 ? '0.5' : '1';
+        prevBtn.style.pointerEvents = currentIndex === 0 ? 'none' : 'auto';
+        nextBtn.style.opacity = currentIndex >= max ? '0.5' : '1';
+        nextBtn.style.pointerEvents = currentIndex >= max ? 'none' : 'auto';
     }
-
-    carousel.addEventListener('transitionend', handleTransitionEnd);
 
     function slide(direction) {
         if (isAnimating) return;
+        const max = maxIndex();
+        let newIndex = currentIndex + direction;
+
+        // Wrap around for auto-slide continuity.
+        if (newIndex > max) newIndex = 0;
+        if (newIndex < 0) newIndex = max;
+
         isAnimating = true;
-        currentIndex += direction;
+        currentIndex = newIndex;
         updateCarousel();
+        updateButtons();
+        setTimeout(() => { isAnimating = false; }, 500);
     }
 
     if (prevBtn) prevBtn.addEventListener('click', () => slide(-1));
     if (nextBtn) nextBtn.addEventListener('click', () => slide(1));
 
+    // Recalculate on resize so the offset matches the new item width.
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+            if (currentIndex > maxIndex()) currentIndex = maxIndex();
+            updateCarousel(false);
+            updateButtons();
+        }, 250);
+    });
+
     // Auto slide
     let autoSlideInterval = setInterval(() => slide(1), 5000);
-
-    carousel.addEventListener('mouseenter', () => clearInterval(autoSlideInterval));
-    carousel.addEventListener('mouseleave', () => {
+    container.addEventListener('mouseenter', () => clearInterval(autoSlideInterval));
+    container.addEventListener('mouseleave', () => {
         autoSlideInterval = setInterval(() => slide(1), 5000);
     });
+
+    updateCarousel(false);
+    updateButtons();
 });
 </script>
 {% endblock %}

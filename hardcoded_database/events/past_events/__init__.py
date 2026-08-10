@@ -6,6 +6,7 @@ from hardcoded_database.events.past_events.Y2025.IJC2025 import IJC2025
 from hardcoded_database.events.past_events.Y2025.NJF2025 import NJF2025
 from hardcoded_database.events.past_events.Y2025.sapir2025 import Sapir2025
 from hardcoded_database.events.past_events.Y2026.NJF2026 import NJF2026
+from hardcoded_database.events.past_events.Y2026.EJC2026 import EJC2026
 
 # Keep ordered by date
 FRONT_PAGE_PAST_EVENTS = [
@@ -14,7 +15,8 @@ FRONT_PAGE_PAST_EVENTS = [
     NJF2025,
     EJC2025,
     Tubingen2025,
-    NJF2026
+    NJF2026,
+    EJC2026
 ]
 
 # Move here events to remove it from the website's front page
