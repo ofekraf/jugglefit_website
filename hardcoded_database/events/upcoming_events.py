@@ -4,6 +4,17 @@ from datetime import date
 # Keep ordered by date
 UPCOMING_EVENTS = [
     UpcomingEvent(
+        name="Enklawa Festival 2026",
+        # Provisional - update once the official competition date is announced
+        date=date(2026, 8, 20),
+        location="Elbląg, Poland",
+        url="https://festiwalenklawa.pl/en",
+        routes=[
+            "Balls Open",
+            "Clubs Open",
+        ]
+    ),
+    UpcomingEvent(
         name="Tohuwabohu",
         date=date(2026, 10, 2),
         location="Halle (Saale), Germany",
