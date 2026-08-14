@@ -30,8 +30,8 @@ EJC2025 = PastEvent(
             ),
             competitors={
                 1: CompetitorResult(name="Spencer Androli", seconds=232),
-                2: CompetitorResult(name="Luca Pferdmenges", tricks_accomplished=430),
-                3: CompetitorResult(name="Florian Lange", tricks_accomplished=478)
+                2: CompetitorResult(name="Luca Pferdmenges", seconds=430),
+                3: CompetitorResult(name="Florian Lange", seconds=478)
             }
         ),
         RouteResult(
@@ -79,7 +79,7 @@ EJC2025 = PastEvent(
             competitors={
                 1: CompetitorResult(name="Spencer Androli", seconds=239),
                 2: CompetitorResult(name="Kevin Niitttyviita", seconds=300),
-                3: CompetitorResult(name="Itamar Hai", tricks_accomplished=575)
+                3: CompetitorResult(name="Itamar Hai", seconds=575)
             }
         ),
         RouteResult(

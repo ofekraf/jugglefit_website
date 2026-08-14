@@ -90,7 +90,7 @@ EJC2026 = PastEvent(
                     Trick(name="16c (4,4) one sided overheads", props_count=4),
                     Trick(name="sync fountain -> 2up 180 -> 2up 360 -> sync fountain", props_count=4),
                     Trick(name="4 neck throws in a run", props_count=3),
-                    Trick(name="lay on the back and stand up while cascade", props_count=3),
+                    Trick(name="blindfolded: 3c cascade -> 1 round 441 -> 3c cascade", props_count=3),
                     Trick(name="5c cascade -> 1 round 663, under the leg 3 -> cascade", props_count=5),
                     Trick(name="full slow spin while half shower", props_count=5),
                     Trick(name="full slow spin to the other direction while half shower to the other side", props_count=5),
