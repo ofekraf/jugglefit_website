@@ -1,0 +1,61 @@
+/* ===== Siteswap-X Formatter Page ===== */
+.siteswap-x-formatter .form-group {
+    margin-bottom: 1rem;
+}
+
+.siteswap-x-formatter .form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.siteswap-x-formatter-input {
+    width: 100%;
+    max-width: 420px;
+    font-size: 1.2em;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+}
+
+.siteswap-x-formatter-block {
+    margin-top: 1.5rem;
+}
+
+/* Live-formatted / static example output widgets */
+.siteswap-x-formatter .trick-widget {
+    display: inline-block;
+    padding: 20px;
+}
+
+.siteswap-x-formatter .trick-widget--sm {
+    padding: 10px;
+}
+
+.siteswap-x-formatter-output {
+    font-size: 3em;
+}
+
+.siteswap-x-formatter-output--sm {
+    font-size: 2em;
+}
+
+.siteswap-x-formatter-example {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.siteswap-x-formatter-example-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+}
+
+.siteswap-x-formatter-example-col {
+    flex: 1 1 260px;
+}
+
+.siteswap-x-formatter-example code {
+    font-size: 1.2em;
+}

@@ -2,6 +2,7 @@
 {% block title %}Leaderboards{% endblock %}
 
 {% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/route-pages.css') }}?v={{ cache_version }}">
 <style>
     .lb-tabs, .lb-periods { display:flex; gap:.4rem; flex-wrap:wrap; margin-bottom:.8rem; }
     .lb-tabs button, .lb-periods button {
@@ -33,7 +34,7 @@
         <div class="lb-metric" id="lb_metric"></div>
         <table class="lb"><thead><tr><th>#</th><th>Player</th><th>Score</th></tr></thead>
             <tbody id="lb_body"><tr><td colspan="3">Loading…</td></tr></tbody></table>
-        <p id="lb_you" style="margin-top:1rem;"></p>
+        <p id="lb_you" class="mt-1"></p>
     </div></div>
 </div>
 

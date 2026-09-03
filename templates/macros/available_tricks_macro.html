@@ -9,7 +9,7 @@
             <div id="all_tricks" class="tricks-grid">
                 <!-- Available tricks will be rendered by UpdateAvailableTricks() -->
             </div>
-            <div id="no-tricks-message" class="no-tricks-message" style="display: none;">
+            <div id="no-tricks-message" class="no-tricks-message hidden">
                 <p>No tricks found matching your criteria. Try adjusting the filters above.</p>
             </div>
         </div>
@@ -74,7 +74,7 @@
             const noTricksMessage = document.getElementById('no-tricks-message');
             if (tricksGrid) tricksGrid.innerHTML = '';
             if (noTricksMessage) {
-                noTricksMessage.style.display = 'block';
+                noTricksMessage.classList.remove('hidden');
                 noTricksMessage.innerHTML = '<p>No tricks available. Please select a prop type above.</p>';
             }
             return;
@@ -112,11 +112,11 @@
 
         if (Object.keys(groupedTricks).length === 0) {
             // Show no tricks message
-            if (noTricksMessage) noTricksMessage.style.display = 'block';
+            if (noTricksMessage) noTricksMessage.classList.remove('hidden');
             return;
         } else {
             // Hide no tricks message
-            if (noTricksMessage) noTricksMessage.style.display = 'none';
+            if (noTricksMessage) noTricksMessage.classList.add('hidden');
         }
 
         // Display tricks grouped by props count

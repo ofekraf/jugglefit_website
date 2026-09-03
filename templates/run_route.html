@@ -29,7 +29,7 @@
                 <div class="ticket-trick-number">#{{ loop.index }}</div>
                 <div class="ticket-trick-name">{{ trick.name or trick.siteswap_x or 'Unnamed' }}</div>
                 {% if trick.siteswap_x and trick.name %}
-                <div class="ticket-trick-siteswap" style="display:none;">{{ trick.siteswap_x }}</div>
+                <div class="ticket-trick-siteswap hidden">{{ trick.siteswap_x }}</div>
                 {% endif %}
                 {% if trick.comment %}
                 <div class="ticket-trick-comment">{{ trick.comment }}</div>

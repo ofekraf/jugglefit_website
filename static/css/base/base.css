@@ -1,0 +1,48 @@
+/* ===== Base ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--text-color);
+    background-color: var(--background-color);
+    position: relative;
+    z-index: 1;
+}
+
+/* Responsive images: never overflow their container */
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Utility class for hiding elements (replaces inline style="display:none;") */
+.hidden {
+    display: none !important;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.float-right {
+    float: right;
+}
+
+/* Small spacing utilities (replace one-off inline `margin-top` styles) */
+.mt-1 {
+    margin-top: 1rem;
+}
+
+.mt-1-5 {
+    margin-top: 1.5rem;
+}
+
+.mt-2 {
+    margin-top: 2rem;
+}

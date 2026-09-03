@@ -4,6 +4,7 @@
 
 {% block head %}
 {{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/siteswap-x.css') }}?v={{ cache_version }}">
 {% endblock %}
 
 {% block content %}

@@ -15,7 +15,7 @@ import logging
 import os
 import secrets
 import time
-from datetime import timedelta
+from datetime import date, timedelta
 from urllib.parse import unquote
 
 from dotenv import load_dotenv
@@ -140,6 +140,7 @@ def inject_globals():
         "cache_version": APP_START_TIME,
         "current_user": _current_user(),
         "is_super_admin": super_admin_session_valid(),
+        "current_year": date.today().year,
     }
 
 

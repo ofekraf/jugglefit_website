@@ -1,0 +1,103 @@
+/* ===== Main Content / Section Layout ===== */
+.main-content {
+    width: 100%;
+    max-width: none;
+    margin-left: 0;
+    margin-right: 0;
+    padding: 0 2rem;
+    position: relative;
+    z-index: 1;
+    overflow: visible;
+    padding-top: 72px;
+    min-height: calc(100vh - 72px);
+}
+
+.section {
+    padding: 4rem 2rem;
+    width: 100%;
+    max-width: none;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.section-alt {
+    background-color: var(--section-bg);
+    margin-bottom: 60px;
+}
+
+.section-alt:last-of-type {
+    margin-bottom: 0;
+}
+
+.section-container {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.section-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #333;
+    text-align: center;
+    margin-bottom: 1rem;
+    scroll-margin-top: 0;
+}
+
+.subsection-title {
+    font-size: 2rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: #666;
+    scroll-margin-top: 0;
+}
+
+.section-description {
+    text-align: center;
+    color: #666;
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.centered-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+/* Modifier: center a (normally left-aligned) subsection title */
+.subsection-title--centered {
+    text-align: center;
+}
+
+/* A `.section-alt` styled as a rounded, padded "card" block, with extra
+   top spacing to separate it from the previous section. Used for
+   highlighted content blocks within a page (e.g. resources, team). */
+.section-card {
+    margin-top: 4rem;
+    padding: 2rem;
+    border-radius: 8px;
+}
+
+/* ===== Responsive ===== */
+
+@media (max-width: 768px) {
+.main-content {
+        padding-top: 80px;
+    }
+}
+
+@media (max-width: 600px) {
+.section-title {
+        font-size: 1.3rem;
+    }
+
+.section-description {
+        font-size: 1rem;
+    }
+}

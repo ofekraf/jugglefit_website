@@ -1,0 +1,217 @@
+/* ===== Countdown Timer ===== */
+.countdown-timer {
+    position: fixed;
+    top: 90px;
+    right: 20px;
+    background-color: white;
+    color: var(--text-color);
+    padding: 0;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    box-shadow: 0 2px 4px var(--shadow-color);
+    cursor: move;
+    z-index: 2000;
+    user-select: none;
+    width: 240px;
+}
+
+.timer-header {
+    background-color: var(--danger-color);
+    color: white;
+    padding: 12px 16px;
+    border-radius: 8px 8px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.minimize-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0 4px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.minimize-btn:hover {
+    opacity: 0.8;
+}
+
+.timer-header .drag-handle {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    cursor: move;
+    padding: 0;
+}
+
+.countdown-timer.minimized {
+    width: auto;
+    min-width: 120px;
+}
+
+.countdown-timer.minimized #countdown,
+.countdown-timer.minimized .timer-controls {
+    display: none;
+}
+
+/* Timer finished — blink the header regardless of minimized state */
+@keyframes timer-blink {
+    0%, 100% { background-color: var(--danger-color); }
+    50%       { background-color: #ff8800; }
+}
+
+.countdown-timer.finished .timer-header {
+    animation: timer-blink 0.6s ease-in-out infinite;
+}
+
+#countdown {
+    padding: 12px 14px;
+    text-align: center;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.85rem;
+}
+
+#countdown #timer {
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--text-color);
+    display: block;
+    margin-top: 4px;
+}
+
+.timer-controls {
+    padding: 10px 12px;
+    display: flex;
+    justify-content: space-around;
+    gap: 6px;
+}
+
+.timer-btn {
+    padding: 6px 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background-color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.85rem;
+}
+
+.timer-btn:hover {
+    background-color: var(--section-bg);
+}
+
+.timer-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ===== Responsive ===== */
+
+@media (max-width: 768px) {
+.live-timer-section .countdown-timer {
+        transform: scale(1);
+    }
+}
+
+@media (max-width: 768px) and (orientation: portrait) {
+.countdown-timer {
+        top: 80px;
+        right: 10px;
+        width: 150px;
+        font-size: 0.8rem;
+    }
+
+.timer-header {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+    }
+
+.timer-header .drag-handle {
+        display: none;
+    }
+
+#countdown {
+        padding: 6px 10px;
+        font-size: 0.7rem;
+    }
+
+#countdown #timer {
+        font-size: 1.6rem;
+        margin-top: 2px;
+    }
+
+.timer-controls {
+        padding: 6px 8px;
+        gap: 4px;
+    }
+
+.timer-btn {
+        padding: 3px 5px;
+        font-size: 0.7rem;
+        flex: 1;
+    }
+
+.minimize-btn {
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 900px) and (orientation: landscape) {
+.countdown-timer {
+        top: 60px;
+        right: 6px;
+        width: 110px;
+        font-size: 0.7rem;
+    }
+
+.timer-header {
+        padding: 4px 7px;
+        font-size: 0.7rem;
+    }
+
+.timer-header .drag-handle {
+        display: none;
+    }
+
+#countdown {
+        padding: 3px 7px;
+        font-size: 0;
+        border-bottom: none;
+    }
+
+#countdown #timer {
+        font-size: 1.1rem;
+        display: block;
+        margin-top: 1px;
+    }
+
+.timer-controls {
+        padding: 3px 5px;
+        gap: 3px;
+    }
+
+.timer-btn {
+        padding: 2px 4px;
+        font-size: 0.6rem;
+        flex: 1;
+    }
+
+.minimize-btn {
+        font-size: 0.75rem;
+        padding: 0 2px;
+    }
+}

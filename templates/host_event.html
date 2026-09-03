@@ -2,6 +2,11 @@
 
 {% block title %}Host a JuggleFit Event{% endblock %}
 
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/home.css') }}?v={{ cache_version }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/components/carousel.css') }}?v={{ cache_version }}">
+{% endblock %}
+
 {% block content %}
 <div class="section">
     <div class="section-container">
@@ -36,24 +41,24 @@
         </div>
 
         <!-- Resources Section -->
-        <div class="section-alt" style="margin-top: 4rem; padding: 2rem; border-radius: 8px;">
-            <h2 class="subsection-title" style="text-align: center;">Event Resources</h2>
+        <div class="section-alt section-card">
+            <h2 class="subsection-title subsection-title--centered">Event Resources</h2>
             <div class="about-features">
                 <div class="feature">
                     <i class="fas fa-clipboard-list"></i>
                     <h3>Checklist</h3>
                     <p>Step-by-step guide to planning your event</p>
-                    <a href="{{ url_for('equipment_list') }}" class="primary-button" style="margin-top: 1rem;">View Checklist</a>
+                    <a href="{{ url_for('equipment_list') }}" class="primary-button mt-1">View Checklist</a>
                 </div>
             </div>
         </div>
 
         <!-- Contact Section -->
-        <div class="section" style="margin-top: 2rem;">
-            <h2 class="subsection-title" style="text-align: center;">Get in Touch</h2>
+        <div class="section mt-2">
+            <h2 class="subsection-title subsection-title--centered">Get in Touch</h2>
             <div class="about-content">
                 <p>Ready to host an event or have questions? Contact us!</p>
-                <div class="contact-info" style="margin-top: 1.5rem;">
+                <div class="contact-info mt-1-5">
                     <a href="mailto:jugglefit.competition@gmail.com" class="primary-button">
                         <i class="fas fa-envelope"></i> jugglefit.competition@gmail.com
                     </a>
@@ -63,8 +68,8 @@
 
         <!-- Team Section -->
         {% if team %}
-        <div class="section-alt" style="margin-top: 4rem; padding: 2rem; border-radius: 8px;">
-            <h2 class="subsection-title" style="text-align: center;">Meet the Team</h2>
+        <div class="section-alt section-card">
+            <h2 class="subsection-title subsection-title--centered">Meet the Team</h2>
             <div class="carousel-container" id="team-carousel">
                 <button class="carousel-prev"><i class="fas fa-chevron-left"></i></button>
                 <div class="carousel">

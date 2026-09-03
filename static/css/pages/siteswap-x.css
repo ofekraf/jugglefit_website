@@ -1,0 +1,123 @@
+/* ===== Siteswap-X Article Page ===== */
+.siteswap-x-article .section-container {
+    max-width: 960px;
+    margin: 0 auto;
+}
+
+.siteswap-x-article .section-title {
+    text-align: center;
+}
+
+.siteswap-x-article .lead {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto 3rem auto;
+}
+
+.siteswap-x-article .demo-container {
+    padding: 3em 0;
+    text-align: center;
+}
+
+.siteswap-x-article .subsection {
+    margin-bottom: 3rem;
+}
+
+.siteswap-x-article .subsection-title {
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.siteswap-x-article .modifiers-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.siteswap-x-article .modifier-table h3 {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+}
+
+.siteswap-x-article .table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+}
+
+.siteswap-x-article .table th,
+.siteswap-x-article .table td {
+    border: 1px solid var(--border-color);
+    padding: 0.75rem;
+    text-align: left;
+}
+
+.siteswap-x-article .table thead {
+    background-color: var(--section-bg);
+}
+
+.siteswap-x-article .table-note {
+    font-size: 0.9rem;
+    color: var(--light-text);
+}
+
+.siteswap-x-article .siteswap-example-list li {
+    padding: 2.5em 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.siteswap-x-article .siteswap-example-list li:last-child {
+    border-bottom: none;
+}
+
+.siteswap-x-article .siteswap-x-digit-container {
+    font-size: 2rem !important;
+    margin: 1em 0.2em !important;
+}
+
+.siteswap-x-article .siteswap-x-digit {
+    font-size: 1em !important;
+}
+
+.siteswap-x-article .siteswap-x-throw-mod {
+    top: -1.2em !important;
+}
+
+.siteswap-x-article .siteswap-x-catch-mod {
+    bottom: -1.2em !important;
+}
+
+.siteswap-x-row .text-muted {
+    margin-left: 10px;
+}
+
+/* Formatter Page Specific Styles */
+#formatted-output .siteswap-x-digit-container,
+#static-example-output .siteswap-x-digit-container {
+    font-size: inherit !important;
+    margin: 0.5em 0.1em !important;
+}
+
+#formatted-output .siteswap-x-digit,
+#static-example-output .siteswap-x-digit {
+    font-size: inherit !important;
+}
+
+#formatted-output .siteswap-x-throw-mod,
+#static-example-output .siteswap-x-throw-mod {
+    top: -0.8em !important;
+}
+
+#formatted-output .siteswap-x-catch-mod,
+#static-example-output .siteswap-x-catch-mod {
+    bottom: -0.8em !important;
+}
+
+/* ===== Responsive ===== */
+
+@media (max-width: 700px) {
+    .siteswap-x-article .modifiers-grid {
+        grid-template-columns: 1fr;
+    }
+}

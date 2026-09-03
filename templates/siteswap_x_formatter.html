@@ -4,44 +4,45 @@
 
 {% block head %}
 {{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/siteswap-x-formatter.css') }}?v={{ cache_version }}">
 {% endblock %}
 
 {% block content %}
-<div class="section">
+<div class="section siteswap-x-formatter">
     <div class="section-container">
         <h1 class="section-title">Siteswap X Formatter</h1>
-        <p class="lead">Type a siteswap-x string to see it formatted.</p>
-        
+        <p>Type a siteswap-x string to see it formatted.</p>
+
         <div class="form-group">
             <label for="siteswap-input">Raw Siteswap X:</label>
-            <input type="text" id="siteswap-input" class="form-control" placeholder="e.g. 4{/Rs}23{B}" autocomplete="off" style="font-size: 1.2em; padding: 10px;">
+            <input type="text" id="siteswap-input" class="siteswap-x-formatter-input" placeholder="e.g. 4{/Rs}23{B}" autocomplete="off">
         </div>
 
-        <div class="mt-4">
+        <div class="siteswap-x-formatter-block">
             <h3>Formatted Result:</h3>
-            <div class="trick-container trick-widget" style="display: inline-block; padding: 20px;">
+            <div class="trick-container trick-widget">
                 <div class="trick-main">
-                    <span id="formatted-output" class="trick-siteswap-x" style="font-size: 3em;"></span>
+                    <span id="formatted-output" class="trick-siteswap-x siteswap-x-formatter-output"></span>
                 </div>
             </div>
         </div>
 
-        <div class="mt-3">
+        <div class="siteswap-x-formatter-block">
             <button class="primary-button" onclick="sharePattern()">Share</button>
         </div>
 
-        <div class="mt-5 pt-5 border-top" style="margin-top: 50px !important;">
+        <div class="siteswap-x-formatter-example">
             <h3>Example:</h3>
-            <div class="row">
-                <div class="col-md-6">
+            <div class="siteswap-x-formatter-example-row">
+                <div class="siteswap-x-formatter-example-col">
                     <p><strong>Raw:</strong></p>
-                    <p><code style="font-size: 1.2em;">4{/Rs}23{B}</code></p>
+                    <p><code>4{/Rs}23{B}</code></p>
                 </div>
-                <div class="col-md-6">
+                <div class="siteswap-x-formatter-example-col">
                     <p><strong>Formatted:</strong></p>
-                    <div class="trick-container trick-widget" style="display: inline-block; padding: 10px;">
+                    <div class="trick-container trick-widget trick-widget--sm">
                         <div class="trick-main">
-                            <span id="static-example-output" class="trick-siteswap-x" style="font-size: 2em;"></span>
+                            <span id="static-example-output" class="trick-siteswap-x siteswap-x-formatter-output siteswap-x-formatter-output--sm"></span>
                         </div>
                     </div>
                 </div>

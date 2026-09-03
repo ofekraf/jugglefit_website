@@ -1,5 +1,8 @@
 {% extends "macros/base.html" %}
 {% block title %}Support JuggleFit{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/donate.css') }}?v={{ cache_version }}">
+{% endblock %}
 {% block content %}
 <div class="donation-page">
     <h1 class="text-center">Support JuggleFit</h1>

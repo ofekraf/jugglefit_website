@@ -1,0 +1,16 @@
+/* ===== CSS Variables ===== */
+:root {
+    --primary-color: #000000;
+    --secondary-color: #08B10F;
+    --accent-color: #FF4D4D;
+    --text-color: #333333;
+    --light-text: #666666;
+    --background-color: #FFFFFF;
+    --section-bg: #F5F5F5;
+    --border-color: #E5E5E5;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --success-color: #08B10F;
+    --warning-color: #FCD601;
+    --info-color: #A322C5;
+    --danger-color: #AE0101;
+}

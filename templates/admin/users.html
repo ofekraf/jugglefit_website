@@ -2,6 +2,7 @@
 {% block title %}Users{% endblock %}
 
 {% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/route-pages.css') }}?v={{ cache_version }}">
 <style>
     table.users { width:100%; border-collapse:collapse; font-size:.9rem; }
     table.users th, table.users td { padding:.45rem .5rem; border-bottom:1px solid #eee; text-align:left; }

@@ -1,5 +1,8 @@
- {% extends "macros/base.html" %}
+{% extends "macros/base.html" %}
 {% block title %}Contribute - Software{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/route-pages.css') }}?v={{ cache_version }}">
+{% endblock %}
 {% block content %}
 <div class="route-page contribute-software">
     <div class="route-header">

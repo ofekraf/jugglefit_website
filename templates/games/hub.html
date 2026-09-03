@@ -2,6 +2,7 @@
 {% block title %}Games{% endblock %}
 
 {% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/route-pages.css') }}?v={{ cache_version }}">
 <script>
 window.propsSettings = {{ props_settings|tojson|safe }};
 </script>
@@ -80,7 +81,7 @@ window.propsSettings = {{ props_settings|tojson|safe }};
                 </div>
                 <div class="panel" id="lb_panel">
                     <h4>This week — <span id="lb_title"></span>
-                        <a href="{{ url_for('leaderboard') }}" class="muted" style="float:right">all →</a></h4>
+                        <a href="{{ url_for('leaderboard') }}" class="muted float-right">all →</a></h4>
                     <ol class="lb-mini" id="lb_body"><li class="muted">Loading…</li></ol>
                 </div>
             </div>

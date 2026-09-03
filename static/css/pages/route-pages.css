@@ -1,0 +1,243 @@
+/* ===== Route Page ===== */
+.route-page {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0;
+    padding: 1rem;
+    box-sizing: border-box;
+    margin-top: 0;
+    scroll-margin-top: 0;
+}
+
+.route-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.route-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.route-description {
+    font-size: 1.1rem;
+    color: var(--light-text);
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.route-form {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px var(--shadow-color);
+    max-width: 1200px;
+    width: 100%;
+}
+
+.route-layout {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+    position: relative;
+    width: 100%;
+    max-width: 1200px;
+    z-index: 1;
+}
+
+.route-container {
+    width: 100%;
+    max-width: 1200px;
+    padding: 1rem;
+    box-sizing: border-box;
+    position: relative;
+    z-index: 1;
+    margin-top: 1rem;
+    background: white;
+    border-radius: 5px;
+}
+
+.route-content {
+    width: 100%;
+    max-width: 1200px;
+    box-sizing: border-box;
+    position: relative;
+    z-index: 1;
+    max-height: 500px;
+    padding: 0 0 0 1.5rem;
+}
+
+.route-sections {
+    width: 100%;
+    margin: 0;
+    padding: 0 10px;
+    box-sizing: border-box;
+}
+
+.route-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 2rem;
+    align-items: center;
+    position: relative;
+    z-index: 10;
+}
+
+.route-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1rem;
+    position: relative;
+    z-index: 10;
+}
+
+.route-buttons .primary-button {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    min-width: 120px;
+    text-align: center;
+}
+
+.route-buttons .secondary-button {
+    min-width: 150px;
+    text-align: center;
+}
+
+.route-buttons .print-button,
+.route-buttons .live-event-button {
+    width: auto !important;
+    min-width: 120px;
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    text-align: center;
+}
+
+/* Force route display to stay left-aligned */
+.route-page,
+html body .route-page,
+html body main .route-page,
+html body main .main-content .route-page,
+body .main-content .route-page {
+    margin: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    text-align: left !important;
+    padding-left: 1rem !important;
+    max-width: none !important;
+    width: 100% !important;
+}
+
+.route-page .route-form,
+.route-page .route-container,
+.route-page .route-content,
+.route-page .form-section,
+.route-page .route-sections {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    text-align: left !important;
+}
+
+.route-page .route-sections {
+    margin: 0 !important;
+    text-align: left !important;
+}
+
+.route-sections,
+.route-container,
+.route-content,
+.route-form,
+.form-section,
+#route-sections {
+    margin: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    text-align: left !important;
+    max-width: none !important;
+    width: 100% !important;
+}
+
+.main-content {
+    text-align: left !important;
+    display: block !important;
+}
+
+/* ===== Responsive ===== */
+
+@media (max-width: 768px) {
+.route-form {
+        padding: 1rem;
+    }
+
+.route-container {
+        padding: 0.5rem;
+    }
+
+.route-sections {
+        padding: 0 5px;
+    }
+
+.route-title {
+        font-size: 1.5rem;
+    }
+
+.route-actions {
+        gap: 0.5rem;
+        flex-direction: column;
+    }
+
+/* Route layout collapses */
+
+.route-layout {
+        flex-direction: column;
+    }
+
+.trick-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+.route-actions .primary-button,
+    .route-actions .secondary-button {
+        width: 100%;
+    }
+
+/* Route buttons: wrap into 2-column grid on mobile */
+
+.route-buttons {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem;
+        margin-top: 0.75rem;
+    }
+
+.route-buttons .primary-button,
+    .route-buttons .print-button {
+        width: 100%;
+        text-align: center;
+        padding: 0.6rem 0.5rem;
+        font-size: 0.85rem;
+        min-width: 0;
+    }
+}
+
+@media (max-width: 600px) {
+.route-result-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+.route-result-info {
+        margin-bottom: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+.route-form {
+        padding: 0.75rem;
+    }
+}

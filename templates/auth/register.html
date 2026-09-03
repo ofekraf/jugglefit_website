@@ -1,6 +1,11 @@
 {% extends "macros/base.html" %}
 {% block title %}Create account{% endblock %}
 
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/route-pages.css') }}?v={{ cache_version }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/add-tricks.css') }}?v={{ cache_version }}">
+{% endblock %}
+
 {% block content %}
 <div class="route-page">
     <div class="route-header">
@@ -41,7 +46,7 @@
                 </div>
                 <button type="submit" class="primary-button">Create account</button>
             </form>
-            <p style="margin-top:1rem;">
+            <p class="form-footnote">
                 Already have an account?
                 <a href="{{ url_for('auth.login', next=request.args.get('next')) }}">Log in</a>
             </p>

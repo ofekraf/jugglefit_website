@@ -1,0 +1,101 @@
+/* ===== Print Styles ===== */
+@media print {
+    body {
+        background-color: white;
+        color: black;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .no-print {
+        display: none !important;
+    }
+
+    .main-content {
+        padding: 0;
+        margin: 0;
+        margin-top: -50px !important;
+    }
+
+    .route-page {
+        width: 100%;
+        max-width: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .trick-item,
+    .prop-section {
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+    .qr-code.print-only {
+        display: block !important;
+        position: fixed !important;
+        bottom: 20px !important;
+        right: 20px !important;
+        width: 300px !important;
+        height: 300px !important;
+        background-color: white !important;
+        padding: 10px !important;
+        border: 1px solid #ddd !important;
+        z-index: 9999 !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+    }
+
+    .qr-code img {
+        width: 280px !important;
+        height: 280px !important;
+        display: block !important;
+    }
+
+    /* Force PC width for prop color bar in print */
+    .prop-color-bar {
+        width: 100px !important;
+        min-height: 40px !important;
+    }
+
+    .prop-color-bar::before {
+        width: 30px !important;
+        height: 30px !important;
+    }
+
+    .prop-count-text {
+        font-size: 2.5rem !important;
+    }
+
+    /* Maintain colors in print */
+    .prop-color-bar[data-props="3"] { background: #ff4733 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .prop-color-bar[data-props="4"] { background: #c0f564 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .prop-color-bar[data-props="5"] { background: #2601f6 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .prop-color-bar[data-props="6"] { background: #ff8c00 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .prop-color-bar[data-props="7"] { background: #f238a7 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .prop-color-bar[data-props="8"] { background: #00ced1 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .prop-color-bar[data-props="9"] { background: #8a2be2 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+    .trick-checkbox {
+        display: none;
+    }
+
+    .toast-notification {
+        display: none !important;
+    }
+
+    @page {
+        size: portrait;
+        margin: 0.25cm;
+    }
+}
+
+/* Hide QR code by default; only show in print preview */
+.qr-code {
+    display: none;
+}
+
+@media screen {
+    .qr-code.print-only {
+        display: none !important;
+    }
+}

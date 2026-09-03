@@ -14,13 +14,13 @@
                                     <div class="prop-count-text">X {{ trick.props_count }}</div>
                                 </div>
                             </div>
-                            <div class="trick-container-wrapper" style="width: 100%;">
+                            <div class="trick-container-wrapper">
                         {% set current_props.count = trick.props_count %}
                     {% endif %}
                     {% set trick_counter.count = trick_counter.count + 1 %}
                     <div class="prop-details-frame">
                         <div class="trick-content">
-                            <div class="trick-main" style="display: inline-flex; align-items: center; gap: 0.5em;">
+                            <div class="trick-main">
                                 <span class="trick-number">{{ trick_counter.count }}.</span>
                                 {% include 'macros/trick_container.html' %}
                             </div>

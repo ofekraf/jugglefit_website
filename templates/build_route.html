@@ -1,6 +1,9 @@
 {% extends "macros/base.html" %}
 
 {% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/route-pages.css') }}?v={{ cache_version }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/add-tricks.css') }}?v={{ cache_version }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/components/tag-categories.css') }}?v={{ cache_version }}">
 <script>
 // Trick filtering constants from Flask context
 window.MIN_TRICK_DIFFICULTY = {{ MIN_TRICK_DIFFICULTY }};

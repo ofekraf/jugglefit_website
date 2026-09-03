@@ -8,9 +8,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Toggle mobile menu
     if (mobileMenuBtn) {
         mobileMenuBtn.addEventListener('click', function() {
-            this.classList.toggle('active');
-            mainNav.classList.toggle('active');
-            document.body.style.overflow = mainNav.classList.contains('active') ? 'hidden' : '';
+            const willBeActive = !mainNav.classList.contains('active');
+            this.classList.toggle('active', willBeActive);
+            mainNav.classList.toggle('active', willBeActive);
+            this.setAttribute('aria-expanded', String(willBeActive));
+            document.body.style.overflow = willBeActive ? 'hidden' : '';
         });
     }
 
@@ -25,32 +27,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Add click event listeners to dropdowns
     dropdowns.forEach(dropdown => {
-        // For mobile, the entire list item is the trigger area for dropdowns
-        // But we need to distinguish between clicking the link and clicking to toggle dropdown
-        
-        // Find the text node and the arrow
-        const navItemText = dropdown.childNodes[0];
-        const arrow = dropdown.querySelector('.dropdown-arrow');
-        
-        if (arrow) {
-            arrow.addEventListener('click', (e) => {
+        // On mobile, the label ("nav-item-toggle") is the trigger area for
+        // opening/closing the dropdown; the arrow lives inside it.
+        const toggle = dropdown.querySelector('.nav-item-toggle');
+
+        if (toggle) {
+            toggle.addEventListener('click', (e) => {
                 if (isMobile) {
                     e.preventDefault();
                     e.stopPropagation();
+                    const willBeActive = !dropdown.classList.contains('active');
                     closeOtherDropdowns(dropdown);
-                    dropdown.classList.toggle('active');
+                    dropdown.classList.toggle('active', willBeActive);
                 }
             });
         }
-        
-        // Also allow clicking the parent li to toggle on mobile if it's not a link click
-        dropdown.addEventListener('click', (e) => {
-            if (isMobile && e.target === dropdown) {
-                e.preventDefault();
-                closeOtherDropdowns(dropdown);
-                dropdown.classList.toggle('active');
-            }
-        });
     });
 
     // Close dropdowns when clicking outside

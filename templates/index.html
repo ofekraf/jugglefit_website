@@ -1,5 +1,9 @@
 {% extends "macros/base.html" %}
 {% block title %}Home{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/home.css') }}?v={{ cache_version }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/components/carousel.css') }}?v={{ cache_version }}">
+{% endblock %}
 {% block content %}
 
 <section class="hero-section">
@@ -138,7 +142,7 @@
 
 <section class="cta-section">
     <div class="section-container">
-        <h2 class="section-title" style="color: white;">Ready to Compete?</h2>
+        <h2 class="section-title">Ready to Compete?</h2>
         <p class="cta-text">Start practicing today with our route generator or learn more about hosting an event.</p>
         <div class="cta-buttons">
             <a href="{{ url_for('generate_route') }}" class="secondary-button">Generate Route</a>

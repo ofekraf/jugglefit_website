@@ -1,0 +1,121 @@
+/* ===== Siteswap-X (digit modifiers) ===== */
+.siteswap-x-digit-container {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    margin: 0;
+    min-width: 0;
+    width: auto;
+    /* Match .trick-name base typography exactly */
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 500;
+    line-height: 1.1em;
+    letter-spacing: normal;
+    color: var(--text-color);
+    overflow: visible !important;
+}
+
+.siteswap-x-digit-container:last-child {
+    margin-right: 0;
+}
+
+.siteswap-x-digit {
+    /* Base digit must look identical to .trick-name; only modifiers differ */
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 500;
+    line-height: 1.1em;
+    letter-spacing: normal;
+    color: var(--text-color);
+    white-space: pre;
+}
+
+.siteswap-x-throw-mod,
+.siteswap-x-catch-mod {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 5;
+    font-size: 0.75em;
+    font-weight: 600;
+    font-family: 'Arial Narrow', 'Helvetica Condensed', sans-serif-condensed, sans-serif;
+    letter-spacing: -0.05em;
+}
+
+.siteswap-x-throw-mod {
+    color: #d32f2f;
+    top: -1.1em;
+}
+
+.siteswap-x-catch-mod {
+    color: #1976d2;
+    bottom: -1.1em;
+}
+
+/* Center the siteswap-x toggle row */
+.center-row {
+    justify-content: center;
+}
+
+.siteswap-x-toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 1em;
+    margin-top: 0.5em;
+    margin-bottom: 1rem;
+}
+
+.siteswap-x-toggle-label {
+    display: flex;
+    align-items: center;
+    font-weight: normal;
+    gap: 0.4em;
+    font-size: 1em;
+}
+
+.siteswap-x-toggle-checkbox,
+.trick-checkbox {
+    width: 1.1em;
+    height: 1.1em;
+    vertical-align: middle;
+    accent-color: #0078d4;
+    margin-right: 0.3em;
+}
+
+/* Force pixel-precise checkbox sizing */
+.trick-checkbox,
+.siteswap-x-toggle-checkbox,
+input.trick-checkbox[type="checkbox"] {
+    width: 16px !important;
+    height: 16px !important;
+    min-width: 16px !important;
+    min-height: 16px !important;
+    box-sizing: content-box !important;
+    vertical-align: middle !important;
+    margin-right: 8px !important;
+    transform: none !important;
+}
+
+/* Trick Checkbox specific overrides */
+.trick-checkbox {
+    margin-right: 10px;
+    cursor: pointer;
+    accent-color: var(--success-color);
+    position: relative;
+    top: 2px;
+}
+
+/* ===== Responsive ===== */
+
+@media (max-width: 480px) {
+/* Smaller modifiers on mobile */
+
+.siteswap-x-throw-mod,
+    .siteswap-x-catch-mod {
+        font-size: 0.6em;
+    }
+}

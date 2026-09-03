@@ -1,5 +1,9 @@
 {% extends "macros/base.html" %}
 {% block title %}Live Event - {{ route.name }}{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/live-event.css') }}?v={{ cache_version }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/components/countdown-timer.css') }}?v={{ cache_version }}">
+{% endblock %}
 {% block content %}
 <div class="live-event-page">
     <!-- Timer Section -->

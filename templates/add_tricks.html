@@ -2,6 +2,9 @@
 {% block title %}Add Tricks{% endblock %}
 
 {% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/route-pages.css') }}?v={{ cache_version }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/add-tricks.css') }}?v={{ cache_version }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/components/captcha.css') }}?v={{ cache_version }}">
 <script>
 const propsSettings = {{ props_settings|tojson|safe }};
 window.propsSettings = propsSettings;

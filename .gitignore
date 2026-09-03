@@ -183,3 +183,6 @@ cython_debug/
 
 # Verification game data logs (user data, should not be committed)
 data/
+
+# Runtime SQLite database (created on app start, should not be committed)
+database_data/

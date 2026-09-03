@@ -3,6 +3,8 @@
 
 {% block head %}
 {{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/route-pages.css') }}?v={{ cache_version }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/add-tricks.css') }}?v={{ cache_version }}">
 <style>
     .admin-mobile-block {
         display: none;
@@ -63,7 +65,7 @@
                     </div>
                     <button type="submit" class="primary-button">Login</button>
                 </form>
-                <p style="margin-top:1rem; color:#666; font-size:.9rem;">
+                <p class="form-footnote">
                     Regular admins: just <a href="{{ url_for('auth.login', next=request.args.get('next')) }}">log in</a>
                     with your user account — no separate admin password needed.
                 </p>

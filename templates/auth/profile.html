@@ -2,6 +2,7 @@
 {% block title %}{{ user.display_name }}{% endblock %}
 
 {% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/route-pages.css') }}?v={{ cache_version }}">
 <style>
     .lvl-track { height:10px; background:#eef0f3; border-radius:999px; overflow:hidden; margin:.4rem 0 .3rem; }
     .lvl-track > span { display:block; height:100%; background:linear-gradient(90deg,#5b8def,#7a5cff); }
@@ -20,6 +21,7 @@
     .subs .gates .no { background:#fdecea; color:#8a2a22; }
     .subs .share { font-size:.82rem; }
     .muted { color:#888; }
+    .profile-section-title { margin-top: 1.4rem; }
 </style>
 {% endblock %}
 
@@ -34,7 +36,7 @@
             <h3>Level</h3>
             <div id="level_box"><span class="muted">Loading…</span></div>
 
-            <h3 style="margin-top:1.4rem">Your impact</h3>
+            <h3 class="profile-section-title">Your impact</h3>
             <table class="stats-table">
                 <tr><td>Tricks you submitted that were promoted</td><td><strong>{{ user.n_tricks_promoted }}</strong></td></tr>
                 <tr><td>Tricks you helped promote (voted on)</td><td><strong id="n_curated">—</strong></td></tr>
@@ -44,13 +46,13 @@
                 <tr><td>Reliability</td><td><strong>{{ (user.reliability * 100) | round | int }}%</strong></td></tr>
             </table>
 
-            <h3 style="margin-top:1.4rem">Badges</h3>
+            <h3 class="profile-section-title">Badges</h3>
             <div class="badge-grid" id="badge_grid"><span class="muted">Loading…</span></div>
 
-            <h3 style="margin-top:1.4rem">Your submitted tricks</h3>
+            <h3 class="profile-section-title">Your submitted tricks</h3>
             <ul class="subs" id="subs"><li class="muted">Loading…</li></ul>
 
-            <p style="margin-top:1.5rem;">
+            <p class="mt-1-5">
                 <a class="primary-button" href="{{ url_for('games.hub') }}">Play games</a>
                 <a class="secondary-button" href="{{ url_for('leaderboard') }}">Leaderboards</a>
                 <a class="secondary-button" href="{{ url_for('auth.logout') }}">Logout</a>

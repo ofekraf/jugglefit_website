@@ -1,10 +1,48 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to AI coding agents (Claude Code, and others)
+when working with code in this repository.
 
 ## Repository Overview
 
 This is the JuggleFit website, a Flask-based platform for juggling competitions that measures skill through control over specific tricks. The site includes route generation, trick databases, event management, and URL shortening capabilities.
+
+## Hard rules — read before touching routes, URLs, or templates
+
+1. **Never change these URL paths**: `/created_route`, `/run_route`,
+   `/live_event` (defined in `app.py` via `_render_route_page`). They are
+   embedded in QR codes and short links printed on physical event
+   materials and shared externally. The `?route=<serialized>` query
+   parameter format (JSON → zlib → base64, see `pylib/classes/route.py`
+   `Route.serialize`/`deserialize`) must also stay backward compatible.
+   `/build_route?route=...` is used for "Edit" links and should be
+   treated with the same care.
+2. Do not rename existing Flask endpoint names that templates reference
+   via `url_for(...)` without also updating every template. The legacy
+   aliases `admin_login`/`admin_logout`/`admin_crowd`/`admin_users`
+   (registered in `app.py` after blueprint registration) exist so old
+   `url_for('admin_crowd')`-style calls keep working — don't remove them
+   without grepping `templates/` first.
+3. `hardcoded_database/events/upcoming_events.py` and
+   `hardcoded_database/events/past_events/__init__.py` must stay
+   **ordered by date** (explicit `# Keep ordered by date` comments) —
+   insert new entries in chronological position rather than appending.
+   `hardcoded_database/organization/team.py` similarly has a
+   `# Order for team page` comment — that order is intentional display
+   order, not alphabetical.
+4. There's no application-level test suite yet (only `tests/docker/`
+   exists — see Testing section below). Before committing changes to
+   routes or templates, sanity-check by running the app in-process and
+   hitting the affected pages, e.g.:
+   ```python
+   import app as appmod
+   client = appmod.app.test_client()
+   print(client.get("/some/path").status_code)
+   ```
+   For anything touching `/created_route`, `/run_route`, `/live_event`,
+   or `/build_route`, test with a real serialized `Route` (see
+   `pylib/classes/route.py`) rather than a made-up string, since these
+   pages require a valid `?route=` payload or they redirect.
 
 ## Development Commands
 
@@ -159,9 +197,100 @@ docker rm -f <container-name>       # Force remove container
 - User-submitted tricks flow through the crowd pipeline (`pylib/rating/intake.py`)
 
 ### Template Architecture
-- Jinja2 templates in `/templates/` with base template inheritance
+- Jinja2 templates in `/templates/` with base template inheritance (see "Frontend Architecture" below)
 - JavaScript utilities in `/static/js/` for dynamic interactions
-- CSS styling in `/static/css/styles.css`
+- CSS split into small, focused files under `/static/css/{base,components,pages}/`
+  instead of one monolithic stylesheet (see "Frontend Architecture" below)
+
+## Frontend Architecture (templates + CSS)
+
+### Template structure
+
+- Every page template extends `templates/macros/base.html`, the single
+  site-wide layout (`<head>`, navbar, `<main>`, footer, orientation-alert
+  overlay, CSRF-fetch shim). The three mini-games (`games/harder.html`,
+  `games/tagging.html`, `games/throw.html`) extend
+  `templates/games/_game_base.html`, which itself extends `base.html`.
+- The navbar is a separate partial, `templates/macros/navbar.html`,
+  included by `base.html` via `{% include %}`. Edit the navbar there, not
+  in `base.html`.
+- Reusable form controls / widgets live under `templates/macros/` as
+  Jinja `{% macro %}` definitions (imported via `{% from ... import ... %}`)
+  or plain `{% include %}` partials (e.g. `route_display.html`,
+  `trick_container.html`, `juggler_captcha.html`, `siteswap_x_toggle.html`
+  are includes, not macros, despite living in the same folder — check
+  which pattern a given file uses before copying it as a template).
+- Standard child-template blocks: `{% block title %}`, `{% block head %}`
+  (page-specific `<link>`/`<script>`/`<style>`, call `{{ super() }}` first
+  if you need anything `base.html`'s own `head` block would add),
+  `{% block content %}`, `{% block scripts %}`.
+- `templates/siteswap_modifiers_printed_page.html` is the one exception —
+  a standalone full HTML document (no `{% extends %}`) used for a print
+  popup. Leave it self-contained.
+
+### CSS structure — do not recreate a monolithic stylesheet
+
+CSS was refactored from one 3600+ line `static/css/styles.css` into small,
+focused files under `static/css/{base,components,pages}/`. Keep it that
+way — new styles should go into an existing file if they fit its scope,
+or a new small file if they don't, never back into one giant file.
+
+**Global** (linked unconditionally in `macros/base.html`, loaded on every
+page — because either the classes are used site-wide, or JS present on
+most pages can inject that markup at runtime):
+- `base/variables.css` — CSS custom properties (`--primary-color` etc.)
+- `base/base.css` — resets + small utility classes (`.hidden`,
+  `.text-center`, `.float-right`, `.mt-1`/`.mt-1-5`/`.mt-2`)
+- `base/layout.css` — `.main-content`, `.section*`, spacing/card helpers
+- `base/animations.css` — shared `@keyframes`
+- `components/navbar.css`, `components/footer.css`
+- `components/buttons.css`, `components/forms.css`
+- `components/orientation-alert.css`, `components/toast.css`,
+  `components/print.css`
+- `components/trick-display.css`, `components/prop-selection.css`,
+  `components/siteswap-x.css` — these three are global even though their
+  *static* markup only appears on a few templates, because
+  `static/js/route_helpers.js`, `static/js/siteswap_x.js`, and
+  `static/js/game_engine.js` can dynamically inject `.trick-*`/`.prop-*`/
+  `.siteswap-x-*` elements into almost any route-related or game page.
+
+**Page-scoped** (only linked via `{% block head %}` on the templates that
+actually need them — check `static/css/pages/*.css` and
+`static/css/components/{carousel,tag-categories,countdown-timer,captcha}.css`
+before assuming something is global):
+- `pages/home.css` + `components/carousel.css` → `index.html`,
+  `host_event.html`
+- `pages/route-pages.css` → any page using the `.route-page`/
+  `.route-header`/`.route-form` wrapper classes (add_tricks, generate_route,
+  build_route, created_route, leaderboard, software_contribution,
+  admin/crowd, admin/users, admin/login, auth/login, auth/register,
+  auth/profile, games/hub, games/_game_base)
+- `pages/add-tricks.css` → pages using `.custom-trick-form` (add_tricks,
+  build_route, admin/login, auth/login, auth/register)
+- `components/tag-categories.css` → build_route, generate_route
+- `components/countdown-timer.css` → created_route, live_event
+- `components/captcha.css` → add_tricks
+- `pages/donate.css`, `pages/past-events.css`, `pages/live-event.css`,
+  `pages/siteswap-x.css`, `pages/siteswap-x-formatter.css` → one page each
+  (name matches the page)
+- `static/css/run_route.css` → `run_route.html` only (was already
+  separate before this refactor, untouched)
+
+When adding a new page: extend `base.html`, and only link the
+page-scoped CSS files your new template actually needs — don't add new
+rules to the global files unless the class is genuinely going to be used
+across most of the site.
+
+### Inline styles
+
+Avoid inline `style="..."` attributes in template markup for anything
+static. Use a CSS class instead — reach for the existing utility classes
+(`.mt-1`, `.mt-1-5`, `.mt-2`, `.hidden`, `.text-center`, `.float-right` in
+`base/base.css`) for simple one-offs, or a named class in the relevant
+page/component CSS file for anything more specific. Inline styles that
+are computed/toggled by JavaScript at runtime (e.g. a progress-bar width,
+a `classList`-driven display toggle) are fine and expected — those are
+not the target of this rule.
 
 ## Testing and Validation
 
