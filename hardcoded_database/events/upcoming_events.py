@@ -4,14 +4,13 @@ from datetime import date
 # Keep ordered by date
 UPCOMING_EVENTS = [
     UpcomingEvent(
-        name="Enklawa Festival 2026",
-        # Provisional - update once the official competition date is announced
-        date=date(2026, 8, 20),
-        location="Elbląg, Poland",
-        url="https://festiwalenklawa.pl/en",
+        name="Melbourne Juggling Convention 2026",
+        date=date(2026, 9, 26),
+        location="Melbourne, Australia",
+        url="https://www.melbournejugglingconvention.com.au/",
         routes=[
-            "Balls Open",
-            "Clubs Open",
+            "Balls - Open",
+            "Clubs - Open",
         ]
     ),
     UpcomingEvent(
@@ -25,6 +24,16 @@ UPCOMING_EVENTS = [
         ]
     ),
     UpcomingEvent(
+        name="Muenchen Con XXL 2026",
+        date=date(2026, 11, 4),
+        location="Munich, Germany",
+        url="https://muenchen-con.de/",
+        routes=[
+            "Balls - Open",
+            "Clubs - Open",
+        ]
+    ),
+    UpcomingEvent(
         name="IJC 2027",
         date=date(2027, 4, 23),
         location="Israel",
@@ -33,6 +42,16 @@ UPCOMING_EVENTS = [
             "Balls Open",
             "Clubs Open",
             "Balls U18",
+        ]
+    ),
+    UpcomingEvent(
+        name="EJC 2027",
+        date=date(2027, 8, 5),
+        location="Azores, Portugal",
+        url="https://eja.net/news/%F0%9F%8C%8D-ejc-2027-awarded-to-the-azores/",
+        routes=[
+            "Balls - Open",
+            "Clubs - Open",
         ]
     ),
 ]
