@@ -1,7 +1,7 @@
 """
 Generate past_event_trick_suggestions.md: past-event tricks not in master CSVs.
 
-Match rule mirrors db_manager.find_master_match:
+Match rule:
     same prop_type AND same props_count AND
     (name equal, case-insensitive  OR  siteswap_x equal, case-insensitive)
 None never matches None.
@@ -359,11 +359,11 @@ lines: list[str] = []
 lines.append("# Past-event tricks to suggest")
 lines.append("")
 lines.append("Tricks that appeared in past-event routes but are **not** in the stable")
-lines.append("master trick list (`hardcoded_database/tricks/*.csv`). These will be")
-lines.append("submitted to `/api/suggest_trick` so they enter the crowd rating pipeline.")
+lines.append("master trick list (`hardcoded_database/tricks/*.csv`). Review this list and")
+lines.append("add any that should be kept directly to the relevant CSV file(s).")
 lines.append("")
-lines.append("Match rule (same as `db_manager.find_master_match`): same `prop_type` +")
-lines.append("`props_count` and case-insensitive equality on `name` **or** `siteswap_x`.")
+lines.append("Match rule: same `prop_type` + `props_count` and case-insensitive equality")
+lines.append("on `name` **or** `siteswap_x`.")
 lines.append("")
 lines.append("## Summary")
 lines.append("")

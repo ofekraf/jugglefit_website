@@ -40,8 +40,6 @@
                 <li class="nav-item dropdown">
                     <span class="nav-item-toggle">Contribute<span class="dropdown-arrow">▼</span></span>
                     <ul class="dropdown-menu">
-                        <li><a href="{{ url_for('games.hub') }}">Games</a></li>
-                        <li><a href="{{ url_for('add_tricks') }}">Add Tricks</a></li>
                         <li><a href="{{ url_for('software_contribution') }}">Software</a></li>
                         <li><a href="{{ url_for('donate') }}">Donate</a></li>
                     </ul>
@@ -67,39 +65,6 @@
                         </li>
                     </ul>
                 </li>
-                {% set _is_admin = (current_user and current_user.is_admin) or is_super_admin %}
-                {% if current_user %}
-                <li class="nav-item dropdown nav-item-account">
-                    <span class="nav-item-toggle"><i class="fas fa-user-circle"></i> {{ current_user.display_name }}<span class="dropdown-arrow">▼</span></span>
-                    <ul class="dropdown-menu">
-                        <li><a href="{{ url_for('auth.profile') }}">Profile</a></li>
-                        <li><a href="{{ url_for('leaderboard') }}">Leaderboards</a></li>
-                        {% if _is_admin %}
-                        <li class="dropdown-divider"></li>
-                        <li><a href="{{ url_for('admin_crowd') }}">Crowd Pipeline</a></li>
-                        {% if is_super_admin %}
-                        <li><a href="{{ url_for('admin_users') }}">Manage Users</a></li>
-                        {% endif %}
-                        {% endif %}
-                        <li class="dropdown-divider"></li>
-                        <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
-                    </ul>
-                </li>
-                {% elif is_super_admin %}
-                {# super-admin via /admin/login without a user session - rare #}
-                <li class="nav-item dropdown nav-item-account">
-                    <span class="nav-item-toggle"><i class="fas fa-user-shield"></i> Admin<span class="dropdown-arrow">▼</span></span>
-                    <ul class="dropdown-menu">
-                        <li><a href="{{ url_for('admin_crowd') }}">Crowd Pipeline</a></li>
-                        <li><a href="{{ url_for('admin_users') }}">Manage Users</a></li>
-                        <li><a href="{{ url_for('admin_logout') }}">Logout</a></li>
-                    </ul>
-                </li>
-                {% else %}
-                <li class="nav-item nav-item-account">
-                    <a href="{{ url_for('auth.login') }}" class="nav-login-link">Login</a>
-                </li>
-                {% endif %}
             </ul>
         </nav>
     </div>

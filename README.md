@@ -33,7 +33,6 @@ This repository contains the source code for the JuggleFit website, built using 
 - **CI/CD Pipeline**: Automated testing and deployment with GitHub Actions
 - **Health Monitoring**: Built-in health checks and monitoring endpoints
 - **Security**: CSRF protection, hardened session cookies, nginx rate limiting, security headers, SSL/TLS via certbot
-- **Crowd Rating Pipeline**: Elo-based difficulty rating with reliability-weighted votes (see `docs/crowd_backend.md`)
 
 ## Quick Start
 
@@ -111,7 +110,6 @@ docker-compose -f docker-compose.prod.yml up --build -d
    
    Edit `.env` with your specific settings:
    - `SECRET_KEY` (**required** in production — the app refuses to start without it)
-   - `SUPER_ADMIN_USER` / `SUPER_ADMIN_PASSWORD`
    - `SQLITE_DB_DIR` / `SQLITE_DB_NAME` (defaults work for local dev)
 
 3. **Run Development Server**
@@ -259,10 +257,6 @@ SQLITE_DB_DIR=./database_data
 SQLITE_DB_NAME=jugglefit.db
 SQLITE_BACKUP_DIR=./database_backups
 
-# Super-admin (env-credential login at /auth/login and /admin/login)
-SUPER_ADMIN_USER=Admin
-SUPER_ADMIN_PASSWORD=<change-me>
-
 # Off-box backup via rclone (see deploy/oci-ubuntu/setup.sh)
 RCLONE_REMOTE=gdrive:jugglefit-backups
 BACKUP_KEEP_LOCAL=1
@@ -283,22 +277,19 @@ BACKUP_REMOTE_KEEP_WEEKLY=8
 
 ### Core API (`/api/` prefix)
 - `POST /api/fetch_tricks`: Filter tricks by criteria
-- `POST /api/trick_exists`: Dedup check for a name/siteswap
-- `POST /api/suggest_trick`: Submit a trick to the crowd pipeline
 - `POST /api/shorten_url`: Generate short URLs (same-origin only)
-- `GET  /api/leaderboard`: Contribution leaderboards
-- `GET  /api/games/*`: Crowd-rating game task sets & answers
+- `GET  /shortener/<code>`: Redirect to the original URL
 
 ### Web Pages
 - `/`: Homepage with events and information
 - `/generate_route`: Create custom juggling routes
 - `/build_route`: Interactive route builder
+- `/created_route`, `/live_event`, `/run_route`: Generated-route views (URLs are frozen — see `CLAUDE.md`)
 - `/past_events`: Archive of past events
 - `/host_event`: Information for event hosts
 - `/event_checklist`: Equipment / hosting checklist
-- `/contribute/games/`: Crowd-rating games hub
-- `/leaderboards`: Contribution leaderboards
-- `/admin/crowd`: Admin review console (login required)
+- `/contribute/software`: How to contribute to the codebase
+- `/siteswap_x`, `/siteswap_x/formatter`: Siteswap-X notation reference and formatter
 
 ## Contributing
 
@@ -342,26 +333,28 @@ We use TDD for infrastructure changes:
 ### Project Structure
 ```
 jugglefit_website/
-├── app.py                      # Flask app + config + public page routes
+├── app.py                      # Flask app + config + all page routes
 ├── wsgi.py                     # WSGI entry point (gunicorn)
-├── blueprints/                 # Feature-area routes
-│   ├── auth.py                 #   user login/registration
-│   ├── games.py                #   crowd-rating games + game API
-│   ├── api.py                  #   public JSON API + shortener
-│   └── admin.py                #   admin & super-admin console
-├── pylib/                      # Core application modules (rating, auth, classes)
-├── database/                   # SQLite manager, seed, backup, prune
+├── blueprints/
+│   └── api.py                  #   public JSON API + URL shortener
+├── pylib/                      # Core application modules (classes, route generator, config)
+├── database/                   # SQLite manager, seed, backup, prune (tricks + url_mappings + meta)
 ├── hardcoded_database/         # Static data (tricks CSVs, events, team)
 ├── static/                     # CSS, JavaScript, images
 ├── templates/                  # Jinja2 HTML templates
 ├── tests/docker/               # Infra test suite
-├── docs/crowd_backend.md       # Backend reference (schema, pipeline, scaling)
 ├── deploy/oci-ubuntu/          # OCI Ubuntu deployment (nginx, systemd, scripts)
 ├── Dockerfile                  # Production image (gunicorn + healthcheck)
 ├── docker-compose.yml          # Development environment
 ├── docker-compose.prod.yml     # Production environment
 └── .github/workflows/          # CI/CD pipeline
 ```
+
+> Note: this app previously had a login/accounts system, crowd-sourced
+> trick submission, and crowd-rating games (`blueprints/auth.py`,
+> `blueprints/games.py`, `blueprints/admin.py`, `pylib/rating/`, etc.).
+> It was removed while the site had too few users to need it, and is
+> fully preserved on the `feature/crowd-contribution` git branch.
 
 ## Troubleshooting
 

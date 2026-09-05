@@ -1,0 +1,21 @@
+/* ===== Custom Trick Form (build_route.html "Add Custom Trick" mini-form) ===== */
+.custom-trick-form .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.custom-trick-form .form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+/* ===== Responsive ===== */
+
+@media (max-width: 768px) {
+    .custom-trick-form .form-row {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+}

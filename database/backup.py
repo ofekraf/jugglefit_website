@@ -6,9 +6,7 @@ table, every row) and prunes old snapshots. Nothing else: the snapshot
 is sufficient to restore everything; CSVs/tarballs are not produced.
 
 Triggers:
-  * before every candidate→master promotion
   * daily via deploy/oci-ubuntu/backup.sh
-  * POST /admin/api/backup
   * python -m database.backup
 """
 from __future__ import annotations

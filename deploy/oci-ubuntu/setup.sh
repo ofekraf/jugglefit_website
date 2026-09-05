@@ -6,7 +6,7 @@
 #   sudo bash /opt/jugglefit/deploy/oci-ubuntu/setup.sh
 #
 # What it does:
-#   1. Ensures required .env keys exist (prompts for SUPER_ADMIN_* if missing)
+#   1. Ensures required .env keys exist (prompts for SECRET_KEY if missing)
 #   2. Installs rclone (for off-box backup) if not present
 #   3. Walks you through `rclone config` if no remote is set up yet
 #   4. Installs cron jobs:
@@ -58,8 +58,6 @@ ensure_env() {
 }
 
 ensure_env SECRET_KEY            "Flask SECRET_KEY (random string)" "$(head -c32 /dev/urandom | base64 | tr -d '=+/')"
-ensure_env SUPER_ADMIN_USER      "Super-admin username" "Admin"
-ensure_env SUPER_ADMIN_PASSWORD  "Super-admin password" "" silent
 
 chmod 600 "$ENV_FILE"
 say ".env locked to 600"

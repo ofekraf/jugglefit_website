@@ -64,12 +64,6 @@
     margin-right: auto;
 }
 
-.centered-content {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2rem;
-}
-
 /* Modifier: center a (normally left-aligned) subsection title */
 .subsection-title--centered {
     text-align: center;

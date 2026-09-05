@@ -159,7 +159,7 @@ EOF
 mkdir -p /var/log/jugglefit
 chown $APP_USER:$APP_USER /var/log/jugglefit
 
-# App-level setup: SUPER_ADMIN creds, rclone, backup/prune cron
+# App-level setup: SECRET_KEY, rclone, backup/prune cron
 echo -e "${YELLOW}Running app setup (env keys, rclone, cron)...${NC}"
 bash $APP_DIR/deploy/oci-ubuntu/setup.sh
 

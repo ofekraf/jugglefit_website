@@ -45,15 +45,6 @@
     font-style: italic;
 }
 
-/* Small helper text placed below a form (e.g. "No account? Create one",
-   "Regular admins: just log in..."). Used across auth/login, auth/register,
-   admin/login, and similar single-form pages. */
-.form-footnote {
-    margin-top: 1rem;
-    color: var(--light-text);
-    font-size: 0.9rem;
-}
-
 /* ===== Sliders ===== */
 .slider-container {
     margin-top: 0.5rem;

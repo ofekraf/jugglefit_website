@@ -1,6 +1,11 @@
 """
-Public JSON API (``/api/*``) — trick lookup, suggestion intake, captcha,
-URL shortener. Game and admin APIs live in their own blueprints.
+Public JSON API (``/api/*``) — trick lookup + URL shortener.
+
+Note: this app has no login/accounts, crowd-sourced trick submission, or
+crowd-rating games system. That functionality (suggest_trick, captcha,
+trick_exists dedup, auth, games) was removed once the site had too few
+users to make crowd rating worthwhile, and is preserved in full on the
+``feature/crowd-contribution`` git branch for reactivation later.
 """
 from __future__ import annotations
 
@@ -9,21 +14,14 @@ import string
 from urllib.parse import urlsplit
 
 from flask import (
-    Blueprint, current_app, jsonify, redirect, request, session, url_for, flash,
+    Blueprint, current_app, jsonify, redirect, request, url_for, flash,
 )
 
 from database.db_manager import db_manager
-from hardcoded_database.captcha import CAPTCHA_QUESTIONS, is_correct_answer
 from hardcoded_database.tricks import ALL_PROPS_SETTINGS
-from pylib.auth import current_user, get_or_create_anon_id
 from pylib.classes.prop import Prop
 from pylib.classes.tag import Tag
-from pylib.configuration.consts import (
-    MIN_TRICK_DIFFICULTY, MAX_TRICK_DIFFICULTY,
-    MAX_TRICK_NAME_LENGTH, MAX_SITESWAP_X_LENGTH, MAX_COMMENT_LENGTH,
-)
-from pylib.rating.intake import submit_and_intake
-from pylib.rating.leaderboard import get_board
+from pylib.configuration.consts import MIN_TRICK_DIFFICULTY, MAX_TRICK_DIFFICULTY
 from pylib.utils.filter_tricks import filter_tricks
 
 
@@ -76,126 +74,6 @@ def fetch_tricks():
     except Exception as e:
         current_app.logger.exception("Error in /api/fetch_tricks: %s", e)
         return jsonify({"error": str(e)}), 400
-
-
-@api_bp.route("/trick_exists", methods=["POST"])
-def trick_exists():
-    """Lightweight dedup check used by build_route before adding a custom
-    trick. Checks master tricks AND active candidates."""
-    data = request.get_json(silent=True) or {}
-    prop_type = data.get("prop_type")
-    name = (data.get("name") or "").strip() or None
-    siteswap_x = (data.get("siteswap_x") or "").strip() or None
-    try:
-        Prop.get_key_by_value(prop_type)
-        props_count = int(data.get("props_count"))
-    except Exception:
-        return jsonify({"error": "invalid prop/props_count"}), 400
-    if not name and not siteswap_x:
-        return jsonify({"exists": False})
-    m = db_manager.find_master_match(prop_type=prop_type, props_count=props_count,
-                                     name=name, siteswap_x=siteswap_x)
-    if m:
-        return jsonify({"exists": True, "where": "master", "match": m})
-    c = db_manager.find_candidate_match(prop_type=prop_type, props_count=props_count,
-                                        name=name, siteswap_x=siteswap_x)
-    if c:
-        return jsonify({"exists": True, "where": "candidate",
-                        "match": {k: c.get(k) for k in
-                                  ("id", "props_count", "name", "siteswap_x", "comment")}})
-    return jsonify({"exists": False})
-
-
-# ---------------------------------------------------------------------------
-# captcha + suggestion intake
-# ---------------------------------------------------------------------------
-@api_bp.route("/get_captcha", methods=["GET"])
-def get_captcha():
-    try:
-        session.permanent = True
-        idx = random.randint(0, len(CAPTCHA_QUESTIONS) - 1)
-        session["captcha_index"] = idx
-        return jsonify({"question": CAPTCHA_QUESTIONS[idx]["question"]})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@api_bp.route("/suggest_trick", methods=["POST"])
-def suggest_trick():
-    try:
-        data = request.get_json() or {}
-        prop_type = data.get("prop_type")
-        name = (data.get("name") or "").strip() or None
-        siteswap_x = (data.get("siteswap_x") or "").strip() or None
-        comment = (data.get("comment") or "").strip() or None
-        captcha_answer = data.get("captcha_answer")
-
-        try:
-            Prop.get_key_by_value(prop_type)
-        except Exception:
-            return jsonify({"error": "Prop type is required"}), 400
-        try:
-            props_count = int(data.get("props_count"))
-        except (TypeError, ValueError):
-            return jsonify({"error": "props_count is required"}), 400
-        if not name and not siteswap_x:
-            return jsonify({"error": "Either name or siteswap_x is required"}), 400
-        if name and len(name) > MAX_TRICK_NAME_LENGTH:
-            return jsonify({"error": f"Name too long (max {MAX_TRICK_NAME_LENGTH})."}), 400
-        if siteswap_x and len(siteswap_x) > MAX_SITESWAP_X_LENGTH:
-            return jsonify({"error": f"Siteswap-X too long (max {MAX_SITESWAP_X_LENGTH})."}), 400
-        if comment and len(comment) > MAX_COMMENT_LENGTH:
-            return jsonify({"error": f"Comment too long (max {MAX_COMMENT_LENGTH})."}), 400
-        if not (1 <= props_count <= 13):
-            return jsonify({"error": "props_count out of range."}), 400
-
-        user = current_user()
-        # Captcha required only for anonymous submissions that haven't solved one yet.
-        if user is None and not session.get("captcha_solved"):
-            idx = session.get("captcha_index")
-            if idx is None or idx < 0 or idx >= len(CAPTCHA_QUESTIONS):
-                return jsonify({"error": "Captcha session expired. Please refresh."}), 400
-            if not is_correct_answer(idx, captcha_answer):
-                return jsonify({"error": "Incorrect security answer"}), 400
-            session["captcha_solved"] = True
-            session.pop("captcha_index", None)
-
-        result = submit_and_intake(
-            prop_type=prop_type,
-            props_count=props_count,
-            name=name,
-            siteswap_x=siteswap_x,
-            comment=comment,
-            user_id=user.id if user else None,
-            anon_id=None if user else get_or_create_anon_id(),
-        )
-
-        return jsonify({
-            "status": result.status,
-            "pending_id": result.pending_id,
-            "candidate_id": result.candidate_id,
-            "match": result.match,
-            "games_url": url_for("games.hub", prop=prop_type),
-        }), 200
-
-    except Exception as e:
-        current_app.logger.exception("Error in /api/suggest_trick: %s", e)
-        return jsonify({"error": str(e)}), 500
-
-
-# ---------------------------------------------------------------------------
-# leaderboard
-# ---------------------------------------------------------------------------
-@api_bp.route("/leaderboard")
-def api_leaderboard():
-    kind = request.args.get("kind", "tricks")
-    period = request.args.get("period", "all")
-    user = current_user()
-    try:
-        board = get_board(kind, period, viewer_id=user.id if user else None)
-    except ValueError as e:
-        return jsonify({"error": str(e)}), 400
-    return jsonify(board)
 
 
 # ---------------------------------------------------------------------------

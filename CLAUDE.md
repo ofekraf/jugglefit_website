@@ -5,7 +5,14 @@ when working with code in this repository.
 
 ## Repository Overview
 
-This is the JuggleFit website, a Flask-based platform for juggling competitions that measures skill through control over specific tricks. The site includes route generation, trick databases, event management, and URL shortening capabilities.
+This is the JuggleFit website, a Flask-based platform for juggling competitions that measures skill through control over specific tricks. The site includes route generation, a trick database, event management, and URL shortening.
+
+There is no login/accounts system, crowd-sourced trick submission, or
+crowd-rating games on `main` — that larger system existed at one point
+but was removed while the site had too few users to need it. It is
+fully preserved, untouched, on the `feature/crowd-contribution` git
+branch if it's ever needed again; see that branch (and its own
+`docs/crowd_backend.md`) rather than looking for it here.
 
 ## Hard rules — read before touching routes, URLs, or templates
 
@@ -18,11 +25,7 @@ This is the JuggleFit website, a Flask-based platform for juggling competitions 
    `/build_route?route=...` is used for "Edit" links and should be
    treated with the same care.
 2. Do not rename existing Flask endpoint names that templates reference
-   via `url_for(...)` without also updating every template. The legacy
-   aliases `admin_login`/`admin_logout`/`admin_crowd`/`admin_users`
-   (registered in `app.py` after blueprint registration) exist so old
-   `url_for('admin_crowd')`-style calls keep working — don't remove them
-   without grepping `templates/` first.
+   via `url_for(...)` without also updating every template.
 3. `hardcoded_database/events/upcoming_events.py` and
    `hardcoded_database/events/past_events/__init__.py` must stay
    **ordered by date** (explicit `# Keep ordered by date` comments) —
@@ -71,10 +74,6 @@ SECRET_KEY=<random-hex>       # REQUIRED when FLASK_ENV=production (app aborts o
 # SQLite storage
 SQLITE_DB_DIR=./database_data
 SQLITE_DB_NAME=jugglefit.db
-
-# Super-admin (env-credential login at /auth/login and /admin/login)
-SUPER_ADMIN_USER=Admin
-SUPER_ADMIN_PASSWORD=<change-me>
 ```
 
 ### Running the Application
@@ -120,13 +119,12 @@ docker rm -f <container-name>       # Force remove container
 ### Core Components
 
 **Flask Application Structure:**
-- **Main App** (`app.py`): Flask app config, CSRF, and public page routes
-- **Blueprints** (`blueprints/`): `auth.py`, `games.py`, `api.py`, `admin.py`
-- **Database Layer** (`database/db_manager.py`): SQLite (WAL mode) — tricks, candidates, votes, users, short URLs. Schema is auto-created on `init_db()`; lightweight migrations run at startup.
+- **Main App** (`app.py`): Flask app config, CSRF, and all page routes (route generation/building, events, static pages)
+- **Blueprints** (`blueprints/api.py`): public JSON API (`/api/fetch_tricks`, `/api/shorten_url`) + the URL-shortener redirect blueprint (`/shortener/<code>`)
+- **Database Layer** (`database/db_manager.py`): SQLite (WAL mode) — just `tricks` (master list, seeded from CSV), `url_mappings` (shortener), and `meta` (bookkeeping timestamps). Schema is auto-created on `init_db()`, which also runs on module import so it works under gunicorn (no `__main__` block needed).
 - **Hardcoded Data**: Static data for events, team members, and seed tricks in `/hardcoded_database/`
 - **Classes**: `Trick`, `Route`, `Prop`, `Tag` core entities in `pylib/classes/`
-- **Crowd Rating** (`pylib/rating/`): Elo-based difficulty rating, task tokens, promotion pipeline — see `docs/crowd_backend.md`
-- **Route Generation**: Algorithm-based practice-route builder
+- **Route Generation**: Algorithm-based practice-route builder (`pylib/route_generator/`)
 
 **Key Classes and Their Relationships:**
 - **`Trick`** (`pylib/classes/trick.py`): Core entity with name, props_count, difficulty, tags, and validation
@@ -138,9 +136,15 @@ docker rm -f <container-name>       # Force remove container
 ### Data Architecture
 
 **Trick Database:**
-- CSV-based storage in `/hardcoded_database/tricks/` (balls.csv, clubs.csv, rings.csv)
-- Loaded via `trick_loader.py` with validation and tag parsing
+- Source-of-truth CSVs in `/hardcoded_database/tricks/*.csv` (one per `Prop`)
+- `database/seed.py` imports each CSV into the SQLite `tricks` table on
+  first run (idempotent — a prop already holding rows is skipped unless
+  `force=True`); the CSVs remain the files you edit to add/change tricks
+- `pylib/utils/trick_registry.py` runs the seed step, then reads the
+  `tricks` table back into the in-process `ALL_PROPS_TRICKS` /
+  `ALL_PROPS_SETTINGS` caches used everywhere else in the app
 - Filterable by props count, difficulty, tags, and prop type
+  (`pylib/utils/filter_tricks.py`, `POST /api/fetch_tricks`)
 
 **Route Serialization:**
 - JSON → zlib compression → base64 encoding for URL-friendly route sharing
@@ -155,18 +159,8 @@ docker rm -f <container-name>       # Force remove container
 
 **Core API** (`/api/` blueprint — `blueprints/api.py`):
 - `POST /api/fetch_tricks`: Filter tricks by criteria, return JSON
-- `POST /api/trick_exists`: Dedup check for name/siteswap
-- `POST /api/suggest_trick`: Submit a trick to the crowd pipeline
-- `POST /api/shorten_url`: Generate short URLs (same-origin only)
-- `GET  /api/leaderboard`: Contribution leaderboards
-- `GET  /shortener/<code>`: Redirect to original URL
-
-**Games API** (`/api/games/` — `blueprints/games.py`):
-- `GET  /api/games/needs`, `GET /api/games/<game>/next_set`
-- `POST /api/games/answer`, `POST /api/games/flag`
-
-**Admin API** (`/admin/api/` — `blueprints/admin.py`):
-- Candidates list/detail, promote/reject/restore/delete, backup, prune, user-admin toggle
+- `POST /api/shorten_url`: Generate short URLs (same-origin only, `_is_same_origin` guard)
+- `GET  /shortener/<code>`: Redirect to the original URL (separate `shortener_bp`)
 
 **Health and Monitoring**:
 - `GET /health`: Container health check endpoint (returns JSON status)
@@ -175,9 +169,8 @@ docker rm -f <container-name>       # Force remove container
 ### Configuration System
 
 **Constants Management** (`pylib/configuration/consts.py`):
-- Trick validation limits (props count, difficulty ranges)
-- Rating pipeline knobs (set size, control fraction, promotion thresholds)
-- Session lifetimes, leaderboard periods
+- Trick validation limits (name length, difficulty range)
+- `USER_SESSION_DAYS`: Flask session cookie lifetime
 
 **Database Configuration** (`database/db_manager.py`):
 - SQLite path from `SQLITE_DB_DIR` / `SQLITE_DB_NAME`
@@ -191,10 +184,9 @@ docker rm -f <container-name>       # Force remove container
 - Try-catch blocks with user-friendly error messages
 
 ### Data Loading and Caching
-- Seed CSV tricks loaded into SQLite on first `init_db()`
-- `ALL_PROPS_TRICKS` cached in-process (loaded at import, refreshed after promotion)
+- Seed CSV tricks loaded into SQLite on first `init_db()` (see "Trick Database" above)
+- `ALL_PROPS_TRICKS` / `ALL_PROPS_SETTINGS` cached in-process, loaded once at import time
 - Static data in Python modules for events and team information
-- User-submitted tricks flow through the crowd pipeline (`pylib/rating/intake.py`)
 
 ### Template Architecture
 - Jinja2 templates in `/templates/` with base template inheritance (see "Frontend Architecture" below)
@@ -208,18 +200,16 @@ docker rm -f <container-name>       # Force remove container
 
 - Every page template extends `templates/macros/base.html`, the single
   site-wide layout (`<head>`, navbar, `<main>`, footer, orientation-alert
-  overlay, CSRF-fetch shim). The three mini-games (`games/harder.html`,
-  `games/tagging.html`, `games/throw.html`) extend
-  `templates/games/_game_base.html`, which itself extends `base.html`.
+  overlay, CSRF-fetch shim).
 - The navbar is a separate partial, `templates/macros/navbar.html`,
   included by `base.html` via `{% include %}`. Edit the navbar there, not
   in `base.html`.
 - Reusable form controls / widgets live under `templates/macros/` as
   Jinja `{% macro %}` definitions (imported via `{% from ... import ... %}`)
   or plain `{% include %}` partials (e.g. `route_display.html`,
-  `trick_container.html`, `juggler_captcha.html`, `siteswap_x_toggle.html`
-  are includes, not macros, despite living in the same folder — check
-  which pattern a given file uses before copying it as a template).
+  `trick_container.html`, `siteswap_x_toggle.html` are includes, not
+  macros, despite living in the same folder — check which pattern a given
+  file uses before copying it as a template).
 - Standard child-template blocks: `{% block title %}`, `{% block head %}`
   (page-specific `<link>`/`<script>`/`<style>`, call `{{ super() }}` first
   if you need anything `base.html`'s own `head` block would add),
@@ -250,26 +240,23 @@ most pages can inject that markup at runtime):
 - `components/trick-display.css`, `components/prop-selection.css`,
   `components/siteswap-x.css` — these three are global even though their
   *static* markup only appears on a few templates, because
-  `static/js/route_helpers.js`, `static/js/siteswap_x.js`, and
-  `static/js/game_engine.js` can dynamically inject `.trick-*`/`.prop-*`/
-  `.siteswap-x-*` elements into almost any route-related or game page.
+  `static/js/route_helpers.js` and `static/js/siteswap_x.js` can
+  dynamically inject `.trick-*`/`.prop-*`/`.siteswap-x-*` elements into
+  almost any route-related page.
 
 **Page-scoped** (only linked via `{% block head %}` on the templates that
 actually need them — check `static/css/pages/*.css` and
-`static/css/components/{carousel,tag-categories,countdown-timer,captcha}.css`
+`static/css/components/{carousel,tag-categories,countdown-timer,custom-trick-form}.css`
 before assuming something is global):
 - `pages/home.css` + `components/carousel.css` → `index.html`,
   `host_event.html`
 - `pages/route-pages.css` → any page using the `.route-page`/
-  `.route-header`/`.route-form` wrapper classes (add_tricks, generate_route,
-  build_route, created_route, leaderboard, software_contribution,
-  admin/crowd, admin/users, admin/login, auth/login, auth/register,
-  auth/profile, games/hub, games/_game_base)
-- `pages/add-tricks.css` → pages using `.custom-trick-form` (add_tricks,
-  build_route, admin/login, auth/login, auth/register)
+  `.route-header`/`.route-form` wrapper classes (generate_route,
+  build_route, created_route)
+- `components/custom-trick-form.css` → `.custom-trick-form` mini-form on
+  `build_route.html` only
 - `components/tag-categories.css` → build_route, generate_route
 - `components/countdown-timer.css` → created_route, live_event
-- `components/captcha.css` → add_tricks
 - `pages/donate.css`, `pages/past-events.css`, `pages/live-event.css`,
   `pages/siteswap-x.css`, `pages/siteswap-x-formatter.css` → one page each
   (name matches the page)
@@ -333,12 +320,10 @@ For manual verification:
 
 **Environment Variables:**
 - `SECRET_KEY` is **required** when `FLASK_ENV=production` (app raises on boot otherwise)
-- `SUPER_ADMIN_USER` / `SUPER_ADMIN_PASSWORD` gate `/admin/*`
 - Debug mode is only enabled when `FLASK_ENV != production`
 
 **Database Setup:**
-- SQLite schema is created automatically via `init_db()` on startup
-- Lightweight column-add migrations in `db_manager._MIGRATIONS`
+- SQLite schema (`tricks`, `url_mappings`, `meta`) is created automatically via `init_db()`, which runs both at app startup and at `DBManager.__init__` (so it also works under gunicorn, where `app.py`'s `__main__` block never executes)
 - Backups: `database/backup.py` snapshots the DB file; `deploy/oci-ubuntu/setup.sh`
   wires cron + rclone for off-box copies
 

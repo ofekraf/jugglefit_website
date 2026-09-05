@@ -135,16 +135,6 @@
     background-color: var(--section-bg);
 }
 
-.nav-login-link {
-    color: white !important;
-    background-color: var(--primary-color);
-}
-
-.nav-login-link:hover {
-    background-color: #222 !important;
-    color: white !important;
-}
-
 .dropdown {
     position: relative;
     overflow: visible;
@@ -205,20 +195,10 @@
     color: var(--primary-color);
 }
 
-.dropdown-menu .dropdown-divider {
-    height: 1px;
-    margin: 0.4rem 0.2rem;
-    background-color: var(--border-color);
-}
-
 .nav-external-icon {
     font-size: 0.75em;
     margin-left: 0.2rem;
     color: var(--light-text);
-}
-
-.nav-item-account {
-    margin-left: 0.5rem;
 }
 
 /* ===== Responsive ===== */
@@ -272,10 +252,6 @@
 .nav-item > a:hover,
     .nav-item-toggle:hover {
         background-color: transparent;
-    }
-
-.nav-login-link {
-        justify-content: flex-start !important;
     }
 
 .dropdown-menu {

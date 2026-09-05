@@ -2,15 +2,20 @@
 JuggleFit Flask application factory + public page routes.
 
 Feature areas live in :mod:`blueprints`:
-  - :mod:`blueprints.auth`  – user login/registration
-  - :mod:`blueprints.games` – crowd-rating games + game API
-  - :mod:`blueprints.api`   – public JSON API + URL shortener
-  - :mod:`blueprints.admin` – admin & super-admin console
+  - :mod:`blueprints.api`   – public JSON API (trick lookup) + URL shortener
+
+Note: this app has no login/accounts, crowd-sourced trick submission, or
+crowd-rating games/admin console. That system (blueprints.auth,
+blueprints.games, blueprints.admin, pylib.auth, pylib.rating.*, the
+``users``/``pending_tricks``/``candidate_tricks``/etc. database tables)
+was removed once the site had too few users to make crowd rating
+worthwhile, and is preserved in full on the ``feature/crowd-contribution``
+git branch for reactivation later. The app is now scoped to: browsing
+events, generating/building/running practice routes, and the URL
+shortener used to share them.
 """
 from __future__ import annotations
 
-import csv
-import io
 import logging
 import os
 import secrets
@@ -20,7 +25,7 @@ from urllib.parse import unquote
 
 from dotenv import load_dotenv
 from flask import (
-    Flask, Response, flash, jsonify, redirect, render_template, request,
+    Flask, flash, jsonify, redirect, render_template, request,
     session, url_for,
 )
 
@@ -30,20 +35,15 @@ from hardcoded_database.events.past_events import ALL_PAST_EVENTS, FRONT_PAGE_PA
 from hardcoded_database.events.upcoming_events import UPCOMING_EVENTS
 from hardcoded_database.organization.team import TEAM
 from hardcoded_database.tricks import ALL_PROPS_SETTINGS_JSON
-from pylib.auth import current_user as _current_user
 from pylib.classes.prop import MAIN_PROPS, Prop
 from pylib.classes.route import Route
 from pylib.classes.siteswap_x_modifiers import CatchModifier, ThrowModifier
 from pylib.classes.tag import TAG_CATEGORY_MAP_JSON, Tag, TagCategory
-from pylib.configuration.consts import LEADERBOARD_PERIODS, USER_SESSION_DAYS
-from pylib.rating.leaderboard import KIND_META as LB_META, KINDS as LB_KINDS
+from pylib.configuration.consts import USER_SESSION_DAYS
 from pylib.route_generator.exceptions import NotEnoughTricksFoundException
 from pylib.route_generator.route_generator import RouteGenerator
 
-from blueprints.admin import admin_bp, super_admin_session_valid
 from blueprints.api import api_bp, shortener_bp
-from blueprints.auth import auth_bp
-from blueprints.games import games_api, games_bp
 
 
 # ---------------------------------------------------------------------------
@@ -138,32 +138,13 @@ app.jinja_env.globals["csrf_token"] = generate_csrf_token
 def inject_globals():
     return {
         "cache_version": APP_START_TIME,
-        "current_user": _current_user(),
-        "is_super_admin": super_admin_session_valid(),
         "current_year": date.today().year,
     }
 
 
 # --- blueprints -----------------------------------------------------------
-app.register_blueprint(auth_bp)
-app.register_blueprint(games_bp)
-app.register_blueprint(games_api)
 app.register_blueprint(api_bp)
 app.register_blueprint(shortener_bp)
-app.register_blueprint(admin_bp)
-
-# Legacy endpoint aliases so existing url_for('admin_*') / templates keep
-# working after the admin blueprint extraction. Each alias is a real URL
-# rule that shares the blueprint's view function.
-_ADMIN_ALIASES = {
-    "admin_login": ("/admin/login", "admin.login", ("GET", "POST")),
-    "admin_logout": ("/admin/logout", "admin.logout", ("GET",)),
-    "admin_crowd": ("/admin/crowd", "admin.crowd", ("GET",)),
-    "admin_users": ("/admin/users", "admin.users", ("GET",)),
-}
-for _old, (_rule, _new, _methods) in _ADMIN_ALIASES.items():
-    app.add_url_rule(_rule, endpoint=_old,
-                     view_func=app.view_functions[_new], methods=_methods)
 
 
 # ---------------------------------------------------------------------------
@@ -216,14 +197,6 @@ def software_contribution():
     return render_template("software_contribution.html")
 
 
-@app.route("/leaderboards")
-def leaderboard():
-    return render_template("leaderboard.html",
-                           kinds=LB_KINDS,
-                           kind_meta=LB_META,
-                           periods=list(LEADERBOARD_PERIODS.keys()))
-
-
 @app.route("/siteswap_x")
 def siteswap_x():
     return render_template("siteswap_x.html",
@@ -239,12 +212,6 @@ def siteswap_x_print():
 @app.route("/siteswap_x/formatter")
 def siteswap_x_formatter():
     return render_template("siteswap_x_formatter.html")
-
-
-@app.route("/verify")
-def verify_game():
-    """Legacy two-round verify game — superseded by /contribute/games/harder."""
-    return redirect(url_for("games.hub"), code=301)
 
 
 # ---------------------------------------------------------------------------
@@ -336,46 +303,6 @@ def live_event():
 @app.route("/run_route")
 def run_route():
     return _render_route_page("run_route.html")
-
-
-# ---------------------------------------------------------------------------
-# contribute
-# ---------------------------------------------------------------------------
-@app.route("/contribute/add_tricks")
-def add_tricks():
-    db_connected = False
-    try:
-        conn = db_manager.connection
-        if conn:
-            db_connected = True
-            conn.close()
-    except Exception:
-        pass
-
-    return render_template("add_tricks.html",
-                           props_settings=ALL_PROPS_SETTINGS_JSON,
-                           main_props=MAIN_PROPS,
-                           MAX_TRICK_PROPS_COUNT=13,
-                           db_connected=db_connected)
-
-
-@app.route("/contribute/download_tricks_csv/<prop_type>")
-def download_tricks_csv(prop_type):
-    """Stream the *stable* (master) tricks for a prop as CSV, generated
-    live from SQLite — includes crowd-promoted tricks, not just the seed."""
-    try:
-        Prop.get_key_by_value(prop_type)
-    except Exception:
-        return "Invalid prop", 404
-    cols = ["name", "props_count", "difficulty", "tags", "comment", "max_throw", "siteswap_x"]
-    buf = io.StringIO()
-    w = csv.DictWriter(buf, fieldnames=cols)
-    w.writeheader()
-    for r in db_manager.get_tricks(prop_type):
-        w.writerow({k: ("" if r.get(k) is None else r.get(k)) for k in cols})
-    safe_name = prop_type.replace(" ", "_").replace("+", "_")
-    return Response(buf.getvalue(), mimetype="text/csv",
-                    headers={"Content-Disposition": f"attachment; filename={safe_name}_tricks.csv"})
 
 
 # ---------------------------------------------------------------------------
