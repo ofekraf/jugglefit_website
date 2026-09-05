@@ -14,7 +14,7 @@ UPCOMING_EVENTS = [
         ]
     ),
     UpcomingEvent(
-        name="Tohuwabohu",
+        name="Halle 2026 (Tohuwabohu)",
         date=date(2026, 10, 2),
         location="Halle (Saale), Germany",
         url="https://nica.network/en/hullabaloo/",
@@ -52,6 +52,7 @@ UPCOMING_EVENTS = [
         routes=[
             "Balls - Open",
             "Clubs - Open",
+            "Balls - U18",
         ]
     ),
 ]
