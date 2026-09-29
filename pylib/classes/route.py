@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import List
+import hashlib
 import json
 import zlib
 from base64 import b64encode, b64decode
@@ -45,6 +46,13 @@ class Route:
             tricks=[Trick.from_dict(trick) for trick in data['tricks']]
         )
         
+
+    def key(self) -> str:
+        # Stable identity of the route content, independent of the base64
+        # payload (zlib output may differ between versions). Used to find the
+        # live final for a route opened from a printed QR code.
+        canonical = json.dumps(self.to_dict(), sort_keys=True, separators=(',', ':'))
+        return hashlib.sha256(canonical.encode('utf-8')).hexdigest()
 
     def serialize(self) -> str:
         # Convert to dict, then to JSON, compress with zlib, and encode in base64
