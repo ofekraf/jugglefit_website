@@ -3,8 +3,68 @@
 {% block head %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/live-event.css') }}?v={{ cache_version }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/components/countdown-timer.css') }}?v={{ cache_version }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/live-final.css') }}?v={{ cache_version }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/components/organizer-dialog.css') }}?v={{ cache_version }}">
 {% endblock %}
 {% block content %}
+{% if live_final %}
+{# Live final: server-side progress (blueprints/finals.py, static/js/live_final.js) #}
+<div class="live-event-page live-final-page">
+    <div class="final-header">
+        <h1 class="final-title">{{ route.name }}</h1>
+        <div class="final-meta">
+            <span id="final-status" class="final-status">Loading...</span>
+            <span id="final-timer" class="final-timer"></span>
+        </div>
+    </div>
+
+    {% if is_final_admin %}
+    <div class="final-admin-bar no-print">
+        <button type="button" id="final-start-all" class="primary-button final-admin-live-only">Start all</button>
+        <button type="button" id="final-end" class="primary-button final-admin-live-only">End final</button>
+        <button type="button" id="final-restart" class="primary-button">Start over</button>
+        <a class="primary-button" href="{{ url_for('finals_api.final_log', final_id=live_final.id) }}">Download CSV</a>
+        <span id="final-save-status" class="final-save-status"></span>
+    </div>
+    <p class="final-admin-hint">Drag a figure, tap a cell, or use - / + to move a competitor. Tap a name to change it.</p>
+    {% endif %}
+
+    {% include "macros/siteswap_x_toggle.html" %}
+    <div id="final-grid" class="final-grid"></div>
+
+    {% if not is_final_admin and live_final.status == 'active' %}
+    <div class="final-organizer-row no-print">
+        <button type="button" class="final-organizer-button" data-organizer-open>Organizer: manage this live event</button>
+    </div>
+    {% endif %}
+
+    <div class="podium-section final-podium hidden" id="final-podium">
+        <h2>🏆</h2>
+        <div class="podium-container">
+            {% for place, label in [(1, '1st'), (2, '2nd'), (3, '3rd')] %}
+            <div class="podium-place">
+                <div class="place-number">{{ label }}</div>
+                <div class="competitor-name" id="final-podium-name-{{ place }}">-</div>
+                <div class="competitor-result" id="final-podium-result-{{ place }}">-</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script type="application/json" id="live-final-config">{{ {
+    'finalId': live_final.id,
+    'isAdmin': is_final_admin,
+    'durationSeconds': route.duration_seconds,
+    'prop': route.prop.value,
+    'tricks': route.to_dict()['tricks'],
+} | tojson }}</script>
+<script src="{{ url_for('static', filename='js/siteswap_x.js') }}?v={{ cache_version }}"></script>
+<script src="{{ url_for('static', filename='js/live_final.js') }}?v={{ cache_version }}"></script>
+{% if not is_final_admin and live_final.status == 'active' %}
+{% include "macros/organizer_dialog.html" %}
+{% endif %}
+{% else %}
 <div class="live-event-page">
     <!-- Timer Section -->
     <div class="live-timer-section">
@@ -51,6 +111,11 @@
                 {% include "macros/route_display.html" %}
             </div>
         </div>
+    </div>
+
+    <!-- Run a live final (server-side, visible to the audience) -->
+    <div class="final-start-panel no-print">
+        <button type="button" class="primary-button" data-organizer-open>Organizer: Run this live event</button>
     </div>
 
     <!-- Podium Section -->
@@ -697,4 +762,6 @@
         updateCompetitorDisplay();
     }
 </script>
+{% include "macros/organizer_dialog.html" %}
+{% endif %}
 {% endblock %}

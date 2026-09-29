@@ -1,0 +1,373 @@
+/* ===== Live final (live_event.html with a server-side final) ===== */
+.final-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.final-title {
+    font-size: 1.75rem;
+    margin: 0;
+}
+
+.final-meta {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+}
+
+.final-status {
+    font-weight: 600;
+    color: var(--success-color);
+}
+
+.final-status-offline {
+    color: var(--danger-color);
+}
+
+.final-timer {
+    font-size: 2rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+/* --- admin toolbar --- */
+.final-admin-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.final-admin-bar .primary-button:disabled {
+    opacity: 0.5;
+    cursor: default;
+    transform: none;
+}
+
+.final-save-status {
+    font-size: 0.9rem;
+    color: var(--light-text);
+}
+
+.final-save-failed {
+    color: var(--danger-color);
+    font-weight: 700;
+}
+
+.final-admin-hint {
+    font-size: 0.9rem;
+    color: var(--light-text);
+    margin: 0.5rem 0 0;
+}
+
+/* --- grid --- */
+.final-grid {
+    overflow-x: auto;
+    margin-top: 1rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+}
+
+.final-table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.final-table th,
+.final-table td {
+    border-bottom: 1px solid var(--border-color);
+    padding: 0.4rem;
+    box-sizing: border-box;
+}
+
+/* The prop bar and trick columns stay visible while competitors scroll. */
+.final-corner,
+.final-prop-cell,
+.final-trick-cell {
+    position: sticky;
+    z-index: 1;
+}
+
+.final-corner,
+.final-prop-cell,
+.final-finished-label {
+    left: 0;
+}
+
+.final-trick-cell {
+    left: var(--final-prop-col);
+}
+
+.final-table {
+    --final-prop-col: 3.25rem;
+}
+
+.final-corner,
+.final-trick-cell {
+    background: var(--background-color);
+    text-align: left;
+    width: 16rem;
+    min-width: 10rem;
+    max-width: 16rem;
+    font-weight: normal;
+    border-right: 1px solid var(--border-color);
+}
+
+/* Prop-count color bar column (reuses .prop-color-bar from prop-selection.css) */
+.final-prop-cell {
+    width: var(--final-prop-col);
+    min-width: var(--final-prop-col);
+    max-width: var(--final-prop-col);
+    background: var(--background-color);
+}
+
+/* Fill the whole rowspan: a sticky cell is the containing block. */
+.final-prop-cell .prop-color-bar {
+    position: absolute;
+    inset: 0.3rem;
+    width: auto;
+    min-height: 0;
+    flex-direction: column;
+    gap: 0.25rem;
+    border-radius: 10px;
+}
+
+.final-prop-cell .prop-color-bar::before {
+    width: 1.4rem;
+    height: 1.4rem;
+}
+
+.final-prop-cell .prop-count-text {
+    font-size: 1.1rem;
+}
+
+/* Tricks wrap inside their cell instead of spilling into the competitor
+   columns. trick-display.css forces nowrap with !important, so these need
+   !important and a more specific selector. */
+.final-table .final-trick-main .trick-container {
+    flex: 1;
+    min-width: 0;
+}
+
+.final-table .trick-container .trick-main {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    white-space: normal !important;
+    width: 100% !important;
+}
+
+.final-table .trick-container .trick-name,
+.final-table .trick-container .trick-comment {
+    white-space: normal !important;
+    flex-shrink: 1;
+    overflow-wrap: anywhere;
+}
+
+.final-table .trick-container .trick-siteswap-x {
+    white-space: pre-wrap !important;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+}
+
+.final-trick-main {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+}
+
+.final-trick-number {
+    font-weight: 700;
+}
+
+.final-competitor-head {
+    min-width: 5.5rem;
+    text-align: center;
+    vertical-align: bottom;
+    background: var(--section-bg);
+}
+
+.final-name {
+    font-weight: 700;
+    word-break: break-word;
+}
+
+.final-name-input {
+    width: 100%;
+    min-width: 5rem;
+    font: inherit;
+    font-weight: 700;
+    text-align: center;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    background: transparent;
+    padding: 0.2rem;
+}
+
+.final-name-input:hover,
+.final-name-input:focus {
+    border-color: var(--border-color);
+    background: white;
+}
+
+.final-competitor-controls {
+    display: flex;
+    justify-content: center;
+    gap: 0.3rem;
+    margin-top: 0.3rem;
+}
+
+.final-btn {
+    min-width: 2.25rem;
+    min-height: 2.25rem;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    background: white;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.final-btn:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.final-btn-forward,
+.final-btn-start {
+    background: var(--success-color);
+    border-color: var(--success-color);
+    color: white;
+}
+
+.final-btn-start {
+    font-size: 0.9rem;
+    padding: 0 0.6rem;
+}
+
+.final-cell {
+    text-align: center;
+    height: 3.25rem;
+}
+
+.final-cell-done {
+    background: rgba(8, 177, 15, 0.12);
+}
+
+.final-cell-current {
+    background: rgba(8, 177, 15, 0.28);
+}
+
+.final-cell-waiting {
+    background: var(--section-bg);
+}
+
+.final-cell-waiting .stick-figure {
+    opacity: 0.4;
+}
+
+.final-cell-admin {
+    cursor: pointer;
+}
+
+.final-cell-admin:hover,
+.final-cell.drag-over {
+    outline: 2px dashed var(--accent-color);
+    outline-offset: -3px;
+}
+
+.final-finished-row th,
+.final-finished-row td {
+    border-top: 2px solid var(--primary-color);
+    border-bottom: none;
+}
+
+.final-finished-label {
+    font-weight: 700;
+}
+
+.final-finished-row .final-cell-current {
+    background: rgba(252, 214, 1, 0.45);
+}
+
+.stick-figure {
+    width: 1.6rem;
+    height: 2.6rem;
+    stroke: var(--primary-color);
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    fill: none;
+    vertical-align: middle;
+}
+
+.stick-figure circle {
+    fill: var(--background-color);
+}
+
+.stick-figure-finished {
+    stroke: #8B4513;
+}
+
+.stick-figure-draggable {
+    cursor: grab;
+    /* Let pointer events drive the drag instead of page scrolling. */
+    touch-action: none;
+}
+
+.stick-figure.dragging {
+    cursor: grabbing;
+    opacity: 0.6;
+}
+
+.final-podium {
+    margin-top: 1.5rem;
+}
+
+/* --- organizer entry points --- */
+.final-start-panel {
+    margin-top: 2rem;
+    text-align: center;
+}
+
+.final-organizer-row {
+    margin-top: 1rem;
+    text-align: right;
+}
+
+.final-organizer-button {
+    border: none;
+    background: none;
+    color: var(--light-text);
+    text-decoration: underline;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+@media (max-width: 600px) {
+    .final-corner,
+    .final-trick-cell {
+        width: 9rem;
+        min-width: 7rem;
+        max-width: 9rem;
+        font-size: 0.85rem;
+    }
+
+    .final-table {
+        --final-prop-col: 2.5rem;
+    }
+
+    .final-prop-cell .prop-color-bar::before {
+        display: none;
+    }
+
+    .final-timer {
+        font-size: 1.5rem;
+    }
+
+    .final-competitor-head {
+        min-width: 4.5rem;
+    }
+}

@@ -3,8 +3,18 @@
 {% block head %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/route-pages.css') }}?v={{ cache_version }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/components/countdown-timer.css') }}?v={{ cache_version }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/components/organizer-dialog.css') }}?v={{ cache_version }}">
+{% if live_final %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/components/live-final-banner.css') }}?v={{ cache_version }}">
+{% endif %}
 {% endblock %}
 {% block content %}
+{% if live_final and live_final.status == 'active' %}
+<a class="live-final-banner no-print" href="{{ url_for('live_event', route=route_param) }}">
+    <span class="live-final-dot" aria-hidden="true"></span>
+    The final is live - watch it
+</a>
+{% endif %}
 <div class="route-page created-route-page">
     <div class="route-header">
         <h1 id="route-title" class="route-title">Route</h1>
@@ -36,12 +46,14 @@
     <div class="route-buttons">
         <button class="primary-button" onclick="shareRoute()">Share</button>
         <a id="run-route-link" href="#" class="primary-button">Run Route</a>
-        <a id="live-event-link" href="#" class="primary-button live-event-button">Live Event</a>
+        <button type="button" class="primary-button live-event-button" data-organizer-open>Organizer: Run this live event</button>
         <a id="edit-route-link" href="#" class="primary-button">Edit</a>
         <button class="primary-button print-button" onclick="printRoute()">Print with QR</button>
         <button class="primary-button print-button" onclick="printRouteWithoutQR()">Print without QR</button>
     </div>
 </div>
+
+{% include "macros/organizer_dialog.html" %}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
@@ -83,7 +95,6 @@
         if (routeParam) {
             const encodedRoute = encodeURIComponent(routeParam);
             const runRouteLink = document.getElementById('run-route-link');
-            const liveEventLink = document.getElementById('live-event-link');
             const editRouteLink = document.getElementById('edit-route-link');
             
             if (runRouteLink) {
@@ -94,9 +105,6 @@
                     runUrl += '&siteswapx=1';
                 }
                 runRouteLink.href = runUrl;
-            }
-            if (liveEventLink) {
-                liveEventLink.href = `/live_event?route=${encodedRoute}`;
             }
             if (editRouteLink) {
                 const siteswapToggle = document.getElementById('toggle-siteswap-x-checkbox');

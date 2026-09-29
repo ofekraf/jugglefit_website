@@ -1,0 +1,34 @@
+/* ===== "The final is live" banner (created_route.html) ===== */
+.live-final-banner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    margin: 1rem auto 0;
+    max-width: 1200px;
+    padding: 0.9rem 1.25rem;
+    border-radius: 8px;
+    background: var(--accent-color);
+    color: white;
+    font-weight: 700;
+    font-size: 1.1rem;
+    text-decoration: none;
+    box-shadow: 0 2px 8px var(--shadow-color);
+}
+
+.live-final-banner:hover {
+    background: #d63a3a;
+}
+
+.live-final-dot {
+    width: 0.7rem;
+    height: 0.7rem;
+    border-radius: 50%;
+    background: white;
+    animation: live-final-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes live-final-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.25; }
+}
