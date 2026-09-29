@@ -86,6 +86,7 @@ Required environment variables:
 - `PORT`: Application port (default: 5001)
 - `FLASK_ENV`: Set to 'production'
 - `FLASK_DEBUG`: Set to 0 for production
+- `ADMIN_PASSWORD`: Password to create live finals on `/live_event`. Empty turns the feature off.
 
 ### 2. Application Deployment
 
@@ -113,6 +114,38 @@ sudo rm /etc/nginx/sites-enabled/default
 sudo nginx -t
 sudo systemctl reload nginx
 ```
+
+### 4. Live finals and venue load (existing hosts)
+
+`nginx.conf` is sized for ~150 phones on one venue Wi-Fi (they all share one
+public IP): per-IP limits for pages, static files, the cached live state and
+the organizer password; `/static/` served from `/opt/jugglefit/static/` by
+nginx; 429 instead of 503 when a limit is hit.
+
+`update.sh` does not copy `nginx.conf`, and certbot edits the copy on the host.
+On a host set up before these changes, merge them into
+`/etc/nginx/sites-available/jugglefit` by hand:
+
+- the zone lines at the top of the file (`limit_req_zone`, `limit_conn_zone`,
+  `limit_req_status`, `limit_conn_status`, `proxy_cache_path`)
+- in **each** `server` block that proxies to the app (also the 443 block
+  certbot added): the `limit_conn` / `limit_req` defaults, and the
+  `location /static/`, `location ~ ^/api/finals/[^/]+/state$` and
+  `location = /api/finals` blocks
+
+Two host-level settings outside this file:
+
+- **HTTP/2** in the 443 block: `listen 443 ssl http2;` (nginx < 1.25) or
+  `http2 on;` (nginx >= 1.25). A phone then uses 1 connection instead of ~6.
+- **`worker_connections`** in `/etc/nginx/nginx.conf` (`events {}`): raise the
+  Ubuntu default of 768 to `4096`. Keep-alive connections from 150 phones can
+  exceed 768.
+
+Then `sudo nginx -t && sudo systemctl reload nginx`, and check:
+
+- `curl -sI https://<domain>/static/css/base/base.css` returns 200 (nginx can
+  read `/opt/jugglefit/static/`)
+- `curl -sI https://<domain>/api/finals/<id>/state` twice: `X-Cache-Status: MISS`, then `HIT`
 
 ## SSL Configuration
 
