@@ -36,9 +36,9 @@ Some code comments still mention it (e.g. `suggest_trick` in the
    insert new entries in chronological position rather than appending.
    `hardcoded_database/organization/team.py` has a `# Order for team page`
    comment - that order is intentional display order, not alphabetical.
-4. There is no application-level test suite (only `tests/docker/`).
-   Before committing changes to routes or templates, run the app
-   in-process and hit the affected pages:
+4. Run `pytest` before committing changes to routes or templates
+   (`tests/unit/` covers the route pages and live finals). For pages it
+   does not cover, also run the app in-process and hit them:
    ```python
    import app as appmod
    client = appmod.app.test_client()
@@ -74,14 +74,28 @@ Docker port mapping: the container listens on `$PORT` from `.env`. If
 
 ### Tests
 
-The only tests are infrastructure tests in `tests/docker/` (Dockerfile,
-compose files, production config, OCI deploy scripts). Tests that need a
-Docker daemon skip themselves when Docker is unavailable.
+- `tests/unit/` - in-process app tests (route pages, live finals API/DB,
+  CSV log). `tests/unit/conftest.py` points `SQLITE_DB_DIR` at a temp dir
+  *before* importing `app` (the DB and trick registry initialize at
+  import). Do not add a `tests/app/` package: it would shadow `app.py`.
+- `tests/integration/` - `@pytest.mark.integration`, deselected by default
+  (`pytest.ini`). Runs `scripts/simulate_final.py` against a local
+  gunicorn (2 workers, like prod): one functional run plus load levels of
+  50/150/300 polling viewers (~2 min total, no nginx cache). Also runs
+  against a deployed server when `JUGGLEFIT_BASE_URL` and
+  `JUGGLEFIT_ADMIN_PASSWORD` are set. The local fixture bypasses
+  `HTTP(S)_PROXY` for loopback, and on macOS starts gunicorn without
+  `--preload` (the system `libsqlite3.dylib` segfaults in forked workers
+  after the parent used SQLite; Linux/prod is not affected). On a worker
+  crash, the gunicorn log (with faulthandler tracebacks) is printed.
+- `tests/docker/` - infrastructure tests (Dockerfile, compose files,
+  production config, OCI deploy scripts). Tests that need a Docker daemon
+  skip themselves when Docker is unavailable.
 
 ```bash
-pytest tests/docker/
-pytest tests/docker/test_dockerfile.py
-pytest tests/docker/test_dockerfile.py::<TestClass>::<test_name>
+pytest                                   # unit + docker (fast)
+pytest -m integration                    # simulated live final on local gunicorn
+pytest tests/unit/test_finals_api.py::test_rename
 ```
 
 No linter or formatter is configured for this repo.
@@ -93,6 +107,10 @@ No linter or formatter is configured for this repo.
   the new serialized value / URL.
 - `scripts/gen_past_event_diff.py` - list tricks used in past events that
   are missing from the master trick CSVs.
+- `scripts/simulate_final.py` - run a fictional live final (test final
+  on a `SIMULATION <id>` route, admin moves + N polling viewers) against
+  any base URL; checks final state, CSV log and viewer delay. `--cleanup`
+  deletes the test final.
 - `python -m database.seed` - force re-seed of tricks from CSV (see the
   seeding caveat below).
 - `python -m database.backup` / `python -m database.prune` - DB snapshot
@@ -116,6 +134,43 @@ No linter or formatter is configured for this repo.
 - `/build_route` is client-side: the page fetches tricks from
   `/api/fetch_tricks` and assembles the route in JS
   (`static/js/route_helpers.js`).
+- `blueprints/finals.py` - live finals, see below.
+
+### Live finals (`/live_event`)
+
+Server-side progress of a final, shown on the existing `/live_event` page.
+
+- A final is tied to a route by `Route.key()` (sha256 of the canonical
+  `to_dict()` JSON, not the base64 payload). QR codes printed before the
+  event keep working: while a final is active for a route,
+  `/created_route` shows a "The final is live" banner, and `/live_event`
+  switches from the local in-memory tracker to the live grid
+  (`static/js/live_final.js`, `static/css/pages/live-final.css`).
+  `?final=<id>` shows a specific final, also after it ended.
+- Organizers use the "Organizer: Run this live event" button (on
+  `/created_route`, and on `/live_event` when no final is live; shared
+  dialog `templates/macros/organizer_dialog.html` +
+  `static/js/organizer_dialog.js`). The password (`ADMIN_PASSWORD`, env,
+  read per request; unset = feature off, 404) goes to `POST /api/finals`:
+  it creates a final, or **resumes** the one already live for the route
+  (so a second device just enters the password again), and marks the
+  session as admin. "Start over" (`POST /api/finals/<id>/restart`) ends
+  the final and creates a new one with the same names. Creating also
+  returns a secret `/final/admin/<id>/<token>` link (only the token hash
+  is stored), used by `scripts/simulate_final.py`.
+- Tables: `finals` (with `version`, bumped on every change, so
+  `GET /api/finals/<id>/state?since=<v>` returns 204 when unchanged),
+  `final_competitors` (`stage` 0..N-1 = trick, N = Finished),
+  `final_events` (append-only log -> `log.csv`; take-backs stay visible;
+  `client_at` = admin device time, used in the CSV because the admin
+  phone queues moves while offline). `is_test` finals (simulation) are
+  the only ones that can be deleted.
+- Viewers poll every 3-4 s. In production, nginx caches the state
+  endpoint for 1 s. `deploy/oci-ubuntu/nginx.conf` sizes per-IP limits
+  for ~150 phones behind one venue Wi-Fi IP, serves `/static/` from
+  `/opt/jugglefit/static/` on disk (not gunicorn), and returns 429 on a
+  limit (`live_final.js` retries queued admin moves on 429). `update.sh`
+  does not install nginx config - see the README there.
 
 ### Trick data: CSV → SQLite → in-process cache
 
@@ -147,7 +202,9 @@ to apply CSV edits.
 
 SQLite in WAL mode with `busy_timeout` (multi-worker gunicorn). Tables:
 `tricks`, `url_mappings` (shortener, expires after
-`URL_RETENTION_MONTHS` of inactivity), `meta` (bookkeeping). The
+`URL_RETENTION_MONTHS` of inactivity), `meta` (bookkeeping), and the live
+final tables `finals`, `final_competitors`, `final_events` (kept, never
+pruned). The
 `db_manager` singleton calls `init_db()` in `DBManager.__init__`, so the
 schema exists on import - this matters because the trick registry reads
 the DB at import time, before any `__main__` block.
@@ -223,6 +280,9 @@ do not - never back into one giant file.
 - `components/custom-trick-form.css` → `build_route.html` only
 - `components/tag-categories.css` → build_route, generate_route
 - `components/countdown-timer.css` → created_route, live_event
+- `pages/live-final.css` → live_event; `components/live-final-banner.css`
+  → created_route (only while a final is live)
+- `components/organizer-dialog.css` → created_route, live_event
 - `pages/donate.css`, `pages/past-events.css`, `pages/live-event.css`,
   `pages/siteswap-x.css`, `pages/siteswap-x-formatter.css` → one page each
 - `static/css/run_route.css` → `run_route.html` only
