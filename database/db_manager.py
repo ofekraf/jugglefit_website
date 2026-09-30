@@ -57,6 +57,47 @@ SCHEMA_STATEMENTS: List[str] = [
     "ON tricks(prop_type, props_count, name COLLATE NOCASE)",
     "CREATE INDEX IF NOT EXISTS idx_tricks_ss_lc "
     "ON tricks(prop_type, props_count, siteswap_x COLLATE NOCASE)",
+    # --- live finals (see blueprints/finals.py) --------------------------
+    # Times are UTC epoch milliseconds. final_events is append-only: it is
+    # the timing log exported as CSV, so take-backs stay visible.
+    """
+    CREATE TABLE IF NOT EXISTS finals (
+        id TEXT PRIMARY KEY,
+        route_key TEXT NOT NULL,
+        route_payload TEXT NOT NULL,
+        admin_token_hash TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'active',
+        version INTEGER NOT NULL DEFAULT 1,
+        is_test INTEGER NOT NULL DEFAULT 0,
+        created_at INTEGER NOT NULL,
+        started_at INTEGER,
+        ended_at INTEGER
+    )
+    """,
+    "CREATE INDEX IF NOT EXISTS idx_finals_route_status ON finals(route_key, status)",
+    """
+    CREATE TABLE IF NOT EXISTS final_competitors (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        final_id TEXT NOT NULL REFERENCES finals(id) ON DELETE CASCADE,
+        position INTEGER NOT NULL,
+        name TEXT NOT NULL,
+        stage INTEGER NOT NULL DEFAULT 0,
+        started_at INTEGER
+    )
+    """,
+    "CREATE INDEX IF NOT EXISTS idx_final_competitors_final ON final_competitors(final_id)",
+    """
+    CREATE TABLE IF NOT EXISTS final_events (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        final_id TEXT NOT NULL REFERENCES finals(id) ON DELETE CASCADE,
+        competitor_id INTEGER NOT NULL REFERENCES final_competitors(id) ON DELETE CASCADE,
+        from_stage INTEGER,
+        to_stage INTEGER NOT NULL,
+        at INTEGER NOT NULL,
+        client_at INTEGER
+    )
+    """,
+    "CREATE INDEX IF NOT EXISTS idx_final_events_final ON final_events(final_id)",
     # --- generic key/value bookkeeping (seed/backup/prune timestamps) ---
     """
     CREATE TABLE IF NOT EXISTS meta (
@@ -269,6 +310,147 @@ class DBManager:
         except Error as e:
             log.error("Error deleting inactive URLs: %s", e)
         return deleted
+
+
+    # ------------------------------------------------------------------
+    # live finals
+    # ------------------------------------------------------------------
+    def create_final(self, *, final_id: str, route_key: str, route_payload: str,
+                     admin_token_hash: str, names: List[str], now_ms: int,
+                     is_test: bool = False) -> None:
+        """Create a final. Any active final for the same route is ended
+        (not deleted - its log is kept)."""
+        with self.cursor(commit=True) as cur:
+            cur.execute("BEGIN IMMEDIATE")
+            cur.execute(
+                "UPDATE finals SET status = 'ended', ended_at = ?, version = version + 1 "
+                "WHERE route_key = ? AND status = 'active'",
+                (now_ms, route_key),
+            )
+            cur.execute(
+                "INSERT INTO finals (id, route_key, route_payload, admin_token_hash, "
+                "is_test, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+                (final_id, route_key, route_payload, admin_token_hash, int(is_test), now_ms),
+            )
+            cur.executemany(
+                "INSERT INTO final_competitors (final_id, position, name) VALUES (?, ?, ?)",
+                [(final_id, i, name) for i, name in enumerate(names)],
+            )
+
+    def get_final(self, final_id: str) -> Optional[Dict[str, Any]]:
+        with self.cursor() as cur:
+            cur.execute("SELECT * FROM finals WHERE id = ?", (final_id,))
+            row = cur.fetchone()
+            return dict(row) if row else None
+
+    def get_active_final_by_route_key(self, route_key: str) -> Optional[Dict[str, Any]]:
+        with self.cursor() as cur:
+            cur.execute(
+                "SELECT id, status, version, started_at FROM finals "
+                "WHERE route_key = ? AND status = 'active' ORDER BY created_at DESC LIMIT 1",
+                (route_key,),
+            )
+            row = cur.fetchone()
+            return dict(row) if row else None
+
+    def get_final_competitors(self, final_id: str) -> List[Dict[str, Any]]:
+        with self.cursor() as cur:
+            cur.execute(
+                "SELECT id, position, name, stage, started_at FROM final_competitors "
+                "WHERE final_id = ? ORDER BY position",
+                (final_id,),
+            )
+            return [dict(r) for r in cur.fetchall()]
+
+    def get_final_events(self, final_id: str) -> List[Dict[str, Any]]:
+        with self.cursor() as cur:
+            cur.execute(
+                "SELECT id, competitor_id, from_stage, to_stage, at, client_at "
+                "FROM final_events WHERE final_id = ? ORDER BY id",
+                (final_id,),
+            )
+            return [dict(r) for r in cur.fetchall()]
+
+    def start_final(self, final_id: str, now_ms: int, client_at: Optional[int] = None,
+                    competitor_id: Optional[int] = None) -> int:
+        """Start one competitor, or every competitor not started yet.
+        Logs the entry into their current stage. Returns the new version."""
+        with self.cursor(commit=True) as cur:
+            cur.execute("BEGIN IMMEDIATE")
+            query = ("SELECT id, stage FROM final_competitors "
+                     "WHERE final_id = ? AND started_at IS NULL")
+            params: tuple = (final_id,)
+            if competitor_id is not None:
+                query += " AND id = ?"
+                params = (final_id, competitor_id)
+            cur.execute(query, params)
+            to_start = cur.fetchall()
+            started = client_at or now_ms
+            for row in to_start:
+                cur.execute("UPDATE final_competitors SET started_at = ? WHERE id = ?",
+                            (started, row["id"]))
+                cur.execute(
+                    "INSERT INTO final_events (final_id, competitor_id, from_stage, to_stage, "
+                    "at, client_at) VALUES (?, ?, NULL, ?, ?, ?)",
+                    (final_id, row["id"], row["stage"], now_ms, client_at),
+                )
+            cur.execute(
+                "UPDATE finals SET version = version + 1, "
+                "started_at = COALESCE(started_at, ?) WHERE id = ?",
+                (started, final_id),
+            )
+            cur.execute("SELECT version FROM finals WHERE id = ?", (final_id,))
+            return cur.fetchone()["version"]
+
+    def move_competitor(self, final_id: str, competitor_id: int, to_stage: int,
+                        now_ms: int, client_at: Optional[int] = None) -> Optional[int]:
+        """Move a competitor and log it in one transaction. Returns the new
+        version, or None if the competitor is not in this final."""
+        with self.cursor(commit=True) as cur:
+            cur.execute("BEGIN IMMEDIATE")
+            cur.execute(
+                "SELECT stage FROM final_competitors WHERE id = ? AND final_id = ?",
+                (competitor_id, final_id),
+            )
+            row = cur.fetchone()
+            if row is None:
+                return None
+            if row["stage"] != to_stage:
+                cur.execute("UPDATE final_competitors SET stage = ? WHERE id = ?",
+                            (to_stage, competitor_id))
+                cur.execute(
+                    "INSERT INTO final_events (final_id, competitor_id, from_stage, to_stage, "
+                    "at, client_at) VALUES (?, ?, ?, ?, ?, ?)",
+                    (final_id, competitor_id, row["stage"], to_stage, now_ms, client_at),
+                )
+                cur.execute("UPDATE finals SET version = version + 1 WHERE id = ?", (final_id,))
+            cur.execute("SELECT version FROM finals WHERE id = ?", (final_id,))
+            return cur.fetchone()["version"]
+
+    def rename_competitor(self, final_id: str, competitor_id: int, name: str) -> bool:
+        with self.cursor(commit=True) as cur:
+            cur.execute(
+                "UPDATE final_competitors SET name = ? WHERE id = ? AND final_id = ?",
+                (name, competitor_id, final_id),
+            )
+            if cur.rowcount == 0:
+                return False
+            cur.execute("UPDATE finals SET version = version + 1 WHERE id = ?", (final_id,))
+            return True
+
+    def end_final(self, final_id: str, now_ms: int) -> None:
+        with self.cursor(commit=True) as cur:
+            cur.execute(
+                "UPDATE finals SET status = 'ended', ended_at = ?, version = version + 1 "
+                "WHERE id = ? AND status = 'active'",
+                (now_ms, final_id),
+            )
+
+    def delete_test_final(self, final_id: str) -> bool:
+        """Delete a final created by the simulation. Real finals are never deleted."""
+        with self.cursor(commit=True) as cur:
+            cur.execute("DELETE FROM finals WHERE id = ? AND is_test = 1", (final_id,))
+            return cur.rowcount > 0
 
 
 # Global instance

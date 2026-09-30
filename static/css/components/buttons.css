@@ -50,7 +50,7 @@
 /* Edit, Print, and Live Event button styles */
 a.primary-button[href*="build_route"],
 button.print-button,
-a.primary-button.live-event-button {
+button.primary-button.live-event-button {
     background-color: transparent;
     color: var(--accent-color);
     padding: 0.75rem 1.5rem;
@@ -59,7 +59,7 @@ a.primary-button.live-event-button {
 
 a.primary-button[href*="build_route"]:hover,
 button.print-button:hover,
-a.primary-button.live-event-button:hover {
+button.primary-button.live-event-button:hover {
     background-color: transparent;
     color: var(--accent-color);
     opacity: 0.8;
@@ -75,11 +75,6 @@ a.primary-button.live-event-button:hover {
         font-size: 0.9rem;
     }
 
-/* Hide Live Event button in responsive */
-
-.live-event-button {
-        display: none !important;
-    }
 }
 
 @media (max-width: 600px) {

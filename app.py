@@ -3,6 +3,7 @@ JuggleFit Flask application factory + public page routes.
 
 Feature areas live in :mod:`blueprints`:
   - :mod:`blueprints.api`   – public JSON API (trick lookup) + URL shortener
+  - :mod:`blueprints.finals` – live finals (server-side progress on /live_event)
 
 Note: this app has no login/accounts, crowd-sourced trick submission, or
 crowd-rating games/admin console. That system (blueprints.auth,
@@ -44,6 +45,7 @@ from pylib.route_generator.exceptions import NotEnoughTricksFoundException
 from pylib.route_generator.route_generator import RouteGenerator
 
 from blueprints.api import api_bp, shortener_bp
+from blueprints.finals import finals_api_bp, finals_bp, is_final_admin
 
 
 # ---------------------------------------------------------------------------
@@ -145,6 +147,8 @@ def inject_globals():
 # --- blueprints -----------------------------------------------------------
 app.register_blueprint(api_bp)
 app.register_blueprint(shortener_bp)
+app.register_blueprint(finals_api_bp)
+app.register_blueprint(finals_bp)
 
 
 # ---------------------------------------------------------------------------
@@ -284,10 +288,28 @@ def _render_route_page(template: str):
         return redirect(url_for("build_route"))
     try:
         route = Route.deserialize(route_param)
-        return render_template(template, route=route)
     except Exception as e:
         flash(f"Error loading route: {e}")
         return redirect(url_for("build_route"))
+
+    # A live final for this route (see blueprints/finals.py). Never let a DB
+    # problem break the route pages - they are linked from printed QR codes.
+    # ``?final=<id>`` shows that final even after it ended (admin CSV
+    # download, shared results); otherwise the active final, if any.
+    live_final = None
+    try:
+        final_param = request.args.get("final", type=str)
+        if final_param:
+            final = db_manager.get_final(final_param)
+            if final and final["route_key"] == route.key():
+                live_final = final
+        if live_final is None:
+            live_final = db_manager.get_active_final_by_route_key(route.key())
+    except Exception as e:
+        app.logger.warning("Live final lookup failed: %s", e)
+    return render_template(template, route=route, route_param=route_param,
+                           live_final=live_final,
+                           is_final_admin=bool(live_final) and is_final_admin(live_final["id"]))
 
 
 @app.route("/created_route")

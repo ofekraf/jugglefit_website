@@ -1,0 +1,31 @@
+{# "Organizer: Run this live event" dialog (include, not a macro).
+   Needs `route_param` and `live_final` from _render_route_page. Open it with
+   any element that has the data-organizer-open attribute.
+   Link static/css/components/organizer-dialog.css in the page head. #}
+{% set final_is_live = live_final and live_final.status == 'active' %}
+<dialog id="organizer-dialog" class="organizer-dialog">
+    <form id="organizer-form" class="organizer-form">
+        <h2 class="organizer-title">Run this live event</h2>
+        {% if final_is_live %}
+        <p class="organizer-note">A final is live for this route. Enter the organizer password to manage it.</p>
+        {% endif %}
+        <label>Organizer password
+            <input type="password" id="organizer-password" required autocomplete="current-password">
+        </label>
+        {% if not final_is_live %}
+        <label>Number of competitors
+            <input type="number" id="organizer-count" min="1" max="30" value="4" required>
+        </label>
+        <label>Names (optional, one per line)
+            <textarea id="organizer-names" rows="4"></textarea>
+        </label>
+        {% endif %}
+        <p id="organizer-error" class="organizer-error hidden" role="alert"></p>
+        <div class="organizer-actions">
+            <button type="button" id="organizer-cancel" class="organizer-cancel">Cancel</button>
+            <button type="submit" id="organizer-submit" class="primary-button">Continue</button>
+        </div>
+    </form>
+</dialog>
+<script type="application/json" id="organizer-config">{{ {'route': route_param} | tojson }}</script>
+<script src="{{ url_for('static', filename='js/organizer_dialog.js') }}?v={{ cache_version }}"></script>
