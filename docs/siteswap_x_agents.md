@@ -108,7 +108,7 @@ followed by `{…}`. Everything else is passed through verbatim, so the
 
 | Construct        | Meaning                              | Example                         |
 |------------------|--------------------------------------|---------------------------------|
-| `Nc PATTERN`     | N catches of PATTERN                 | `10c 3{N}`                      |
+| `N catches PATTERN` | N catches of PATTERN (`1 catch`); legacy `Nc` in event files | `10 catches 3{N}`  |
 | `N rounds SS`    | N repetitions of siteswap SS         | `2 rounds 441{B}`               |
 | `N sides SS`     | N repetitions of odd-period SS       | `4 sides 5{1}6{1}1`             |
 | `A -> B -> …`    | transition between segments          | `3{/L} -> 3{B}`                 |
@@ -145,7 +145,7 @@ whole trick. `n` = `props_count`.
 | `cascade` / `fountain` / `any` / `sync fountain` / `half shower` | verbatim                | balls.csv, clubs.csv |
 | bare siteswap `SSS` (period ≥ 2)               | `SSS`                                       | everywhere |
 | sync `(…,…)*`                                  | verbatim                                    | balls.csv:18 |
-| `Nc SSS` / `N rounds SSS` / `N sides SSS`      | keep prefix, recurse on `SSS`               | everywhere |
+| `N catches SSS` / `N rounds SSS` / `N sides SSS` | keep prefix, recurse on `SSS`             | everywhere |
 | `<mod>` alone (e.g. `overheads`, `backrosses`) | `n{Mod}`                                    | balls.csv:154, clubs.csv:56 |
 | `<spin>` alone (e.g. `triples`, `flats`)       | `n{spin}`                                   | clubs.csv:67-81 |
 | `<mod>` `<spin>` / `<spin>` `<mod>`            | `n{ModSpin}`                                | clubs.csv:57 |
@@ -192,7 +192,7 @@ expressible — but when unsure, bail out entirely):
 2. No `{…}` follows anything other than a single `[0-9a-z]` char.
 3. Any bare siteswap fragment averages to `props_count` (or is a recognised
    sync pattern for that count).
-4. Structural words are limited to: `Nc`, `N round(s)`, `N sides`, `->`,
+4. Structural words are limited to: `N catches` (legacy `Nc`), `N round(s)`, `N sides`, `->`,
    `cascade`, `fountain`, `sync fountain`, `async fountain`, `any`,
    `half shower`, `shower`, `sync`, `async`.
 5. **If the derived value contains no `{…}` modifier, discard it.** A
@@ -206,12 +206,13 @@ expressible — but when unsure, bail out entirely):
 
 ## 7. Known data-quality issues (do NOT replicate)
 
-- `clubs.csv:1` header is missing the `siteswap_x` column though rows use it.
-- `clubs.csv:74,79` have a stray extra comma → 8 fields.
-- `clubs.csv:57` `4c{B2}` is missing the siteswap digit (should be `4c 3{B2}`).
 - `EJC2025.py:97` uses `{/RB}`; correct code is `{/Rb}`.
 - `4{B}x` vs `4x{B}` both appear; standardise on `4{B}x`.
-- `1 rounds` (clubs.csv:64) — accepted but prefer `1 round`.
+- `1 rounds` (e.g. clubs `cascade -> 1 rounds 966`) — accepted but prefer `1 round`.
+
+CSV line numbers cited in §4 are historical: the trick CSVs are now sorted
+by difficulty. Trick list conventions (notation, duplicates, difficulty)
+are in `hardcoded_database/tricks/README.md`.
 
 ---
 
@@ -220,14 +221,14 @@ expressible — but when unsure, bail out entirely):
 | props | name                                              | siteswap_x                                  |
 |------:|---------------------------------------------------|---------------------------------------------|
 | 3 | `2 rounds 441, backcross 1`                           | `2 rounds 441{B}`                           |
-| 3 | `10c 44133, backrosses 3's`                           | `10c 4413{B}3{B}`                           |
+| 3 | `2 rounds 44133, backcrosses 3's`                     | `2 rounds 4413{B}3{B}`                      |
 | 3 | `overheads -> 3 rounds 531 overheads`                 | `3{Oh} -> 3 rounds 5{Oh}3{Oh}1{Oh}`         |
-| 3 | `3c reverse shoulders -> backrosses`                  | `3c 3{/Rs} -> 3{B}`                         |
-| 4 | `8c 7531, under the leg 1's`                          | `8c 7531{Ul}`                               |
+| 3 | `3 catches reverse shoulders -> backcrosses`          | `3 catches 3{/Rs} -> 3{B}`                  |
+| 4 | `2 rounds 7531, under the leg 1's`                    | `2 rounds 7531{Ul}`                         |
 | 5 | `cascade -> 2 rounds 97531, behind the back 1 -> cascade` | `cascade -> 2 rounds 97531{B} -> cascade` |
 | 5 | `singles -> triples -> singles`                       | `5{1} -> 5{3} -> 5{1}`                      |
-| 5 | `5c cascade -> 5c reverse spin doubles -> 5c cascade` | `5c 5 -> 5c 5{-2} -> 5c 5`                  |
-| 6 | `6c triples -> 6c doubles`                            | `6c 6{3} -> 6c 6{2}`                        |
-| 3 | `24c 531 on the knees`                                | *(blank — §5)*                              |
+| 5 | `5 catches cascade -> 5 catches reverse spin doubles -> 5 catches cascade` | `5 catches 5 -> 5 catches 5{-2} -> 5 catches 5` |
+| 6 | `6 catches triples -> 6 catches doubles`              | `6 catches 6{3} -> 6 catches 6{2}`          |
+| 3 | `8 rounds 531 on the knees`                           | *(blank — §5)*                              |
 | 5 | `cascade -> 5up 360 -> cascade`                       | *(blank — §5)*                              |
 | 3 | `10 backrosses in a run`                              | *(blank — §5)*                              |
