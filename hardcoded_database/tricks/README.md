@@ -151,10 +151,27 @@ catch counts raise difficulty, but less than adding a prop.
   `docs/siteswap_x_agents.md` section 5).
 - **1-2 props:** don't write `siteswap_x` with digit 3 for a 1 or 2 prop
   trick; the digit has to fit the prop count (`1 catch 1{Ul}`).
-- **Not used on purpose:** alberts / treblas (leg-through throws) are left
-  out of the lists.
+- **Not used on purpose:** alberts / treblas (leg-through throws), burke's
+  barrage and yo-yo are left out of the lists.
+- **Box** is `(4,2x)*` (3 balls).
+- **Prop-specific catches:** balls are caught as **penguins**, clubs as
+  **lazies**. Don't add "lazy" ball tricks or "penguin" club tricks.
+- **1-2 props:** `in a run` (a continuous pattern) is only defined for 3+
+  props. With 1-2 props, use "in a row" for repeated throws, or a plain
+  catch count for normal throws (`10 catches 1 ball cascade`). Simple
+  body throws (backcrosses, under the leg, overheads) with 2 props are not
+  tricks; write 2-prop patterns as siteswaps where possible
+  (`4 rounds 330` = 2 in one hand, switching hands every 2 throws).
+- **1 prop spins are not trivial:** `1 catch 1up 360` is ~12 with balls,
+  `1 catch 1up 720` ~20 (clubs a little higher).
 - **Difficulty is hand-assigned**, not measured. Many values come from
   past events or were set by analogy; adjust them when real results
   disagree.
+- **User feedback:** generated routes show Dislike / Too hard / Too easy
+  buttons per trick. Review the votes with
+  `python scripts/trick_feedback_report.py` and edit this CSV by hand.
+  Votes are never applied automatically: a few votes are noise, and a
+  "too hard" vote often means the trick suits a different prop count or
+  route, not that its number is wrong.
 - The name is free text: the app does not parse it. Only `siteswap_x`
   is rendered as notation.

@@ -11,10 +11,9 @@ name,props_count,difficulty,tags,comment,max_throw,siteswap_x
 "10 rounds 42",3,3,"async siteswap",,4,
 "20 catches high cascade",3,3,"async base pattern",,3,
 "30 catches cascade",3,3,"async base pattern",,3,
-"1 throw caught as lazy",1,4,"lazies",,3,
 "1 throw caught as penguin",1,4,"special body throws",,3,
-"10 rounds 51",3,4,"async siteswap",,5,
 "10 catches overheads",3,4,"overheads",,3,"10 catches 3{Oh}"
+"10 rounds 51",3,4,"async siteswap",,5,
 "20 catches half shower",3,4,"async base pattern",,4,
 "20 catches low cascade",3,4,"async base pattern",,3,
 "50 catches cascade",3,4,"async base pattern",,3,
@@ -30,8 +29,6 @@ name,props_count,difficulty,tags,comment,max_throw,siteswap_x
 "cascade -> 1 catch under the leg -> cascade",3,5,"under legs",,3,"3 -> 1 catch 3{Ul} -> 3"
 "cascade -> 1up 180 -> cascade",3,5,"180 spin",,3,
 "10 catches sync fountain",4,5,"sync base pattern",,4,
-"1 catch 1up 360",1,6,"360 spin",,5,
-"20 rounds (4,0) sync 2 balls",2,6,"sync base pattern","both hands throw together",4,
 "20 catches 2 in one hand outside circles",2,6,"async base pattern",,4,
 "12 rounds 441",3,6,"async siteswap",,4,
 "20 catches cascade on the knees",3,6,"async base pattern|on the knees",,3,
@@ -40,25 +37,24 @@ name,props_count,difficulty,tags,comment,max_throw,siteswap_x
 "20 catches reverse half shower",3,6,"async base pattern",,4,
 "4 rounds 531",3,6,"async siteswap",,5,
 "6 rounds 423",3,6,"async siteswap",,4,
-"cascade -> 1 round 441 -> cascade",3,6,"async siteswap",,4,
-"cascade -> 1 round 55500 -> cascade",3,6,"async siteswap","3 ball flash",5,
 "cascade -> 1 catch backcross -> cascade",3,6,"backcrosses",,3,"3 -> 1 catch 3{B} -> 3"
 "cascade -> 1 catch over the shoulder -> cascade",3,6,"shoulders",,3,"3 -> 1 catch 3{S} -> 3"
+"cascade -> 1 round 441 -> cascade",3,6,"async siteswap",,4,
+"cascade -> 1 round 55500 -> cascade",3,6,"async siteswap","3 ball flash",5,
 "cascade -> 1up 360 -> cascade",3,6,"360 spin",,5,
 "cascade -> high cascade -> low cascade -> cascade",3,6,"async base pattern",,3,
 "cascade -> reverse cascade -> cascade",3,6,"async base pattern",,3,
 "1 throw caught as reverse shoulder",1,7,"reverse shoulders",,3,
 "20 catches 2 in one hand inside circles",2,7,"async base pattern",,4,
-"200 catches cascade",3,7,"async base pattern",,3,
 "20 catches cascade sitting",3,7,"async base pattern|sitting",,3,
 "20 catches one-up two-up",3,7,"sync siteswap",,4,
+"200 catches cascade",3,7,"async base pattern",,3,
 "4 rounds 4440",3,7,"async siteswap",,4,
 "6 rounds 450",3,7,"async siteswap",,5,
 "cascade -> 1 round 531 -> cascade",3,7,"async siteswap",,5,
 "20 catches async fountain",4,7,"async base pattern",,4,
-"5 behind the back throws in a run",1,8,"backcrosses",,3,
+"5 behind the back throws in a row",1,8,"backcrosses",,3,
 "10 catches 2 ball shower",2,8,"async siteswap","siteswap: 31",3,
-"10 catches lazies",3,8,"lazies",,3,"10 catches 3{/L}"
 "12 rounds 423",3,8,"async siteswap",,4,
 "20 catches shower",3,8,"async siteswap","siteswap: 51",5,
 "20 catches windmill",3,8,"special body throws",,3,
@@ -70,16 +66,15 @@ name,props_count,difficulty,tags,comment,max_throw,siteswap_x
 "cascade -> overheads -> cascade",3,8,"overheads",,3,"3 -> 3{Oh} -> 3"
 "20 catches columns",4,8,"async base pattern","4 ball columns",4,
 "20 catches sync fountain",4,8,"sync base pattern",,4,
-"5 under the leg throws in a run",1,9,"under legs",,3,
-"6 catches 2 balls backcrosses",2,9,"backcrosses",,3,
+"5 under the leg throws in a row",1,9,"under legs",,3,
 "10 catches as penguins",3,9,"special body throws",,3,"10 catches 3{/Pe}"
 "20 catches chops",3,9,"special body throws",,3,
 "20 catches factory",3,9,"special body throws",,4,
 "20 catches mills mess",3,9,"special body throws",,3,
 "20 catches reverse overheads",3,9,"overheads",,3,
+"3 catches backcrosses",3,9,"backcrosses",,3,"3 catches 3{B}"
 "3 X (1up 360) in a run",3,9,"360 spin",,3,
 "30 catches isolated cascade",3,9,"async base pattern|isolated",,3,
-"3 catches backcrosses",3,9,"backcrosses",,3,"3 catches 3{B}"
 "4 rounds 441 -> 4 rounds 423 -> 4 rounds 531",3,9,"async siteswap",,5,
 "4 rounds 5241",3,9,"async siteswap",,5,
 "4 rounds 5340",3,9,"async siteswap",,5,
@@ -91,13 +86,12 @@ name,props_count,difficulty,tags,comment,max_throw,siteswap_x
 "cascade -> shower -> cascade",3,9,"async siteswap",,5,
 "10 rounds (4x,4x) crossing sync",4,9,"sync siteswap",,4,
 "1 ball caught on the back of the hand",1,10,"special body throws",,3,
-"6 catches 2 balls under the leg",2,10,"under legs",,3,
-"20 catches box",3,10,"sync siteswap","siteswap: (4,2x)(2x,4)",4,
+"16 rounds (4,2x)* box",3,10,"sync siteswap",,4,
+"20 catches box",3,10,"sync siteswap","siteswap: (4,2x)*",4,
 "20 catches cascade laying on the back",3,10,"on the back|overheads",,3,
 "20 catches claws",3,10,"special body throws",,3,
 "4 rounds 52440",3,10,"async siteswap",,5,
 "4 rounds 53403",3,10,"async siteswap",,5,
-"8 rounds (4,2x)(2x,4) box",3,10,"sync siteswap",,4,
 "8 rounds 531",3,10,"async siteswap",,5,
 "cascade -> 1 catch neck throw -> cascade",3,10,"necks",,3,"3 -> 1 catch 3{N} -> 3"
 "cascade -> 1 catch pulldown -> cascade",3,10,"pulldown",,3,
@@ -109,18 +103,17 @@ name,props_count,difficulty,tags,comment,max_throw,siteswap_x
 "2 rounds 801 -> cascade",3,11,"async siteswap","entrance: 46",8,
 "2 X (1up 360) in a run",3,11,"360 spin",,5,
 "20 catches reverse shower",3,11,"async siteswap","siteswap: 51",5,
-"20 catches yo-yo",3,11,"special body throws",,4,
 "4 rounds 51414",3,11,"async siteswap",,5,
 "4 rounds 6051",3,11,"async siteswap",,6,
 "6 rounds 44133",3,11,"async siteswap",,4,
 "8 rounds (4x,2x)",3,11,"sync siteswap",,4,
 "cascade -> 1 catch foot kick up -> cascade",3,11,"special body throws",,3,
 "cascade -> mills mess -> cascade",3,11,"special body throws",,3,
-"40 catches sync fountain",4,11,"sync base pattern",,4,
 "4 catches sync fountain -> 2 rounds (4x,4x) -> 4 catches sync fountain",4,11,"sync siteswap",,4,
+"40 catches sync fountain",4,11,"sync base pattern",,4,
 "6 rounds 552",4,11,"async siteswap",,5,
-"1 catch 1up 720",1,12,"720 spin",,7,
-"10 catches 2 in one hand, alternating hands every 2 throws",2,12,"async base pattern",,4,
+"1 catch 1up 360",1,12,"360 spin",,5,
+"4 rounds 330",2,12,"async siteswap",,3,
 "1 round 70701 -> cascade",3,12,"async siteswap",,7,
 "20 catches blindfolded cascade",3,12,"async base pattern",,3,
 "20 catches full reverse cascade (reverse tennis)",3,12,"special body throws",,3,
@@ -144,8 +137,8 @@ name,props_count,difficulty,tags,comment,max_throw,siteswap_x
 "20 catches penguin shower",3,13,"special body throws|async siteswap",,5,
 "20 catches sync shower (4x,2x)",3,13,"sync siteswap",,4,
 "4 rounds 45141",3,13,"async siteswap",,5,
-"6 rounds 720",3,13,"async siteswap",,7,
 "6 catches backcrosses",3,13,"backcrosses",,3,"6 catches 3{B}"
+"6 rounds 720",3,13,"async siteswap",,7,
 "cascade -> 1up 360 -> 3up 360 -> cascade",3,13,"360 spin",,5,
 "10 rounds 71 shower",4,13,"async siteswap",,7,
 "20 catches async fountain on the knees",4,13,"async base pattern|on the knees",,4,
@@ -154,14 +147,12 @@ name,props_count,difficulty,tags,comment,max_throw,siteswap_x
 "async fountain -> 1 round 534 -> async fountain",4,13,"async siteswap",,5,
 "async fountain -> sync fountain -> async fountain",4,13,"async siteswap","transitions: 5x4, (5x,4)",5,
 "1 neck catch",1,14,"necks",,3,
-"10 catches 2 balls overheads",2,14,"overheads",,3,
-"20 catches burke's barrage",3,14,"special body throws",,4,
 "20 catches crossed arms cascade",3,14,"special body throws",,3,
 "20 catches reverse mills mess",3,14,"special body throws",,3,
 "4 neck throws in a run",3,14,"necks",,3,
 "4 rounds 441, reverse backcross catch 4's",3,14,"special body throws|async siteswap",,4,"4 rounds 4{/Rb}4{/Rb}1"
-"cascade -> 1 round 55500 3up 360 -> cascade",3,14,"360 spin|async siteswap",,5,
 "cascade -> 1 catch head bounce -> cascade",3,14,"special body throws",,3,
+"cascade -> 1 round 55500 3up 360 -> cascade",3,14,"360 spin|async siteswap",,5,
 "100 catches async fountain",4,14,"async base pattern",,4,
 "4 rounds 5524",4,14,"async siteswap",,5,
 "4 rounds 6451",4,14,"async siteswap",,6,
@@ -185,15 +176,15 @@ name,props_count,difficulty,tags,comment,max_throw,siteswap_x
 "4 rounds 64",5,15,"async siteswap",,6,
 "10 catches 3 in one hand (right)",3,16,"async base pattern","siteswap: 60",6,
 "20 catches boston mess",3,16,"special body throws",,4,
-"4 rounds 423, under the leg 4",3,16,"under legs|async siteswap",,4,"4 rounds 4{Ul}23"
 "4 catches as reverse shoulders",3,16,"reverse shoulders",,3,"4 catches 3{/Rs}"
+"4 rounds 423, under the leg 4",3,16,"under legs|async siteswap",,4,"4 rounds 4{Ul}23"
 "75300 3up 360 -> cascade",3,16,"360 spin|async siteswap",,7,
 "backcrosses -> 531",3,16,"backcrosses|async siteswap",,5,
 "cascade -> 3up 360 -> mills mess",3,16,"360 spin|special body throws",,5,
 "overheads -> 1 round 441 overheads -> overheads",3,16,"overheads|async siteswap",,4,"3{Oh} -> 1 round 4{Oh}4{Oh}1{Oh} -> 3{Oh}"
 "10 rounds 534",4,16,"async siteswap",,5,
-"4 rounds 64514",4,16,"async siteswap",,6,
 "4 catches async fountain -> 2 rounds 633 -> 4 catches async fountain",4,16,"async siteswap",,6,
+"4 rounds 64514",4,16,"async siteswap",,6,
 "6 rounds 7531",4,16,"async siteswap",,7,
 "async fountain -> 1 round 642 -> async fountain",4,16,"async siteswap",,6,
 "fountain -> 1 round 74414 -> fountain",4,16,"async siteswap",,7,
@@ -235,14 +226,15 @@ name,props_count,difficulty,tags,comment,max_throw,siteswap_x
 "async fountain -> 1 round 741 -> async fountain",4,19,"async siteswap","entrance: 5",7,
 "4 rounds 6662",5,19,"async siteswap",,6,
 "4 rounds 726",5,19,"async siteswap",,7,
+"1 catch 1up 720",1,20,"720 spin",,7,
 "10 catches mills mess backcrosses",3,20,"special body throws|backcrosses",,3,
-"3 X (3up 360) in a run",3,20,"360 spin",,5,
 "3 catches blindfolded cascade -> 1 round 531 -> 3 catches blindfolded cascade",3,20,"async siteswap",,5,
 "3 catches cascade -> 2 catches backcrosses -> 1 catch neck throw -> cascade",3,20,"backcrosses|necks",,3,"3 catches 3 -> 2 catches 3{B} -> 1 catch 3{N} -> 3"
 "3 catches cascade -> 3 catches reverse shoulders -> 3 catches backcrosses -> 3 catches overheads",3,20,"reverse shoulders|backcrosses|overheads",,3,"3 catches 3 -> 3 catches 3{/Rs} -> 3 catches 3{B} -> 3 catches 3{Oh}"
+"3 X (3up 360) in a run",3,20,"360 spin",,5,
 "4 rounds 441, backcross 4's",3,20,"backcrosses|async siteswap",,4,"4 rounds 4{B}4{B}1"
-"6 rounds 801",3,20,"async siteswap","entrance: 46",8,
 "6 catches shoulder throws",3,20,"shoulders",,3,"6 catches 3{S}"
+"6 rounds 801",3,20,"async siteswap","entrance: 46",8,
 "6 rounds 633",4,20,"async siteswap",,6,
 "8 rounds 74414",4,20,"async siteswap",,7,
 "async fountain -> 1 round 55550 -> 4up 360 -> async fountain",4,20,"360 spin|async siteswap",,6,
@@ -258,9 +250,9 @@ name,props_count,difficulty,tags,comment,max_throw,siteswap_x
 "20 catches backcrosses",3,22,"backcrosses",,3,"20 catches 3{B}"
 "6 neck throws in a run",3,22,"necks",,3,
 "cascade -> 1up 360 -> ball caught as elbow stall",3,22,"360 spin|special body throws",,3,
-"10 rounds 73334",4,22,"async siteswap",,7,
 "10 catches 4 in one hand",4,22,"async base pattern",,8,
 "10 catches overheads",4,22,"overheads",,4,"10 catches 4{Oh}"
+"10 rounds 73334",4,22,"async siteswap",,7,
 "2 rounds 83531",4,22,"async siteswap",,8,
 "4 rounds 7441",4,22,"async siteswap",,7,
 "6 rounds 534 -> 4 rounds 53444",4,22,"async siteswap",,5,
@@ -287,9 +279,9 @@ name,props_count,difficulty,tags,comment,max_throw,siteswap_x
 "12 rounds 801",3,26,"async siteswap","Entrance: 46",8,
 "5 rounds 423, 4 and 3 as penguins",3,26,"special body throws|async siteswap",,4,"5 rounds 4{/Pe}23{/Pe}"
 "5 X (3up 360) in a run",3,26,"360 spin",,5,
+"4 catches under the leg throws",4,26,"under legs",,4,"4 catches 4{Ul}"
 "4 rounds 53 -> exactly 1 round 633 -> other sided 53",4,26,"async siteswap",,6,
 "4 rounds 534, backcross 3",4,26,"backcrosses|async siteswap",,5,"4 rounds 53{B}4"
-"4 catches under the leg throws",4,26,"under legs",,4,"4 catches 4{Ul}"
 "6 rounds 63641",4,26,"async siteswap",,6,
 "8 catches penguins",4,26,"special body throws",,8,"8 catches 4{/Pe}"
 "10 catches half shower",5,26,"async base pattern",,6,
@@ -315,11 +307,11 @@ name,props_count,difficulty,tags,comment,max_throw,siteswap_x
 "8 rounds (6x,4x)(6,4x)*",5,29,"sync siteswap",,6,
 "2 rounds 5511, around the body 1's",3,30,"special body throws|async siteswap",,5,"2 rounds 551{B}1{B}"
 "2 rounds 7531, under the leg 1's",4,30,"under legs|async siteswap",,7,"2 rounds 7531{Ul}"
+"4 catches backcrosses",4,30,"backcrosses",,4,"4 catches 4{B}"
 "4 rounds (4x,4x) alternating backcross",4,30,"backcrosses|sync siteswap","scissors",4,"4 rounds (4{B}x,4x)*"
 "4 rounds 561 -> 4 rounds 741",4,30,"async siteswap","entrance: 5",7,
-"4 catches backcrosses",4,30,"backcrosses",,4,"4 catches 4{B}"
-"8 rounds (4,4) one sided overheads",4,30,"overheads|sync base pattern",,4,
 "8 catches box (8,2x)(4,2x)*",4,30,"sync siteswap","4 ball box",8,
+"8 rounds (4,4) one sided overheads",4,30,"overheads|sync base pattern",,4,
 "seated async overheads -> seated sync overheads",4,30,"overheads|sitting",,4,
 "(6x,4)* -> (4x,6)*",5,30,"sync siteswap",,6,
 "3up 360 -> cascade",5,30,"360 spin",,7,
@@ -476,8 +468,8 @@ name,props_count,difficulty,tags,comment,max_throw,siteswap_x
 "6 catches ANY -> 1 round b97531 -> half shower",6,66,"async siteswap",,11,
 "6 catches sync fountain -> 1 round (c,c)(4,4)(4,4)(4,4) -> sync fountain",6,66,"sync siteswap",,12,
 "sync fountain -> 1 round (a,a)(6,6)(2,2) penguin 2's -> sync fountain",6,66,"special body throws|sync siteswap",,10,
-"70 catches isolated cascade",7,66,"async base pattern|isolated",,7,
 "7 catches cascade -> 1 round ANY with 1, 1 under the leg -> cascade",7,66,"under legs|async siteswap",,9,
+"70 catches isolated cascade",7,66,"async base pattern|isolated",,7,
 "10 rounds 891",6,67,"async siteswap","entrance: 778",9,
 "6 rounds 78456",6,67,"async siteswap",,8,
 "9 catches cascade",9,67,"async base pattern",,9,

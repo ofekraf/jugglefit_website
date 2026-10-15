@@ -107,6 +107,9 @@ No linter or formatter is configured for this repo.
   the new serialized value / URL.
 - `scripts/gen_past_event_diff.py` - list tricks used in past events that
   are missing from the master trick CSVs.
+- `scripts/trick_feedback_report.py` - vote counts per trick from the
+  generated-route feedback buttons (`--prop`, `--min-votes`, `--csv`), to
+  guide manual difficulty fixes in the trick CSVs.
 - `scripts/simulate_final.py` - run a fictional live final (test final
   on a `SIMULATION <id>` route, admin moves + N polling viewers) against
   any base URL; checks final state, CSV log and viewer delay. `--cleanup`
@@ -134,6 +137,15 @@ No linter or formatter is configured for this repo.
   `/api/fetch_tricks` and assembles the route in JS
   (`static/js/route_helpers.js`).
 - `blueprints/finals.py` - live finals, see below.
+- `blueprints/trick_feedback.py` - Dislike / Too hard / Too easy buttons
+  per trick, shown **only** on `/created_route` for routes this browser
+  generated (`/generate_route` stores the route's key in the session, so
+  shared links / QR URLs are unchanged and never show the buttons).
+  `POST /api/trick_feedback` stores raw votes in the `trick_feedback`
+  table (one per browser/route/trick, re-vote replaces, click again
+  removes). Votes are for **manual** review only
+  (`python scripts/trick_feedback_report.py`); nothing applies them to
+  the trick CSVs automatically - do not add code that does.
 
 ### Live finals (`/live_event`)
 
@@ -197,6 +209,7 @@ difficulty voting live on the `feature/crowd-contribution` branch.
 ### Database (`database/db_manager.py`)
 
 SQLite in WAL mode with `busy_timeout` (multi-worker gunicorn). Tables:
+`trick_feedback` (votes from generated routes, kept, never pruned),
 `url_mappings` (shortener, expires after
 `URL_RETENTION_MONTHS` of inactivity), `meta` (bookkeeping), and the live
 final tables `finals`, `final_competitors`, `final_events` (kept, never
@@ -279,6 +292,7 @@ do not - never back into one giant file.
 - `pages/live-final.css` → live_event; `components/live-final-banner.css`
   → created_route (only while a final is live)
 - `components/organizer-dialog.css` → created_route, live_event
+- `components/trick-feedback.css` → created_route (only for generated routes)
 - `pages/donate.css`, `pages/past-events.css`, `pages/live-event.css`,
   `pages/siteswap-x.css`, `pages/siteswap-x-formatter.css` → one page each
 - `static/css/run_route.css` → `run_route.html` only

@@ -475,6 +475,7 @@ export function updateRouteDisplay(route = null, options = {}) {
         const frame = document.createElement('div');
         frame.className = 'prop-details-frame';
         frame.setAttribute('data-trick-name', trick.name || trick.siteswap_x || '');
+        frame.setAttribute('data-trick-index', index);
 
         const trickContent = document.createElement('div');
         trickContent.className = 'trick-content';
@@ -522,6 +523,10 @@ export function updateRouteDisplay(route = null, options = {}) {
             frame.addEventListener('dragover', handleDragOver);
             frame.addEventListener('drop', handleDrop);
             frame.addEventListener('dragend', handleDragEnd);
+        } else if (typeof window.decorateTrickRow === 'function') {
+            // Optional per-row extras on read-only pages (e.g. trick feedback
+            // buttons on generated routes, static/js/trick_feedback.js).
+            try { window.decorateTrickRow(trickContent, trick, index); } catch (e) { console.error(e); }
         }
 
         frame.appendChild(trickContent);

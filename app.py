@@ -45,6 +45,10 @@ from pylib.route_generator.exceptions import NotEnoughTricksFoundException
 from pylib.route_generator.route_generator import RouteGenerator
 
 from blueprints.api import api_bp, shortener_bp
+from blueprints.trick_feedback import (
+    feedback_route_key, get_voter_id, is_generated_route, remember_generated_route,
+    trick_feedback_bp,
+)
 from blueprints.finals import finals_api_bp, finals_bp, is_final_admin
 
 
@@ -149,6 +153,7 @@ app.register_blueprint(api_bp)
 app.register_blueprint(shortener_bp)
 app.register_blueprint(finals_api_bp)
 app.register_blueprint(finals_bp)
+app.register_blueprint(trick_feedback_bp)
 
 
 # ---------------------------------------------------------------------------
@@ -257,6 +262,7 @@ def generate_route():
             duration_seconds=route_duration_seconds,
             max_throw=max_throw,
         )
+        remember_generated_route(route)
         return redirect(url_for("created_route", route=route.serialize()))
     except NotEnoughTricksFoundException:
         return '<p class="no-tricks">Not enough tricks in database. Try adjusting your criteria.</p>'
@@ -307,9 +313,20 @@ def _render_route_page(template: str):
             live_final = db_manager.get_active_final_by_route_key(route.key())
     except Exception as e:
         app.logger.warning("Live final lookup failed: %s", e)
+
+    # Trick feedback buttons: only on /created_route, only for a route this
+    # browser generated with /generate_route (not shared/printed/past routes).
+    feedback_votes = None
+    if template == "created_route.html" and is_generated_route(route):
+        try:
+            feedback_votes = db_manager.get_trick_feedback_votes(get_voter_id(), feedback_route_key(route))
+        except Exception as e:
+            app.logger.warning("Trick feedback lookup failed: %s", e)
+            feedback_votes = {}
     return render_template(template, route=route, route_param=route_param,
                            live_final=live_final,
-                           is_final_admin=bool(live_final) and is_final_admin(live_final["id"]))
+                           is_final_admin=bool(live_final) and is_final_admin(live_final["id"]),
+                           feedback_votes=feedback_votes)
 
 
 @app.route("/created_route")

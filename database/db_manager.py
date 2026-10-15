@@ -75,6 +75,28 @@ SCHEMA_STATEMENTS: List[str] = [
     )
     """,
     "CREATE INDEX IF NOT EXISTS idx_final_events_final ON final_events(final_id)",
+    # --- trick feedback from generated routes (see blueprints/api.py) -----
+    # Raw user votes for later manual review of trick difficulties. Nothing
+    # reads this automatically; tricks stay hardcoded in the CSVs. One vote
+    # per (voter, route, trick position); re-voting replaces it.
+    """
+    CREATE TABLE IF NOT EXISTS trick_feedback (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        voter_id TEXT NOT NULL,
+        route_key TEXT NOT NULL,
+        trick_index INTEGER NOT NULL,
+        prop TEXT NOT NULL,
+        props_count INTEGER NOT NULL,
+        trick_name TEXT,
+        siteswap_x TEXT,
+        difficulty INTEGER,
+        vote TEXT NOT NULL CHECK (vote IN ('dislike', 'too_hard', 'too_easy')),
+        created_at INTEGER NOT NULL,
+        UNIQUE(voter_id, route_key, trick_index)
+    )
+    """,
+    "CREATE INDEX IF NOT EXISTS idx_trick_feedback_trick "
+    "ON trick_feedback(prop, props_count, trick_name)",
     # --- generic key/value bookkeeping (backup/prune timestamps) ---
     """
     CREATE TABLE IF NOT EXISTS meta (
@@ -176,6 +198,64 @@ class DBManager:
                 "ON CONFLICT(key) DO UPDATE SET value = excluded.value",
                 (key, value),
             )
+
+    # ------------------------------------------------------------------
+    # trick feedback (raw votes, reviewed manually - never applied automatically)
+    # ------------------------------------------------------------------
+    def set_trick_feedback(self, *, voter_id: str, route_key: str, trick_index: int,
+                           prop: str, props_count: int, trick_name: Optional[str],
+                           siteswap_x: Optional[str], difficulty: Optional[int],
+                           vote: Optional[str], now_ms: int) -> None:
+        """Insert/replace one voter's vote on one trick of one route.
+        ``vote=None`` removes it (the user clicked the active button again)."""
+        with self.cursor(commit=True) as cur:
+            if vote is None:
+                cur.execute(
+                    "DELETE FROM trick_feedback "
+                    "WHERE voter_id = ? AND route_key = ? AND trick_index = ?",
+                    (voter_id, route_key, trick_index),
+                )
+                return
+            cur.execute(
+                "INSERT INTO trick_feedback (voter_id, route_key, trick_index, prop, "
+                "props_count, trick_name, siteswap_x, difficulty, vote, created_at) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) "
+                "ON CONFLICT(voter_id, route_key, trick_index) DO UPDATE SET "
+                "vote = excluded.vote, created_at = excluded.created_at",
+                (voter_id, route_key, trick_index, prop, props_count, trick_name,
+                 siteswap_x, difficulty, vote, now_ms),
+            )
+
+    def get_trick_feedback_votes(self, voter_id: str, route_key: str) -> Dict[int, str]:
+        """{trick_index: vote} for one voter on one route (to restore button state)."""
+        with self.cursor() as cur:
+            cur.execute(
+                "SELECT trick_index, vote FROM trick_feedback "
+                "WHERE voter_id = ? AND route_key = ?",
+                (voter_id, route_key),
+            )
+            return {r["trick_index"]: r["vote"] for r in cur.fetchall()}
+
+    def get_trick_feedback_summary(self, prop: Optional[str] = None) -> List[Dict[str, Any]]:
+        """Vote counts per trick, most-voted first. For manual review only."""
+        query = (
+            "SELECT prop, props_count, trick_name, siteswap_x, "
+            "MAX(difficulty) AS difficulty, "
+            "SUM(vote = 'too_easy') AS too_easy, "
+            "SUM(vote = 'too_hard') AS too_hard, "
+            "SUM(vote = 'dislike') AS dislike, "
+            "COUNT(*) AS total, MAX(created_at) AS last_vote_at "
+            "FROM trick_feedback "
+        )
+        params: tuple = ()
+        if prop:
+            query += "WHERE prop = ? "
+            params = (prop,)
+        query += ("GROUP BY prop, props_count, trick_name, siteswap_x "
+                  "ORDER BY total DESC, prop, props_count, trick_name")
+        with self.cursor() as cur:
+            cur.execute(query, params)
+            return [dict(r) for r in cur.fetchall()]
 
     # ------------------------------------------------------------------
     # url shortener

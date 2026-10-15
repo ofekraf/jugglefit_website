@@ -12,28 +12,24 @@ name,props_count,difficulty,tags,comment,max_throw,siteswap_x
 "1 catch over the shoulder",1,5,"shoulders",,3,
 "1 catch under the leg",1,5,"under legs",,1,
 "10 catches cascade",3,5,"async base pattern",,3,
-"1 throw caught as lazy",1,6,"lazies",,3,
 "1 catch reverse spin single",1,6,"spin control",,3,
+"1 throw caught as lazy",1,6,"lazies",,3,
 "10 catches 2 clubs in one hand (left)",2,6,"async base pattern",,4,
 "10 catches 2 clubs in one hand (right)",2,6,"async base pattern",,4,
 "cascade -> 1 catch double -> cascade",3,6,"spin control",,3,"3 -> 1 catch 3{2} -> 3"
 "1 catch flatfront",1,7,"flat front",,3,
 "10 catches 2 clubs sync doubles",2,7,"sync base pattern|spin control",,4,
 "20 catches cascade",3,7,"async base pattern",,3,
-"1 catch 1up 360",1,8,"360 spin",,5,
 "1 catch helicopter",1,8,"spin control",,3,
 "10 catches 2 clubs flats exchange",2,8,"flats",,3,
 "20 catches doubles cascade",3,8,"spin control",,3,"20 catches 3{2}"
 "cascade -> 1 catch triple -> cascade",3,8,"spin control",,3,"3 -> 1 catch 3{3} -> 3"
-"1 throw caught as penguin",1,9,"special body throws",,3,
-"6 catches 2 clubs backcrosses",2,9,"backcrosses",,3,
 "20 catches half shower",3,9,"async base pattern",,4,
 "30 catches cascade",3,9,"async base pattern",,3,
 "cascade -> 1 catch flat -> cascade",3,9,"flats",,3,"3 -> 1 catch 3{0} -> 3"
 "cascade -> 1 catch under the leg -> cascade",3,9,"under legs",,3,"3 -> 1 catch 3{Ul} -> 3"
-"10 catches 1 club in one hand doubles",1,10,"spin control",,2,
 "1 catch quad",1,10,"spin control",,3,
-"6 catches 2 clubs under the leg",2,10,"under legs",,3,
+"10 catches 1 club in one hand doubles",1,10,"spin control",,2,
 "20 catches cascade on the knees",3,10,"async base pattern|on the knees",,3,
 "20 catches singles -> 20 catches doubles",3,10,"spin control",,3,"20 catches 3{1} -> 20 catches 3{2}"
 "6 rounds 42",3,10,"async siteswap",,4,
@@ -48,8 +44,8 @@ name,props_count,difficulty,tags,comment,max_throw,siteswap_x
 "1 catch knob balance on the hand for 3 seconds",1,12,"special body throws",,1,
 "20 catches 2 clubs in one hand columns",2,12,"async base pattern",,4,
 "20 catches reverse cascade",3,12,"async base pattern",,3,
-"6 rounds 423",3,12,"async siteswap",,4,
 "6 catches triples",3,12,"spin control",,3,"6 catches 3{3}"
+"6 rounds 423",3,12,"async siteswap",,4,
 "cascade -> 1 catch over the shoulder -> cascade",3,12,"shoulders",,3,"3 -> 1 catch 3{S} -> 3"
 "cascade -> 1up 180 -> cascade",3,12,"180 spin",,3,
 "cascade -> 3 catches flats -> cascade",3,12,"flats",,3,"3 -> 3 catches 3{0} -> 3"
@@ -57,31 +53,30 @@ name,props_count,difficulty,tags,comment,max_throw,siteswap_x
 "10 catches flats",3,13,"flats",,3,"10 catches 3{0}"
 "20 catches tennis",3,13,"special body throws",,3,
 "6 rounds 522",3,13,"async siteswap","3 clubs doubles + holds",5,
-"cascade -> 1 lazy catch -> cascade",3,13,"lazies",,3,"3 -> 1 catch 3{/L} -> 3"
 "cascade -> 1 catch reverse spin -> cascade",3,13,"spin control",,3,"3 -> 1 catch 3{-1} -> 3"
-"1 catch 1up 720",1,14,"720 spin",,7,
+"cascade -> 1 lazy catch -> cascade",3,13,"lazies",,3,"3 -> 1 catch 3{/L} -> 3"
+"1 catch 1up 360",1,14,"360 spin",,5,
 "10 catches 2 clubs in one hand triples",2,14,"spin control",,4,
 "100 catches cascade",3,14,"async base pattern",,3,
 "20 catches isolated cascade",3,14,"async base pattern|isolated",,3,
 "3 catches under the leg throws",3,14,"under legs",,3,"3 catches 3{Ul}"
 "6 catches reverse spin singles",3,14,"spin control",,3,"6 catches 3{-1}"
-"cascade -> 1 round 441 -> cascade",3,14,"async siteswap",,4,
 "cascade -> 1 catch flatfront -> cascade",3,14,"flat front",,3,"3 -> 1 catch 3{F} -> 3"
+"cascade -> 1 round 441 -> cascade",3,14,"async siteswap",,4,
 "4 catches sync fountain",4,14,"sync base pattern",,4,
 "1 catch chin balance for 5 seconds",1,15,"special body throws",,1,
 "20 catches full reverse cascade",3,15,"special body throws",,3,
 "6 catches flatfronts",3,15,"flat front",,3,"6 catches 3{F}"
-"cascade -> 1 round 531 -> cascade",3,15,"async siteswap",,5,
-"cascade -> 1 round 55500 -> cascade",3,15,"async siteswap","3 club flash in doubles",5,
 "cascade -> 1 catch overhead -> cascade",3,15,"overheads",,3,"3 -> 1 catch 3{Oh} -> 3"
 "cascade -> 1 catch quad -> cascade",3,15,"spin control",,3,"3 -> 1 catch 3{4} -> 3"
+"cascade -> 1 round 531 -> cascade",3,15,"async siteswap",,5,
+"cascade -> 1 round 55500 -> cascade",3,15,"async siteswap","3 club flash in doubles",5,
 "12 rounds 441",3,16,"async siteswap",,4,
 "20 catches shower",3,16,"async siteswap","siteswap: 51",5,
 "3 catches backcrosses",3,16,"backcrosses",,3,"3 catches 3{B}"
 "4 rounds 51",3,16,"async siteswap",,5,
 "6 catches singles -> 6 catches triples -> 6 catches singles",3,16,"spin control",,3,"6 catches 3{1} -> 6 catches 3{3} -> 6 catches 3{1}"
 "cascade -> 1 catch helicopter -> cascade",3,16,"spin control",,3,
-"cascade -> 1 penguin catch -> cascade",3,16,"special body throws",,3,"3 -> 1 catch 3{/Pe} -> 3"
 "cascade -> 1up 360 -> cascade",3,16,"360 spin",,5,
 "10 catches async fountain",4,16,"async base pattern",,4,
 "12 rounds 423",3,17,"async siteswap",,4,
@@ -122,6 +117,7 @@ name,props_count,difficulty,tags,comment,max_throw,siteswap_x
 "6 catches lazies",3,21,"lazies",,3,"6 catches 3{/L}"
 "6 catches pancakes",3,21,"pancakes",,3,"6 catches 3{Pc}"
 "cascade -> 1 reverse shoulder catch -> cascade",3,21,"reverse shoulders",,3,"3 -> 1 catch 3{/Rs} -> 3"
+"1 catch 1up 720",1,22,"720 spin",,7,
 "10 catches overheads",3,22,"overheads",,3,"10 catches 3{Oh}"
 "10 catches triples",3,22,"spin control",,3,"10 catches 3{3}"
 "2 X (1up 360) in a run",3,22,"360 spin",,5,
@@ -149,11 +145,10 @@ name,props_count,difficulty,tags,comment,max_throw,siteswap_x
 "6 catches doubles backcrosses",3,25,"backcrosses|spin control",,3,"6 catches 3{B2}"
 "async fountain -> 1 round 534 -> async fountain",4,25,"async siteswap",,5,
 "10 catches quads",3,26,"spin control",,3,"10 catches 3{4}"
-"3 X (1up 360) in a run",3,26,"360 spin",,5,
 "3 catches cascade -> 1 round 531, single 5, single 3 -> cascade",3,26,"spin control|async siteswap",,5,"3 catches 3 -> 1 round 5{1}3{1}1 -> 3"
+"3 X (1up 360) in a run",3,26,"360 spin",,5,
 "4 rounds 45123",3,26,"async siteswap",,5,
 "4 rounds 72222",3,26,"async siteswap|spin control","3 clubs triples",7,
-"6 catches as penguins",3,26,"special body throws",,3,"6 catches 3{/Pe}"
 "under the leg throws",3,26,"under legs",,3,
 "async fountain -> 1 round 552 -> async fountain",4,26,"async siteswap",,5,
 "4 rounds 534",4,27,"async siteswap",,5,
@@ -171,8 +166,8 @@ name,props_count,difficulty,tags,comment,max_throw,siteswap_x
 "3 catches cascade -> 1up 180 -> overheads",3,30,"180 spin|overheads",,3,
 "531 -> mills mess",3,30,"async siteswap|special body throws",,5,
 "cascade -> 3up 360 -> cascade",3,30,"360 spin",,3,
-"4 rounds 6451",4,30,"async siteswap",,6,
 "4 catches triples -> 4 catches doubles",4,30,"spin control",,4,"4 catches 4{3} -> 4 catches 4{2}"
+"4 rounds 6451",4,30,"async siteswap",,6,
 "sync fountain -> async fountain",4,30,"sync base pattern|async base pattern","transition: (5x,4)",5,
 "5 catches cascade",5,30,"async base pattern",,5,
 "3 catches backcrosses singles -> flatfronts flats",3,32,"backcrosses|spin control|flats",,3,"3 catches 3{B1} -> 3{F0}"
@@ -210,8 +205,8 @@ name,props_count,difficulty,tags,comment,max_throw,siteswap_x
 "cascade -> 1up 720 -> flats",3,38,"720 spin",,1,
 "1 round 534, flatfront 5",4,38,"spin control|flat front|async siteswap",,5,"1 round 5{F}34"
 "2 rounds 53534",4,38,"async siteswap",,5,
-"4 rounds 56450",4,38,"async siteswap",,6,
 "4 catches async fountain -> 4 catches flats",4,38,"flats",,4,"4 catches 4 -> 4 catches 4{0}"
+"4 rounds 56450",4,38,"async siteswap",,6,
 "6 rounds 741",4,38,"async siteswap","entrance: 5",7,
 "async fountain -> 2up 360 -> async fountain",4,38,"360 spin",,6,
 "10 catches singles",5,38,"spin control",,5,"10 catches 5{1}"
