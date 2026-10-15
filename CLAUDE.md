@@ -111,8 +111,6 @@ No linter or formatter is configured for this repo.
   on a `SIMULATION <id>` route, admin moves + N polling viewers) against
   any base URL; checks final state, CSV log and viewer delay. `--cleanup`
   deletes the test final.
-- `python -m database.seed` - force re-seed of tricks from CSV (see the
-  seeding caveat below).
 - `python -m database.backup` / `python -m database.prune` - DB snapshot
   and URL-mapping retention sweep.
 
@@ -172,36 +170,33 @@ Server-side progress of a final, shown on the existing `/live_event` page.
   limit (`live_final.js` retries queued admin moves on 429). `update.sh`
   does not install nginx config - see the README there.
 
-### Trick data: CSV → SQLite → in-process cache
+### Trick data: hardcoded CSV → in-process cache
+
+Tricks are hardcoded in the repo; they are **not** stored in SQLite (the
+old `tricks` table is dropped by `init_db()`). Crowd-sourced tricks and
+difficulty voting live on the `feature/crowd-contribution` branch.
 
 1. Source of truth: `hardcoded_database/tricks/<prop.value>.csv`, one per
    `Prop` enum value (`balls`, `clubs`, `rings`, `club passing`,
    `balance`). Only `MAIN_PROPS` (balls, clubs, rings) show in the route
-   generator/builder prop selectors.
-2. `database/seed.py` imports each CSV into the SQLite `tricks` table.
-3. `pylib/utils/trick_registry.py` runs the seed step at import time, then
-   loads the table into `ALL_PROPS_TRICKS` / `ALL_PROPS_SETTINGS` /
+   generator/builder prop selectors. Columns:
+   `name,props_count,difficulty,tags,comment,max_throw,siteswap_x`
+   (tags `|`-separated, must be `Tag` values). Keep rows sorted by
+   difficulty, then props count, then name.
+2. `pylib/utils/trick_registry.py` loads the CSVs at import time
+   (`load_tricks_from_csv`, which raises on unknown tags or extra
+   columns) into `ALL_PROPS_TRICKS` / `ALL_PROPS_SETTINGS` /
    `ALL_PROPS_SETTINGS_JSON` (re-exported by `hardcoded_database.tricks`
    for backward compatibility). `PropSettings` (min/max props, etc.) is
-   derived from the tricks, not configured.
-4. `pylib/utils/filter_tricks.py` filters the cache for both the generator
+   derived from the tricks, not configured. CSV edits take effect on the
+   next app restart.
+3. `pylib/utils/filter_tricks.py` filters the cache for both the generator
    and `/api/fetch_tricks`.
-
-**Seeding caveat**: the automatic seed only runs for a prop whose table
-has zero rows. Edits to a CSV do **not** reach an existing database
-(including the persistent `sqlite_data` volume in production) on restart.
-`python -m database.seed` (force) only inserts rows that are new under
-`UNIQUE(prop_type, props_count, name, siteswap_x)`: changed difficulty or
-tags on an existing trick are not updated, and a renamed trick leaves its
-old row behind. SQLite treats NULLs as distinct in UNIQUE constraints, so
-a force re-seed can also duplicate tricks with an empty `name` or
-`siteswap_x`. A clean rebuild of the `tricks` table is the reliable way
-to apply CSV edits.
 
 ### Database (`database/db_manager.py`)
 
 SQLite in WAL mode with `busy_timeout` (multi-worker gunicorn). Tables:
-`tricks`, `url_mappings` (shortener, expires after
+`url_mappings` (shortener, expires after
 `URL_RETENTION_MONTHS` of inactivity), `meta` (bookkeeping), and the live
 final tables `finals`, `final_competitors`, `final_events` (kept, never
 pruned). The

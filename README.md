@@ -338,7 +338,7 @@ jugglefit_website/
 ├── blueprints/
 │   └── api.py                  #   public JSON API + URL shortener
 ├── pylib/                      # Core application modules (classes, route generator, config)
-├── database/                   # SQLite manager, seed, backup, prune (tricks + url_mappings + meta)
+├── database/                   # SQLite manager, backup, prune (url_mappings + live finals + meta)
 ├── hardcoded_database/         # Static data (tricks CSVs, events, team)
 ├── static/                     # CSS, JavaScript, images
 ├── templates/                  # Jinja2 HTML templates

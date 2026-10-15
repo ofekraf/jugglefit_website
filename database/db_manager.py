@@ -20,9 +20,11 @@ log = logging.getLogger(__name__)
 # This app has no login/accounts, crowd-sourced trick submission, or
 # crowd-rating games system — see CLAUDE.md / the ``feature/crowd-contribution``
 # git branch for that (larger) schema, preserved for future reactivation.
-# The running app only needs: the URL shortener, and the master `tricks`
-# table used by route generation/building.
+# The running app only needs: the URL shortener, live finals and meta.
+# Master tricks are hardcoded in hardcoded_database/tricks/*.csv (not in
+# SQLite); the legacy `tricks` table is dropped from existing databases.
 SCHEMA_STATEMENTS: List[str] = [
+    "DROP TABLE IF EXISTS tricks",
     """
     CREATE TABLE IF NOT EXISTS url_mappings (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -32,31 +34,6 @@ SCHEMA_STATEMENTS: List[str] = [
         last_accessed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
     """,
-    # --- master tricks (replaces CSV as source of truth) ----------------
-    """
-    CREATE TABLE IF NOT EXISTS tricks (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        prop_type TEXT NOT NULL,
-        props_count INTEGER NOT NULL,
-        name TEXT,
-        siteswap_x TEXT,
-        difficulty INTEGER NOT NULL,
-        tags TEXT NOT NULL DEFAULT '',
-        max_throw INTEGER,
-        comment TEXT,
-        source TEXT NOT NULL DEFAULT 'seed',
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        promoted_at TIMESTAMP,
-        UNIQUE(prop_type, props_count, name, siteswap_x)
-    )
-    """,
-    "CREATE INDEX IF NOT EXISTS idx_tricks_prop ON tricks(prop_type)",
-    "CREATE INDEX IF NOT EXISTS idx_tricks_prop_pc_diff "
-    "ON tricks(prop_type, props_count, difficulty)",
-    "CREATE INDEX IF NOT EXISTS idx_tricks_name_lc "
-    "ON tricks(prop_type, props_count, name COLLATE NOCASE)",
-    "CREATE INDEX IF NOT EXISTS idx_tricks_ss_lc "
-    "ON tricks(prop_type, props_count, siteswap_x COLLATE NOCASE)",
     # --- live finals (see blueprints/finals.py) --------------------------
     # Times are UTC epoch milliseconds. final_events is append-only: it is
     # the timing log exported as CSV, so take-backs stay visible.
@@ -98,7 +75,7 @@ SCHEMA_STATEMENTS: List[str] = [
     )
     """,
     "CREATE INDEX IF NOT EXISTS idx_final_events_final ON final_events(final_id)",
-    # --- generic key/value bookkeeping (seed/backup/prune timestamps) ---
+    # --- generic key/value bookkeeping (backup/prune timestamps) ---
     """
     CREATE TABLE IF NOT EXISTS meta (
         key TEXT PRIMARY KEY,
@@ -199,56 +176,6 @@ class DBManager:
                 "ON CONFLICT(key) DO UPDATE SET value = excluded.value",
                 (key, value),
             )
-
-    # ------------------------------------------------------------------
-    # tricks (master)
-    # ------------------------------------------------------------------
-    def count_tricks(self, prop_type: Optional[str] = None) -> int:
-        with self.cursor() as cur:
-            if prop_type is None:
-                cur.execute("SELECT COUNT(*) AS c FROM tricks")
-            else:
-                cur.execute("SELECT COUNT(*) AS c FROM tricks WHERE prop_type = ?", (prop_type,))
-            return cur.fetchone()["c"]
-
-    def get_tricks(self, prop_type: str) -> List[Dict[str, Any]]:
-        with self.cursor() as cur:
-            cur.execute(
-                "SELECT id, name, props_count, difficulty, tags, comment, max_throw, siteswap_x "
-                "FROM tricks WHERE prop_type = ? ORDER BY props_count, difficulty",
-                (prop_type,),
-            )
-            return [dict(r) for r in cur.fetchall()]
-
-    def insert_trick(
-        self,
-        *,
-        prop_type: str,
-        props_count: int,
-        name: Optional[str],
-        siteswap_x: Optional[str],
-        difficulty: int,
-        tags: str,
-        max_throw: Optional[int],
-        comment: Optional[str],
-        source: str = "seed",
-    ) -> Optional[int]:
-        """Insert a master trick. Returns row id, or None on UNIQUE conflict."""
-        with self.cursor(commit=True) as cur:
-            try:
-                cur.execute(
-                    """
-                    INSERT INTO tricks
-                        (prop_type, props_count, name, siteswap_x, difficulty,
-                         tags, max_throw, comment, source, promoted_at)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-                    """,
-                    (prop_type, props_count, name, siteswap_x, difficulty,
-                     tags, max_throw, comment, source),
-                )
-                return cur.lastrowid
-            except sqlite3.IntegrityError:
-                return None
 
     # ------------------------------------------------------------------
     # url shortener
