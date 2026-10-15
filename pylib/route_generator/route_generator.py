@@ -41,10 +41,10 @@ class RouteGenerator:
                 f"Not enough tricks found matching the criteria. Found {len(relevant_tricks)} tricks, but need {route_length}."
             )
 
-        # Select random sample and sort by difficulty
+        # Random sample, ordered easiest -> hardest (props count only breaks ties)
         selected_tricks = sorted(
             relevant_tricks[:route_length],
-            key=lambda t: (t.props_count, t.difficulty)
+            key=lambda t: (t.difficulty, t.props_count)
         )
 
         return Route(

@@ -125,8 +125,9 @@ No linter or formatter is configured for this repo.
 - `blueprints/api.py` defines two blueprints: `api_bp` (`/api` prefix:
   `POST /api/fetch_tricks`, `POST /api/shorten_url`) and `shortener_bp`
   (top-level `GET /shortener/<code>`).
-- `/generate_route` (POST) calls `RouteGenerator.generate(...)`, then
-  redirects to `/created_route?route=<serialized>`. All route state lives
+- `/generate_route` (POST) calls `RouteGenerator.generate(...)` (random
+  tricks, ordered easiest -> hardest by difficulty, props count breaks
+  ties), then redirects to `/created_route?route=<serialized>`. All route state lives
   in the URL - routes are never stored server-side, except as the long
   URL behind a short code.
 - `/build_route` is client-side: the page fetches tricks from
