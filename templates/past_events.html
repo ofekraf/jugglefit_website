@@ -24,7 +24,7 @@
             <li><strong>Location: </strong>{{ event.location }}</li>
             <li><strong>Routes & Winners:</strong>
                 <div class="event-image-container">
-                    <img src="{{ event.image_url }}" alt="{{ event.name }} winners" class="event-winners-image">
+                    <img src="{{ event.image_url }}" alt="{{ event.name }} winners" class="event-winners-image" loading="lazy" decoding="async">
                 </div>
                 <ul>
                     {% for result in event.results %}

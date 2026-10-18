@@ -121,7 +121,7 @@
                     <div class="event-content">
                         <h3>{{ event.name }}</h3>
                         {% if event.image_url %}
-                        <img src="{{ event.image_url }}" alt="{{ event.name }}" class="event-image">
+                        <img src="{{ event.image_url }}" alt="{{ event.name }}" class="event-image" loading="lazy" decoding="async">
                         {% endif %}
                         <div class="event-details">
                             <p><i class="far fa-calendar-alt"></i> {{ event.date.strftime('%d/%m/%Y') }}</p>

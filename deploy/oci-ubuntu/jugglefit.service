@@ -5,14 +5,19 @@ Requires=docker.service
 StartLimitIntervalSec=0
 
 [Service]
-Type=notify
-Restart=always
+# oneshot + `up -d`: compose starts the containers and exits; Docker's own
+# `restart: unless-stopped` keeps them alive. (Type=notify never received a
+# READY signal from compose, so systemd timed out and restart-looped, and a
+# foreground compose process stayed resident for nothing.)
+Type=oneshot
+RemainAfterExit=yes
+Restart=on-failure
 RestartSec=5
 User=jugglefit
 Group=jugglefit
 WorkingDirectory=/opt/jugglefit
-ExecStart=/usr/bin/docker-compose -f docker-compose.prod.yml up
-ExecStop=/usr/bin/docker-compose -f docker-compose.prod.yml down
+ExecStart=/usr/bin/docker compose -f docker-compose.prod.yml up -d
+ExecStop=/usr/bin/docker compose -f docker-compose.prod.yml down
 TimeoutStartSec=300
 TimeoutStopSec=30
 

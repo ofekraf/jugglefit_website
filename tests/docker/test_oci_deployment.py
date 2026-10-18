@@ -48,26 +48,56 @@ class TestOCIUbuntuDeploymentScripts:
         assert 'Restart=' in content, "Service should have restart policy"
     
     def test_nginx_configuration_exists(self, oci_deployment_path):
-        """Test that Nginx configuration exists."""
-        nginx_config = oci_deployment_path / "nginx.conf"
-        assert nginx_config.exists(), "Nginx configuration should exist"
-    
+        """Test that Nginx configuration files exist."""
+        nginx_dir = oci_deployment_path / "nginx"
+        for name in ["http.conf", "app.conf", "site-http.conf", "site-https.conf"]:
+            assert (nginx_dir / name).exists(), f"nginx/{name} should exist"
+
     def test_nginx_configuration_valid(self, oci_deployment_path):
         """Test that Nginx configuration is valid."""
-        nginx_config = oci_deployment_path / "nginx.conf"
-        content = nginx_config.read_text()
-        
-        # Should have server block
-        assert 'server {' in content, "Should have server block"
-        
+        nginx_dir = oci_deployment_path / "nginx"
+        app = (nginx_dir / "app.conf").read_text()
+
         # Should proxy to application
-        assert 'proxy_pass' in content, "Should proxy to application"
-        assert '5001' in content, "Should proxy to port 5001"
-        
+        assert 'proxy_pass' in app, "Should proxy to application"
+        assert '5001' in app, "Should proxy to port 5001"
+
         # Should have basic security headers
-        security_headers = ['X-Content-Type-Options', 'X-Frame-Options']
-        has_security = any(header in content for header in security_headers)
-        assert has_security, "Should include basic security headers"
+        assert 'X-Content-Type-Options' in app and 'X-Frame-Options' in app
+
+        # Both site templates are server blocks that include the shared snippet
+        for site in ["site-http.conf", "site-https.conf"]:
+            content = (nginx_dir / site).read_text()
+            assert 'server {' in content
+            assert 'include snippets/jugglefit-app.conf;' in content
+            assert '__SERVER_NAME__' in content
+
+    def test_nginx_http_context_only_in_http_conf(self, oci_deployment_path):
+        """Zones/maps must be declared once (http context), not per server."""
+        nginx_dir = oci_deployment_path / "nginx"
+        http = (nginx_dir / "http.conf").read_text()
+        assert 'limit_req_zone' in http and 'proxy_cache_path' in http
+        assert '$jugglefit_static_cache_control' in http
+        for name in ["app.conf", "site-http.conf", "site-https.conf"]:
+            content = (nginx_dir / name).read_text()
+            assert 'limit_req_zone' not in content
+            assert 'proxy_cache_path' not in content
+
+    def test_nginx_https_template_uses_cert_placeholder(self, oci_deployment_path):
+        content = (oci_deployment_path / "nginx" / "site-https.conf").read_text()
+        assert 'listen 443 ssl' in content
+        assert '/etc/letsencrypt/live/__CERT_NAME__/fullchain.pem' in content
+        assert 'return 301 https://' in content
+
+    def test_host_config_installer_wired_in(self, oci_deployment_path):
+        installer = oci_deployment_path / "install-host-config.sh"
+        assert installer.exists()
+        content = installer.read_text()
+        assert 'nginx -t' in content, "Installer must validate nginx config"
+        assert 'jugglefit.service' in content
+        for script in ["update.sh", "deploy.sh", "setup-ssl.sh"]:
+            assert 'install-host-config.sh' in (oci_deployment_path / script).read_text(), \
+                f"{script} should run install-host-config.sh"
     
     def test_ssl_certificate_setup_script_exists(self, oci_deployment_path):
         """Test that SSL certificate setup script exists."""
@@ -184,14 +214,15 @@ class TestOCIProductionConfiguration:
         assert has_security, "Should have systemd security settings"
     
     def test_nginx_ssl_configuration(self, oci_deployment_path):
-        """SSL is provisioned by setup-ssl.sh via certbot --nginx, which
-        injects the 443 server block into nginx.conf. The base nginx.conf
-        must NOT ship a 443 block (or `nginx -t` fails pre-cert)."""
+        """SSL is provisioned by setup-ssl.sh via `certbot certonly --nginx`
+        (certificate only). The 443 block comes from nginx/site-https.conf,
+        which install-host-config.sh only uses once the cert exists."""
         ssl_script = oci_deployment_path / "setup-ssl.sh"
         assert ssl_script.exists(), "setup-ssl.sh should exist"
         content = ssl_script.read_text()
         assert "certbot" in content, "setup-ssl.sh should invoke certbot"
-        assert "--nginx" in content, "certbot should manage nginx SSL config"
+        assert "--nginx" in content, "certbot should use the nginx authenticator"
+        assert "certonly" in content, "certbot must not rewrite the repo-managed nginx config"
     
     def test_backup_script_exists(self, oci_deployment_path):
         """Test that backup script exists."""

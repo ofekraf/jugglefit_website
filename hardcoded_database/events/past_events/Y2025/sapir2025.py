@@ -9,7 +9,7 @@ Sapir2025 = PastEvent(
     name="Sapir Con 2025",
     date=date(2025, 1, 17),
     location="Sapir, Israel", 
-    image_url="/static/images/sapir_2025_winners.png",
+    image_url="/static/images/sapir_2025_winners.jpg",
     results=[
         RouteResult(
             route=Route(

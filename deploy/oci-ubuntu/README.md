@@ -19,7 +19,32 @@ Before starting the deployment, ensure you have:
 - **Memory**: Minimum 2GB, recommended 4GB
 - **CPU**: 1 vCPU minimum, 2 vCPU recommended  
 - **Disk**: Minimum 10GB available disk space
-- **Network**: Open ports 80, 443, and 5001
+- **Network**: Open ports 80 and 443. Port 5001 (gunicorn) is bound to
+  127.0.0.1 only and must NOT be opened; nginx is the public entry point.
+
+## Routine deploys (TL;DR)
+
+Everything host-level lives in the repo, so a deploy is one command:
+
+```bash
+sudo bash /opt/jugglefit/deploy/oci-ubuntu/update.sh
+```
+
+It snapshots the DB, pulls, rebuilds the container, waits for `/health`, then
+runs `install-host-config.sh`, which installs from the repo:
+
+| Repo file | Installed to |
+|---|---|
+| `nginx/http.conf` | `/etc/nginx/conf.d/jugglefit.conf` (rate-limit zones, cache, maps) |
+| `nginx/app.conf` | `/etc/nginx/snippets/jugglefit-app.conf` (locations, gzip, headers) |
+| `nginx/site-http.conf` / `nginx/site-https.conf` | `/etc/nginx/sites-available/jugglefit` |
+| `jugglefit.service` | `/etc/systemd/system/jugglefit.service` |
+
+The HTTPS template is used automatically once
+`/etc/letsencrypt/live/<first domain>/` exists. Domains come from `DOMAINS=`
+in `/opt/jugglefit/.env` (set by `setup-ssl.sh`). If `nginx -t` rejects the
+new config, the previous one is restored. **Don't edit these files on the
+host**; the next deploy overwrites them.
 
 ## Installation
 
@@ -100,48 +125,26 @@ docker-compose -f docker-compose.prod.yml ps
 
 ### 3. Nginx Configuration
 
-The provided `nginx.conf` file configures Nginx as a reverse proxy:
+Installed automatically by `install-host-config.sh` (see the table above).
+To apply nginx/systemd changes without a full deploy:
 
 ```bash
-# Copy Nginx configuration
-sudo cp nginx.conf /etc/nginx/sites-available/jugglefit
-sudo ln -s /etc/nginx/sites-available/jugglefit /etc/nginx/sites-enabled/
-
-# Remove default site
-sudo rm /etc/nginx/sites-enabled/default
-
-# Test and reload Nginx
-sudo nginx -t
-sudo systemctl reload nginx
+sudo bash /opt/jugglefit/deploy/oci-ubuntu/install-host-config.sh
 ```
 
-### 4. Live finals and venue load (existing hosts)
+### 4. Live finals and venue load
 
-`nginx.conf` is sized for ~150 phones on one venue Wi-Fi (they all share one
-public IP): per-IP limits for pages, static files, the cached live state and
-the organizer password; `/static/` served from `/opt/jugglefit/static/` by
-nginx; 429 instead of 503 when a limit is hit.
+`nginx/http.conf` + `nginx/app.conf` are sized for ~150 phones on one venue
+Wi-Fi (they all share one public IP): per-IP limits for pages, static files,
+the cached live state and the organizer password; `/static/` served from
+`/opt/jugglefit/static/` by nginx; 429 instead of 503 when a limit is hit.
+HTTP/2 is on in the HTTPS template.
 
-`update.sh` does not copy `nginx.conf`, and certbot edits the copy on the host.
-On a host set up before these changes, merge them into
-`/etc/nginx/sites-available/jugglefit` by hand:
+One host-level setting outside the repo: **`worker_connections`** in
+`/etc/nginx/nginx.conf` (`events {}`). Raise the Ubuntu default of 768 to
+`4096` if you expect large venue crowds.
 
-- the zone lines at the top of the file (`limit_req_zone`, `limit_conn_zone`,
-  `limit_req_status`, `limit_conn_status`, `proxy_cache_path`)
-- in **each** `server` block that proxies to the app (also the 443 block
-  certbot added): the `limit_conn` / `limit_req` defaults, and the
-  `location /static/`, `location ~ ^/api/finals/[^/]+/state$` and
-  `location = /api/finals` blocks
-
-Two host-level settings outside this file:
-
-- **HTTP/2** in the 443 block: `listen 443 ssl http2;` (nginx < 1.25) or
-  `http2 on;` (nginx >= 1.25). A phone then uses 1 connection instead of ~6.
-- **`worker_connections`** in `/etc/nginx/nginx.conf` (`events {}`): raise the
-  Ubuntu default of 768 to `4096`. Keep-alive connections from 150 phones can
-  exceed 768.
-
-Then `sudo nginx -t && sudo systemctl reload nginx`, and check:
+To verify after a deploy:
 
 - `curl -sI https://<domain>/static/css/base/base.css` returns 200 (nginx can
   read `/opt/jugglefit/static/`)
@@ -159,28 +162,25 @@ Point your domain to your server's public IP address before configuring SSL.
 # Make SSL setup script executable
 chmod +x setup-ssl.sh
 
-# Run SSL setup (replace with your domain)
-sudo ./setup-ssl.sh yourdomain.com
+# Run SSL setup (replace with your domain(s); first one names the cert)
+sudo ./setup-ssl.sh yourdomain.com www.yourdomain.com
 ```
 
 The SSL setup script will:
-- Install Certbot
-- Obtain Let's Encrypt certificate
-- Configure automatic renewal
-- Update Nginx configuration
+- Write `DOMAINS=` to `/opt/jugglefit/.env`
+- Obtain a Let's Encrypt certificate (`certbot certonly --nginx`; certbot does
+  not edit nginx config)
+- Switch nginx to the repo's HTTPS template
+- Install a renewal hook that reloads nginx (renewal itself runs from
+  certbot's systemd timer)
 
-### 3. Manual SSL Setup (Alternative)
+Test renewal with `sudo certbot renew --dry-run`.
 
-```bash
-# Install Certbot
-sudo apt install -y certbot python3-certbot-nginx
-
-# Obtain certificate
-sudo certbot --nginx -d yourdomain.com
-
-# Test automatic renewal
-sudo certbot renew --dry-run
-```
+**Existing host whose cert was created by `certbot --nginx`:** just add
+`DOMAINS=yourdomain.com,www.yourdomain.com` to `.env` and run `update.sh`. The
+existing certificate under `/etc/letsencrypt/live/` is reused. If its directory
+name differs from the first domain, also set `CERT_NAME=` (see
+`sudo certbot certificates`).
 
 ## Firewall Configuration
 
@@ -197,8 +197,7 @@ sudo ufw allow ssh
 sudo ufw allow 80
 sudo ufw allow 443
 
-# Allow application port (if direct access needed)
-sudo ufw allow 5001
+# Do NOT open 5001: gunicorn listens on 127.0.0.1:5001 only, behind nginx.
 
 # Check firewall status
 sudo ufw status
@@ -210,22 +209,16 @@ In your OCI console, ensure these ports are open in your security group:
 - Port 22 (SSH)
 - Port 80 (HTTP)
 - Port 443 (HTTPS)
-- Port 5001 (Application, if needed)
+- Close port 5001 if it was opened earlier (no longer needed)
 
 ## Systemd Service
 
-The included `jugglefit.service` file provides systemd integration:
+`jugglefit.service` is installed by `install-host-config.sh`. It is a
+oneshot unit that runs `docker compose up -d` at boot; Docker's
+`restart: unless-stopped` keeps the container running.
 
 ```bash
-# Copy service file
-sudo cp jugglefit.service /etc/systemd/system/
-
-# Enable and start service
-sudo systemctl enable jugglefit
-sudo systemctl start jugglefit
-
-# Check service status
-sudo systemctl status jugglefit
+sudo systemctl status jugglefit   # should be "active (exited)"
 ```
 
 ## Monitoring and Maintenance
@@ -327,12 +320,7 @@ sudo systemctl stop apache2  # if Apache is installed
 ### Updating the Application
 
 ```bash
-# Pull latest changes
-git pull origin main
-
-# Rebuild and restart containers
-docker-compose -f docker-compose.prod.yml down
-docker-compose -f docker-compose.prod.yml up -d --build
+sudo bash /opt/jugglefit/deploy/oci-ubuntu/update.sh
 ```
 
 ### System Updates

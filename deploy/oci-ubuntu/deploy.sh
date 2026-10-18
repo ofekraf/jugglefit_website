@@ -15,9 +15,6 @@ NC='\033[0m' # No Color
 APP_NAME="jugglefit"
 APP_USER="jugglefit"
 APP_DIR="/opt/jugglefit"
-NGINX_AVAILABLE="/etc/nginx/sites-available"
-NGINX_ENABLED="/etc/nginx/sites-enabled"
-SERVICE_FILE="/etc/systemd/system/jugglefit.service"
 
 echo -e "${GREEN}Starting JuggleFit deployment on OCI Ubuntu...${NC}"
 
@@ -66,7 +63,7 @@ apt update && apt upgrade -y
 echo -e "${YELLOW}Installing required packages...${NC}"
 apt install -y \
     docker.io \
-    docker-compose \
+    docker-compose-v2 \
     nginx \
     ufw \
     curl \
@@ -100,7 +97,8 @@ if [ -d ".git" ]; then
     git pull origin main
 else
     echo -e "${YELLOW}Cloning application code...${NC}"
-    git clone https://github.com/ofekraf/jugglefit_website.git .
+    # Shallow: the full history (old large images) isn't needed on the VM.
+    git clone --depth 1 https://github.com/ofekraf/jugglefit_website.git .
 fi
 
 # Copy environment file if it doesn't exist
@@ -119,27 +117,13 @@ ufw allow ssh
 ufw allow 80/tcp
 ufw allow 443/tcp
 
-# Copy and enable systemd service
-echo -e "${YELLOW}Setting up systemd service...${NC}"
-cp $APP_DIR/deploy/oci-ubuntu/jugglefit.service $SERVICE_FILE
-systemctl daemon-reload
-systemctl enable jugglefit
+# nginx serves /static straight from the checkout as www-data.
+chmod -R a+rX $APP_DIR/static
 
-# Copy Nginx configuration
-echo -e "${YELLOW}Setting up Nginx...${NC}"
-cp $APP_DIR/deploy/oci-ubuntu/nginx.conf $NGINX_AVAILABLE/jugglefit
-ln -sf $NGINX_AVAILABLE/jugglefit $NGINX_ENABLED/jugglefit
-
-# Remove default Nginx site
-rm -f $NGINX_ENABLED/default
-
-# Test Nginx configuration
-nginx -t
-
-# Start services
-echo -e "${YELLOW}Starting services...${NC}"
+# systemd unit + nginx config, both from the repo (also starts the app)
+echo -e "${YELLOW}Installing systemd + Nginx config...${NC}"
+bash $APP_DIR/deploy/oci-ubuntu/install-host-config.sh
 systemctl start jugglefit
-systemctl restart nginx
 
 # Enable log rotation
 echo -e "${YELLOW}Setting up log rotation...${NC}"
@@ -165,7 +149,7 @@ bash $APP_DIR/deploy/oci-ubuntu/setup.sh
 
 echo -e "${GREEN}Deployment completed successfully!${NC}"
 echo -e "${YELLOW}Next steps:${NC}"
-echo "1. SSL: sudo $APP_DIR/deploy/oci-ubuntu/setup-ssl.sh yourdomain.com"
+echo "1. SSL: sudo $APP_DIR/deploy/oci-ubuntu/setup-ssl.sh yourdomain.com [www.yourdomain.com]"
 echo "2. Status: systemctl status jugglefit"
 echo "3. Logs:   journalctl -u jugglefit -f"
 echo "4. Health: curl http://localhost/health"

@@ -4,7 +4,8 @@
 #
 #   sudo bash /opt/jugglefit/deploy/oci-ubuntu/update.sh
 #
-# Flow: snapshot DB → git pull → build+recreate → wait for /health.
+# Flow: snapshot DB → git pull → build+recreate → wait for /health
+#       → install host config (nginx, systemd) from the repo.
 
 set -euo pipefail
 
@@ -34,6 +35,8 @@ say "git pull (was $PREV)"
 git pull --ff-only origin main
 NOW=$(git rev-parse --short HEAD)
 [ "$PREV" = "$NOW" ] && warn "no new commits — rebuilding anyway"
+# nginx serves /static straight from this checkout as www-data.
+chmod -R a+rX "$APP_DIR/static"
 
 # 3. Build + recreate (picks up code AND any .env changes)
 say "Building and recreating containers"
@@ -46,6 +49,8 @@ for i in $(seq 1 30); do
         say "Healthy. Updated $PREV → $NOW"
         # Reclaim old image layers from this build.
         docker image prune -f >/dev/null
+        # 5. nginx + systemd from the repo (rolls back nginx if invalid).
+        bash "$APP_DIR/deploy/oci-ubuntu/install-host-config.sh"
         exit 0
     fi
     sleep 2

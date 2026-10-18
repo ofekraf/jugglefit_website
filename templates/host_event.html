@@ -76,7 +76,7 @@
                     {% for member in team %}
                     <div class="carousel-item">
                         <div class="carousel-item-image">
-                            <img src="{{ member.image_url }}" alt="{{ member.name }}">
+                            <img src="{{ member.image_url }}" alt="{{ member.name }}" loading="lazy" decoding="async">
                         </div>
                         <div class="carousel-item-content">
                             <h3>{{ member.name }}</h3>

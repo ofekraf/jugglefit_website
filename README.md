@@ -65,7 +65,7 @@ docker-compose -f docker-compose.prod.yml up --build -d
    ```bash
    python3 -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
-   pip install -r requirements.txt
+   pip install -r requirements-dev.txt
    ```
 
 2. **Configure Environment**
@@ -100,7 +100,7 @@ docker-compose -f docker-compose.prod.yml up --build -d
    source venv/bin/activate
    
    # Install dependencies
-   pip install -r requirements.txt
+   pip install -r requirements-dev.txt
    ```
 
 2. **Environment Configuration**
@@ -170,9 +170,8 @@ sudo ./deploy/oci-ubuntu/setup-ssl.sh yourdomain.com
 3. **Set Up Reverse Proxy** (Nginx recommended)
    ```bash
    # Copy configuration
-   sudo cp deploy/oci-ubuntu/nginx.conf /etc/nginx/sites-available/jugglefit
-   sudo ln -s /etc/nginx/sites-available/jugglefit /etc/nginx/sites-enabled/
-   sudo systemctl reload nginx
+   # Installs nginx/ templates + systemd unit from the repo (expects /opt/jugglefit)
+   sudo bash deploy/oci-ubuntu/install-host-config.sh
    ```
 
 ## Docker Usage
@@ -209,7 +208,7 @@ docker-compose exec web bash                # Access container shell
 
 ```bash
 # Install test dependencies
-pip install -r requirements.txt
+pip install -r requirements-dev.txt
 
 # Run all tests
 pytest

@@ -11,12 +11,8 @@ ENV FLASK_APP=app.py
 # Set working directory
 WORKDIR /app
 
-# Install system dependencies including curl for health checks
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install Python dependencies first (changes least frequently)
+# Install Python dependencies first (changes least frequently).
+# Runtime deps only; test tooling lives in requirements-dev.txt.
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
@@ -33,9 +29,9 @@ USER appuser
 # Expose Flask port
 EXPOSE 5001
 
-# Container-level health check (also declared in docker-compose.prod.yml)
-HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-    CMD curl -f http://localhost:5001/health || exit 1
+# Container-level health check (stdlib only, so no curl/apt layer needed)
+HEALTHCHECK --interval=60s --timeout=10s --start-period=40s --retries=3 \
+    CMD python -c "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:5001/health', timeout=5).status == 200 else 1)" || exit 1
 
 # Production entrypoint. Dev override lives in docker-compose.yml.
 CMD ["gunicorn", "--bind", "0.0.0.0:5001", \

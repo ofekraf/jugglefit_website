@@ -9,8 +9,11 @@ services:
 
   web:
     build: .
+    # Loopback only: nginx is the public entry point. Docker bypasses UFW, so
+    # "5001:5001" would expose gunicorn directly, skipping nginx rate limits
+    # and the live-final microcache.
     ports:
-      - "5001:5001"
+      - "127.0.0.1:5001:5001"
     environment:
       - FLASK_ENV=production
       - FLASK_APP=app.py
@@ -38,12 +41,7 @@ services:
     depends_on:
       init-permissions:
         condition: service_completed_successfully
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5001/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    # Healthcheck is defined once, in the Dockerfile.
     volumes:
       - sqlite_data:/app/database_data
 

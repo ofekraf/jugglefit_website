@@ -1,65 +1,50 @@
 #!/bin/bash
+#
+# Obtain a Let's Encrypt certificate and switch nginx to HTTPS.
+#
+#   sudo bash setup-ssl.sh jugglefit.org [www.jugglefit.org ...]
+#
+# certbot only issues the certificate (`certonly --nginx`). It does not edit
+# nginx config: the HTTPS server block comes from nginx/site-https.conf in
+# the repo, installed by install-host-config.sh. Renewal is handled by the
+# certbot systemd timer, with a hook that reloads nginx.
 
-# SSL Setup Script for JuggleFit Website
-# Usage: ./setup-ssl.sh yourdomain.com
+set -euo pipefail
 
-set -e
+RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; NC='\033[0m'
 
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
+APP_DIR="${APP_DIR:-/opt/jugglefit}"
+ENV_FILE="$APP_DIR/.env"
 
-# Check if domain is provided
-if [ -z "$1" ]; then
-    echo -e "${RED}Usage: $0 <domain>${NC}"
-    echo "Example: $0 jugglefit.com"
+if [ $# -lt 1 ]; then
+    echo -e "${RED}Usage: $0 <domain> [more domains...]${NC}"
+    echo "Example: $0 jugglefit.org www.jugglefit.org"
     exit 1
 fi
+[[ $EUID -eq 0 ]] || { echo -e "${RED}Run as root (sudo)${NC}"; exit 1; }
 
-DOMAIN="$1"
-NGINX_CONFIG="/etc/nginx/sites-available/jugglefit"
+DOMAINS_CSV="$(IFS=,; echo "$*")"
+CERT_NAME="$1"
+EMAIL="${CERTBOT_EMAIL:-admin@$1}"
 
-# Check if running as root
-if [[ $EUID -ne 0 ]]; then
-   echo -e "${RED}This script must be run as root (use sudo)${NC}"
-   exit 1
-fi
+echo -e "${GREEN}Setting up SSL for: $*${NC}"
 
-echo -e "${GREEN}Setting up SSL for domain: $DOMAIN${NC}"
+# 1. Record domains in .env so install-host-config.sh renders them.
+touch "$ENV_FILE"
+sed -i '/^DOMAINS=/d' "$ENV_FILE"
+echo "DOMAINS=$DOMAINS_CSV" >> "$ENV_FILE"
 
-# Update Nginx configuration with actual domain
-echo -e "${YELLOW}Updating Nginx configuration...${NC}"
-sed -i "s/server_name _;/server_name $DOMAIN;/g" $NGINX_CONFIG
-sed -i "s/DOMAIN/$DOMAIN/g" $NGINX_CONFIG
+# 2. HTTP site with the right server_name, so the ACME challenge can be served.
+bash "$APP_DIR/deploy/oci-ubuntu/install-host-config.sh"
 
-# Test Nginx configuration
-nginx -t
+# 3. Certificate only.
+D_ARGS=(); for d in "$@"; do D_ARGS+=(-d "$d"); done
+certbot certonly --nginx --cert-name "$CERT_NAME" "${D_ARGS[@]}" \
+    --non-interactive --agree-tos --email "$EMAIL" --keep-until-expiring
 
-# Reload Nginx
-systemctl reload nginx
+# 4. Now the cert exists -> HTTPS site.
+bash "$APP_DIR/deploy/oci-ubuntu/install-host-config.sh"
 
-# Obtain SSL certificate
-echo -e "${YELLOW}Obtaining SSL certificate...${NC}"
-certbot --nginx -d $DOMAIN --non-interactive --agree-tos --email admin@$DOMAIN
-
-# Set up automatic renewal
-echo -e "${YELLOW}Setting up automatic certificate renewal...${NC}"
-(crontab -l 2>/dev/null; echo "0 12 * * * /usr/bin/certbot renew --quiet") | crontab -
-
-# Test SSL configuration
-echo -e "${YELLOW}Testing SSL configuration...${NC}"
-nginx -t
-systemctl reload nginx
-
-# Verify SSL certificate
-echo -e "${YELLOW}Verifying SSL certificate...${NC}"
-openssl s_client -connect $DOMAIN:443 -servername $DOMAIN < /dev/null 2>/dev/null | openssl x509 -noout -dates
-
-echo -e "${GREEN}SSL setup completed successfully!${NC}"
-echo -e "${YELLOW}Your site is now available at:${NC}"
-echo "HTTP:  http://$DOMAIN"
-echo "HTTPS: https://$DOMAIN"
-echo ""
-echo -e "${YELLOW}SSL certificate will auto-renew via cron job.${NC}"
+echo -e "${YELLOW}Certificate:${NC}"
+openssl x509 -noout -dates -in "/etc/letsencrypt/live/$CERT_NAME/fullchain.pem"
+echo -e "${GREEN}Done. https://$1${NC}"

@@ -58,7 +58,7 @@ Some code comments still mention it (e.g. `suggest_trick` in the
 
 ```bash
 python3 -m venv venv && source venv/bin/activate
-pip install -r requirements.txt
+pip install -r requirements-dev.txt
 cp .env.example .env          # check PORT in .env - it overrides the default 5001
 
 python app.py                 # dev server, 0.0.0.0:$PORT, debug unless FLASK_ENV=production
@@ -177,11 +177,12 @@ Server-side progress of a final, shown on the existing `/live_event` page.
   phone queues moves while offline). `is_test` finals (simulation) are
   the only ones that can be deleted.
 - Viewers poll every 3-4 s. In production, nginx caches the state
-  endpoint for 1 s. `deploy/oci-ubuntu/nginx.conf` sizes per-IP limits
+  endpoint for 1 s. `deploy/oci-ubuntu/nginx/` sizes per-IP limits
   for ~150 phones behind one venue Wi-Fi IP, serves `/static/` from
   `/opt/jugglefit/static/` on disk (not gunicorn), and returns 429 on a
   limit (`live_final.js` retries queued admin moves on 429). `update.sh`
-  does not install nginx config - see the README there.
+  installs the nginx config and systemd unit from the repo
+  (`install-host-config.sh`) - never edit them on the host.
 
 ### Trick data: hardcoded CSV → in-process cache
 
@@ -316,7 +317,10 @@ JavaScript at runtime (progress-bar widths, display toggles) are fine.
 - There is no CI/CD. GitHub Actions was removed (commit `6e51ffe`).
   Deploy is manual: `sudo bash /opt/jugglefit/deploy/oci-ubuntu/update.sh`
   on the host (DB snapshot → `git pull --ff-only origin main` → rebuild
-  → wait for `/health`). It prints a rollback command on failure.
+  → wait for `/health` → `install-host-config.sh` installs nginx config +
+  systemd unit from `deploy/oci-ubuntu/`). It prints a rollback command
+  on failure. gunicorn is bound to 127.0.0.1:5001; nginx is the only
+  public entry point.
 - Backups: `deploy/oci-ubuntu/backup.sh` runs nightly via cron
   (`database.backup` then `database.prune`, rclone for off-box copies).
 
