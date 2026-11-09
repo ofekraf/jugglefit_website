@@ -5,8 +5,8 @@ from pylib.classes.route import Route
 from pylib.classes.trick import Trick
 
 MunichCon2026 = PastEvent(
-    name="Muenchen Con XXL 2026",
-    date=date(2026, 11, 4),
+    name="Muenchen Con 2026",
+    date=date(2026, 11, 6),
     location="Munich, Germany",
     image_url="/static/images/munich_2026_competitors.jpg",
     results=[
