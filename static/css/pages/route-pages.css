@@ -118,6 +118,19 @@
     text-align: center;
 }
 
+/* Device-specific buttons, decided by the main input device so a narrow desktop
+   window still counts as PC:
+   - touch-only: Run Route (swipe UI) - phones and tablets
+   - hide-on-phone: running a live event - PCs and tablets
+   A phone is a touch device with either side <= 600px (covers landscape too);
+   iPads are wider and taller than that, so they get both buttons. */
+@media (pointer: coarse) and (max-width: 600px), (pointer: coarse) and (max-height: 600px) {
+    .route-buttons .hide-on-phone { display: none !important; }
+}
+@media not all and (pointer: coarse) {   /* "not all and" form: older Safari */
+    .route-buttons .touch-only { display: none !important; }
+}
+
 /* Force route display to stay left-aligned */
 .route-page,
 html body .route-page,

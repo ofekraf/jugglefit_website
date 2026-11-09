@@ -55,6 +55,14 @@ def test_created_route_has_organizer_dialog(client, route_payload):
     assert 'id="organizer-count"' in html
 
 
+def test_created_route_device_specific_buttons(client, route_payload):
+    # Run Route (swipe UI) is for touch devices; running a live event is not for
+    # phones. Tablets get both (route-pages.css).
+    html = client.get("/created_route", query_string={"route": route_payload}).get_data(as_text=True)
+    assert 'id="run-route-link" href="#" class="primary-button touch-only"' in html
+    assert 'live-event-button hide-on-phone" data-organizer-open' in html
+
+
 def test_organizer_dialog_resumes_when_final_is_live(client, route_payload, admin_final):
     html = client.get("/created_route", query_string={"route": route_payload}).get_data(as_text=True)
     assert "A final is live for this route" in html
