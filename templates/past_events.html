@@ -23,9 +23,11 @@
             <li><strong>Date: </strong>{{ event.date.strftime('%d/%m/%Y') }}</li>
             <li><strong>Location: </strong>{{ event.location }}</li>
             <li><strong>Routes & Winners:</strong>
+                {% if event.image_url %}
                 <div class="event-image-container">
                     <img src="{{ event.image_url }}" alt="{{ event.name }} winners" class="event-winners-image" loading="lazy" decoding="async">
                 </div>
+                {% endif %}
                 <ul>
                     {% for result in event.results %}
                     {% set route_id = event_id ~ "-route-" ~ loop.index %}
@@ -35,8 +37,8 @@
                                 <strong>{{ result.route.name }}</strong> - Winner: {{ result.competitors[1].name }}
                                 {% if result.competitors[1].seconds %}
                                     ({{ "%02d"|format(result.competitors[1].seconds // 60) }}:{{ "%02d"|format(result.competitors[1].seconds % 60) }})
-                                {% else %}
-                                    ({{ result.competitors[1].tricks_accomplished }}/10 tricks)
+                                {% elif result.competitors[1].tricks_accomplished is not none %}
+                                    ({{ result.competitors[1].tricks_accomplished }}/{{ result.tricks|length }} tricks)
                                 {% endif %}
                             </div>
                             <button class="primary-button" onclick="toggle_object('{{ route_id }}')">Show Route</button>

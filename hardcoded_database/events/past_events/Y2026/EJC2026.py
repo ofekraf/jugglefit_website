@@ -29,7 +29,7 @@ EJC2026 = PastEvent(
                 ]
             ),
             competitors={
-                1: CompetitorResult(name="Kevin Niitttyviita", seconds=403),
+                1: CompetitorResult(name="Kevin Niittyviita", seconds=403),
                 2: CompetitorResult(name="Komiken", seconds=439),
                 3: CompetitorResult(name="Luca Pferdmenges", seconds=568),
             }
@@ -53,7 +53,7 @@ EJC2026 = PastEvent(
                 ]
             ),
             competitors={
-                1: CompetitorResult(name="Kevin Niitttyviita", tricks_accomplished=9),
+                1: CompetitorResult(name="Kevin Niittyviita", tricks_accomplished=9),
                 2: CompetitorResult(name="Luca Pferdmenges", tricks_accomplished=7),
                 3: CompetitorResult(name="Matt Walmsley", tricks_accomplished=5),
             }
@@ -77,7 +77,7 @@ EJC2026 = PastEvent(
                 ]
             ),
             competitors={
-                1: CompetitorResult(name="Kevin Niitttyviita", seconds=287),
+                1: CompetitorResult(name="Kevin Niittyviita", seconds=287),
             }
         ),
         RouteResult(
@@ -100,7 +100,7 @@ EJC2026 = PastEvent(
             ),
             competitors={
                 1: CompetitorResult(name="Komiken", seconds=186),
-                2: CompetitorResult(name="Kevin Niitttyviita", seconds=235),
+                2: CompetitorResult(name="Kevin Niittyviita", seconds=235),
                 3: CompetitorResult(name="Nino", tricks_accomplished=9),
             }
         ),

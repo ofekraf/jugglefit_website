@@ -55,7 +55,7 @@ EJC2025 = PastEvent(
             competitors={
                 1: CompetitorResult(name="Spencer Androli", seconds=416),
                 2: CompetitorResult(name="Florian Lange", tricks_accomplished=3),
-                3: CompetitorResult(name="Kevin Niitttyviita", tricks_accomplished=2)
+                3: CompetitorResult(name="Kevin Niittyviita", tricks_accomplished=2)
             }
         ),
         RouteResult(
@@ -78,7 +78,7 @@ EJC2025 = PastEvent(
             ),
             competitors={
                 1: CompetitorResult(name="Spencer Androli", seconds=239),
-                2: CompetitorResult(name="Kevin Niitttyviita", seconds=300),
+                2: CompetitorResult(name="Kevin Niittyviita", seconds=300),
                 3: CompetitorResult(name="Itamar Hai", seconds=575)
             }
         ),
@@ -101,7 +101,7 @@ EJC2025 = PastEvent(
                 ]
             ),
             competitors={
-                1: CompetitorResult(name="Kevin Niitttyviita", seconds=229),
+                1: CompetitorResult(name="Kevin Niittyviita", seconds=229),
                 2: CompetitorResult(name="Mikael Elias Eide", tricks_accomplished=5),
                 3: CompetitorResult(name="Eshel Halachmi", tricks_accomplished=5),
             }

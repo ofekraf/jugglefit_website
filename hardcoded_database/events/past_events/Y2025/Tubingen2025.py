@@ -30,7 +30,7 @@ Tubingen2025 = PastEvent(
                 ]
             ),
             competitors={
-                1: CompetitorResult(name="Kevin Niitttyviita", tricks_accomplished=8),
+                1: CompetitorResult(name="Kevin Niittyviita", tricks_accomplished=8),
                 2: CompetitorResult(name="Florian Lange", tricks_accomplished=8),
                 3: CompetitorResult(name="Julian Kloos", tricks_accomplished=8)
             }
@@ -54,7 +54,7 @@ Tubingen2025 = PastEvent(
                 ]
             ),
             competitors={
-                1: CompetitorResult(name="Kevin Niitttyviita", tricks_accomplished=9),
+                1: CompetitorResult(name="Kevin Niittyviita", tricks_accomplished=9),
                 2: CompetitorResult(name="Julian Kloos", tricks_accomplished=9),
                 3: CompetitorResult(name="Florian Lange", tricks_accomplished=8)
             }

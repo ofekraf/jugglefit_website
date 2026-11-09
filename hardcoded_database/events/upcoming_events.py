@@ -4,16 +4,6 @@ from datetime import date
 # Keep ordered by date
 UPCOMING_EVENTS = [
     UpcomingEvent(
-        name="Muenchen Con XXL 2026",
-        date=date(2026, 11, 4),
-        location="Munich, Germany",
-        url="https://muenchen-con.de/",
-        routes=[
-            "Balls - Open",
-            "Clubs - Open",
-        ]
-    ),
-    UpcomingEvent(
         name="IJC 2027",
         date=date(2027, 4, 23),
         location="Israel",

@@ -227,6 +227,11 @@ own module under `past_events/Y<year>/`, built from `PastEvent`,
 listed in `past_events/__init__.py` (`FRONT_PAGE_PAST_EVENTS` or
 `NON_FRONT_PAGE_PAST_EVENTS`).
 
+Past event results are always the **finals** only. Never add
+qualification routes or qualification results to the website, even if
+the event's route list includes them; list only the final routes with
+their podium.
+
 ### Security
 
 - CSRF: session-token guard in `app._csrf_protect` for all
