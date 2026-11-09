@@ -99,8 +99,8 @@ SCHEMA_STATEMENTS: List[str] = [
     "ON trick_feedback(prop, props_count, trick_name)",
     # --- feature requests / bug reports (see blueprints/feature_requests.py)
     # status 'new' = waiting for review (never public), 'hidden' = rejected
-    # or spam. contact_email, user_agent and submitter_id are private: they
-    # are never sent to the public page.
+    # or spam. contact (email or phone), page, user_agent and submitter_id
+    # are private: they are never sent to the public page.
     """
     CREATE TABLE IF NOT EXISTS feature_requests (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -109,7 +109,7 @@ SCHEMA_STATEMENTS: List[str] = [
         title TEXT NOT NULL,
         body TEXT NOT NULL DEFAULT '',
         page TEXT,
-        contact_email TEXT,
+        contact TEXT,
         user_agent TEXT,
         submitter_id TEXT NOT NULL,
         status TEXT NOT NULL DEFAULT 'new' CHECK (status IN
@@ -206,6 +206,10 @@ class DBManager:
             cur = conn.cursor()
             for stmt in SCHEMA_STATEMENTS:
                 cur.execute(stmt)
+            # feature_requests.contact_email became contact (email or phone)
+            cols = {row[1] for row in cur.execute("PRAGMA table_info(feature_requests)")}
+            if "contact_email" in cols and "contact" not in cols:
+                cur.execute("ALTER TABLE feature_requests RENAME COLUMN contact_email TO contact")
             conn.commit()
         except Error as e:
             log.error("Error initializing database: %s", e)
@@ -293,15 +297,15 @@ class DBManager:
     PUBLIC_FEATURE_STATUSES = ("open", "planned", "in_progress", "done")
 
     def create_feature_request(self, *, category: str, title: str, body: str,
-                               page: Optional[str], contact_email: Optional[str],
+                               page: Optional[str], contact: Optional[str],
                                user_agent: Optional[str], submitter_id: str,
                                now_ms: int) -> int:
         with self.cursor(commit=True) as cur:
             cur.execute(
-                "INSERT INTO feature_requests (category, title, body, page, contact_email, "
+                "INSERT INTO feature_requests (category, title, body, page, contact, "
                 "user_agent, submitter_id, created_at, updated_at) "
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                (category, title, body, page, contact_email, user_agent,
+                (category, title, body, page, contact, user_agent,
                  submitter_id, now_ms, now_ms),
             )
             return cur.lastrowid
@@ -316,7 +320,7 @@ class DBManager:
 
     def get_public_feature_requests(self) -> List[Dict[str, Any]]:
         """Approved requests with vote counts. Public columns only - never
-        add contact_email / user_agent / submitter_id here."""
+        add contact / page / user_agent / submitter_id here."""
         placeholders = ",".join("?" * len(self.PUBLIC_FEATURE_STATUSES))
         with self.cursor() as cur:
             cur.execute(

@@ -22,24 +22,21 @@
             </fieldset>
 
             <label class="form-label" for="fr-title">Title</label>
-            <input id="fr-title" name="title" class="form-input" maxlength="{{ max_title }}" required
-                   placeholder="Short summary">
+            <input id="fr-title" name="title" class="form-input" maxlength="{{ max_title }}" required>
 
             <label class="form-label mt-1" for="fr-body">Details <span class="fr-optional">(optional)</span></label>
-            <textarea id="fr-body" name="body" class="form-input fr-textarea" maxlength="{{ max_body }}" rows="5"
-                      placeholder="What should happen? Why would it help?"></textarea>
+            <textarea id="fr-body" name="body" class="form-input fr-textarea" maxlength="{{ max_body }}" rows="5"></textarea>
 
             <div class="fr-bug-only hidden">
-                <label class="form-label mt-1" for="fr-page">Which page? <span class="fr-optional">(optional)</span></label>
-                <input id="fr-page" name="page" class="form-input" maxlength="200" value="{{ prefill_page }}"
-                       placeholder="e.g. /created_route">
-                <p class="fr-hint">For bugs we also save your browser/phone type, to help reproduce the problem.</p>
+                <label class="form-label mt-1" for="fr-page">Page link <span class="fr-optional">(optional)</span></label>
+                <input id="fr-page" name="page" type="url" class="form-input" maxlength="{{ max_page }}"
+                       value="{{ prefill_page }}" inputmode="url" autocomplete="off">
+                <p class="fr-hint">Paste the link of the page with the problem. We also save your browser/phone type, to help reproduce it.</p>
             </div>
 
-            <label class="form-label mt-1" for="fr-email">Email <span class="fr-optional">(optional)</span></label>
-            <input id="fr-email" name="email" type="email" class="form-input" maxlength="254" autocomplete="email"
-                   inputmode="email" placeholder="So we can ask questions or tell you when it's done">
-            <p class="fr-hint">Never shown publicly.</p>
+            <label class="form-label mt-1" for="fr-contact">Contact <span class="fr-optional">(optional)</span></label>
+            <input id="fr-contact" name="contact" class="form-input" maxlength="{{ max_contact }}" autocomplete="email">
+            <p class="fr-hint">Email or phone number, so we can ask questions or tell you when it's done. Never shown publicly.</p>
 
             {# Honeypot: hidden from people, bots fill it in #}
             <div class="fr-hp" aria-hidden="true">
@@ -70,9 +67,10 @@
                 {% if key in votable %}
                 <button type="button" class="fr-vote{% if item.id in my_votes %} active{% endif %}"
                         data-id="{{ item.id }}" aria-pressed="{{ 'true' if item.id in my_votes else 'false' }}"
-                        aria-label="Vote for this">
-                    <i class="fas fa-chevron-up" aria-hidden="true"></i>
-                    <span class="fr-vote-count">{{ item.votes }}</span>
+                        title="Upvote if you want this too - tap again to undo">
+                    <i class="fas fa-thumbs-up" aria-hidden="true"></i>
+                    <span class="fr-vote-label">{{ 'Upvoted' if item.id in my_votes else 'Upvote' }}</span>
+                    <span class="fr-vote-count" aria-label="votes">{{ item.votes }}</span>
                 </button>
                 {% endif %}
                 <div class="fr-item-main">

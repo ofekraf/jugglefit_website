@@ -47,8 +47,8 @@
         <input name="title" class="form-input" value="{{ item.title }}" maxlength="120" aria-label="Title">
         <textarea name="body" class="form-input fr-textarea mt-1" rows="3" maxlength="2000" aria-label="Details">{{ item.body }}</textarea>
         <dl class="fr-private">
-            {% if item.contact_email %}<dt>Email</dt><dd><a href="mailto:{{ item.contact_email }}">{{ item.contact_email }}</a></dd>{% endif %}
-            {% if item.page %}<dt>Page</dt><dd>{{ item.page }}</dd>{% endif %}
+            {% if item.contact %}<dt>Contact</dt><dd><a href="{{ 'mailto:' if is_email(item.contact) else 'tel:' }}{{ item.contact | replace(' ', '') }}">{{ item.contact }}</a></dd>{% endif %}
+            {% if item.page %}<dt>Page link</dt><dd class="fr-link">{% if is_safe_link(item.page) %}<a href="{{ item.page }}" target="_blank" rel="noopener noreferrer">{{ item.page }}</a>{% else %}{{ item.page }}{% endif %}</dd>{% endif %}
             {% if item.user_agent %}<dt>Browser</dt><dd>{{ item.user_agent }}</dd>{% endif %}
         </dl>
         <div class="fr-admin-actions">

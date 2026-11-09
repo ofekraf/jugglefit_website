@@ -8,7 +8,7 @@ admin off, 404). Approved requests are listed publicly by category; feature
 and live-event ideas can be upvoted (one vote per browser), bugs show only
 their status.
 
-Private data - ``contact_email``, ``user_agent`` (bugs only) and
+Private data - ``contact`` (email or phone), ``page`` and ``user_agent`` (bugs only) and
 ``submitter_id`` - is stored for the admin and never sent to the public
 page (``db_manager.get_public_feature_requests`` selects public columns only).
 """
@@ -50,12 +50,14 @@ ADMIN_STATUSES = tuple(STATUS_LABELS)
 
 MAX_TITLE = 120
 MAX_BODY = 2000
-MAX_PAGE = 200
-MAX_EMAIL = 254
+MAX_PAGE = 2000   # full page link, incl. ?route=... payloads (~1 KB)
+MAX_CONTACT = 254
 MAX_USER_AGENT = 300
 MAX_PER_DAY = 5
 _DAY_MS = 24 * 60 * 60 * 1000
 _EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+# Phone: digits with optional +, spaces, dashes, dots, parentheses; 7-15 digits.
+_PHONE_RE = re.compile(r"^\+?[\d\s().-]+$")
 _ADMIN_KEY = "feature_admin"
 
 
@@ -76,8 +78,9 @@ def status_label(category: str, status: str) -> str:
     return labels.get(status, status)
 
 
-def _same_origin_path(url: str | None) -> str:
-    """Path of a same-site referrer, to prefill 'which page' for bugs."""
+def _same_origin_link(url: str | None) -> str:
+    """Full link (path + query) of a same-site referrer, to prefill the bug
+    'Page link'. The query matters: ?route=... is what reproduces the bug."""
     if not url:
         return ""
     parsed = urlparse(url)
@@ -85,7 +88,25 @@ def _same_origin_path(url: str | None) -> str:
         return ""
     if parsed.path.startswith("/feature_requests"):
         return ""
-    return parsed.path[:MAX_PAGE]
+    link = request.host_url.rstrip("/") + parsed.path + (f"?{parsed.query}" if parsed.query else "")
+    return link[:MAX_PAGE]
+
+
+def valid_contact(value: str) -> bool:
+    """An email address or a phone number."""
+    if _EMAIL_RE.match(value):
+        return True
+    digits = sum(ch.isdigit() for ch in value)
+    return bool(_PHONE_RE.match(value)) and 7 <= digits <= 15
+
+
+def is_safe_link(value: str | None) -> bool:
+    """Only http(s) and site-relative links become clickable on the admin page."""
+    if not value:
+        return False
+    if value.startswith("/") and not value.startswith("//"):
+        return True
+    return urlparse(value).scheme in ("http", "https")
 
 
 def _clean(value, limit: int) -> str:
@@ -113,8 +134,8 @@ def feature_requests_page():
         votable=VOTABLE_CATEGORIES,
         my_votes=set(my_votes),
         status_label=status_label,
-        prefill_page=_same_origin_path(request.referrer),
-        max_title=MAX_TITLE, max_body=MAX_BODY,
+        prefill_page=_same_origin_link(request.referrer),
+        max_title=MAX_TITLE, max_body=MAX_BODY, max_page=MAX_PAGE, max_contact=MAX_CONTACT,
     )
 
 
@@ -133,9 +154,9 @@ def submit_feature_request():
         return jsonify({"error": "Please add a short title"}), 400
     if len(title) > MAX_TITLE or len(body) > MAX_BODY:
         return jsonify({"error": "Text is too long"}), 400
-    email = _clean(data.get("email"), MAX_EMAIL + 1)
-    if email and (len(email) > MAX_EMAIL or not _EMAIL_RE.match(email)):
-        return jsonify({"error": "That email address doesn't look right"}), 400
+    contact = _clean(data.get("contact"), MAX_CONTACT + 1)
+    if contact and (len(contact) > MAX_CONTACT or not valid_contact(contact)):
+        return jsonify({"error": "Please enter an email address or a phone number"}), 400
 
     is_bug = category == "website_bug"
     page = _clean(data.get("page"), MAX_PAGE) if is_bug else ""
@@ -148,7 +169,7 @@ def submit_feature_request():
             return jsonify({"error": "Thanks! You've sent a lot today - please try again tomorrow."}), 429
         request_id = db_manager.create_feature_request(
             category=category, title=title, body=body, page=page or None,
-            contact_email=email or None, user_agent=user_agent or None,
+            contact=contact or None, user_agent=user_agent or None,
             submitter_id=submitter, now_ms=now,
         )
     except Exception as e:
@@ -172,6 +193,14 @@ def vote_feature_request(request_id: int):
 # ---------------------------------------------------------------------------
 # admin (review, approve, change status)
 # ---------------------------------------------------------------------------
+@feature_requests_bp.route("/admin")
+def admin_shortcut():
+    """Hidden short address for the admin page (not linked anywhere)."""
+    if not _admin_password():
+        abort(404)
+    return redirect(url_for("feature_requests.admin"))
+
+
 @feature_requests_bp.route("/feature_requests/admin", methods=["GET", "POST"])
 def admin():
     password = _admin_password()
@@ -193,7 +222,8 @@ def admin():
         "feature_requests_admin.html", logged_in=True,
         items=db_manager.get_all_feature_requests(category, status),
         categories=CATEGORIES, statuses=ADMIN_STATUSES, status_label=status_label,
-        filter_category=category, filter_status=status,
+        filter_category=category, filter_status=status, is_safe_link=is_safe_link,
+        is_email=lambda v: bool(_EMAIL_RE.match(v or "")),
     )
 
 

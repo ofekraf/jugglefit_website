@@ -1,7 +1,7 @@
 """
 Print feature requests / bug reports from /feature_requests, for review.
 
-Includes private fields (email, page, browser). Approve or change status on
+Includes private fields (contact, page link, browser). Approve or change status on
 /feature_requests/admin; this script only reads.
 
 Usage:
@@ -24,7 +24,7 @@ from blueprints.feature_requests import CATEGORIES, STATUS_LABELS  # noqa: E402
 from database.db_manager import db_manager  # noqa: E402
 
 COLUMNS = ["id", "category", "status", "votes", "title", "body", "page",
-           "contact_email", "user_agent", "created"]
+           "contact", "user_agent", "created"]
 
 
 def main() -> None:
@@ -48,8 +48,8 @@ def main() -> None:
         print(f"\n== {label} ({len(group)}) ==")
         for r in group:
             votes = "" if cat == "website_bug" else f"{r['votes']:>3}v "
-            email = f"  <{r['contact_email']}>" if r["contact_email"] else ""
-            print(f"#{r['id']:<4} {r['status']:<11} {votes}{r['created']}  {r['title']}{email}")
+            contact = f"  <{r['contact']}>" if r["contact"] else ""
+            print(f"#{r['id']:<4} {r['status']:<11} {votes}{r['created']}  {r['title']}{contact}")
 
     if args.csv:
         with open(args.csv, "w", newline="", encoding="utf-8") as f:

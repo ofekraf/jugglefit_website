@@ -27,7 +27,7 @@
             category: selectedCategory(),
             title: (fd.get('title') || '').trim(),
             body: (fd.get('body') || '').trim(),
-            email: (fd.get('email') || '').trim(),
+            contact: (fd.get('contact') || '').trim(),
             page: selectedCategory() === 'website_bug' ? (fd.get('page') || '').trim() : '',
             website: fd.get('website') || '',
         };
@@ -74,12 +74,16 @@
     }));
 
     // Upvotes (click again = remove)
+    function setVoted(btn, voted) {
+        btn.classList.toggle('active', voted);
+        btn.setAttribute('aria-pressed', voted ? 'true' : 'false');
+        btn.querySelector('.fr-vote-label').textContent = voted ? 'Upvoted' : 'Upvote';
+    }
     document.querySelectorAll('.fr-vote').forEach(btn => btn.addEventListener('click', async () => {
         const voted = !btn.classList.contains('active');
         const countEl = btn.querySelector('.fr-vote-count');
         const before = Number(countEl.textContent);
-        btn.classList.toggle('active', voted);
-        btn.setAttribute('aria-pressed', voted ? 'true' : 'false');
+        setVoted(btn, voted);
         countEl.textContent = before + (voted ? 1 : -1);
         btn.disabled = true;
         try {
@@ -92,8 +96,7 @@
             const data = await res.json();
             countEl.textContent = data.votes;
         } catch (e) {
-            btn.classList.toggle('active', !voted);
-            btn.setAttribute('aria-pressed', !voted ? 'true' : 'false');
+            setVoted(btn, !voted);
             countEl.textContent = before;
             toast('Could not save your vote. Please try again.');
         } finally {

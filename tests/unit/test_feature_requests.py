@@ -16,7 +16,7 @@ def clean_requests():
 
 def _submit(client, **overrides):
     body = {"category": "website_feature", "title": "Dark mode", "body": "Please",
-            "email": "me@example.com"}
+            "contact": "me@example.com"}
     body.update(overrides)
     return client.post("/api/feature_requests", json=body, headers={"X-CSRF-Token": get_csrf(client)})
 
@@ -62,18 +62,19 @@ def test_new_request_is_not_public_until_approved(client):
 
 
 def test_private_fields_never_public(client):
-    rid = _submit(client, category="website_bug", title="Timer broken", email="private@example.com",
-                  page="/created_route").get_json()["id"]
+    link = "https://jugglefit.com/created_route?route=eJzFlM9u4yAQ"
+    rid = _submit(client, category="website_bug", title="Timer broken", contact="private@example.com",
+                  page=link).get_json()["id"]
     _set_status(rid, "open")
     item = db_manager.get_feature_request(rid)
-    assert item["contact_email"] == "private@example.com"
-    assert item["page"] == "/created_route" and item["user_agent"]
+    assert item["contact"] == "private@example.com"
+    assert item["page"] == link and item["user_agent"]
 
     html = client.get("/feature_requests").get_data(as_text=True)
     assert "Timer broken" in html and "Reported" in html
-    assert "private@example.com" not in html
+    assert "private@example.com" not in html and link not in html
     for row in db_manager.get_public_feature_requests():
-        assert not {"contact_email", "user_agent", "submitter_id", "page"} & set(row)
+        assert not {"contact", "user_agent", "submitter_id", "page"} & set(row)
 
 
 def test_page_and_user_agent_only_saved_for_bugs(client):
@@ -84,15 +85,55 @@ def test_page_and_user_agent_only_saved_for_bugs(client):
 
 @pytest.mark.parametrize("overrides", [
     {"category": "other"}, {"title": "x"}, {"title": "t" * 121}, {"body": "b" * 2001},
-    {"email": "not-an-email"}, {"title": 123},
+    {"contact": "not-an-email"}, {"contact": "12345"}, {"contact": "+1 555 abc 1234"},
+    {"contact": "1" * 16}, {"title": 123},
 ])
 def test_validation(client, overrides):
     assert _submit(client, **overrides).status_code == 400
     assert db_manager.get_all_feature_requests() == []
 
 
-def test_email_is_optional(client):
-    assert _submit(client, email="").status_code == 201
+@pytest.mark.parametrize("contact", ["", "me@example.com", "+972 54-123-4567", "(555) 123.4567",
+                                     "0541234567"])
+def test_contact_is_optional_email_or_phone(client, contact):
+    res = _submit(client, contact=contact)
+    assert res.status_code == 201
+    assert db_manager.get_feature_request(res.get_json()["id"])["contact"] == (contact or None)
+
+
+def test_bug_page_link_prefilled_from_referrer(client):
+    ref = "http://localhost/created_route?route=abc%2Bdef"
+    html = client.get("/feature_requests", headers={"Referer": ref}).get_data(as_text=True)
+    assert 'value="http://localhost/created_route?route=abc%2Bdef"' in html
+    # Other sites are not prefilled
+    html = client.get("/feature_requests", headers={"Referer": "https://evil.example/x"}).get_data(as_text=True)
+    assert "evil.example" not in html
+
+
+def test_form_has_no_placeholder_text(client):
+    html = client.get("/feature_requests").get_data(as_text=True)
+    form = html[html.index('id="fr-form"'):html.index("</form>")]
+    assert "placeholder=" not in form
+
+
+def test_old_contact_email_column_is_migrated(tmp_path, monkeypatch):
+    import sqlite3
+    from database.db_manager import DBManager
+    db_file = tmp_path / "old.db"
+    conn = sqlite3.connect(db_file)
+    conn.execute("CREATE TABLE feature_requests (id INTEGER PRIMARY KEY, category TEXT, title TEXT, "
+                 "body TEXT, page TEXT, contact_email TEXT, user_agent TEXT, submitter_id TEXT, "
+                 "status TEXT, created_at INTEGER, updated_at INTEGER)")
+    conn.execute("INSERT INTO feature_requests (category, title, contact_email, status) "
+                 "VALUES ('website_bug', 'Old', 'old@example.com', 'new')")
+    conn.commit()
+    conn.close()
+    monkeypatch.setenv("SQLITE_DB_DIR", str(tmp_path))
+    monkeypatch.setenv("SQLITE_DB_NAME", "old.db")
+    DBManager().init_db()
+    conn = sqlite3.connect(db_file)
+    assert conn.execute("SELECT contact FROM feature_requests").fetchone()[0] == "old@example.com"
+    conn.close()
 
 
 def test_honeypot_is_silently_dropped(client):
@@ -122,6 +163,16 @@ def test_vote_toggle_one_per_browser(client):
     assert _vote(client, rid, voted=False).get_json()["votes"] == 1
 
 
+def test_upvote_button_is_labelled(client):
+    rid = _submit(client).get_json()["id"]
+    _set_status(rid, "open")
+    html = client.get("/feature_requests").get_data(as_text=True)
+    assert '<span class="fr-vote-label">Upvote</span>' in html
+    _vote(client, rid)
+    html = client.get("/feature_requests").get_data(as_text=True)
+    assert '<span class="fr-vote-label">Upvoted</span>' in html
+
+
 def test_bugs_cannot_be_voted(client):
     rid = _submit(client, category="website_bug").get_json()["id"]
     _set_status(rid, "open")
@@ -131,6 +182,15 @@ def test_bugs_cannot_be_voted(client):
 def test_admin_off_without_password(client, monkeypatch):
     monkeypatch.delenv("ADMIN_PASSWORD", raising=False)
     assert client.get("/feature_requests/admin").status_code == 404
+    assert client.get("/admin").status_code == 404
+
+
+def test_admin_is_hidden_but_reachable_at_slash_admin(client, admin_password):
+    res = client.get("/admin")
+    assert res.status_code == 302 and res.location.endswith("/feature_requests/admin")
+    for page in ("/", "/feature_requests"):
+        assert "/admin" not in client.get(page).get_data(as_text=True)  # never linked
+    assert 'name="robots" content="noindex"' in client.get("/feature_requests/admin").get_data(as_text=True)
 
 
 def test_admin_requires_login(client, admin_password):
@@ -144,9 +204,13 @@ def test_admin_requires_login(client, admin_password):
 
 
 def test_admin_sees_private_info_and_approves(client, admin_client):
-    rid = _submit(client, category="website_bug", title="Bug X", email="me@example.com").get_json()["id"]
+    rid = _submit(client, category="website_bug", title="Bug X", contact="+972 54-123-4567",
+                  page="https://jugglefit.com/run_route?route=x").get_json()["id"]
+    _submit(client, category="website_bug", title="Bug Y", page="javascript:alert(1)")
     html = admin_client.get("/feature_requests/admin").get_data(as_text=True)
-    assert "Bug X" in html and "me@example.com" in html
+    assert "Bug X" in html and 'href="tel:+97254-123-4567"' in html
+    assert 'href="https://jugglefit.com/run_route?route=x"' in html
+    assert 'href="javascript:' not in html  # unsafe links are shown as text only
 
     res = admin_client.post(f"/feature_requests/admin/{rid}",
                             data={"status": "done", "title": "Bug X (fixed)", "body": "",

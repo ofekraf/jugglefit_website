@@ -152,10 +152,12 @@ No linter or formatter is configured for this repo.
   bug / Live event idea. `POST /api/feature_requests` (CSRF, honeypot
   field `website`, max 5 per browser per day). New items have status
   `new` and are **not public** until approved on `/feature_requests/admin`
-  (`ADMIN_PASSWORD`; unset = 404). Public statuses: open / planned /
+  (hidden short address `/admin`; never link it in the navbar or pages;
+  `ADMIN_PASSWORD`; unset = 404). Public statuses: open / planned /
   in_progress / done (`hidden` = rejected). Features and live-event ideas
-  get one upvote per browser; bugs show status only. `contact_email`,
-  `page` and `user_agent` (bugs only) are private: never select them in
+  get one upvote per browser; bugs show status only. `contact` (email or
+  phone), `page` (full page link, prefilled from the referrer) and
+  `user_agent` (bugs only) are private: never select them in
   `get_public_feature_requests`. Report: `scripts/feature_request_report.py`.
 
 ### Live finals (`/live_event`)
