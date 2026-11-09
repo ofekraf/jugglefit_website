@@ -23,6 +23,22 @@ def test_route_pages_redirect_on_bad_route(client, path):
     assert res.location.startswith("/build_route")
 
 
+@pytest.mark.parametrize("path", ROUTE_PAGES)
+def test_route_pages_accept_plus_mangled_to_space(client, real_route, path):
+    # Messengers / QR scanners often leave '+' unescaped; query parsing turns it into ' '.
+    payload = real_route.serialize()
+    if "+" not in payload:
+        pytest.skip("payload has no '+'")
+    res = client.get(f"{path}?route={payload}")  # raw, not url-encoded
+    assert res.status_code == 200
+
+
+def test_build_route_renders_difficulty_bounds(client):
+    html = client.get("/build_route").get_data(as_text=True)
+    assert "window.MIN_TRICK_DIFFICULTY = 0;" in html
+    assert "window.MAX_TRICK_DIFFICULTY = 100;" in html
+
+
 def test_live_event_without_final_keeps_local_tracker(client, route_payload):
     html = client.get("/live_event", query_string={"route": route_payload}).get_data(as_text=True)
     assert 'id="competitorListContainer"' in html

@@ -83,7 +83,27 @@
 @media (max-width: 768px) {
 .main-content {
         padding-top: 80px;
+        padding-left: 1rem;
+        padding-right: 1rem;
     }
+
+.section {
+        padding: 2rem 0.5rem;
+    }
+
+.section-card {
+        margin-top: 2rem;
+        padding: 1.25rem 0.75rem;
+    }
+
+.subsection-title {
+        font-size: 1.5rem;
+    }
+}
+
+/* Never let one wide element give the whole page a sideways scroll */
+html, body {
+    overflow-x: clip;
 }
 
 @media (max-width: 600px) {

@@ -40,7 +40,9 @@ from pylib.classes.prop import MAIN_PROPS, Prop
 from pylib.classes.route import Route
 from pylib.classes.siteswap_x_modifiers import CatchModifier, ThrowModifier
 from pylib.classes.tag import TAG_CATEGORY_MAP_JSON, Tag, TagCategory
-from pylib.configuration.consts import USER_SESSION_DAYS
+from pylib.configuration.consts import (
+    MAX_TRICK_DIFFICULTY, MIN_TRICK_DIFFICULTY, USER_SESSION_DAYS,
+)
 from pylib.route_generator.exceptions import NotEnoughTricksFoundException
 from pylib.route_generator.route_generator import RouteGenerator
 
@@ -284,7 +286,9 @@ def build_route():
                            tag_categories=list(TagCategory),
                            props_settings=ALL_PROPS_SETTINGS_JSON,
                            initial_route=initial_route,
-                           main_props=MAIN_PROPS)
+                           main_props=MAIN_PROPS,
+                           MIN_TRICK_DIFFICULTY=MIN_TRICK_DIFFICULTY,
+                           MAX_TRICK_DIFFICULTY=MAX_TRICK_DIFFICULTY)
 
 
 def _render_route_page(template: str):

@@ -207,32 +207,49 @@
         shareBtn.disabled = true;
 
         const longUrl = window.location.href;
-        
+        // Start the request now, synchronously inside the tap: iOS Safari only
+        // allows clipboard/share calls made during the user gesture.
+        const shortUrlPromise = fetch('/api/shorten_url', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ long_url: longUrl })
+        }).then(r => r.json()).then(d => d.short_url || null).catch(() => null);
+        const isTouch = window.matchMedia('(pointer: coarse)').matches;
+
         try {
-            // Request a short URL from the API
-            const response = await fetch('/api/shorten_url', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ long_url: longUrl })
-            });
-            const data = await response.json();
-            const shortUrl = data.short_url;
-            const urlToShare = shortUrl || longUrl;
-            
-            await navigator.clipboard.writeText(urlToShare);
-            if (shortUrl) {
-                showToast('URL copied to clipboard!');
-            } else {
-                showToast('Long URL copied (Shortener unavailable)');
+            if (isTouch && navigator.share) {
+                // Phones: native share sheet (Messages, WhatsApp, Copy, ...)
+                const shortUrl = await shortUrlPromise;
+                try {
+                    await navigator.share({ title: document.title, url: shortUrl || longUrl });
+                } catch (e) {
+                    if (e.name !== 'AbortError') throw e;
+                }
+                return;
             }
+            if (window.ClipboardItem && navigator.clipboard && navigator.clipboard.write) {
+                // Safari: pass a promise so the write stays tied to the tap
+                let usedShort = false;
+                const item = new ClipboardItem({
+                    'text/plain': shortUrlPromise.then(u => {
+                        usedShort = !!u;
+                        return new Blob([u || longUrl], { type: 'text/plain' });
+                    })
+                });
+                await navigator.clipboard.write([item]);
+                showToast(usedShort ? 'URL copied to clipboard!' : 'Long URL copied (Shortener unavailable)');
+                return;
+            }
+            const shortUrl = await shortUrlPromise;
+            await navigator.clipboard.writeText(shortUrl || longUrl);
+            showToast(shortUrl ? 'URL copied to clipboard!' : 'Long URL copied (Shortener unavailable)');
         } catch (err) {
-            console.error('Failed to copy URL: ', err);
-            // Fallback to long URL if anything goes wrong
+            console.error('Failed to share URL: ', err);
             try {
                 await navigator.clipboard.writeText(longUrl);
                 showToast('Long URL copied (Shortener failed)');
             } catch (clipboardErr) {
-                showToast('Failed to copy URL. Please try again.');
+                window.prompt('Copy this link:', longUrl);
             }
         } finally {
             shareBtn.textContent = originalText;

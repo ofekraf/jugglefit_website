@@ -128,8 +128,8 @@
                 return;
             }
 
-            // Only show on specific pages that display routes
-            const restrictedEndpoints = ['created_route', 'build_route', 'live_event', 'past_events'];
+            // Only on the wide competitor/route grid; other route pages fit portrait phones
+            const restrictedEndpoints = ['live_event'];
             const currentEndpoint = '{{ request.endpoint }}';
 
             if (!restrictedEndpoints.includes(currentEndpoint)) {

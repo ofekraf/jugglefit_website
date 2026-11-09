@@ -65,7 +65,9 @@ class Route:
     def deserialize(cls, serialized: str) -> 'Route':
         try:
             # Decode base64, decompress with zlib, parse JSON, and create Route
-            compressed = b64decode(serialized.encode('utf-8'))
+            # Base64 has no spaces: a space is a '+' that a messenger/QR app
+            # left unescaped in the URL (query parsing turns '+' into ' ').
+            compressed = b64decode(serialized.strip().replace(' ', '+').encode('utf-8'))
             json_str = zlib.decompress(compressed).decode('utf-8')
             data = json.loads(json_str)
             return cls.from_dict(data)

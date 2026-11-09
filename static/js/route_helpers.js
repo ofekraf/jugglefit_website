@@ -860,8 +860,10 @@ export function loadRoute(serializedRoute, callback) {
                 throw new Error('Pako compression library not loaded');
             }
             
-            // Decode from base64
-            const compressedData = atob(serializedRoute);
+            // Decode from base64. Some apps/QR scanners turn an unescaped '+'
+            // into a space and some send URL-safe base64; undo both.
+            const b64 = serializedRoute.trim().replace(/ /g, '+').replace(/-/g, '+').replace(/_/g, '/');
+            const compressedData = atob(b64);
             console.log('Base64 decoded, compressed length:', compressedData.length);
             
             // Convert string to Uint8Array for pako

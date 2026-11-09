@@ -423,7 +423,11 @@
     }
 
 .live-event-layout {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+.live-event-layout > * {
+        min-width: 0;
     }
 
 .podium-section {

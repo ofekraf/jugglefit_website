@@ -24,6 +24,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    touch-action: none; /* header is the drag handle; don't scroll the page */
 }
 
 .header-controls {
@@ -128,11 +129,23 @@
 }
 
 @media (max-width: 768px) and (orientation: portrait) {
-.countdown-timer {
-        top: 80px;
+/* Bottom-right on phones so it never covers the route title / tricks */
+.countdown-timer,
+    .live-timer-section .countdown-timer {
+        top: auto;
+        bottom: calc(12px + env(safe-area-inset-bottom, 0px));
         right: 10px;
         width: 150px;
         font-size: 0.8rem;
+    }
+
+.timer-btn {
+        min-height: 32px;
+    }
+
+.minimize-btn {
+        min-width: 32px;
+        min-height: 28px;
     }
 
 .timer-header {

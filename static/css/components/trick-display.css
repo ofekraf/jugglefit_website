@@ -379,6 +379,63 @@ body .route-content .trick-main .trick-name {
     }
 }
 
+/* Phones: route pages (created/build/generate) must wrap long trick names
+   instead of clipping them (.prop-section has overflow:hidden). The
+   !important matches the lock-down rules above. Live event keeps its own
+   horizontal-scroll layout (not a .route-page). */
+@media (max-width: 768px) {
+.route-page .trick-content {
+        white-space: normal !important;
+        align-items: flex-start !important;
+        min-width: 0;
+    }
+
+.route-page .trick-content > .trick-container {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+.route-page .trick-content .trick-main,
+    .route-page .trick-container .trick-main {
+        display: flex !important;
+        flex-wrap: wrap;
+        align-items: baseline !important;
+        white-space: normal !important;
+        width: 100% !important;
+        min-width: 0;
+    }
+
+.route-page .trick-main .trick-name,
+    .route-page .trick-main .trick-siteswap-x {
+        flex: 1 1 0 !important;
+        min-width: 0 !important;
+        max-width: none !important;
+        white-space: normal !important;
+        overflow-wrap: break-word;
+        overflow: visible !important;
+    }
+
+.route-page .trick-main .trick-comment {
+        flex: 1 1 100% !important;
+        white-space: normal !important;
+        overflow-wrap: break-word;
+        margin-left: 0 !important;
+    }
+
+.route-page .trick-container .trick-number {
+        min-width: 1.4rem !important;
+        margin-right: 0 !important;
+    }
+
+.route-page .trick-checkbox {
+        margin-right: 0.25em !important;
+        flex-shrink: 0;
+        width: 20px;
+        height: 20px;
+        align-self: center;
+    }
+}
+
 @media (max-width: 480px) {
 .trick-content {
         gap: 0.2rem;

@@ -206,6 +206,11 @@ body .main-content .route-page {
         width: 100%;
     }
 
+/* Room under the buttons for the floating timer (bottom-right on phones) */
+.created-route-page ~ .route-actions {
+        padding-bottom: 4rem;
+    }
+
 /* Route buttons: wrap into 2-column grid on mobile */
 
 .route-buttons {
