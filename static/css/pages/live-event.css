@@ -346,6 +346,29 @@
     flex-wrap: nowrap;
 }
 
+/* Long trick names must stay readable: the row heights are matched to the
+   competitor rows on the left, so names can't wrap - they scroll instead
+   and show the full name on hover/long-press (title attribute). */
+.live-event-page .route-content {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.live-event-page .route-content .route-sections {
+    width: max-content !important;
+    min-width: 100%;
+}
+
+.live-event-page .route-content .prop-section {
+    overflow: visible;
+}
+
+.live-event-page .route-content .trick-content {
+    width: max-content;
+    min-width: 100%;
+    padding-right: 1rem;
+}
+
 .live-event-page .route-content .trick-content.no-competitors {
     opacity: 0.4;
 }
@@ -401,9 +424,15 @@
 
 /* ===== Responsive ===== */
 
+/* Route column gets more room than the competitor chips (long trick names) */
+@media (min-width: 769px) {
+.live-event-layout {
+        grid-template-columns: minmax(260px, 2fr) minmax(0, 3fr);
+    }
+}
+
 @media (max-width: 1200px) {
 .live-event-layout {
-        grid-template-columns: 50% 50%;
         gap: 0;
     }
 

@@ -122,6 +122,20 @@
 
 /* ===== Responsive ===== */
 
+/* Touch screens of any width (landscape phones, tablets): finger-sized controls */
+@media (pointer: coarse) {
+.timer-btn {
+        min-height: 36px;
+        padding-left: 8px;
+        padding-right: 8px;
+    }
+
+.minimize-btn {
+        min-width: 36px;
+        min-height: 32px;
+    }
+}
+
 @media (max-width: 768px) {
 .live-timer-section .countdown-timer {
         transform: scale(1);
@@ -219,12 +233,23 @@
 
 .timer-btn {
         padding: 2px 4px;
-        font-size: 0.6rem;
+        font-size: 0.7rem;
         flex: 1;
     }
 
 .minimize-btn {
         font-size: 0.75rem;
         padding: 0 2px;
+    }
+}
+
+/* Landscape phones: the 110px timer is too small to tap Start/Stop */
+@media (max-width: 900px) and (orientation: landscape) and (pointer: coarse) {
+.countdown-timer,
+    .live-timer-section .countdown-timer {
+        width: 170px;
+        top: auto;
+        bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+        right: calc(8px + env(safe-area-inset-right, 0px));
     }
 }

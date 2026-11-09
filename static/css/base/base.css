@@ -15,6 +15,12 @@ body {
     z-index: 1;
 }
 
+/* Form controls don't inherit the page font by default; Safari and Firefox
+   then show buttons/inputs in a different (often serif) font. */
+button, input, select, textarea {
+    font-family: inherit;
+}
+
 /* Responsive images: never overflow their container */
 img {
     max-width: 100%;

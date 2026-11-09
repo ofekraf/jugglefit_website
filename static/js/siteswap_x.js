@@ -188,6 +188,23 @@ function createSiteswapXElement(siteswapString) {
     return container;
 }
 
+// Put `text` into `el`, keeping each "->" on one line: browsers may break a
+// line after the "-", which leaves "-" and ">" on different lines once long
+// trick names wrap on phones. textContent stays exactly `text`.
+function setTrickNameText(el, text) {
+    el.textContent = '';
+    const parts = String(text).split('->');
+    parts.forEach((part, i) => {
+        if (part) el.appendChild(document.createTextNode(part));
+        if (i < parts.length - 1) {
+            const arrow = document.createElement('span');
+            arrow.className = 'trick-arrow';
+            arrow.textContent = '->';
+            el.appendChild(arrow);
+        }
+    });
+}
+
 // Create a trick container element. name is required; comment and siteswapX are optional.
 // options: { onNameBlur: fn(newName), onCommentBlur: fn(newComment), onAdd: fn(event) }
 function CreateTrickContainer(name, comment = '', siteswapX = '', options = {}) {
@@ -200,7 +217,7 @@ function CreateTrickContainer(name, comment = '', siteswapX = '', options = {}) 
     const nameEl = document.createElement('span');
     nameEl.className = 'trick-name';
     // Only show the actual name (or empty string if no name)
-    nameEl.textContent = name || '';
+    setTrickNameText(nameEl, name || '');
     // Respect editable option (false = non-editable view like created-route)
     nameEl.contentEditable = options.editable !== false;
     nameEl.addEventListener('blur', function() {
@@ -300,6 +317,20 @@ function CreateTrickContainer(name, comment = '', siteswapX = '', options = {}) 
 
     return container;
 }
+// Cross out a ticked trick. route_display.html has its own copy; this one
+// covers pages that don't include it (created_route).
+if (typeof window.toggleLinethrough !== 'function') {
+    window.toggleLinethrough = function (checkbox) {
+        const trickMain = checkbox.closest('.trick-main');
+        if (!trickMain) return;
+        trickMain.querySelectorAll('.trick-name, .trick-siteswap-x').forEach(el => {
+            el.classList.toggle('linethrough', checkbox.checked);
+        });
+        const frame = checkbox.closest('.prop-details-frame');
+        if (frame) frame.classList.toggle('trick-done', checkbox.checked);
+    };
+}
+
 // Expose the public API expected by templates and inline handlers.
 window.CreateTrickContainer = CreateTrickContainer;
 window.toggleSiteswapXEverywhere = toggleSiteswapXEverywhere;

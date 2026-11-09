@@ -505,6 +505,7 @@ export function updateRouteDisplay(route = null, options = {}) {
         } else if (innerMain) {
             innerMain.appendChild(number);
         }
+        if (displayName) frame.title = displayName;
 
         trickContent.appendChild(container);
 
@@ -523,10 +524,23 @@ export function updateRouteDisplay(route = null, options = {}) {
             frame.addEventListener('dragover', handleDragOver);
             frame.addEventListener('drop', handleDrop);
             frame.addEventListener('dragend', handleDragEnd);
-        } else if (typeof window.decorateTrickRow === 'function') {
-            // Optional per-row extras on read-only pages (e.g. trick feedback
-            // buttons on generated routes, static/js/trick_feedback.js).
-            try { window.decorateTrickRow(trickContent, trick, index); } catch (e) { console.error(e); }
+        } else {
+            // Read-only page: tapping anywhere on the row ticks the trick off
+            // (the 16-22px checkbox alone is hard to hit on a phone).
+            const rowCheckbox = container.querySelector('.trick-checkbox');
+            if (rowCheckbox) {
+                frame.setAttribute('data-row-toggle', '');
+                frame.addEventListener('click', (e) => {
+                    if (e.target === rowCheckbox || e.target.closest('button, a, input')) return;
+                    rowCheckbox.checked = !rowCheckbox.checked;
+                    rowCheckbox.dispatchEvent(new Event('change', { bubbles: true }));
+                });
+            }
+            if (typeof window.decorateTrickRow === 'function') {
+                // Optional per-row extras (e.g. trick feedback buttons on
+                // generated routes, static/js/trick_feedback.js).
+                try { window.decorateTrickRow(trickContent, trick, index); } catch (e) { console.error(e); }
+            }
         }
 
         frame.appendChild(trickContent);

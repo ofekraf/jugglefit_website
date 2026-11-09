@@ -18,7 +18,7 @@
                         {% set current_props.count = trick.props_count %}
                     {% endif %}
                     {% set trick_counter.count = trick_counter.count + 1 %}
-                    <div class="prop-details-frame">
+                    <div class="prop-details-frame"{% if trick.name %} title="{{ trick.name }}"{% endif %}>
                         <div class="trick-content">
                             <div class="trick-main">
                                 <span class="trick-number">{{ trick_counter.count }}.</span>

@@ -137,7 +137,8 @@
             }
 
             const alert = document.querySelector('.orientation-alert');
-            if (window.innerWidth <= 768 && window.innerHeight > window.innerWidth) {
+            // Phones only: a portrait tablet (iPad mini = 768px) is wide enough
+            if (window.innerWidth < 700 && window.innerHeight > window.innerWidth) {
                 alert.classList.add('show');
             } else {
                 alert.classList.remove('show');

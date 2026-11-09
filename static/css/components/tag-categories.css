@@ -90,6 +90,20 @@
 
 /* ===== Responsive ===== */
 
+@media (pointer: coarse) {
+.checkbox-container {
+        min-height: 36px;
+        margin: 0;
+    }
+
+.checkbox-container input[type="checkbox"],
+    .category-checkbox {
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+    }
+}
+
 @media (max-width: 768px) {
 /* Tag categories: stack vertically on mobile */
 

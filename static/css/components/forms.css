@@ -147,6 +147,13 @@
 
 /* ===== Responsive ===== */
 
+@media (pointer: coarse) {
+.form-checkbox {
+        width: 22px;
+        height: 22px;
+    }
+}
+
 @media (max-width: 768px) {
 .form-section {
         margin-bottom: 1.5rem;

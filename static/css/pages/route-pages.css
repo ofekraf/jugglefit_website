@@ -65,7 +65,8 @@
     box-sizing: border-box;
     position: relative;
     z-index: 1;
-    max-height: 500px;
+    /* Was max-height: 500px with no overflow rule: long routes spilled over
+       the "Add custom trick" form below. Let it grow with the route. */
     padding: 0 0 0 1.5rem;
 }
 
@@ -243,6 +244,23 @@ body .main-content .route-page {
 
 @media (max-width: 480px) {
 .route-form {
-        padding: 0.75rem;
+        padding: 0.75rem 0.5rem;
+    }
+
+/* Nested boxes each added padding; on a 320px phone that left ~70px for
+   trick names. Keep the route list close to full width. */
+.route-page,
+    html body .route-page,
+    body .main-content .route-page {
+        padding-left: 0.25rem !important;
+        padding-right: 0.25rem !important;
+    }
+
+.route-container,
+    .route-content,
+    .route-sections,
+    #route-sections {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
     }
 }

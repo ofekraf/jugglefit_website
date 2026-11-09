@@ -92,6 +92,15 @@ body * .trick-main,
     border-bottom: none !important;
 }
 
+.prop-details-frame.trick-done .trick-main {
+    opacity: 0.5;
+}
+
+/* "->" in trick names (siteswap_x.js setTrickNameText) never splits */
+.trick-arrow {
+    white-space: nowrap;
+}
+
 .trick-comment {
     color: var(--text-color);
     text-align: left;
@@ -379,60 +388,135 @@ body .route-content .trick-main .trick-name {
     }
 }
 
-/* Phones: route pages (created/build/generate) must wrap long trick names
-   instead of clipping them (.prop-section has overflow:hidden). The
-   !important matches the lock-down rules above. Live event keeps its own
-   horizontal-scroll layout (not a .route-page). */
-@media (max-width: 768px) {
+/* Route pages (created/build) wrap long trick names instead of clipping them
+   (.prop-section has overflow:hidden). Any width: a long name can overflow a
+   1366px desktop or a landscape phone too. The !important matches the
+   lock-down rules above. Live event keeps its own horizontal-scroll layout. */
 .route-page .trick-content {
-        white-space: normal !important;
-        align-items: flex-start !important;
-        min-width: 0;
-    }
+    white-space: normal !important;
+    min-width: 0;
+}
 
 .route-page .trick-content > .trick-container {
-        flex: 1 1 auto;
-        min-width: 0;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.route-page .trick-content .trick-main,
+.route-page .trick-container .trick-main {
+    display: flex !important;
+    flex-wrap: wrap;
+    white-space: normal !important;
+    min-width: 0;
+}
+
+.route-page .trick-main .trick-name,
+.route-page .trick-main .trick-siteswap-x {
+    flex: 0 1 auto !important;
+    min-width: 0 !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere; /* only splits a word that can't fit on its own line */
+}
+
+/* Phones: tighter layout, row-tap targets, narrow prop bar */
+@media (max-width: 768px) {
+.route-page .trick-content {
+        align-items: flex-start !important;
     }
 
 .route-page .trick-content .trick-main,
     .route-page .trick-container .trick-main {
-        display: flex !important;
-        flex-wrap: wrap;
         align-items: baseline !important;
-        white-space: normal !important;
         width: 100% !important;
-        min-width: 0;
     }
 
+/* Name takes the rest of the row so wrapped lines line up */
 .route-page .trick-main .trick-name,
     .route-page .trick-main .trick-siteswap-x {
         flex: 1 1 0 !important;
-        min-width: 0 !important;
         max-width: none !important;
-        white-space: normal !important;
-        overflow-wrap: break-word;
         overflow: visible !important;
     }
 
+/* Comment goes on its own line under the name */
 .route-page .trick-main .trick-comment {
         flex: 1 1 100% !important;
         white-space: normal !important;
-        overflow-wrap: break-word;
+        overflow-wrap: anywhere;
         margin-left: 0 !important;
     }
 
 .route-page .trick-container .trick-number {
-        min-width: 1.4rem !important;
+        min-width: 1.6rem !important;
         margin-right: 0 !important;
+        font-size: 0.85rem;
+        color: var(--light-text);
     }
 
-.route-page .trick-checkbox {
-        margin-right: 0.25em !important;
+.route-page .trick-main {
+        gap: 0.5rem !important;
+    }
+
+.route-page .trick-main .trick-name {
+        margin: 0 !important;
+        line-height: 1.35em;
+    }
+
+/* 22px box (was 16px) with a 44px-tall invisible hit area around it */
+html body .route-page input.trick-checkbox[type="checkbox"] {
+        width: 22px !important;
+        height: 22px !important;
+        min-width: 22px !important;
+        min-height: 22px !important;
+        margin: 0 !important;
+        top: 0;
         flex-shrink: 0;
-        width: 20px;
-        height: 20px;
-        align-self: center;
+        align-self: flex-start;
+    }
+
+/* Whole row is tappable (route_helpers.js); show it */
+.route-page .prop-details-frame[data-row-toggle] {
+        cursor: pointer;
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0.05);
+    }
+
+.route-page .prop-details-frame {
+        padding: 0.45rem 0.25rem 0.45rem 0 !important;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+.route-page .trick-container:last-child > .prop-details-frame:last-child {
+        border-bottom: none;
+    }
+
+/* Narrower prop-count bar leaves more room for the trick text */
+.route-page .prop-color-bar {
+        width: 38px;
+        border-radius: 10px;
+    }
+
+.route-page .prop-color-bar::before {
+        display: none;
+    }
+
+.route-page .prop-count-text {
+        font-size: 1rem;
+    }
+
+.route-page .prop-section {
+        gap: 8px;
+    }
+}
+
+/* Touch screens wider than 768px (landscape phones, tablets) */
+/* `html body` beats siteswap-x.css's 16px !important rule, which loads later */
+@media (pointer: coarse) {
+html body input.trick-checkbox[type="checkbox"],
+    html body input.siteswap-x-toggle-checkbox[type="checkbox"] {
+        width: 22px !important;
+        height: 22px !important;
+        min-width: 22px !important;
+        min-height: 22px !important;
     }
 }
 
@@ -446,7 +530,9 @@ body .route-content .trick-main .trick-name {
         min-width: 1.1rem;
     }
 
-.trick-name {
+/* Not on route pages: those wrap names (768px block above) instead of
+   cutting them off with an ellipsis. */
+.trick-name:not(.route-page .trick-name) {
         display: inline-block;
         overflow: hidden;
         text-overflow: ellipsis;
