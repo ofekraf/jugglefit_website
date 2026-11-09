@@ -1,0 +1,75 @@
+{% extends "macros/base.html" %}
+{% block title %}Feature Requests - Admin{% endblock %}
+{% block head %}
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/feature-requests.css') }}?v={{ cache_version }}">
+{% endblock %}
+{% block content %}
+<div class="fr-page">
+    <h1 class="section-title">Feature Requests - Admin</h1>
+
+    {% if not logged_in %}
+    <form method="post" class="fr-card fr-login">
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+        <label class="form-label" for="fr-admin-password">Organizer password</label>
+        <input id="fr-admin-password" name="password" type="password" class="form-input" autocomplete="current-password" required>
+        <button type="submit" class="primary-button mt-1">Log in</button>
+    </form>
+    {% else %}
+    <form method="get" class="fr-filters">
+        <select name="category" class="form-input" aria-label="Category">
+            <option value="">All categories</option>
+            {% for key, label in categories.items() %}
+            <option value="{{ key }}" {% if filter_category == key %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+        <select name="status" class="form-input" aria-label="Status">
+            <option value="">All statuses</option>
+            {% for s in statuses %}
+            <option value="{{ s }}" {% if filter_status == s %}selected{% endif %}>{{ status_label('', s) }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="primary-button">Filter</button>
+    </form>
+
+    <p class="fr-hint">"Waiting for review" and "Hidden" are never public. Set Open / Planned / In progress / Done to publish.</p>
+
+    {% for item in items %}
+    <form method="post" class="fr-card fr-admin-item fr-admin-{{ item.status }}"
+          action="{{ url_for('feature_requests.admin_update', request_id=item.id, category=filter_category or None, status=filter_status or None) }}">
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+        <div class="fr-admin-meta">
+            <strong>#{{ item.id }}</strong>
+            <span class="fr-badge">{{ categories[item.category] }}</span>
+            <span class="fr-badge fr-badge-{{ item.status }}">{{ status_label(item.category, item.status) }}</span>
+            {% if item.category != 'website_bug' %}<span>{{ item.votes }} vote{{ '' if item.votes == 1 else 's' }}</span>{% endif %}
+        </div>
+        <input name="title" class="form-input" value="{{ item.title }}" maxlength="120" aria-label="Title">
+        <textarea name="body" class="form-input fr-textarea mt-1" rows="3" maxlength="2000" aria-label="Details">{{ item.body }}</textarea>
+        <dl class="fr-private">
+            {% if item.contact_email %}<dt>Email</dt><dd><a href="mailto:{{ item.contact_email }}">{{ item.contact_email }}</a></dd>{% endif %}
+            {% if item.page %}<dt>Page</dt><dd>{{ item.page }}</dd>{% endif %}
+            {% if item.user_agent %}<dt>Browser</dt><dd>{{ item.user_agent }}</dd>{% endif %}
+        </dl>
+        <div class="fr-admin-actions">
+            <select name="status" class="form-input" aria-label="Status">
+                {% for s in statuses %}
+                <option value="{{ s }}" {% if item.status == s %}selected{% endif %}>{{ status_label(item.category, s) }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" name="action" value="save" class="primary-button">Save</button>
+            <button type="submit" name="action" value="delete" class="primary-button outline"
+                    onclick="return confirm('Delete #{{ item.id }} permanently?')">Delete</button>
+        </div>
+    </form>
+    {% else %}
+    <p class="fr-empty">No requests.</p>
+    {% endfor %}
+
+    <form method="post" action="{{ url_for('feature_requests.admin_logout') }}" class="mt-2">
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="primary-button outline">Log out</button>
+    </form>
+    {% endif %}
+</div>
+{% endblock %}

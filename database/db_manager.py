@@ -97,6 +97,36 @@ SCHEMA_STATEMENTS: List[str] = [
     """,
     "CREATE INDEX IF NOT EXISTS idx_trick_feedback_trick "
     "ON trick_feedback(prop, props_count, trick_name)",
+    # --- feature requests / bug reports (see blueprints/feature_requests.py)
+    # status 'new' = waiting for review (never public), 'hidden' = rejected
+    # or spam. contact_email, user_agent and submitter_id are private: they
+    # are never sent to the public page.
+    """
+    CREATE TABLE IF NOT EXISTS feature_requests (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        category TEXT NOT NULL CHECK (category IN
+            ('website_feature', 'website_bug', 'live_event_idea')),
+        title TEXT NOT NULL,
+        body TEXT NOT NULL DEFAULT '',
+        page TEXT,
+        contact_email TEXT,
+        user_agent TEXT,
+        submitter_id TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'new' CHECK (status IN
+            ('new', 'open', 'planned', 'in_progress', 'done', 'hidden')),
+        created_at INTEGER NOT NULL,
+        updated_at INTEGER NOT NULL
+    )
+    """,
+    "CREATE INDEX IF NOT EXISTS idx_feature_requests_status ON feature_requests(status)",
+    """
+    CREATE TABLE IF NOT EXISTS feature_votes (
+        request_id INTEGER NOT NULL REFERENCES feature_requests(id) ON DELETE CASCADE,
+        voter_id TEXT NOT NULL,
+        created_at INTEGER NOT NULL,
+        PRIMARY KEY (request_id, voter_id)
+    )
+    """,
     # --- generic key/value bookkeeping (backup/prune timestamps) ---
     """
     CREATE TABLE IF NOT EXISTS meta (
@@ -256,6 +286,103 @@ class DBManager:
         with self.cursor() as cur:
             cur.execute(query, params)
             return [dict(r) for r in cur.fetchall()]
+
+    # ------------------------------------------------------------------
+    # feature requests / bug reports
+    # ------------------------------------------------------------------
+    PUBLIC_FEATURE_STATUSES = ("open", "planned", "in_progress", "done")
+
+    def create_feature_request(self, *, category: str, title: str, body: str,
+                               page: Optional[str], contact_email: Optional[str],
+                               user_agent: Optional[str], submitter_id: str,
+                               now_ms: int) -> int:
+        with self.cursor(commit=True) as cur:
+            cur.execute(
+                "INSERT INTO feature_requests (category, title, body, page, contact_email, "
+                "user_agent, submitter_id, created_at, updated_at) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                (category, title, body, page, contact_email, user_agent,
+                 submitter_id, now_ms, now_ms),
+            )
+            return cur.lastrowid
+
+    def count_feature_requests_since(self, submitter_id: str, since_ms: int) -> int:
+        with self.cursor() as cur:
+            cur.execute(
+                "SELECT COUNT(*) FROM feature_requests WHERE submitter_id = ? AND created_at >= ?",
+                (submitter_id, since_ms),
+            )
+            return cur.fetchone()[0]
+
+    def get_public_feature_requests(self) -> List[Dict[str, Any]]:
+        """Approved requests with vote counts. Public columns only - never
+        add contact_email / user_agent / submitter_id here."""
+        placeholders = ",".join("?" * len(self.PUBLIC_FEATURE_STATUSES))
+        with self.cursor() as cur:
+            cur.execute(
+                "SELECT r.id, r.category, r.title, r.body, r.status, r.created_at, "
+                "(SELECT COUNT(*) FROM feature_votes v WHERE v.request_id = r.id) AS votes "
+                f"FROM feature_requests r WHERE r.status IN ({placeholders}) "
+                "ORDER BY votes DESC, r.created_at DESC",
+                self.PUBLIC_FEATURE_STATUSES,
+            )
+            return [dict(r) for r in cur.fetchall()]
+
+    def get_all_feature_requests(self, category: Optional[str] = None,
+                                 status: Optional[str] = None) -> List[Dict[str, Any]]:
+        """Everything, incl. private columns. Admin view / report script only."""
+        query = ("SELECT r.*, (SELECT COUNT(*) FROM feature_votes v WHERE v.request_id = r.id) "
+                 "AS votes FROM feature_requests r WHERE 1 = 1 ")
+        params: list = []
+        if category:
+            query += "AND r.category = ? "
+            params.append(category)
+        if status:
+            query += "AND r.status = ? "
+            params.append(status)
+        query += "ORDER BY (r.status = 'new') DESC, r.created_at DESC"
+        with self.cursor() as cur:
+            cur.execute(query, params)
+            return [dict(r) for r in cur.fetchall()]
+
+    def get_feature_request(self, request_id: int) -> Optional[Dict[str, Any]]:
+        with self.cursor() as cur:
+            cur.execute("SELECT * FROM feature_requests WHERE id = ?", (request_id,))
+            row = cur.fetchone()
+            return dict(row) if row else None
+
+    def update_feature_request(self, request_id: int, *, status: str, title: str,
+                               body: str, now_ms: int) -> bool:
+        with self.cursor(commit=True) as cur:
+            cur.execute(
+                "UPDATE feature_requests SET status = ?, title = ?, body = ?, updated_at = ? "
+                "WHERE id = ?",
+                (status, title, body, now_ms, request_id),
+            )
+            return cur.rowcount > 0
+
+    def delete_feature_request(self, request_id: int) -> bool:
+        with self.cursor(commit=True) as cur:
+            cur.execute("DELETE FROM feature_requests WHERE id = ?", (request_id,))
+            return cur.rowcount > 0
+
+    def set_feature_vote(self, request_id: int, voter_id: str, voted: bool, now_ms: int) -> int:
+        """Add/remove one browser's vote; returns the new vote count."""
+        with self.cursor(commit=True) as cur:
+            if voted:
+                cur.execute(
+                    "INSERT OR IGNORE INTO feature_votes (request_id, voter_id, created_at) "
+                    "VALUES (?, ?, ?)", (request_id, voter_id, now_ms))
+            else:
+                cur.execute("DELETE FROM feature_votes WHERE request_id = ? AND voter_id = ?",
+                            (request_id, voter_id))
+            cur.execute("SELECT COUNT(*) FROM feature_votes WHERE request_id = ?", (request_id,))
+            return cur.fetchone()[0]
+
+    def get_feature_votes_by_voter(self, voter_id: str) -> List[int]:
+        with self.cursor() as cur:
+            cur.execute("SELECT request_id FROM feature_votes WHERE voter_id = ?", (voter_id,))
+            return [r[0] for r in cur.fetchall()]
 
     # ------------------------------------------------------------------
     # url shortener

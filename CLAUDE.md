@@ -147,6 +147,17 @@ No linter or formatter is configured for this repo.
   (`python scripts/trick_feedback_report.py`); nothing applies them to
   the trick CSVs automatically - do not add code that does.
 
+- `blueprints/feature_requests.py` - `/feature_requests` ("Ideas & Bug
+  Reports", navbar > Contribute). Categories: Website feature / Website
+  bug / Live event idea. `POST /api/feature_requests` (CSRF, honeypot
+  field `website`, max 5 per browser per day). New items have status
+  `new` and are **not public** until approved on `/feature_requests/admin`
+  (`ADMIN_PASSWORD`; unset = 404). Public statuses: open / planned /
+  in_progress / done (`hidden` = rejected). Features and live-event ideas
+  get one upvote per browser; bugs show status only. `contact_email`,
+  `page` and `user_agent` (bugs only) are private: never select them in
+  `get_public_feature_requests`. Report: `scripts/feature_request_report.py`.
+
 ### Live finals (`/live_event`)
 
 Server-side progress of a final, shown on the existing `/live_event` page.
@@ -211,6 +222,7 @@ difficulty voting live on the `feature/crowd-contribution` branch.
 
 SQLite in WAL mode with `busy_timeout` (multi-worker gunicorn). Tables:
 `trick_feedback` (votes from generated routes, kept, never pruned),
+`feature_requests` + `feature_votes` (see feature requests above),
 `url_mappings` (shortener, expires after
 `URL_RETENTION_MONTHS` of inactivity), `meta` (bookkeeping), and the live
 final tables `finals`, `final_competitors`, `final_events` (kept, never
@@ -299,6 +311,7 @@ do not - never back into one giant file.
   → created_route (only while a final is live)
 - `components/organizer-dialog.css` → created_route, live_event
 - `components/trick-feedback.css` → created_route (only for generated routes)
+- `pages/feature-requests.css` → feature_requests, feature_requests_admin
 - `pages/donate.css`, `pages/past-events.css`, `pages/live-event.css`,
   `pages/siteswap-x.css`, `pages/siteswap-x-formatter.css` → one page each
 - `static/css/run_route.css` → `run_route.html` only

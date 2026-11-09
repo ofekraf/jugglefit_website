@@ -1,0 +1,97 @@
+{% extends "macros/base.html" %}
+{% block title %}Feature Requests{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/feature-requests.css') }}?v={{ cache_version }}">
+{% endblock %}
+{% block content %}
+<div class="fr-page">
+    <h1 class="section-title">Ideas &amp; Bug Reports</h1>
+    <p class="section-description">Missing something on the website, found a bug, or have an idea for live events? Tell us. We read everything, and approved ideas show up below so others can vote on them.</p>
+
+    <section class="fr-card" aria-labelledby="fr-form-title">
+        <h2 id="fr-form-title" class="fr-card-title">Send a request</h2>
+        <form id="fr-form" novalidate>
+            <fieldset class="fr-categories">
+                <legend class="form-label">Category</legend>
+                {% for key, label in categories.items() %}
+                <label class="fr-category">
+                    <input type="radio" name="category" value="{{ key }}" {% if loop.first %}checked{% endif %}>
+                    <span>{{ label }}</span>
+                </label>
+                {% endfor %}
+            </fieldset>
+
+            <label class="form-label" for="fr-title">Title</label>
+            <input id="fr-title" name="title" class="form-input" maxlength="{{ max_title }}" required
+                   placeholder="Short summary">
+
+            <label class="form-label mt-1" for="fr-body">Details <span class="fr-optional">(optional)</span></label>
+            <textarea id="fr-body" name="body" class="form-input fr-textarea" maxlength="{{ max_body }}" rows="5"
+                      placeholder="What should happen? Why would it help?"></textarea>
+
+            <div class="fr-bug-only hidden">
+                <label class="form-label mt-1" for="fr-page">Which page? <span class="fr-optional">(optional)</span></label>
+                <input id="fr-page" name="page" class="form-input" maxlength="200" value="{{ prefill_page }}"
+                       placeholder="e.g. /created_route">
+                <p class="fr-hint">For bugs we also save your browser/phone type, to help reproduce the problem.</p>
+            </div>
+
+            <label class="form-label mt-1" for="fr-email">Email <span class="fr-optional">(optional)</span></label>
+            <input id="fr-email" name="email" type="email" class="form-input" maxlength="254" autocomplete="email"
+                   inputmode="email" placeholder="So we can ask questions or tell you when it's done">
+            <p class="fr-hint">Never shown publicly.</p>
+
+            {# Honeypot: hidden from people, bots fill it in #}
+            <div class="fr-hp" aria-hidden="true">
+                <label for="fr-website">Website</label>
+                <input id="fr-website" name="website" tabindex="-1" autocomplete="off">
+            </div>
+
+            <button type="submit" class="primary-button mt-1" id="fr-submit">Send</button>
+            <p id="fr-status" class="fr-status" role="status" aria-live="polite"></p>
+        </form>
+    </section>
+
+    <section aria-labelledby="fr-list-title">
+        <h2 id="fr-list-title" class="fr-list-title">What others asked for</h2>
+        <div class="fr-tabs" role="tablist">
+            {% for key, label in categories.items() %}
+            <button type="button" role="tab" class="fr-tab{% if loop.first %} active{% endif %}"
+                    data-tab="{{ key }}" aria-selected="{{ 'true' if loop.first else 'false' }}">
+                {{ label }} <span class="fr-tab-count">{{ by_category[key]|length }}</span>
+            </button>
+            {% endfor %}
+        </div>
+
+        {% for key, label in categories.items() %}
+        <div class="fr-list{% if not loop.first %} hidden{% endif %}" data-list="{{ key }}" role="tabpanel">
+            {% for item in by_category[key] %}
+            <article class="fr-item">
+                {% if key in votable %}
+                <button type="button" class="fr-vote{% if item.id in my_votes %} active{% endif %}"
+                        data-id="{{ item.id }}" aria-pressed="{{ 'true' if item.id in my_votes else 'false' }}"
+                        aria-label="Vote for this">
+                    <i class="fas fa-chevron-up" aria-hidden="true"></i>
+                    <span class="fr-vote-count">{{ item.votes }}</span>
+                </button>
+                {% endif %}
+                <div class="fr-item-main">
+                    <h3 class="fr-item-title">{{ item.title }}</h3>
+                    {% if item.body %}<p class="fr-item-body">{{ item.body }}</p>{% endif %}
+                    <span class="fr-badge fr-badge-{{ item.status }}">{{ status_label(key, item.status) }}</span>
+                </div>
+            </article>
+            {% else %}
+            <p class="fr-empty">Nothing here yet - be the first!</p>
+            {% endfor %}
+        </div>
+        {% endfor %}
+    </section>
+</div>
+
+<div id="toast" class="toast-notification" role="status" aria-live="polite"></div>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/general.js') }}?v={{ cache_version }}"></script>
+<script src="{{ url_for('static', filename='js/feature_requests.js') }}?v={{ cache_version }}"></script>
+{% endblock %}

@@ -52,6 +52,7 @@ from blueprints.trick_feedback import (
     trick_feedback_bp,
 )
 from blueprints.finals import finals_api_bp, finals_bp, is_final_admin
+from blueprints.feature_requests import feature_requests_bp
 
 
 # ---------------------------------------------------------------------------
@@ -156,6 +157,7 @@ app.register_blueprint(shortener_bp)
 app.register_blueprint(finals_api_bp)
 app.register_blueprint(finals_bp)
 app.register_blueprint(trick_feedback_bp)
+app.register_blueprint(feature_requests_bp)
 
 
 # ---------------------------------------------------------------------------
