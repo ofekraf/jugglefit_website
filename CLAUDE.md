@@ -155,7 +155,8 @@ No linter or formatter is configured for this repo.
   (hidden short address `/admin`; never link it in the navbar or pages;
   `ADMIN_PASSWORD`; unset = 404). Public statuses: open / planned /
   in_progress / done (`hidden` = rejected). Features and live-event ideas
-  get one upvote per browser; bugs show status only. `contact` (email or
+  get one vote per browser, upvote or dislike (`feature_votes.value` 1 /
+  -1; list sorted by upvotes minus dislikes); bugs show status only. `contact` (email or
   phone), `page` (full page link, prefilled from the referrer) and
   `user_agent` (bugs only) are private: never select them in
   `get_public_feature_requests`. Report: `scripts/feature_request_report.py`.

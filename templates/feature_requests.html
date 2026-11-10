@@ -65,13 +65,23 @@
             {% for item in by_category[key] %}
             <article class="fr-item">
                 {% if key in votable %}
-                <button type="button" class="fr-vote{% if item.id in my_votes %} active{% endif %}"
-                        data-id="{{ item.id }}" aria-pressed="{{ 'true' if item.id in my_votes else 'false' }}"
-                        title="Upvote if you want this too - tap again to undo">
-                    <i class="fas fa-thumbs-up" aria-hidden="true"></i>
-                    <span class="fr-vote-label">{{ 'Upvoted' if item.id in my_votes else 'Upvote' }}</span>
-                    <span class="fr-vote-count" aria-label="votes">{{ item.votes }}</span>
-                </button>
+                {% set mine = my_votes.get(item.id, 0) %}
+                <div class="fr-votes" data-id="{{ item.id }}">
+                    <button type="button" class="fr-vote fr-vote-up{% if mine == 1 %} active{% endif %}"
+                            data-vote="up" aria-pressed="{{ 'true' if mine == 1 else 'false' }}"
+                            title="Upvote if you want this too - tap again to undo">
+                        <i class="fas fa-thumbs-up" aria-hidden="true"></i>
+                        <span class="fr-vote-label">{{ 'Upvoted' if mine == 1 else 'Upvote' }}</span>
+                        <span class="fr-vote-count" aria-label="upvotes">{{ item.votes }}</span>
+                    </button>
+                    <button type="button" class="fr-vote fr-vote-down{% if mine == -1 %} active{% endif %}"
+                            data-vote="down" aria-pressed="{{ 'true' if mine == -1 else 'false' }}"
+                            title="Dislike if you don't want this - tap again to undo">
+                        <i class="fas fa-thumbs-down" aria-hidden="true"></i>
+                        <span class="fr-vote-label">{{ 'Disliked' if mine == -1 else 'Dislike' }}</span>
+                        <span class="fr-vote-count" aria-label="dislikes">{{ item.dislikes }}</span>
+                    </button>
+                </div>
                 {% endif %}
                 <div class="fr-item-main">
                     <h3 class="fr-item-title">{{ item.title }}</h3>

@@ -1,4 +1,4 @@
-// /feature_requests: submit form, category tabs, upvotes.
+// /feature_requests: submit form, category tabs, upvote / dislike.
 (function () {
     const form = document.getElementById('fr-form');
     const statusEl = document.getElementById('fr-status');
@@ -73,34 +73,61 @@
         });
     }));
 
-    // Upvotes (click again = remove)
-    function setVoted(btn, voted) {
-        btn.classList.toggle('active', voted);
-        btn.setAttribute('aria-pressed', voted ? 'true' : 'false');
-        btn.querySelector('.fr-vote-label').textContent = voted ? 'Upvoted' : 'Upvote';
+    // Upvote / Dislike: one choice per browser, tap the active one again to undo.
+    const LABELS = { up: ['Upvote', 'Upvoted'], down: ['Dislike', 'Disliked'] };
+
+    function currentVote(group) {
+        const active = group.querySelector('.fr-vote.active');
+        return active ? active.dataset.vote : 'none';
     }
-    document.querySelectorAll('.fr-vote').forEach(btn => btn.addEventListener('click', async () => {
-        const voted = !btn.classList.contains('active');
-        const countEl = btn.querySelector('.fr-vote-count');
-        const before = Number(countEl.textContent);
-        setVoted(btn, voted);
-        countEl.textContent = before + (voted ? 1 : -1);
-        btn.disabled = true;
-        try {
-            const res = await fetch(`/api/feature_requests/${btn.dataset.id}/vote`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ voted }),
-            });
-            if (!res.ok) throw new Error(res.status);
-            const data = await res.json();
-            countEl.textContent = data.votes;
-        } catch (e) {
-            setVoted(btn, !voted);
-            countEl.textContent = before;
-            toast('Could not save your vote. Please try again.');
-        } finally {
-            btn.disabled = false;
-        }
-    }));
+
+    function render(group, vote, counts) {
+        group.querySelectorAll('.fr-vote').forEach(btn => {
+            const on = btn.dataset.vote === vote;
+            btn.classList.toggle('active', on);
+            btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+            btn.querySelector('.fr-vote-label').textContent = LABELS[btn.dataset.vote][on ? 1 : 0];
+        });
+        group.querySelector('.fr-vote-up .fr-vote-count').textContent = counts.votes;
+        group.querySelector('.fr-vote-down .fr-vote-count').textContent = counts.dislikes;
+    }
+
+    function readCounts(group) {
+        return {
+            votes: Number(group.querySelector('.fr-vote-up .fr-vote-count').textContent),
+            dislikes: Number(group.querySelector('.fr-vote-down .fr-vote-count').textContent),
+        };
+    }
+
+    document.querySelectorAll('.fr-votes').forEach(group => {
+        group.querySelectorAll('.fr-vote').forEach(btn => btn.addEventListener('click', async () => {
+            const before = currentVote(group);
+            const beforeCounts = readCounts(group);
+            const next = before === btn.dataset.vote ? 'none' : btn.dataset.vote;
+
+            // Optimistic update
+            const guess = { ...beforeCounts };
+            if (before === 'up') guess.votes--;
+            if (before === 'down') guess.dislikes--;
+            if (next === 'up') guess.votes++;
+            if (next === 'down') guess.dislikes++;
+            render(group, next, guess);
+            group.querySelectorAll('.fr-vote').forEach(b => { b.disabled = true; });
+            try {
+                const res = await fetch(`/api/feature_requests/${group.dataset.id}/vote`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ vote: next }),
+                });
+                if (!res.ok) throw new Error(res.status);
+                const data = await res.json();
+                render(group, data.vote, data);
+            } catch (e) {
+                render(group, before, beforeCounts);
+                toast('Could not save your vote. Please try again.');
+            } finally {
+                group.querySelectorAll('.fr-vote').forEach(b => { b.disabled = false; });
+            }
+        }));
+    });
 })();

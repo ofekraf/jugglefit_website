@@ -23,7 +23,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from blueprints.feature_requests import CATEGORIES, STATUS_LABELS  # noqa: E402
 from database.db_manager import db_manager  # noqa: E402
 
-COLUMNS = ["id", "category", "status", "votes", "title", "body", "page",
+COLUMNS = ["id", "category", "status", "votes", "dislikes", "title", "body", "page",
            "contact", "user_agent", "created"]
 
 
@@ -47,7 +47,7 @@ def main() -> None:
             continue
         print(f"\n== {label} ({len(group)}) ==")
         for r in group:
-            votes = "" if cat == "website_bug" else f"{r['votes']:>3}v "
+            votes = "" if cat == "website_bug" else f"+{r['votes']:<3} -{r['dislikes']:<3} "
             contact = f"  <{r['contact']}>" if r["contact"] else ""
             print(f"#{r['id']:<4} {r['status']:<11} {votes}{r['created']}  {r['title']}{contact}")
 

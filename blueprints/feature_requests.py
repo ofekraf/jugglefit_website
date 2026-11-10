@@ -5,8 +5,8 @@ Anyone can submit (anonymous, CSRF + honeypot + per-browser daily limit).
 New submissions have status ``new`` and are **not public** until an admin
 approves them on ``/feature_requests/admin`` (``ADMIN_PASSWORD``, unset =
 admin off, 404). Approved requests are listed publicly by category; feature
-and live-event ideas can be upvoted (one vote per browser), bugs show only
-their status.
+and live-event ideas can be upvoted or disliked (one vote per browser,
+sorted by upvotes minus dislikes), bugs show only their status.
 
 Private data - ``contact`` (email or phone), ``page`` and ``user_agent`` (bugs only) and
 ``submitter_id`` - is stored for the admin and never sent to the public
@@ -36,6 +36,7 @@ CATEGORIES = {
     "live_event_idea": "Live event idea",
 }
 VOTABLE_CATEGORIES = ("website_feature", "live_event_idea")
+_VOTE_VALUES = {"up": 1, "down": -1, "none": 0}
 STATUS_LABELS = {
     "new": "Waiting for review",
     "open": "Open",
@@ -125,14 +126,14 @@ def feature_requests_page():
         my_votes = db_manager.get_feature_votes_by_voter(get_voter_id())
     except Exception as e:  # never break the page on a DB problem
         current_app.logger.warning("feature requests lookup failed: %s", e)
-        requests_, my_votes = [], []
+        requests_, my_votes = [], {}
     by_category = {key: [r for r in requests_ if r["category"] == key] for key in CATEGORIES}
     return render_template(
         "feature_requests.html",
         categories=CATEGORIES,
         by_category=by_category,
         votable=VOTABLE_CATEGORIES,
-        my_votes=set(my_votes),
+        my_votes=my_votes,
         status_label=status_label,
         prefill_page=_same_origin_link(request.referrer),
         max_title=MAX_TITLE, max_body=MAX_BODY, max_page=MAX_PAGE, max_contact=MAX_CONTACT,
@@ -185,9 +186,14 @@ def vote_feature_request(request_id: int):
             or item["category"] not in VOTABLE_CATEGORIES):
         return jsonify({"error": "Not found"}), 404
     data = request.get_json(silent=True) or {}
-    voted = data.get("voted") is True
-    votes = db_manager.set_feature_vote(request_id, get_voter_id(), voted, _now_ms())
-    return jsonify({"ok": True, "voted": voted, "votes": votes})
+    # {"vote": "up" | "down" | "none"}; old pages send {"voted": true/false}
+    vote = data.get("vote")
+    if vote is None:
+        vote = "up" if data.get("voted") is True else "none"
+    if vote not in _VOTE_VALUES:
+        return jsonify({"error": "Bad vote"}), 400
+    counts = db_manager.set_feature_vote(request_id, get_voter_id(), _VOTE_VALUES[vote], _now_ms())
+    return jsonify({"ok": True, "vote": vote, **counts})
 
 
 # ---------------------------------------------------------------------------

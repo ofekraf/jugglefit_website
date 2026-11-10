@@ -42,7 +42,7 @@
             <strong>#{{ item.id }}</strong>
             <span class="fr-badge">{{ categories[item.category] }}</span>
             <span class="fr-badge fr-badge-{{ item.status }}">{{ status_label(item.category, item.status) }}</span>
-            {% if item.category != 'website_bug' %}<span>{{ item.votes }} vote{{ '' if item.votes == 1 else 's' }}</span>{% endif %}
+            {% if item.category != 'website_bug' %}<span>{{ item.votes }} upvote{{ '' if item.votes == 1 else 's' }}, {{ item.dislikes }} dislike{{ '' if item.dislikes == 1 else 's' }}</span>{% endif %}
         </div>
         <input name="title" class="form-input" value="{{ item.title }}" maxlength="120" aria-label="Title">
         <textarea name="body" class="form-input fr-textarea mt-1" rows="3" maxlength="2000" aria-label="Details">{{ item.body }}</textarea>

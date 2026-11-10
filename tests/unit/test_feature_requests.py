@@ -173,10 +173,71 @@ def test_upvote_button_is_labelled(client):
     assert '<span class="fr-vote-label">Upvoted</span>' in html
 
 
+def _cast(client, request_id, vote):
+    return client.post(f"/api/feature_requests/{request_id}/vote", json={"vote": vote},
+                       headers={"X-CSRF-Token": get_csrf(client)})
+
+
+def test_dislike_switch_and_undo(client):
+    rid = _submit(client).get_json()["id"]
+    _set_status(rid, "open")
+    other = appmod.app.test_client()
+    _cast(other, rid, "up")
+
+    data = _cast(client, rid, "down").get_json()
+    assert (data["vote"], data["votes"], data["dislikes"]) == ("down", 1, 1)
+    data = _cast(client, rid, "up").get_json()       # switch: dislike -> upvote, never both
+    assert (data["votes"], data["dislikes"]) == (2, 0)
+    data = _cast(client, rid, "down").get_json()
+    assert (data["votes"], data["dislikes"]) == (1, 1)
+    data = _cast(client, rid, "none").get_json()     # undo
+    assert (data["vote"], data["votes"], data["dislikes"]) == ("none", 1, 0)
+    assert _cast(client, rid, "sideways").status_code == 400
+
+
+def test_dislike_button_state_and_sorting(client):
+    liked = _submit(client, title="Liked idea").get_json()["id"]
+    disliked = _submit(client, title="Disliked idea").get_json()["id"]
+    for rid in (liked, disliked):
+        _set_status(rid, "open")
+    _cast(client, disliked, "down")
+    html = client.get("/feature_requests").get_data(as_text=True)
+    assert '<span class="fr-vote-label">Disliked</span>' in html
+    assert '<span class="fr-vote-label">Dislike</span>' in html
+    # upvotes minus dislikes: 0 beats -1
+    assert html.index("Liked idea") < html.index("Disliked idea")
+
+
+def test_admin_sees_dislikes(client, admin_client):
+    rid = _submit(client).get_json()["id"]
+    _set_status(rid, "open")
+    _cast(client, rid, "down")
+    assert "0 upvotes, 1 dislike" in admin_client.get("/feature_requests/admin").get_data(as_text=True)
+
+
+def test_old_votes_table_gets_value_column(tmp_path, monkeypatch):
+    import sqlite3
+    from database.db_manager import DBManager
+    db_file = tmp_path / "old_votes.db"
+    conn = sqlite3.connect(db_file)
+    conn.execute("CREATE TABLE feature_votes (request_id INTEGER NOT NULL, voter_id TEXT NOT NULL, "
+                 "created_at INTEGER NOT NULL, PRIMARY KEY (request_id, voter_id))")
+    conn.execute("INSERT INTO feature_votes VALUES (1, 'old-voter', 1)")
+    conn.commit()
+    conn.close()
+    monkeypatch.setenv("SQLITE_DB_DIR", str(tmp_path))
+    monkeypatch.setenv("SQLITE_DB_NAME", "old_votes.db")
+    DBManager()
+    conn = sqlite3.connect(db_file)
+    assert conn.execute("SELECT value FROM feature_votes").fetchone()[0] == 1  # old votes = upvotes
+    conn.close()
+
+
 def test_bugs_cannot_be_voted(client):
     rid = _submit(client, category="website_bug").get_json()["id"]
     _set_status(rid, "open")
     assert _vote(client, rid).status_code == 404
+    assert _cast(client, rid, "down").status_code == 404
 
 
 def test_admin_off_without_password(client, monkeypatch):

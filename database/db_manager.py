@@ -123,6 +123,7 @@ SCHEMA_STATEMENTS: List[str] = [
     CREATE TABLE IF NOT EXISTS feature_votes (
         request_id INTEGER NOT NULL REFERENCES feature_requests(id) ON DELETE CASCADE,
         voter_id TEXT NOT NULL,
+        value INTEGER NOT NULL DEFAULT 1 CHECK (value IN (1, -1)),  -- 1 = upvote, -1 = dislike
         created_at INTEGER NOT NULL,
         PRIMARY KEY (request_id, voter_id)
     )
@@ -210,6 +211,11 @@ class DBManager:
             cols = {row[1] for row in cur.execute("PRAGMA table_info(feature_requests)")}
             if "contact_email" in cols and "contact" not in cols:
                 cur.execute("ALTER TABLE feature_requests RENAME COLUMN contact_email TO contact")
+            # feature_votes got value (1 = upvote, -1 = dislike); old rows are upvotes
+            cols = {row[1] for row in cur.execute("PRAGMA table_info(feature_votes)")}
+            if "value" not in cols:
+                cur.execute("ALTER TABLE feature_votes ADD COLUMN value INTEGER NOT NULL "
+                            "DEFAULT 1 CHECK (value IN (1, -1))")
             conn.commit()
         except Error as e:
             log.error("Error initializing database: %s", e)
@@ -325,18 +331,23 @@ class DBManager:
         with self.cursor() as cur:
             cur.execute(
                 "SELECT r.id, r.category, r.title, r.body, r.status, r.created_at, "
-                "(SELECT COUNT(*) FROM feature_votes v WHERE v.request_id = r.id) AS votes "
+                f"{self._VOTE_COUNTS} "
                 f"FROM feature_requests r WHERE r.status IN ({placeholders}) "
-                "ORDER BY votes DESC, r.created_at DESC",
+                "ORDER BY votes - dislikes DESC, votes DESC, r.created_at DESC",
                 self.PUBLIC_FEATURE_STATUSES,
             )
             return [dict(r) for r in cur.fetchall()]
 
+    # votes = upvotes, dislikes = downvotes (kept as "votes" for compatibility)
+    _VOTE_COUNTS = (
+        "(SELECT COUNT(*) FROM feature_votes v WHERE v.request_id = r.id AND v.value = 1) AS votes, "
+        "(SELECT COUNT(*) FROM feature_votes v WHERE v.request_id = r.id AND v.value = -1) AS dislikes"
+    )
+
     def get_all_feature_requests(self, category: Optional[str] = None,
                                  status: Optional[str] = None) -> List[Dict[str, Any]]:
         """Everything, incl. private columns. Admin view / report script only."""
-        query = ("SELECT r.*, (SELECT COUNT(*) FROM feature_votes v WHERE v.request_id = r.id) "
-                 "AS votes FROM feature_requests r WHERE 1 = 1 ")
+        query = (f"SELECT r.*, {self._VOTE_COUNTS} FROM feature_requests r WHERE 1 = 1 ")
         params: list = []
         if category:
             query += "AND r.category = ? "
@@ -370,23 +381,32 @@ class DBManager:
             cur.execute("DELETE FROM feature_requests WHERE id = ?", (request_id,))
             return cur.rowcount > 0
 
-    def set_feature_vote(self, request_id: int, voter_id: str, voted: bool, now_ms: int) -> int:
-        """Add/remove one browser's vote; returns the new vote count."""
+    def set_feature_vote(self, request_id: int, voter_id: str, value: int,
+                         now_ms: int) -> Dict[str, int]:
+        """Set one browser's vote: 1 = upvote, -1 = dislike, 0 = remove.
+        Returns the new {"votes": upvotes, "dislikes": dislikes}."""
         with self.cursor(commit=True) as cur:
-            if voted:
+            if value in (1, -1):
                 cur.execute(
-                    "INSERT OR IGNORE INTO feature_votes (request_id, voter_id, created_at) "
-                    "VALUES (?, ?, ?)", (request_id, voter_id, now_ms))
+                    "INSERT INTO feature_votes (request_id, voter_id, value, created_at) "
+                    "VALUES (?, ?, ?, ?) ON CONFLICT(request_id, voter_id) "
+                    "DO UPDATE SET value = excluded.value",
+                    (request_id, voter_id, value, now_ms))
             else:
                 cur.execute("DELETE FROM feature_votes WHERE request_id = ? AND voter_id = ?",
                             (request_id, voter_id))
-            cur.execute("SELECT COUNT(*) FROM feature_votes WHERE request_id = ?", (request_id,))
-            return cur.fetchone()[0]
+            cur.execute(
+                "SELECT COALESCE(SUM(value = 1), 0), COALESCE(SUM(value = -1), 0) "
+                "FROM feature_votes WHERE request_id = ?", (request_id,))
+            up, down = cur.fetchone()
+            return {"votes": up, "dislikes": down}
 
-    def get_feature_votes_by_voter(self, voter_id: str) -> List[int]:
+    def get_feature_votes_by_voter(self, voter_id: str) -> Dict[int, int]:
+        """{request_id: 1 or -1} for this browser."""
         with self.cursor() as cur:
-            cur.execute("SELECT request_id FROM feature_votes WHERE voter_id = ?", (voter_id,))
-            return [r[0] for r in cur.fetchall()]
+            cur.execute("SELECT request_id, value FROM feature_votes WHERE voter_id = ?",
+                        (voter_id,))
+            return {r[0]: r[1] for r in cur.fetchall()}
 
     # ------------------------------------------------------------------
     # url shortener

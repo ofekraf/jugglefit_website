@@ -228,6 +228,41 @@
     cursor: wait;
 }
 
+/* Upvote above Dislike. Dislike is grey so Upvote stays the main action. */
+.fr-votes {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.fr-vote-down {
+    min-height: 52px;
+    border-color: #8a8f98;
+    color: #5f6570;
+}
+
+.fr-vote-down i {
+    font-size: 0.95rem;
+}
+
+@media (hover: hover) {
+    .fr-vote-down:hover {
+        background: #5f6570;
+        color: white;
+    }
+}
+
+.fr-vote-down:focus-visible {
+    outline-color: #5f6570;
+}
+
+.fr-vote-down.active {
+    background: #5f6570;
+    border-color: #5f6570;
+    color: white;
+}
+
 .fr-badge {
     display: inline-block;
     font-size: 0.75rem;
