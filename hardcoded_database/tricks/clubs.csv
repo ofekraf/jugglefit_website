@@ -46,7 +46,7 @@ name,props_count,difficulty,tags,comment,max_throw,siteswap_x
 "20 catches reverse cascade",3,18,"async base pattern",,3,
 "6 catches triples",3,18,"spin control",,3,"6 catches 3{3}"
 "6 rounds 423",3,18,"async siteswap",,4,
-"cascade -> 1 catch over the shoulder -> cascade",3,18,"shoulders",,3,"3 -> 1 catch 3{S} -> 3"
+"cascade -> 1 round 423, shoulder 4 -> cascade",3,18,"shoulders|async siteswap",,4,"3 -> 1 round 4{S}23 -> 3"
 "cascade -> 1up 180 -> cascade",3,18,"180 spin",,3,
 "cascade -> 3 catches flats -> cascade",3,18,"flats",,3,"3 -> 3 catches 3{0} -> 3"
 "4 catches async fountain",4,18,"async base pattern",,4,
@@ -89,7 +89,7 @@ name,props_count,difficulty,tags,comment,max_throw,siteswap_x
 "10 catches sync fountain",4,23,"sync base pattern",,4,
 "20 catches columns",3,24,"async base pattern",,4,
 "20 catches flats",3,24,"flats|spin control",,3,"20 catches 3{0}"
-"3 catches shoulder throws",3,24,"shoulders",,3,"3 catches 3{S}"
+"2 rounds 441, shoulder 4's",3,24,"shoulders|async siteswap",,4,"2 rounds 4{S}4{S}1"
 "4 rounds 4440",3,24,"async siteswap",,4,
 "4 rounds 531",3,24,"async siteswap",,5,
 "6 catches quads",3,24,"spin control",,3,"6 catches 3{4}"
@@ -137,7 +137,7 @@ name,props_count,difficulty,tags,comment,max_throw,siteswap_x
 "6 rounds 44133",3,30,"async siteswap",,4,
 "blindfolded cascade",3,30,"async base pattern",,3,
 "cascade -> 1 catch neck throw -> cascade",3,30,"necks",,3,"3 -> 1 catch 3{N} -> 3"
-"lazies",3,30,"lazies",,3,
+"lazies",3,30,"lazies",,3,"3{/L}"
 "12 catches triples",3,30,"spin control",,3,"12 catches 3{3}"
 "30 catches flats",3,30,"spin control|flats",,3,"30 catches 3{0}"
 "6 catches doubles backcrosses",3,30,"backcrosses|spin control",,3,"6 catches 3{B2}"
@@ -149,7 +149,7 @@ name,props_count,difficulty,tags,comment,max_throw,siteswap_x
 "3 X (1up 360) in a run",3,31,"360 spin",,5,
 "4 rounds 45123",3,31,"async siteswap",,5,
 "4 rounds 72222",3,31,"async siteswap|spin control","3 clubs triples",7,
-"under the leg throws",3,31,"under legs",,3,
+"under the leg throws",3,31,"under legs",,3,"3{Ul}"
 "async fountain -> 1 round 552 -> async fountain",4,31,"async siteswap",,5,
 "4 rounds 534",4,32,"async siteswap",,5,
 "10 catches singles -> 10 catches doubles  -> 10 catches triples",3,33,"spin control",,3,"10 catches 3{1} -> 10 catches 3{2} -> 10 catches 3{3}"
@@ -159,7 +159,7 @@ name,props_count,difficulty,tags,comment,max_throw,siteswap_x
 "cascade -> 1up 360 -> 3up 360 -> cascade",3,33,"360 spin",,5,
 "reverse spin lazies",3,33,"spin control|lazies",,3,"3{-1/L}"
 "4 rounds 5551",4,33,"async siteswap",,5,
-"async fountain -> 1 catch double backcross -> async fountain",4,33,"backcrosses|spin control",,4,"4 -> 1 catch 4{B2} -> 4"
+"async fountain -> 1 round 534, double backcross 5 -> async fountain",4,33,"backcrosses|spin control|async siteswap",,5,"4 -> 1 round 5{B2}34 -> 4"
 "20 catches sync fountain singles",4,34,"spin control|sync base pattern",,4,"20 catches (4{1},4{1})"
 "10 catches helicopters",3,35,"spin control",,3,
 "2 rounds 441, behind the back 1",3,35,"backcrosses|async siteswap",,4,"2 rounds 441{B}"
@@ -179,7 +179,7 @@ name,props_count,difficulty,tags,comment,max_throw,siteswap_x
 "4 catches flats",4,36,"flats",,4,"4 catches 4{0}"
 "6 rounds 552",4,36,"async siteswap",,5,
 "sync fountain -> 2up 360 -> sync fountain",4,36,"360 spin",,2,
-"20 catches backcrosses",3,37,"backcrosses",,3,
+"20 catches backcrosses",3,37,"backcrosses",,3,"20 catches 3{B}"
 "8 rounds 423, shoulder throw 4",3,37,"shoulders|async siteswap",,4,"8 rounds 4{S}23"
 "10 flats caught underarm",3,38,"flats|special body throws",,3,
 "cascade -> 1up 720 -> cascade",3,38,"720 spin",,7,
@@ -193,7 +193,7 @@ name,props_count,difficulty,tags,comment,max_throw,siteswap_x
 "10 backcrosses in a run",3,40,"backcrosses",,3,
 "2 rounds 531 -> 75300 3up 360 -> cascade",3,40,"360 spin|async siteswap",,7,
 "1 round 6631 -> async fountain",4,40,"async siteswap",,6,
-"4 catches backcrosses",4,40,"backcrosses",,4,"4 catches 4{B}"
+"2 rounds 53 backcrosses",4,40,"backcrosses|async siteswap",,5,"2 rounds 5{B}3{B}"
 "4 catches flats -> fountain",4,40,"flats",,4,"4 catches 4{0} -> 4"
 "4 catches singles -> 4 catches doubles -> 4 catches triples -> 4 catches singles",4,40,"spin control",,4,"4 catches 4{1} -> 4 catches 4{2} -> 4 catches 4{3} -> 4 catches 4{1}"
 "6 rounds 534 singles",4,40,"spin control|async siteswap",,5,"6 rounds 5{1}3{1}4{1}"
@@ -215,13 +215,13 @@ name,props_count,difficulty,tags,comment,max_throw,siteswap_x
 "4 rounds 534, flatfront 5",4,42,"spin control|async siteswap",,5,"4 rounds 5{F}34"
 "2 rounds 531, flatfront 5, reverse spin flatfront 3",3,43,"spin control|flat front|async siteswap",,5,"2 rounds 5{F}3{F-1}1"
 "3 catches cascade -> 1up 540 -> overheads",3,43,"360 spin|overheads",,3,
-"20 catches flats",4,43,"flats",,4,
+"20 catches flats",4,43,"flats",,4,"20 catches 4{0}"
 "4 catches async fountain -> 1 round 7441 -> 4 catches async fountain",4,43,"async siteswap",,7,
 "10 catches triples",5,43,"spin control",,5,"10 catches 5{3}"
 "15 catches cascade",5,43,"async base pattern",,5,
 "6 catches triples -> 6 catches singles",5,43,"spin control",,5,"6 catches 5{3} -> 6 catches 5{1}"
 "4 rounds 53 -> exactly 1 round 633 -> 4 rounds 53",4,44,"async siteswap",,6,
-"overheads",4,44,"overheads",,4,
+"overheads",4,44,"overheads",,4,"4{Oh}"
 "5 catches triples",5,44,"spin control",,5,"5 catches 5{3}"
 "cascade -> 1 round 66751 -> cascade",5,45,"async siteswap",,7,
 "3up 360 -> 1up 360 -> 3up 360",3,46,"360 spin",,5,
@@ -272,7 +272,7 @@ name,props_count,difficulty,tags,comment,max_throw,siteswap_x
 "cascade -> 3 rounds 75751 -> cascade",5,54,"async siteswap",,7,
 "cascade -> 5up 180 -> cascade",5,54,"180 spin",,7,
 "total of 4 flatfronts in a run",5,54,"flat front|spin control",,5,
-"6 rounds 534, single 5, double 3",4,55,"async siteswap|spin control",,5,
+"6 rounds 534, single 5, double 3",4,55,"async siteswap|spin control",,5,"6 rounds 5{1}3{2}4"
 "10 rounds 771",5,55,"async siteswap","entrance: 75",7,
 "4 clubs fountain -> kick up -> 4 rounds 744",5,56,"async siteswap",,7,
 "5 catches cascade -> 5 catches reverse spin doubles -> 5 catches cascade",5,56,"spin control",,5,"5 catches 5 -> 5 catches 5{-2} -> 5 catches 5"
@@ -282,7 +282,7 @@ name,props_count,difficulty,tags,comment,max_throw,siteswap_x
 "2 rounds 756",6,56,"async siteswap",,7,
 "6 catches sync fountain",6,56,"sync base pattern",,6,
 "2 rounds 663 -> 1 round 88441 -> cascade",5,58,"async siteswap",,8,
-"20 catches triples backcrosses",5,58,"backcrosses",,5,
+"20 catches triples backcrosses",5,58,"backcrosses",,5,"20 catches 5{B3}"
 "cascade",5,58,"async base pattern",,5,
 "cascade -> 4 rounds 744, flat 4's",5,58,"spin control|async siteswap|flats",,7,"cascade -> 4 rounds 74{0}4{0}"
 "fountain",6,59,"any base pattern",,6,

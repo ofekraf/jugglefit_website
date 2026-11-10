@@ -156,6 +156,12 @@ catch counts raise difficulty, but less than adding a prop.
 - **Not used on purpose:** alberts / treblas (leg-through throws), burke's
   barrage and yo-yo are left out of the lists.
 - **Box** is `(4,2x)*` (3 balls).
+- **Backcross vs shoulder by throw parity:** a backcross (`{B}`, also
+  "behind the back" / "around the body") goes only on a crossing throw:
+  odd async values, or sync values with `x`. A shoulder throw (`{S}`) goes
+  only on a non-crossing throw: even async values, or sync values without
+  `x`. So `4 rounds 441, backcross 1` and `8 rounds 423, shoulder 4` are
+  fine; `backcross 4` or `3 catches shoulder throws` are not.
 - **Prop-specific catches:** balls are caught as **penguins**, clubs as
   **lazies**. Don't add "lazy" ball tricks or "penguin" club tricks.
 - **1-2 props:** `in a run` (a continuous pattern) is only defined for 3+

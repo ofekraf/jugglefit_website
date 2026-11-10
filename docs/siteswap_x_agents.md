@@ -159,6 +159,10 @@ whole trick. `n` = `props_count`.
 
 Typo tolerance: `backross(es)` = `backcross(es)`.
 
+**Parity rule:** `{B…}` only on crossing throws (odd async digit, or sync
+digit with `x`); `{S…}` only on non-crossing throws (even async digit, or
+sync digit without `x`). Catch modifiers (`/Rs`, `/Rb`) are not restricted.
+
 ### Sync + modifier
 
 Modifier attaches to the digit, `x` stays adjacent. Corpus is inconsistent
