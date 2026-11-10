@@ -126,17 +126,19 @@ Before adding a trick, search both its name and its rewritten form.
 
 ## Difficulty scale
 
-Integer 0-100, relative within a prop. Rough anchors:
+Integer 0-100, relative within a prop. Fixed points: `5up 360 -> cascade`
+(5 balls) = 50, `cascade -> 97522 3up 360 -> cascade` (5 clubs) = 50; a
+5 ring 5up 360 would be about 50. Rough anchors:
 
 | Difficulty | Balls | Clubs |
 |---|---|---|
-| 0-5 | 1-2 ball drills, short 3 ball cascade | 1 club spins, 2 club exchange |
-| 5-10 | 3 ball tricks (441, overheads, half shower, 1up 360) | 3 club cascade runs, doubles |
-| 10-15 | box, mills mess, 3 ball backcrosses, 4 ball fountain runs | 3 club siteswaps, single body throws |
-| 15-20 | 3 in one hand, 4 ball siteswaps, 5 ball flash | lazies / flats / triples, 4 club fountain |
-| 20-40 | 5 ball cascade runs, 3 ball multi body throws | 3 club body throw runs, 4 club siteswaps, 5 club flash |
-| 40-70 | 6-7 balls, 5 ball 360s | 5 clubs, 4 club spins |
-| 70-100 | 7+ ball spins, 8-9 balls | 6-7 clubs, 5+ club spins |
+| 0-12 | 1-2 ball drills, short 3 ball cascade | 1 club spins, 2 club exchange |
+| 12-20 | 3 ball tricks (441, overheads, half shower, 1up 360) | 3 club cascade runs, doubles |
+| 20-26 | box, mills mess, 3 ball backcrosses, 4 ball fountain runs | 3 club siteswaps, single body throws |
+| 26-32 | 3 in one hand, 4 ball siteswaps, 5 ball flash | lazies / flats / triples, 4 club fountain |
+| 32-52 | 5 ball cascade runs, 3 ball multi body throws | 3 club body throw runs, 4 club siteswaps, 5 club flash |
+| 52-77 | 6-7 balls, 5 ball 360s | 5 clubs, 4 club spins |
+| 77-100 | 7+ ball spins, 8-9 balls | 6-7 clubs, 5+ club spins |
 
 The same trick name is usually harder with clubs than with balls. Long
 catch counts raise difficulty, but less than adding a prop.
@@ -162,8 +164,8 @@ catch counts raise difficulty, but less than adding a prop.
   body throws (backcrosses, under the leg, overheads) with 2 props are not
   tricks; write 2-prop patterns as siteswaps where possible
   (`4 rounds 330` = 2 in one hand, switching hands every 2 throws).
-- **1 prop spins are not trivial:** `1 catch 1up 360` is ~12 with balls,
-  `1 catch 1up 720` ~20 (clubs a little higher).
+- **1 prop spins are not trivial:** `1 catch 1up 360` is ~22 with balls,
+  `1 catch 1up 720` ~32 (clubs a little higher).
 - **Difficulty is hand-assigned**, not measured. Many values come from
   past events or were set by analogy; adjust them when real results
   disagree.
