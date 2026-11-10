@@ -1,17 +1,17 @@
 {% extends "macros/base.html" %}
-{% block title %}Feature Requests - Admin{% endblock %}
+{% block title %}Admin{% endblock %}
 {% block head %}
 <meta name="robots" content="noindex">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/feature-requests.css') }}?v={{ cache_version }}">
 {% endblock %}
 {% block content %}
 <div class="fr-page">
-    <h1 class="section-title">Feature Requests - Admin</h1>
+    <h1 class="section-title">Admin</h1>
 
     {% if not logged_in %}
     <form method="post" class="fr-card fr-login">
         <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
-        <label class="form-label" for="fr-admin-password">Organizer password</label>
+        <label class="form-label" for="fr-admin-password">Admin password</label>
         <input id="fr-admin-password" name="password" type="password" class="form-input" autocomplete="current-password" required>
         <button type="submit" class="primary-button mt-1">Log in</button>
     </form>

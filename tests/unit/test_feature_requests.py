@@ -196,6 +196,8 @@ def test_admin_is_hidden_but_reachable_at_slash_admin(client, admin_password):
 def test_admin_requires_login(client, admin_password):
     html = client.get("/feature_requests/admin").get_data(as_text=True)
     assert 'name="password"' in html
+    assert "<title>Admin" in html and "Admin password" in html
+    assert "Organizer" not in html and "Feature Requests - Admin" not in html
     res = client.post("/feature_requests/admin/1", data={"status": "open", "_csrf_token": get_csrf(client)})
     assert res.status_code == 403
 
