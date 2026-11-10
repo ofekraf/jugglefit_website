@@ -240,6 +240,11 @@ def test_bugs_cannot_be_voted(client):
     assert _cast(client, rid, "down").status_code == 404
 
 
+def test_donate_not_in_navbar_but_page_kept(client):
+    assert 'href="/donate"' not in client.get("/").get_data(as_text=True)
+    assert client.get("/donate").status_code == 200
+
+
 def test_admin_off_without_password(client, monkeypatch):
     monkeypatch.delenv("ADMIN_PASSWORD", raising=False)
     assert client.get("/feature_requests/admin").status_code == 404
