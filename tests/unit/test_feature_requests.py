@@ -163,14 +163,19 @@ def test_vote_toggle_one_per_browser(client):
     assert _vote(client, rid, voted=False).get_json()["votes"] == 1
 
 
-def test_upvote_button_is_labelled(client):
+LIKE = '<span class="visually-hidden fr-vote-label">{}</span>'
+
+
+def test_like_button_state(client):
+    # Compact pill: outline thumb = not voted, filled thumb = your vote;
+    # the label is for screen readers only.
     rid = _submit(client).get_json()["id"]
     _set_status(rid, "open")
     html = client.get("/feature_requests").get_data(as_text=True)
-    assert '<span class="fr-vote-label">Upvote</span>' in html
+    assert LIKE.format("Like") in html and '<i class="far fa-thumbs-up"' in html
     _vote(client, rid)
     html = client.get("/feature_requests").get_data(as_text=True)
-    assert '<span class="fr-vote-label">Upvoted</span>' in html
+    assert LIKE.format("Liked") in html and '<i class="fas fa-thumbs-up"' in html
 
 
 def _cast(client, request_id, vote):
@@ -202,8 +207,8 @@ def test_dislike_button_state_and_sorting(client):
         _set_status(rid, "open")
     _cast(client, disliked, "down")
     html = client.get("/feature_requests").get_data(as_text=True)
-    assert '<span class="fr-vote-label">Disliked</span>' in html
-    assert '<span class="fr-vote-label">Dislike</span>' in html
+    assert LIKE.format("Disliked") in html and '<i class="fas fa-thumbs-down"' in html
+    assert LIKE.format("Dislike") in html and '<i class="far fa-thumbs-down"' in html
     # upvotes minus dislikes: 0 beats -1
     assert html.index("Liked idea") < html.index("Disliked idea")
 

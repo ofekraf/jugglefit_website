@@ -64,29 +64,32 @@
         <div class="fr-list{% if not loop.first %} hidden{% endif %}" data-list="{{ key }}" role="tabpanel">
             {% for item in by_category[key] %}
             <article class="fr-item">
-                {% if key in votable %}
-                {% set mine = my_votes.get(item.id, 0) %}
-                <div class="fr-votes" data-id="{{ item.id }}">
-                    <button type="button" class="fr-vote fr-vote-up{% if mine == 1 %} active{% endif %}"
-                            data-vote="up" aria-pressed="{{ 'true' if mine == 1 else 'false' }}"
-                            title="Upvote if you want this too - tap again to undo">
-                        <i class="fas fa-thumbs-up" aria-hidden="true"></i>
-                        <span class="fr-vote-label">{{ 'Upvoted' if mine == 1 else 'Upvote' }}</span>
-                        <span class="fr-vote-count" aria-label="upvotes">{{ item.votes }}</span>
-                    </button>
-                    <button type="button" class="fr-vote fr-vote-down{% if mine == -1 %} active{% endif %}"
-                            data-vote="down" aria-pressed="{{ 'true' if mine == -1 else 'false' }}"
-                            title="Dislike if you don't want this - tap again to undo">
-                        <i class="fas fa-thumbs-down" aria-hidden="true"></i>
-                        <span class="fr-vote-label">{{ 'Disliked' if mine == -1 else 'Dislike' }}</span>
-                        <span class="fr-vote-count" aria-label="dislikes">{{ item.dislikes }}</span>
-                    </button>
-                </div>
-                {% endif %}
                 <div class="fr-item-main">
                     <h3 class="fr-item-title">{{ item.title }}</h3>
                     {% if item.body %}<p class="fr-item-body">{{ item.body }}</p>{% endif %}
-                    <span class="fr-badge fr-badge-{{ item.status }}">{{ status_label(key, item.status) }}</span>
+                    <div class="fr-item-footer">
+                        {% if key in votable %}
+                        {% set mine = my_votes.get(item.id, 0) %}
+                        {# Like / dislike pill. Outline icon = not voted, filled = your vote. #}
+                        <div class="fr-votes" data-id="{{ item.id }}" role="group" aria-label="Vote">
+                            <button type="button" class="fr-vote fr-vote-up{% if mine == 1 %} active{% endif %}"
+                                    data-vote="up" aria-pressed="{{ 'true' if mine == 1 else 'false' }}"
+                                    title="Like - tap again to undo">
+                                <i class="{{ 'fas' if mine == 1 else 'far' }} fa-thumbs-up" aria-hidden="true"></i>
+                                <span class="visually-hidden fr-vote-label">{{ 'Liked' if mine == 1 else 'Like' }}</span>
+                                <span class="fr-vote-count">{{ item.votes }}</span>
+                            </button>
+                            <button type="button" class="fr-vote fr-vote-down{% if mine == -1 %} active{% endif %}"
+                                    data-vote="down" aria-pressed="{{ 'true' if mine == -1 else 'false' }}"
+                                    title="Dislike - tap again to undo">
+                                <i class="{{ 'fas' if mine == -1 else 'far' }} fa-thumbs-down" aria-hidden="true"></i>
+                                <span class="visually-hidden fr-vote-label">{{ 'Disliked' if mine == -1 else 'Dislike' }}</span>
+                                <span class="fr-vote-count">{{ item.dislikes }}</span>
+                            </button>
+                        </div>
+                        {% endif %}
+                        <span class="fr-badge fr-badge-{{ item.status }}">{{ status_label(key, item.status) }}</span>
+                    </div>
                 </div>
             </article>
             {% else %}

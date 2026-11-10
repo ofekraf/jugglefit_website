@@ -74,7 +74,7 @@
     }));
 
     // Upvote / Dislike: one choice per browser, tap the active one again to undo.
-    const LABELS = { up: ['Upvote', 'Upvoted'], down: ['Dislike', 'Disliked'] };
+    const LABELS = { up: ['Like', 'Liked'], down: ['Dislike', 'Disliked'] };
 
     function currentVote(group) {
         const active = group.querySelector('.fr-vote.active');
@@ -87,6 +87,9 @@
             btn.classList.toggle('active', on);
             btn.setAttribute('aria-pressed', on ? 'true' : 'false');
             btn.querySelector('.fr-vote-label').textContent = LABELS[btn.dataset.vote][on ? 1 : 0];
+            const icon = btn.querySelector('i');           // filled icon = your vote
+            icon.classList.toggle('fas', on);
+            icon.classList.toggle('far', !on);
         });
         group.querySelector('.fr-vote-up .fr-vote-count').textContent = counts.votes;
         group.querySelector('.fr-vote-down .fr-vote-count').textContent = counts.dislikes;

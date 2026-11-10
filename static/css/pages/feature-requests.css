@@ -161,106 +161,93 @@
     margin-bottom: 0.5rem;
 }
 
-/* Upvote: must read as a button - label, accent outline, shadow, hover/press
-   feedback. Voted = filled. */
-.fr-vote {
-    flex-shrink: 0;
+/* Status badge + like/dislike pill, under the text */
+.fr-item-footer {
     display: flex;
-    flex-direction: column;
+    flex-wrap: wrap;
     align-items: center;
-    justify-content: center;
-    gap: 0.1rem;
-    min-width: 76px;
-    min-height: 64px;
-    padding: 0.35rem 0.5rem;
-    border: 2px solid var(--accent-color);
-    border-radius: 10px;
-    background: white;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+    gap: 0.5rem;
+}
+
+/* Like / dislike pill (YouTube-style): [thumb-up 3 | thumb-down 1].
+   Outline icon = not voted, filled + accent colour = your vote. */
+.fr-votes {
+    display: inline-flex;
+    align-items: stretch;
+    border-radius: 999px;
+    background: var(--section-bg, #f2f2f2);
+}
+
+.fr-vote {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    min-height: 32px;
+    padding: 0 0.75rem;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
     cursor: pointer;
     font: inherit;
-    color: var(--accent-color);
-    transition: background-color 0.15s ease, color 0.15s ease, transform 0.1s ease,
-        box-shadow 0.15s ease;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-color, #333);
+    transition: background-color 0.15s ease, color 0.15s ease;
     -webkit-tap-highlight-color: transparent;
 }
 
 .fr-vote i {
-    font-size: 1.05rem;
+    font-size: 0.95rem;
+    transition: transform 0.15s ease;
 }
 
-.fr-vote-label {
-    font-size: 0.75rem;
-    font-weight: 600;
-    line-height: 1.1;
+/* Thin divider between the two halves */
+.fr-vote-up {
+    position: relative;
 }
 
-.fr-vote-count {
-    font-size: 1rem;
-    font-weight: 700;
-    line-height: 1.1;
+.fr-vote-up::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 25%;
+    height: 50%;
+    border-right: 1px solid rgba(0, 0, 0, 0.15);
 }
 
 @media (hover: hover) {
     .fr-vote:hover {
-        background: var(--accent-color);
-        color: white;
-        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.18);
+        background: rgba(0, 0, 0, 0.07);
     }
 }
 
-.fr-vote:active {
-    transform: scale(0.95);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+.fr-vote:active i {
+    transform: scale(1.25);
 }
 
 .fr-vote:focus-visible {
-    outline: 3px solid var(--accent-color);
-    outline-offset: 2px;
+    outline: 2px solid var(--accent-color);
+    outline-offset: 1px;
 }
 
 .fr-vote.active {
-    background: var(--accent-color);
-    color: white;
+    color: var(--accent-color);
 }
 
 .fr-vote:disabled {
     cursor: wait;
 }
 
-/* Upvote above Dislike. Dislike is grey so Upvote stays the main action. */
-.fr-votes {
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-}
-
-.fr-vote-down {
-    min-height: 52px;
-    border-color: #8a8f98;
-    color: #5f6570;
-}
-
-.fr-vote-down i {
-    font-size: 0.95rem;
-}
-
-@media (hover: hover) {
-    .fr-vote-down:hover {
-        background: #5f6570;
-        color: white;
-    }
-}
-
-.fr-vote-down:focus-visible {
-    outline-color: #5f6570;
-}
-
-.fr-vote-down.active {
-    background: #5f6570;
-    border-color: #5f6570;
-    color: white;
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
 }
 
 .fr-badge {
